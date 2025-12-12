@@ -61,13 +61,16 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
 
     // Taskbar is floating at bottom 24px with height 64px. Total occupied = 88px. 
     // We leave a bit more gap (96px) for aesthetics when maximized.
-    const style = window.isMaximized ? {
+    const MAXIMIZED_BOTTOM_GAP_PX = 96;
+    const style: React.CSSProperties = window.isMaximized ? {
+        position: 'fixed',
         top: 0,
         left: 0,
-        width: '100%',
-        height: 'calc(100% - 96px)', 
+        right: 0,
+        height: `calc(100vh - ${MAXIMIZED_BOTTOM_GAP_PX}px)`,
         transform: 'none',
-        borderRadius: 0
+        borderRadius: 0,
+        boxShadow: 'none',
     } : {
         top: position.y,
         left: position.x,
@@ -78,7 +81,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
     return (
         <div 
             ref={windowRef}
-            className={`absolute glass-panel flex flex-col shadow-2xl overflow-hidden transition-all duration-200 ${window.isMaximized ? '' : 'rounded-xl border border-white/10'} ${isDragging ? 'opacity-90 scale-[1.01]' : 'animate-pop-in'}`}
+            className={`absolute glass-panel flex flex-col overflow-hidden transition-all duration-200 ${window.isMaximized ? 'shadow-none' : 'shadow-2xl rounded-xl border border-white/10'} ${isDragging ? 'opacity-90 scale-[1.01]' : 'animate-pop-in'}`}
             style={{ 
                 ...style, 
                 zIndex: window.zIndex 
@@ -91,11 +94,11 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                 onMouseDown={handleMouseDown}
                 onDoubleClick={() => toggleMaximizeWindow(window.id)}
             >
-                <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-white/70 text-[18px]">{window.icon}</span>
-                    <span className="text-sm font-medium text-white/80">{window.title}</span>
+                <div className="flex items-center gap-3 min-w-0 flex-shrink">
+                    <span className="material-symbols-outlined text-white/70 text-[18px] flex-shrink-0">{window.icon}</span>
+                    <span className="text-sm font-medium text-white/80 truncate">{window.title}</span>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 flex-shrink-0 ml-2">
                     <button onClick={(e) => { e.stopPropagation(); minimizeWindow(window.id); }} className="w-8 h-8 flex items-center justify-center rounded hover:bg-white/10 text-white/70 transition-colors">
                         <span className="material-symbols-outlined text-[18px]">minimize</span>
                     </button>

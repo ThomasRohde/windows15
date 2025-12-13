@@ -83,7 +83,7 @@ const Desktop = () => {
                 <DesktopIcon icon="computer" label="This PC" colorClass="text-blue-300" appId="explorer" />
                 <DesktopIcon icon="folder_open" label="Documents" colorClass="text-yellow-300" appId="explorer" />
                 <DesktopIcon icon="public" label="Browser" colorClass="text-green-300" appId="browser" />
-                <DesktopIcon icon="terminal" label="Terminal" colorClass="text-gray-300" appId="terminal" />
+                <DesktopIcon icon="terminal" label="Terminal" colorClass="text-green-400" appId="terminal" />
                 <DesktopIcon icon="timer" label="Timer" colorClass="text-red-300" appId="timer" />
                 <DesktopIcon icon="data_object" label="JSON Viewer" colorClass="text-amber-300" appId="jsonviewer" />
                 <DesktopIcon icon="checklist" label="Todo List" colorClass="text-lime-300" appId="todolist" />

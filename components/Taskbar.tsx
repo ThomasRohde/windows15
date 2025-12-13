@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useOS } from '../context/OSContext';
+import { SyncStatus } from './SyncStatus';
 
 export const Taskbar = () => {
     const { toggleStartMenu, isStartMenuOpen, apps, openWindow, windows, minimizeWindow, focusWindow } = useOS();
@@ -65,6 +66,7 @@ export const Taskbar = () => {
                         <span className="material-symbols-outlined text-[18px] text-white">volume_up</span>
                         <span className="material-symbols-outlined text-[18px] text-white">battery_full</span>
                     </div>
+                    <SyncStatus />
                     {/* Clock */}
                     <div className="flex flex-col items-end justify-center px-3 py-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer text-right min-w-[80px]">
                         <span className="text-xs font-semibold text-white leading-none mb-0.5">{formatTime(time)}</span>

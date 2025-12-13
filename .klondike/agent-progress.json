@@ -84,11 +84,6 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F004",
-        "description": "Sync status indicator component",
-        "status": "not-started"
-      },
-      {
         "id": "F008",
         "description": "PWA update prompt flow",
         "status": "not-started"
@@ -96,6 +91,11 @@
       {
         "id": "F014",
         "description": "Error messaging for sync issues",
+        "status": "not-started"
+      },
+      {
+        "id": "F015",
+        "description": "Reconnecting toast/banner during hot swap",
         "status": "not-started"
       }
     ]

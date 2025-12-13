@@ -77,6 +77,7 @@ export const SyncSettings = () => {
     const [validationError, setValidationError] = useState<string | null>(null);
     const [actionError, setActionError] = useState<string | null>(null);
     const [isWorking, setIsWorking] = useState(false);
+    const [isReconnecting, setIsReconnecting] = useState(false);
     const [wizardOpen, setWizardOpen] = useState(false);
     const [copiedOrigin, setCopiedOrigin] = useState(false);
 
@@ -114,7 +115,7 @@ export const SyncSettings = () => {
         setTimeout(() => setCopiedOrigin(false), 1200);
     };
 
-    const connect = () => {
+    const connect = async () => {
         setActionError(null);
         const validated = validateCloudDatabaseUrl(databaseUrl);
         if (!validated.ok) {
@@ -122,20 +123,51 @@ export const SyncSettings = () => {
             return;
         }
         setValidationError(null);
-        setCloudDatabaseUrl(validated.url);
-        globalThis.location?.reload();
+        setIsReconnecting(true);
+        
+        try {
+            // Close current db
+            await db.close();
+            
+            // Update config - this triggers DbProvider to create new instance
+            setCloudDatabaseUrl(validated.url);
+            
+            // Wait a moment for DbProvider to reinitialize
+            await new Promise(resolve => setTimeout(resolve, 500));
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Connection failed.';
+            setActionError(message);
+        } finally {
+            setIsReconnecting(false);
+        }
     };
 
     const disconnect = async () => {
         setActionError(null);
         if (!confirm('Disconnect from Dexie Cloud? Local data will be kept.')) return;
+        setIsReconnecting(true);
+        
         try {
             await db.cloud.logout({ force: true });
         } catch {
             // Best-effort; user might not be logged in.
         }
-        setCloudDatabaseUrl(null);
-        globalThis.location?.reload();
+        
+        try {
+            // Close current db
+            await db.close();
+            
+            // Update config - this triggers DbProvider to create new instance
+            setCloudDatabaseUrl(null);
+            
+            // Wait a moment for DbProvider to reinitialize
+            await new Promise(resolve => setTimeout(resolve, 500));
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Disconnection failed.';
+            setActionError(message);
+        } finally {
+            setIsReconnecting(false);
+        }
     };
 
     const login = async () => {
@@ -179,7 +211,9 @@ export const SyncSettings = () => {
         }
     };
 
-    const connectionBadge = !isCloudConfigured
+    const connectionBadge = isReconnecting
+        ? { label: 'Reconnecting...', className: 'bg-yellow-500/15 text-yellow-200 animate-pulse' }
+        : !isCloudConfigured
         ? { label: 'Local-only', className: 'bg-white/10 text-white/80' }
         : syncState.status === 'error' || syncState.phase === 'error'
           ? { label: 'Error', className: 'bg-red-500/15 text-red-200' }

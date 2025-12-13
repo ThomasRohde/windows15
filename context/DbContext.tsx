@@ -5,6 +5,7 @@ import { getCloudDatabaseUrl } from '../utils/storage/cloudConfig';
 
 interface DbContextValue {
     db: Windows15DexieDB;
+    isReconnecting: boolean;
 }
 
 const DbContext = createContext<DbContextValue | undefined>(undefined);
@@ -21,26 +22,35 @@ export interface DbProviderProps {
  * 2. Cloud configuration is applied before any queries
  * 3. Components access db via useDb() hook instead of direct imports
  * 4. Cross-tab configuration synchronization
+ * 5. Hot reconnection when config changes (no page reload)
  */
 export const DbProvider: React.FC<DbProviderProps> = ({ children }) => {
     // Create database instance once and memoize it
     const [db, setDb] = useState(() => new Windows15DexieDB());
+    const [isReconnecting, setIsReconnecting] = useState(false);
 
     // Listen for config changes from other tabs
     useEffect(() => {
-        const unsubscribe = configSync.subscribe((message) => {
+        const unsubscribe = configSync.subscribe(async (message) => {
             const currentUrl = getCloudDatabaseUrl();
 
             // Only reinitialize if the URL actually changed
             if (message.databaseUrl !== currentUrl) {
-                console.log('[DbProvider] Config changed in another tab, reinitializing database...');
+                console.log('[DbProvider] Config changed, performing hot reconnection...');
+                setIsReconnecting(true);
 
-                // Close existing database
-                db.close().catch(console.error);
+                try {
+                    // Close existing database
+                    await db.close();
 
-                // Create new database instance with updated config
-                const newDb = new Windows15DexieDB();
-                setDb(newDb);
+                    // Create new database instance with updated config
+                    const newDb = new Windows15DexieDB();
+                    setDb(newDb);
+                } catch (error) {
+                    console.error('[DbProvider] Error during hot reconnection:', error);
+                } finally {
+                    setIsReconnecting(false);
+                }
             }
         });
 
@@ -49,7 +59,7 @@ export const DbProvider: React.FC<DbProviderProps> = ({ children }) => {
         };
     }, [db]);
 
-    const value = useMemo(() => ({ db }), [db]);
+    const value = useMemo(() => ({ db, isReconnecting }), [db, isReconnecting]);
 
     return <DbContext.Provider value={value}>{children}</DbContext.Provider>;
 };
@@ -66,4 +76,18 @@ export const useDb = (): Windows15DexieDB => {
         throw new Error('useDb must be used within a DbProvider');
     }
     return context.db;
+};
+
+/**
+ * useDbContext - Hook to access the full database context including reconnection state
+ *
+ * @throws Error if used outside of DbProvider
+ * @returns The DbContextValue with db instance and reconnection state
+ */
+export const useDbContext = (): DbContextValue => {
+    const context = useContext(DbContext);
+    if (!context) {
+        throw new Error('useDbContext must be used within a DbProvider');
+    }
+    return context;
 };

@@ -234,13 +234,15 @@
         "UI continues working without refresh"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-13T15:11:52.180352",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Implemented hot reconnection without page reload. DbProvider now tracks isReconnecting state and closes/recreates db instance on config changes. SyncSettings connect/disconnect functions no longer call location.reload(). Shows 'Reconnecting...' badge with pulse animation during transition. Tested flow works without refresh."
+      ],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-13T15:10:26.112422",
       "notes": "Implementation: In DbProvider, reconfigureCloud() closes current db, creates new via dbFactory, updates context. Show 'Reconnecting...' toast during transition. Edge cases: Pending writes during swap - queue or block briefly. Dependencies: DbProvider (F002). Gotchas: Must await db.close() before creating new instance."
     },
     {
@@ -748,8 +750,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-13T15:10:00.597852",
+    "lastUpdated": "2025-12-13T15:11:52.180364",
     "totalFeatures": 32,
-    "passingFeatures": 13
+    "passingFeatures": 14
   }
 }

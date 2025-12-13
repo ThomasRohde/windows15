@@ -34,6 +34,7 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [apps, setApps] = useState<AppConfig[]>([]);
     const [activeWallpaper, setActiveWallpaper] = useState(WALLPAPERS[0].url);
     const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
     const nextZIndexRef = useRef(100);
     const savedWindowStatesRef = useRef<WindowStateRecord[]>([]);
     const openAppIdsRef = useRef<string[]>([]);
@@ -60,6 +61,8 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                 }
             } catch (error) {
                 console.error('Failed to initialize from IndexedDB:', error);
+            } finally {
+                setIsInitialized(true);
             }
         };
         
@@ -95,6 +98,7 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     
     useEffect(() => {
         if (sessionRestoredRef.current) return;
+        if (!isInitialized) return;
         if (apps.length === 0) return;
         if (openAppIdsRef.current.length === 0) return;
         
@@ -134,7 +138,7 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                 });
             }, index * 50);
         });
-    }, [apps]);
+    }, [apps, isInitialized]);
 
     const registerApp = (config: AppConfig) => {
         setApps(prev => {

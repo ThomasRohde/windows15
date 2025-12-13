@@ -23,9 +23,9 @@ Write-Host "`n🔍 Checking for stale processes on port $DEV_PORT..." -Foregroun
 $staleProcesses = Get-NetTCPConnection -LocalPort $DEV_PORT -ErrorAction SilentlyContinue | 
     Select-Object -ExpandProperty OwningProcess -Unique
 if ($staleProcesses) {
-    foreach ($pid in $staleProcesses) {
-        Write-Host "  Killing stale process PID: $pid" -ForegroundColor Yellow
-        Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue
+    foreach ($processId in $staleProcesses) {
+        Write-Host "  Killing stale process PID: $processId" -ForegroundColor Yellow
+        Stop-Process -Id $processId -Force -ErrorAction SilentlyContinue
     }
     Start-Sleep -Seconds 1
     Write-Host "   ✅ Stale processes cleaned up" -ForegroundColor Green

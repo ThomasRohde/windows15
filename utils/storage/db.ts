@@ -25,10 +25,19 @@ export type BookmarkRecord = {
     updatedAt: number;
 };
 
+export type TodoRecord = {
+    id: string;
+    text: string;
+    completed: boolean;
+    createdAt: number;
+    updatedAt: number;
+};
+
 export class Windows15DexieDB extends Dexie {
     kv!: Table<KvRecord, string>;
     notes!: Table<NoteRecord, string>;
     bookmarks!: Table<BookmarkRecord, string>;
+    todos!: Table<TodoRecord, string>;
 
     constructor() {
         super('windows15', { addons: [dexieCloud] });
@@ -37,6 +46,13 @@ export class Windows15DexieDB extends Dexie {
             kv: 'key, updatedAt',
             notes: '@id, updatedAt, createdAt',
             bookmarks: '@id, folder, updatedAt, createdAt',
+        });
+
+        this.version(2).stores({
+            kv: 'key, updatedAt',
+            notes: '@id, updatedAt, createdAt',
+            bookmarks: '@id, folder, updatedAt, createdAt',
+            todos: '@id, completed, updatedAt, createdAt',
         });
 
         const databaseUrl = getCloudDatabaseUrl();

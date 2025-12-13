@@ -14,7 +14,11 @@
       "Bash(npm install:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(klondike session end:*)"
+      "Bash(klondike session end:*)",
+      "Bash(Get-Location)",
+      "Bash(Get-ChildItem -Force)",
+      "Bash(Select-Object Mode, Name)",
+      "Bash(./init.sh)"
     ]
   }
 }

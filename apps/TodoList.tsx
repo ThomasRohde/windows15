@@ -1,33 +1,41 @@
 import React, { useState } from 'react';
-
-interface Todo {
-    id: number;
-    text: string;
-    completed: boolean;
-}
+import { useDb, useDexieLiveQuery } from '../utils/storage';
 
 type Filter = 'all' | 'active' | 'completed';
 
+const createId = () => globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 11);
+
 export const TodoList = () => {
-    const [todos, setTodos] = useState<Todo[]>([]);
+    const db = useDb();
+    const { value: todosRaw, loading } = useDexieLiveQuery(() => db.todos.orderBy('createdAt').toArray(), [db]);
+    const todos = Array.isArray(todosRaw) ? todosRaw : [];
+    
     const [input, setInput] = useState('');
     const [filter, setFilter] = useState<Filter>('all');
 
-    const addTodo = () => {
+    const addTodo = async () => {
         if (input.trim()) {
-            setTodos([...todos, { id: Date.now(), text: input.trim(), completed: false }]);
+            const now = Date.now();
+            await db.todos.add({
+                id: createId(),
+                text: input.trim(),
+                completed: false,
+                createdAt: now,
+                updatedAt: now,
+            });
             setInput('');
         }
     };
 
-    const toggleTodo = (id: number) => {
-        setTodos(todos.map(todo =>
-            todo.id === id ? { ...todo, completed: !todo.completed } : todo
-        ));
+    const toggleTodo = async (id: string) => {
+        await db.todos.update(id, { 
+            completed: !todos.find(t => t.id === id)?.completed,
+            updatedAt: Date.now() 
+        });
     };
 
-    const deleteTodo = (id: number) => {
-        setTodos(todos.filter(todo => todo.id !== id));
+    const deleteTodo = async (id: string) => {
+        await db.todos.delete(id);
     };
 
     const filteredTodos = todos.filter(todo => {
@@ -74,7 +82,11 @@ export const TodoList = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-2">
-                {filteredTodos.length === 0 ? (
+                {loading ? (
+                    <div className="text-white/40 text-center py-8">
+                        Loading tasks...
+                    </div>
+                ) : filteredTodos.length === 0 ? (
                     <div className="text-white/40 text-center py-8">
                         {filter === 'all' ? 'No tasks yet' : `No ${filter} tasks`}
                     </div>

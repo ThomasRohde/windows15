@@ -115,17 +115,17 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
         [STORAGE_KEYS.calendarEvents]
     );
     const hasInitializedRef = useRef(false);
-    
+
     // Initialize events on first load only, then stay reactive to persistedEvents
     const events = useMemo(() => {
         if (isLoadingEvents) {
             // During loading, return empty array or previously loaded events
             return hasInitializedRef.current && Array.isArray(persistedEvents) ? persistedEvents : [];
         }
-        
+
         if (!hasInitializedRef.current) {
             hasInitializedRef.current = true;
-            
+
             // Initialize with seed data if no persisted events
             if (!Array.isArray(persistedEvents)) {
                 const seeded = seedEvents();
@@ -133,7 +133,7 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                 return seeded;
             }
         }
-        
+
         // Return persisted events (reactive to changes)
         return Array.isArray(persistedEvents) ? persistedEvents : [];
     }, [isLoadingEvents, persistedEvents]);
@@ -207,7 +207,7 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
         setDraftError(null);
     };
 
-    const saveEvent = () => {
+    const saveEvent = async () => {
         if (!draft) return;
         const title = draft.title.trim();
         if (!title) {
@@ -236,10 +236,10 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
 
         // Update storage directly - useDexieLiveQuery will trigger UI update
         const idx = events.findIndex(event => event.id === normalized.id);
-        const updatedEvents = idx === -1 
+        const updatedEvents = idx === -1
             ? [...events, normalized].sort((a, b) => eventStartDate(a).getTime() - eventStartDate(b).getTime())
             : events.map(event => (event.id === normalized.id ? normalized : event));
-        
+
         await storageService.set(STORAGE_KEYS.calendarEvents, updatedEvents);
         setSelectedDate(normalized.date);
         closeDraft();

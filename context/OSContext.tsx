@@ -36,6 +36,8 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
     const nextZIndexRef = useRef(100);
     const savedWindowStatesRef = useRef<WindowStateRecord[]>([]);
+    const openAppIdsRef = useRef<string[]>([]);
+    const sessionRestoredRef = useRef(false);
 
     const getNextZIndex = () => nextZIndexRef.current++;
 
@@ -51,6 +53,11 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                 
                 const savedStates = await getWindowStates();
                 savedWindowStatesRef.current = savedStates;
+                
+                const savedOpenApps = await getSetting<string[]>('openWindows');
+                if (savedOpenApps && savedOpenApps.length > 0) {
+                    openAppIdsRef.current = savedOpenApps;
+                }
             } catch (error) {
                 console.error('Failed to initialize from IndexedDB:', error);
             }
@@ -79,7 +86,55 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         saveWindowStates(states).catch(err => 
             console.error('Failed to save window states:', err)
         );
+        
+        const openAppIds = windowsToSave.map(w => w.appId);
+        saveSetting('openWindows', openAppIds).catch(err =>
+            console.error('Failed to save open windows:', err)
+        );
     };
+    
+    useEffect(() => {
+        if (sessionRestoredRef.current) return;
+        if (apps.length === 0) return;
+        if (openAppIdsRef.current.length === 0) return;
+        
+        sessionRestoredRef.current = true;
+        
+        const appsToRestore = openAppIdsRef.current.filter(appId => 
+            apps.find(a => a.id === appId)
+        );
+        
+        appsToRestore.forEach((appId, index) => {
+            setTimeout(() => {
+                const app = apps.find(a => a.id === appId);
+                if (!app) return;
+                
+                const savedState = savedWindowStatesRef.current.find(s => s.appId === appId);
+                const savedPosition = savedState?.state?.position;
+                const savedSize = savedState?.state?.size;
+                
+                setWindows(prev => {
+                    if (prev.find(w => w.appId === appId)) return prev;
+                    
+                    const nextZIndex = getNextZIndex();
+                    const newWindow: WindowState = {
+                        id: globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 11),
+                        appId: app.id,
+                        title: app.title,
+                        icon: app.icon,
+                        component: <app.component />,
+                        isOpen: true,
+                        isMinimized: false,
+                        isMaximized: false,
+                        zIndex: nextZIndex,
+                        position: savedPosition || { x: 50 + index * 20, y: 50 + index * 20 },
+                        size: savedSize || { width: app.defaultWidth || 800, height: app.defaultHeight || 600 }
+                    };
+                    return [...prev, newWindow];
+                });
+            }, index * 50);
+        });
+    }, [apps]);
 
     const registerApp = (config: AppConfig) => {
         setApps(prev => {
@@ -128,7 +183,12 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                 size: savedSize || { width: app.defaultWidth || 800, height: app.defaultHeight || 600 }
             };
 
-            return [...prevWindows, newWindow];
+            const newWindows = [...prevWindows, newWindow];
+            const openAppIds = newWindows.map(w => w.appId);
+            saveSetting('openWindows', openAppIds).catch(err =>
+                console.error('Failed to save open windows:', err)
+            );
+            return newWindows;
         });
         setIsStartMenuOpen(false);
     };
@@ -158,7 +218,12 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                     console.error('Failed to save window states:', err)
                 );
             }
-            return prev.filter(w => w.id !== id);
+            const remaining = prev.filter(w => w.id !== id);
+            const openAppIds = remaining.map(w => w.appId);
+            saveSetting('openWindows', openAppIds).catch(err =>
+                console.error('Failed to save open windows:', err)
+            );
+            return remaining;
         });
     };
 

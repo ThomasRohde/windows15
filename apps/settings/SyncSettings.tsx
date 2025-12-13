@@ -56,7 +56,7 @@ const CopyableCommand = ({ command }: { command: string }) => {
 
     return (
         <div className="flex items-stretch gap-2">
-            <div className="flex-1 min-w-0 font-mono text-[12px] bg-black/30 border border-white/10 rounded-lg px-3 py-2 break-all">
+            <div className="flex-1 min-w-0 font-mono text-[12px] bg-black/30 border border-white/10 rounded-lg px-3 py-2 overflow-x-auto whitespace-nowrap">
                 {command}
             </div>
             <button
@@ -202,7 +202,7 @@ export const SyncSettings = () => {
         Boolean(syncState.error && isProbablyWhitelistError(syncState.error.message));
 
     return (
-        <div className="max-w-3xl space-y-6">
+        <div className="max-w-5xl w-full space-y-6">
             <div className="flex items-start justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-light">Sync</h1>

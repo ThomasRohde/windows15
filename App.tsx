@@ -4,6 +4,7 @@ import { Widgets } from './components/Widgets';
 import { Taskbar } from './components/Taskbar';
 import { Window } from './components/Window';
 import { StartMenu } from './components/StartMenu';
+import { PWAUpdatePrompt } from './components/PWAUpdatePrompt';
 import { OSProvider, useOS } from './context/OSContext';
 import { DbProvider, useDb } from './context/DbContext';
 import { useDexieLiveQuery } from './utils/storage/react';
@@ -146,6 +147,7 @@ const Desktop = () => {
             <Widgets />
             <StartMenu />
             <Taskbar />
+            <PWAUpdatePrompt />
         </div>
     );
 };

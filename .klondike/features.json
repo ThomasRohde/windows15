@@ -194,13 +194,13 @@
         "Reload happens cleanly"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-13T15:25:07.067220",
       "notes": "Implementation: Use vite-plugin-pwa's registerSW with onNeedRefresh callback. Show toast/modal prompting user to update. Call updateSW() on confirm. Edge cases: Handle update while user has unsaved work - warn before reload. Dependencies: vite-plugin-pwa. Gotchas: autoUpdate vs prompt - use prompt for safer UX."
     },
     {
@@ -721,11 +721,13 @@
         "Custom icons work"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-13T15:25:02.284365",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Desktop icons now stored in Dexie table with reactive sync. Icons are draggable and positions persist. Initial default icons created on first load. Changes sync across devices via Dexie Cloud."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-13T15:17:16.368581",
       "notes": "Implementation: Update DesktopIcon.tsx and related components to use useLiveQuery. Store icon positions in synced table. Edge cases: Conflicting positions from multiple devices. Dependencies: F001, F002. Gotchas: May need conflict resolution for positions."
@@ -781,8 +783,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-13T15:19:08.552332",
+    "lastUpdated": "2025-12-13T15:25:02.284376",
     "totalFeatures": 32,
-    "passingFeatures": 20
+    "passingFeatures": 21
   }
 }

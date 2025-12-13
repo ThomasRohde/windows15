@@ -24,7 +24,7 @@ klondike feature list  # List all features
 ### Current Priority Features
 | ID | Description | Status |
 |----|-------------|--------|
-| F008 | PWA update prompt flow | ⏳ Not started |
+| F008 | PWA update prompt flow | 🔄 In progress |
 | F014 | Error messaging for sync issues | ⏳ Not started |
 | F015 | Reconnecting toast/banner during hot swap | ⏳ Not started |
 

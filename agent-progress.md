@@ -2,7 +2,7 @@
 
 ## Project: windows15
 ## Started: 2025-12-13
-## Current Status: Session Ended
+## Current Status: In Progress
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
 ---
@@ -153,6 +153,28 @@ klondike feature list  # List all features
 3. F032)
 4. optional P3 features (F009 service worker integration
 5. F023 remove Tailwind CDN). All core functionality is now complete and working.
+
+#### Technical Notes
+- None
+
+---
+
+### Session 6 - 2025-12-13
+**Agent**: Coding Agent
+**Duration**: (in progress)
+**Focus**: Implementing remaining P2 and P3 features - F020, F021, F032, F031
+
+#### Completed
+- None
+
+#### In Progress
+- Session started
+
+#### Blockers
+- None
+
+#### Recommended Next Steps
+1. Continue implementation
 
 #### Technical Notes
 - None

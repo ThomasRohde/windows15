@@ -3,12 +3,18 @@ import { ReactNode } from 'react';
 export interface FileSystemItem {
     id: string;
     name: string;
-    type: 'folder' | 'image' | 'code' | 'presentation' | 'video' | 'document' | 'cloud' | 'audio';
+    type: 'folder' | 'image' | 'code' | 'presentation' | 'video' | 'document' | 'cloud' | 'audio' | 'shortcut';
     content?: string; // For text files
     src?: string; // For media
     size?: string;
     date?: string;
     children?: FileSystemItem[];
+    deletedFrom?: string; // Original folder ID for recycle bin items
+    deletedAt?: string; // Timestamp when item was deleted
+    icon?: string; // Material Symbols name (shortcuts)
+    appId?: string; // App to launch (shortcuts)
+    targetPath?: string[]; // File Explorer path to navigate (shortcuts)
+    colorClass?: string; // Optional Tailwind color for shortcut icon
 }
 
 export interface WindowState {

@@ -1,5 +1,5 @@
 import { FileSystemItem, WindowState } from '../types';
-import { INITIAL_FILES } from './constants';
+import { DEFAULT_DESKTOP_SHORTCUTS, INITIAL_FILES } from './constants';
 
 const DB_NAME = 'windows15-fs';
 const DB_VERSION = 1;
@@ -149,6 +149,126 @@ const deleteFileFromTree = (files: FileSystemItem[], id: string): FileSystemItem
         });
 };
 
+const ensureDesktopShortcuts = (files: FileSystemItem[]): FileSystemItem[] | null => {
+    const rootIndex = files.findIndex((file) => file.id === 'root' && file.type === 'folder');
+    if (rootIndex === -1) return null;
+
+    const root = files[rootIndex];
+    const rootChildren = root.children ?? [];
+    const desktopExisting = rootChildren.find((child) => child.id === 'desktop' && child.type === 'folder');
+
+    const desktopFolder: FileSystemItem = desktopExisting ?? {
+        id: 'desktop',
+        name: 'Desktop',
+        type: 'folder',
+        children: [],
+    };
+
+    const desktopChildren = desktopFolder.children ?? [];
+    const desktopSampleItems = desktopChildren.filter((child) => child.id === 'f1' || child.id === 'f2');
+    const cleanedChildren = desktopChildren.filter((child) => child.id !== 'f1' && child.id !== 'f2');
+
+    const existingById = new Map(cleanedChildren.map((child) => [child.id, child]));
+    const defaultShortcutIds = new Set(DEFAULT_DESKTOP_SHORTCUTS.map((item) => item.id));
+
+    const nextShortcutChildren = DEFAULT_DESKTOP_SHORTCUTS.flatMap((shortcut) => {
+        const existingInDesktop = existingById.get(shortcut.id);
+        if (existingInDesktop) return [existingInDesktop];
+
+        const existingElsewhere = findFileById(files, shortcut.id);
+        if (existingElsewhere) return [];
+
+        return [shortcut];
+    });
+    const remainingChildren = cleanedChildren.filter((child) => !defaultShortcutIds.has(child.id));
+    const nextDesktopChildren = [...nextShortcutChildren, ...remainingChildren];
+
+    const nextDesktopFolder: FileSystemItem = {
+        ...desktopFolder,
+        children: nextDesktopChildren,
+    };
+
+    const documentsExisting = rootChildren.find((child) => child.id === 'documents' && child.type === 'folder');
+    const picturesExisting = rootChildren.find((child) => child.id === 'pictures' && child.type === 'folder');
+
+    const documentsFolder: FileSystemItem = documentsExisting ?? {
+        id: 'documents',
+        name: 'Documents',
+        type: 'folder',
+        children: [],
+    };
+
+    const picturesFolder: FileSystemItem = picturesExisting ?? {
+        id: 'pictures',
+        name: 'Pictures',
+        type: 'folder',
+        children: [],
+    };
+
+    const desktopPdf = desktopSampleItems.find((item) => item.id === 'f1');
+    const desktopPhoto = desktopSampleItems.find((item) => item.id === 'f2');
+
+    const documentsChildren = documentsFolder.children ?? [];
+    const picturesChildren = picturesFolder.children ?? [];
+
+    const nextDocumentsChildren =
+        desktopPdf && !documentsChildren.some((child) => child.id === 'f1')
+            ? [...documentsChildren, desktopPdf]
+            : documentsChildren;
+
+    const nextPicturesChildren =
+        desktopPhoto && !picturesChildren.some((child) => child.id === 'f2')
+            ? [...picturesChildren, desktopPhoto]
+            : picturesChildren;
+
+    const nextDocumentsFolder: FileSystemItem =
+        nextDocumentsChildren === documentsChildren
+            ? documentsFolder
+            : { ...documentsFolder, children: nextDocumentsChildren };
+
+    const nextPicturesFolder: FileSystemItem =
+        nextPicturesChildren === picturesChildren
+            ? picturesFolder
+            : { ...picturesFolder, children: nextPicturesChildren };
+
+    const idsMatch = (left: FileSystemItem[], right: FileSystemItem[]) =>
+        left.length === right.length && left.every((item, index) => item.id === right[index]?.id);
+
+    const desktopNeedsUpdate =
+        desktopExisting === undefined ||
+        desktopSampleItems.length > 0 ||
+        !idsMatch(desktopChildren, nextDesktopChildren);
+
+    const documentsNeedsUpdate =
+        (documentsExisting === undefined && desktopPdf !== undefined) ||
+        nextDocumentsChildren !== documentsChildren;
+
+    const picturesNeedsUpdate =
+        (picturesExisting === undefined && desktopPhoto !== undefined) ||
+        nextPicturesChildren !== picturesChildren;
+
+    if (!desktopNeedsUpdate && !documentsNeedsUpdate && !picturesNeedsUpdate) return null;
+
+    const updatedRootChildren = rootChildren.map((child) => {
+        if (child.id === 'desktop') return nextDesktopFolder;
+        if (child.id === 'documents') return nextDocumentsFolder;
+        if (child.id === 'pictures') return nextPicturesFolder;
+        return child;
+    });
+
+    const nextRootChildren = [...updatedRootChildren];
+    if (!desktopExisting) nextRootChildren.push(nextDesktopFolder);
+    if (!documentsExisting && desktopPdf) nextRootChildren.push(nextDocumentsFolder);
+    if (!picturesExisting && desktopPhoto) nextRootChildren.push(nextPicturesFolder);
+
+    const nextRoot: FileSystemItem = {
+        ...root,
+        children: nextRootChildren,
+    };
+
+    return files.map((file, index) => (index === rootIndex ? nextRoot : file));
+};
+
 export const getFiles = async (): Promise<FileSystemItem[]> => {
     const db = await getDB();
 
@@ -164,7 +284,13 @@ export const getFiles = async (): Promise<FileSystemItem[]> => {
                 await saveFiles(INITIAL_FILES);
                 resolve(INITIAL_FILES);
             } else {
-                resolve(files);
+                const migrated = ensureDesktopShortcuts(files);
+                if (migrated) {
+                    await saveFiles(migrated);
+                    resolve(migrated);
+                } else {
+                    resolve(files);
+                }
             }
         };
     });
@@ -376,3 +502,109 @@ export const STORE_NAMES = {
     settings: STORE_SETTINGS,
     windowStates: STORE_WINDOW_STATES,
 } as const;
+
+// Find parent folder ID of an item
+const findParentFolderId = (
+    files: FileSystemItem[],
+    targetId: string,
+    parentId: string = 'root'
+): string | null => {
+    for (const file of files) {
+        if (file.children) {
+            if (file.children.some(child => child.id === targetId)) {
+                return file.id;
+            }
+            const found = findParentFolderId(file.children, targetId, file.id);
+            if (found) return found;
+        }
+    }
+    return null;
+};
+
+// Move an item to the recycle bin
+export const moveToRecycleBin = async (itemId: string): Promise<void> => {
+    const files = await getFiles();
+    const item = findFileById(files, itemId);
+    if (!item) return;
+
+    const parentFolderId = findParentFolderId(files, itemId);
+
+    // Create a copy of the item with deletion metadata
+    const deletedItem: FileSystemItem = {
+        ...item,
+        deletedFrom: parentFolderId || 'root',
+        deletedAt: new Date().toISOString(),
+    };
+
+    // Remove from original location
+    let updatedFiles = deleteFileFromTree(files, itemId);
+
+    // Add to recycle bin
+    updatedFiles = addFileToFolder(updatedFiles, 'recycleBin', deletedItem);
+
+    await saveFiles(updatedFiles);
+    dispatchSyncEvent(STORE_FILES, itemId);
+};
+
+// Restore an item from the recycle bin to its original location
+export const restoreFromRecycleBin = async (itemId: string): Promise<void> => {
+    const files = await getFiles();
+    const item = findFileById(files, itemId);
+    if (!item || !item.deletedFrom) return;
+
+    const originalFolderId = item.deletedFrom;
+
+    // Create a clean copy without deletion metadata
+    const restoredItem: FileSystemItem = { ...item };
+    delete restoredItem.deletedFrom;
+    delete restoredItem.deletedAt;
+
+    // Remove from recycle bin
+    let updatedFiles = deleteFileFromTree(files, itemId);
+
+    // Check if original folder still exists
+    const originalFolder = findFileById(updatedFiles, originalFolderId);
+    const targetFolderId = originalFolder ? originalFolderId : 'root';
+
+    // Add back to original location (or root if original folder is gone)
+    updatedFiles = addFileToFolder(updatedFiles, targetFolderId, restoredItem);
+
+    await saveFiles(updatedFiles);
+    dispatchSyncEvent(STORE_FILES, itemId);
+};
+
+// Permanently delete an item (from recycle bin)
+export const permanentlyDelete = async (itemId: string): Promise<void> => {
+    const files = await getFiles();
+    const updatedFiles = deleteFileFromTree(files, itemId);
+    await saveFiles(updatedFiles);
+    dispatchSyncEvent(STORE_FILES, itemId);
+};
+
+// Empty the entire recycle bin
+export const emptyRecycleBin = async (): Promise<void> => {
+    const files = await getFiles();
+
+    const clearRecycleBin = (items: FileSystemItem[]): FileSystemItem[] => {
+        return items.map(item => {
+            if (item.id === 'recycleBin') {
+                return { ...item, children: [] };
+            }
+            if (item.children) {
+                return { ...item, children: clearRecycleBin(item.children) };
+            }
+            return item;
+        });
+    };
+
+    const updatedFiles = clearRecycleBin(files);
+    await saveFiles(updatedFiles);
+    dispatchSyncEvent(STORE_FILES, 'recycleBin');
+};
+
+// Get recycle bin contents
+export const getRecycleBinContents = async (): Promise<FileSystemItem[]> => {
+    const files = await getFiles();
+    const recycleBin = findFileById(files, 'recycleBin');
+    return recycleBin?.children || [];
+};

@@ -307,7 +307,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-hidden relative bg-black/20">
+            <div className="flex-1 overflow-auto relative z-40 bg-black/20">
                 {window.component}
             </div>
             </div>

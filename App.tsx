@@ -29,6 +29,7 @@ import { TodoList } from './apps/TodoList';
 import { PasswordGenerator } from './apps/PasswordGenerator';
 import { ColorPicker } from './apps/ColorPicker';
 import { QrGenerator } from './apps/QrGenerator';
+import { RecycleBin } from './apps/RecycleBin';
 
 const Desktop = () => {
     const { windows, registerApp, activeWallpaper, isStartMenuOpen, closeStartMenu } = useOS();
@@ -57,6 +58,7 @@ const Desktop = () => {
         registerApp({ id: 'passwordgenerator', title: 'Password Generator', icon: 'key', color: 'bg-rose-400', component: PasswordGenerator, defaultWidth: 450, defaultHeight: 480 });
         registerApp({ id: 'colorpicker', title: 'Color Picker', icon: 'palette', color: 'bg-fuchsia-400', component: ColorPicker, defaultWidth: 400, defaultHeight: 550 });
         registerApp({ id: 'qrgenerator', title: 'QR Generator', icon: 'qr_code', color: 'bg-emerald-400', component: QrGenerator, defaultWidth: 450, defaultHeight: 550 });
+        registerApp({ id: 'recyclebin', title: 'Recycle Bin', icon: 'delete', color: 'bg-gray-400', component: RecycleBin, defaultWidth: 700, defaultHeight: 500 });
     }, []);
 
     return (
@@ -87,7 +89,7 @@ const Desktop = () => {
                 <DesktopIcon icon="timer" label="Timer" colorClass="text-red-300" appId="timer" />
                 <DesktopIcon icon="data_object" label="JSON Viewer" colorClass="text-amber-300" appId="jsonviewer" />
                 <DesktopIcon icon="checklist" label="Todo List" colorClass="text-lime-300" appId="todolist" />
-                <DesktopIcon icon="delete" label="Recycle Bin" colorClass="text-gray-300" />
+                <DesktopIcon icon="delete" label="Recycle Bin" colorClass="text-gray-300" appId="recyclebin" />
             </div>
 
             {/* Window Manager Layer */}

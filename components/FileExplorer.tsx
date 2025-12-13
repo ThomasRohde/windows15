@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getFiles, saveFiles, subscribeToFileSystem, STORE_NAMES } from '../utils/fileSystem';
+import { createPortal } from 'react-dom';
+import { getFiles, saveFiles, subscribeToFileSystem, STORE_NAMES, moveToRecycleBin } from '../utils/fileSystem';
 import { FileSystemItem } from '../types';
 import { useOS } from '../context/OSContext';
 
@@ -34,10 +35,17 @@ export const FileExplorer = () => {
 
     useEffect(() => {
         if (files.length === 0) return;
-        let folder = files[0];
+
+        // Find the root folder - it might not be at index 0
+        let folder = files.find(f => f.id === 'root') || files[0];
+
         for (let i = 1; i < currentPath.length; i++) {
             const next = folder.children?.find(c => c.id === currentPath[i]);
-            if (next) folder = next;
+            if (next) {
+                folder = next;
+            } else {
+                break;
+            }
         }
         setCurrentFolder(folder);
     }, [currentPath, files]);
@@ -56,14 +64,37 @@ export const FileExplorer = () => {
 
     const navigateTo = (folderId: string) => {
         const target = currentFolder?.children?.find(c => c.id === folderId);
-        if (target && target.type === 'folder') {
+        if (!target) return;
+
+        if (target.type === 'folder') {
             setCurrentPath(prev => [...prev, folderId]);
-        } else if (target) {
-            if (target.type === 'document' && target.name.endsWith('.txt')) {
-                openWindow('notepad', { initialContent: target.content });
-            } else if (target.type === 'image') {
-                window.open(target.src, '_blank');
+            return;
+        }
+
+        if (target.type === 'shortcut') {
+            if (target.appId === 'explorer' && target.targetPath) {
+                setCurrentPath(target.targetPath);
+                return;
             }
+
+            if (target.appId) {
+                openWindow(
+                    target.appId,
+                    target.appId === 'explorer' && target.targetPath ? { initialPath: target.targetPath } : undefined
+                );
+                return;
+            }
+
+            if (target.targetPath) {
+                setCurrentPath(target.targetPath);
+            }
+            return;
+        }
+
+        if (target.type === 'document' && target.name.endsWith('.txt')) {
+            openWindow('notepad', { initialContent: target.content });
+        } else if (target.type === 'image') {
+            window.open(target.src, '_blank');
         }
     };
 
@@ -127,22 +158,22 @@ export const FileExplorer = () => {
     };
 
     const deleteItem = async (item: FileSystemItem) => {
-        const confirmDelete = window.confirm(
-            `Are you sure you want to delete "${item.name}"${item.type === 'folder' ? ' and all its contents' : ''}?`
-        );
-        if (!confirmDelete) return;
-
-        const updatedFiles = removeItemFromTree(files, item.id);
-        await saveFiles(updatedFiles);
+        await moveToRecycleBin(item.id);
         setContextMenu(null);
     };
 
-    const QuickAccessItem = ({ icon, color, label, path }: any) => (
-        <button 
+    const QuickAccessItem = ({ icon, color, label, path }: { icon: string; color: string; label: string; path?: string }) => (
+        <button
+            type="button"
             onClick={() => {
-                if (path) setCurrentPath(['root', path]);
+                if (path) {
+                    setCurrentPath(['root', path]);
+                } else {
+                    setCurrentPath(['root']);
+                }
             }}
-            className="flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors text-white/60 hover:text-white hover:bg-white/5 w-full text-left"
+            onPointerDown={(e) => e.stopPropagation()}
+            className="flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer"
         >
             <span className={`material-symbols-outlined text-[20px] ${color}`}>{icon}</span>
             {label}
@@ -163,7 +194,7 @@ export const FileExplorer = () => {
     return (
         <div className="flex h-full w-full bg-transparent" onContextMenu={(e) => handleContextMenu(e)}>
             {/* Sidebar */}
-            <div className="w-48 hidden md:flex flex-col gap-1 p-3 border-r border-white/5 bg-black/10">
+            <div className="w-48 hidden md:flex flex-col gap-1 p-3 border-r border-white/5 bg-black/10 relative z-10">
                 <div className="text-xs font-bold text-white/40 uppercase px-3 py-2">Favorites</div>
                 <QuickAccessItem icon="home" color="text-blue-400" label="Home" />
                 <QuickAccessItem icon="star" color="text-yellow-400" label="Desktop" path="desktop" />
@@ -242,14 +273,18 @@ export const FileExplorer = () => {
                 {/* File Grid */}
                 <div className="flex-1 overflow-y-auto p-4">
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-4">
-                        {currentFolder?.children?.map(item => (
+                        {currentFolder?.children?.filter(item => item.id !== 'recycleBin').map(item => (
                             <div 
                                 key={item.id}
                                 onDoubleClick={() => navigateTo(item.id)}
                                 onContextMenu={(e) => handleContextMenu(e, item)}
                                 className="group flex flex-col items-center gap-2 p-2 rounded hover:bg-white/10 cursor-pointer transition-colors"
                             >
-                                {item.type === 'folder' ? (
+                                {item.type === 'shortcut' ? (
+                                    <span className={`material-symbols-outlined text-5xl drop-shadow-lg ${item.colorClass || 'text-blue-400'}`}>
+                                        {item.icon || 'link'}
+                                    </span>
+                                ) : item.type === 'folder' ? (
                                     <span className="material-symbols-outlined text-5xl text-yellow-400 drop-shadow-lg">folder</span>
                                 ) : item.type === 'image' && item.src ? (
                                     <div className="w-16 h-12 bg-cover bg-center rounded border border-white/20" style={{ backgroundImage: `url(${item.src})` }}></div>
@@ -272,9 +307,9 @@ export const FileExplorer = () => {
                 </div>
             </div>
 
-            {/* Context Menu */}
-            {contextMenu && (
-                <div 
+            {/* Context Menu - rendered via portal to escape overflow:hidden */}
+            {contextMenu && createPortal(
+                <div
                     className="fixed bg-gray-900/95 backdrop-blur border border-white/10 rounded-lg shadow-xl py-1 min-w-[160px] z-[9999]"
                     style={{ left: contextMenu.x, top: contextMenu.y }}
                     onClick={(e) => e.stopPropagation()}
@@ -324,7 +359,8 @@ export const FileExplorer = () => {
                             </button>
                         </>
                     )}
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

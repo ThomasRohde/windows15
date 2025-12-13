@@ -11,6 +11,39 @@ type CalendarEvent = {
   endTime: string; // HH:MM
 };
 
+interface WidgetWeather {
+  temp: number;
+  high: number;
+  low: number;
+  condition: string;
+  icon: string;
+  location: string;
+}
+
+const weatherCodeToInfo: Record<number, { icon: string; condition: string }> = {
+  0: { icon: 'sunny', condition: 'Clear' },
+  1: { icon: 'sunny', condition: 'Mostly Clear' },
+  2: { icon: 'partly_cloudy_day', condition: 'Partly Cloudy' },
+  3: { icon: 'cloud', condition: 'Overcast' },
+  45: { icon: 'foggy', condition: 'Foggy' },
+  48: { icon: 'foggy', condition: 'Foggy' },
+  51: { icon: 'grain', condition: 'Drizzle' },
+  53: { icon: 'grain', condition: 'Drizzle' },
+  55: { icon: 'grain', condition: 'Drizzle' },
+  61: { icon: 'rainy', condition: 'Rainy' },
+  63: { icon: 'rainy', condition: 'Rainy' },
+  65: { icon: 'rainy', condition: 'Heavy Rain' },
+  71: { icon: 'ac_unit', condition: 'Snowy' },
+  73: { icon: 'ac_unit', condition: 'Snowy' },
+  75: { icon: 'ac_unit', condition: 'Snowy' },
+  80: { icon: 'rainy', condition: 'Showers' },
+  81: { icon: 'rainy', condition: 'Showers' },
+  82: { icon: 'thunderstorm', condition: 'Storms' },
+  95: { icon: 'thunderstorm', condition: 'Thunderstorm' },
+  96: { icon: 'thunderstorm', condition: 'Thunderstorm' },
+  99: { icon: 'thunderstorm', condition: 'Thunderstorm' },
+};
+
 export const Widgets: React.FC = () => {
   const { openWindow } = useOS();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -18,10 +51,65 @@ export const Widgets: React.FC = () => {
     const existing = readJsonIfPresent<CalendarEvent[]>(STORAGE_KEYS.calendarEvents);
     return Array.isArray(existing) ? existing : [];
   });
+  const [weather, setWeather] = useState<WidgetWeather>({
+    temp: 72,
+    high: 75,
+    low: 62,
+    condition: 'Mostly Sunny',
+    icon: 'sunny',
+    location: 'Loading...'
+  });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentDate(new Date()), 60000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const fetchWeather = async (lat: number, lon: number, location: string) => {
+      try {
+        const response = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=auto&temperature_unit=fahrenheit`
+        );
+        const data = await response.json();
+        const code = data.current.weather_code;
+        const info = weatherCodeToInfo[code] || { icon: 'sunny', condition: 'Clear' };
+        setWeather({
+          temp: Math.round(data.current.temperature_2m),
+          high: Math.round(data.daily.temperature_2m_max[0]),
+          low: Math.round(data.daily.temperature_2m_min[0]),
+          condition: info.condition,
+          icon: info.icon,
+          location
+        });
+      } catch {
+        setWeather(prev => ({ ...prev, location: 'San Francisco' }));
+      }
+    };
+
+    const getLocation = async (lat: number, lon: number) => {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+        );
+        const data = await response.json();
+        return data.address?.city || data.address?.town || data.address?.village || 'Your Location';
+      } catch {
+        return 'Your Location';
+      }
+    };
+
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const loc = await getLocation(pos.coords.latitude, pos.coords.longitude);
+          fetchWeather(pos.coords.latitude, pos.coords.longitude, loc);
+        },
+        () => fetchWeather(37.7749, -122.4194, 'San Francisco')
+      );
+    } else {
+      fetchWeather(37.7749, -122.4194, 'San Francisco');
+    }
   }, []);
 
   useEffect(() => {
@@ -123,14 +211,14 @@ export const Widgets: React.FC = () => {
       <div className="p-5 glass-panel rounded-xl pointer-events-auto hover:bg-white/5 transition-colors cursor-default">
         <div className="flex justify-between items-start mb-2">
           <div className="flex flex-col">
-            <span className="text-3xl font-light text-white">72°</span>
-            <span className="text-sm text-white/60">Mostly Sunny</span>
+            <span className="text-3xl font-light text-white">{weather.temp}°</span>
+            <span className="text-sm text-white/60">{weather.condition}</span>
           </div>
-          <span className="material-symbols-outlined text-yellow-300 text-4xl">sunny</span>
+          <span className="material-symbols-outlined text-yellow-300 text-4xl">{weather.icon}</span>
         </div>
         <div className="flex justify-between items-center mt-4 text-xs text-white/50 border-t border-white/10 pt-3">
-          <span data-location="San Francisco">San Francisco</span>
-          <span>H:75° L:62°</span>
+          <span>{weather.location}</span>
+          <span>H:{weather.high}° L:{weather.low}°</span>
         </div>
       </div>
 

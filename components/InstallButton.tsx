@@ -5,13 +5,27 @@ interface BeforeInstallPromptEvent extends Event {
     userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
+// Check if app is already installed as PWA
+const isStandalone = () => {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+};
+
 export const InstallButton = () => {
     const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
     const [isInstallable, setIsInstallable] = useState(false);
     const [showOnboarding, setShowOnboarding] = useState(false);
+    const [isAlreadyInstalled, setIsAlreadyInstalled] = useState(false);
 
     useEffect(() => {
+        // Check if already running as installed PWA
+        if (isStandalone()) {
+            setIsAlreadyInstalled(true);
+            return;
+        }
+
         const handleBeforeInstallPrompt = (e: Event) => {
+            console.log('[PWA] beforeinstallprompt event fired');
             // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
             // Store the event so it can be triggered later
@@ -20,9 +34,11 @@ export const InstallButton = () => {
         };
 
         const handleAppInstalled = () => {
+            console.log('[PWA] App installed');
             // Clear the deferredPrompt
             setDeferredPrompt(null);
             setIsInstallable(false);
+            setIsAlreadyInstalled(true);
         };
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -62,6 +78,10 @@ export const InstallButton = () => {
         setShowOnboarding(false);
     };
 
+    // Don't show anything if already installed as PWA
+    if (isAlreadyInstalled) return null;
+    
+    // Show if installable OR if onboarding is open
     if (!isInstallable && !showOnboarding) return null;
 
     return (

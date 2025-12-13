@@ -24,6 +24,11 @@ export default defineConfig({
         VitePWA({
             registerType: "prompt",
             includeAssets: ["favicon.ico", "robots.txt", "icons/*.png"],
+            // Enable service worker in development mode for testing PWA install
+            devOptions: {
+                enabled: true,
+                type: "module",
+            },
             manifest: {
                 name: "Windows 15 Desktop Concept",
                 short_name: "Windows 15",

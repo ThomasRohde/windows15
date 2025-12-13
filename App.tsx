@@ -5,6 +5,7 @@ import { Taskbar } from './components/Taskbar';
 import { Window } from './components/Window';
 import { StartMenu } from './components/StartMenu';
 import { OSProvider, useOS } from './context/OSContext';
+import { DbProvider } from './context/DbContext';
 
 // Apps
 import { FileExplorer } from './components/FileExplorer';
@@ -111,9 +112,11 @@ const Desktop = () => {
 
 const App: React.FC = () => {
   return (
-    <OSProvider>
-        <Desktop />
-    </OSProvider>
+    <DbProvider>
+      <OSProvider>
+          <Desktop />
+      </OSProvider>
+    </DbProvider>
   );
 };
 

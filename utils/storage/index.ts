@@ -5,3 +5,6 @@ export * from './storageService';
 export * from './migrations';
 export * from './react';
 
+// Re-export DbProvider and useDb hook for convenience
+export { DbProvider, useDb } from '../../context/DbContext';
+

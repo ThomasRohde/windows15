@@ -1,7 +1,7 @@
 {
   "projectName": "windows15",
   "startedAt": "2025-12-13T14:37:01.733884",
-  "currentStatus": "Initialized",
+  "currentStatus": "In Progress",
   "sessions": [
     {
       "sessionNumber": 1,
@@ -25,6 +25,20 @@
         "Use 'klondike feature add' to populate the feature registry",
         "Use 'klondike status' to check project status at any time"
       ]
+    },
+    {
+      "sessionNumber": 2,
+      "date": "2025-12-13",
+      "agent": "Coding Agent",
+      "duration": "(in progress)",
+      "focus": "F001-F032 - Implementing core reactive UI and PWA features",
+      "completed": [],
+      "inProgress": [
+        "Session started"
+      ],
+      "blockers": [],
+      "nextSteps": [],
+      "technicalNotes": []
     }
   ],
   "quickReference": {
@@ -37,18 +51,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F001",
-        "description": "Reactive UI - Convert all Dexie reads to useLiveQuery",
-        "status": "not-started"
-      },
-      {
-        "id": "F002",
-        "description": "DbProvider context - Centralized Dexie instance management",
-        "status": "not-started"
-      },
-      {
         "id": "F003",
         "description": "Cross-tab config propagation",
+        "status": "not-started"
+      },
+      {
+        "id": "F007",
+        "description": "Offline app shell loading",
+        "status": "not-started"
+      },
+      {
+        "id": "F010",
+        "description": "Hot reconnection without page reload",
         "status": "not-started"
       }
     ]

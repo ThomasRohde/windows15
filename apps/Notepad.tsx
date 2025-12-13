@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
-import { db, useDexieLiveQuery } from '../utils/storage';
+import { useDb, useDexieLiveQuery } from '../utils/storage';
 import { getFiles, saveFile, saveFileToFolder } from '../utils/fileSystem';
 import { FileSystemItem } from '../types';
 
@@ -19,7 +19,8 @@ type NoteDraft = {
 const createId = () => globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 11);
 
 const NotesPanel = () => {
-    const { value: notesRaw } = useDexieLiveQuery(() => db.notes.orderBy('updatedAt').reverse().toArray(), []);
+    const db = useDb();
+    const { value: notesRaw } = useDexieLiveQuery(() => db.notes.orderBy('updatedAt').reverse().toArray(), [db]);
     const notes = Array.isArray(notesRaw) ? notesRaw : [];
 
     const [selectedId, setSelectedId] = useState<string | null>(null);

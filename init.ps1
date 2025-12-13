@@ -51,10 +51,12 @@ else {
 # 4. Start development server in BACKGROUND using Start-Job
 Write-Host "`n🖥️  Starting development server in background..." -ForegroundColor Yellow
 
+$currentDir = Get-Location
 $devJob = Start-Job -ScriptBlock {
-    Set-Location $using:PWD
+    param($workingDir)
+    Set-Location $workingDir
     npm run dev 2>&1
-}
+} -ArgumentList $currentDir
 Write-Host "   Started dev server as background job (Job ID: $($devJob.Id))" -ForegroundColor Gray
 
 # 5. Wait for server to be ready (with timeout)

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { db, getCloudDatabaseUrl, setCloudDatabaseUrl, validateCloudDatabaseUrl } from '../../utils/storage';
+import { useDb, getCloudDatabaseUrl, setCloudDatabaseUrl, validateCloudDatabaseUrl } from '../../utils/storage';
 
 const PROD_ORIGIN = 'https://thomasrohde.github.io';
 
@@ -71,6 +71,7 @@ const CopyableCommand = ({ command }: { command: string }) => {
 };
 
 export const SyncSettings = () => {
+    const db = useDb();
     const origin = useMemo(() => getOrigin(), []);
     const [databaseUrl, setDatabaseUrl] = useState(() => getCloudDatabaseUrl() ?? '');
     const [validationError, setValidationError] = useState<string | null>(null);
@@ -86,12 +87,12 @@ export const SyncSettings = () => {
     useEffect(() => {
         const subscription = db.cloud.currentUser.subscribe({ next: setUser });
         return () => subscription.unsubscribe();
-    }, []);
+    }, [db]);
 
     useEffect(() => {
         const subscription = db.cloud.syncState.subscribe({ next: setSyncState });
         return () => subscription.unsubscribe();
-    }, []);
+    }, [db]);
 
     useEffect(() => {
         const update = () => setIsOnline(navigator.onLine);

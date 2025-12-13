@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { db, useDexieLiveQuery } from '../utils/storage';
+import { useDb, useDexieLiveQuery } from '../utils/storage';
 
 type ViewMode = 'live' | 'reader';
 
@@ -100,6 +100,7 @@ const resolveInput = (raw: string): { url: string; modeSuggestion?: ViewMode } |
 };
 
 export const Browser = () => {
+    const db = useDb();
     const initialEntry: HistoryEntry = { url: 'https://example.com', mode: 'live' };
 
     const [state, setState] = useState<BrowserState>({
@@ -115,7 +116,7 @@ export const Browser = () => {
     const [isEmbedBlocked, setIsEmbedBlocked] = useState(false);
     const [notice, setNotice] = useState<string | null>(null);
 
-    const { value: bookmarksRaw } = useDexieLiveQuery(() => db.bookmarks.orderBy('updatedAt').reverse().toArray(), []);
+    const { value: bookmarksRaw } = useDexieLiveQuery(() => db.bookmarks.orderBy('updatedAt').reverse().toArray(), [db]);
     const bookmarks = Array.isArray(bookmarksRaw) ? bookmarksRaw : [];
     const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
     const [bookmarkDraft, setBookmarkDraft] = useState<BookmarkDraft | null>(null);

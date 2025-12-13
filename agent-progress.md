@@ -2,7 +2,7 @@
 
 ## Project: windows15
 ## Started: 2025-12-13
-## Current Status: Initialized
+## Current Status: In Progress
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
 ---
@@ -24,9 +24,9 @@ klondike feature list  # List all features
 ### Current Priority Features
 | ID | Description | Status |
 |----|-------------|--------|
-| F001 | Reactive UI - Convert all Dexie reads to useLiveQuery | ⏳ Not started |
-| F002 | DbProvider context - Centralized Dexie instance management | ⏳ Not started |
 | F003 | Cross-tab config propagation | ⏳ Not started |
+| F007 | Offline app shell loading | ⏳ Not started |
+| F010 | Hot reconnection without page reload | ⏳ Not started |
 
 ---
 
@@ -56,5 +56,27 @@ klondike feature list  # List all features
 #### Technical Notes
 - Use 'klondike feature add' to populate the feature registry
 - Use 'klondike status' to check project status at any time
+
+---
+
+### Session 2 - 2025-12-13
+**Agent**: Coding Agent
+**Duration**: (in progress)
+**Focus**: F001-F032 - Implementing core reactive UI and PWA features
+
+#### Completed
+- None
+
+#### In Progress
+- Session started
+
+#### Blockers
+- None
+
+#### Recommended Next Steps
+1. Continue implementation
+
+#### Technical Notes
+- None
 
 ---

@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 
 interface JsonNodeProps {
     data: any;
-    keyName?: string;
+    keyName?: string | number;
     level: number;
 }
 
-const JsonNode = ({ data, keyName, level }: JsonNodeProps) => {
+const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level }) => {
     const [collapsed, setCollapsed] = useState(false);
 
     const getType = (value: any): string => {

@@ -17,7 +17,7 @@ export const Taskbar = () => {
     const pinnedApps = ['browser', 'explorer', 'settings', 'notepad', 'calculator'];
 
     return (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+        <div data-taskbar className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
             <div className="flex items-center h-16 px-3 glass-panel rounded-full shadow-2xl ring-1 ring-white/10 gap-2 md:gap-4 transition-all">
                 {/* Start Button */}
                 <button 

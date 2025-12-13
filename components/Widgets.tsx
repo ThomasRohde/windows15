@@ -10,12 +10,13 @@ export const Widgets: React.FC = () => {
 
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
   const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+  const daysInPrevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0).getDate();
   const today = currentDate.getDate();
   
   const calendarDays = [];
   // Previous month padding
   for (let i = 0; i < firstDayOfMonth; i++) {
-    calendarDays.push(<span key={`prev-${i}`} className="text-white/20">{30 - firstDayOfMonth + i + 1}</span>);
+    calendarDays.push(<span key={`prev-${i}`} className="text-white/20">{daysInPrevMonth - firstDayOfMonth + i + 1}</span>);
   }
   // Current month
   for (let i = 1; i <= daysInMonth; i++) {

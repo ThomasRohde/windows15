@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useRef, useState, ReactNode } from 'react';
 import { WindowState, AppConfig } from '../types';
 import { WALLPAPERS } from '../utils/constants';
 
@@ -15,6 +15,7 @@ interface OSContextType {
     setWallpaper: (url: string) => void;
     isStartMenuOpen: boolean;
     toggleStartMenu: () => void;
+    closeStartMenu: () => void;
 }
 
 const OSContext = createContext<OSContextType | undefined>(undefined);
@@ -30,7 +31,9 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [apps, setApps] = useState<AppConfig[]>([]);
     const [activeWallpaper, setActiveWallpaper] = useState(WALLPAPERS[0].url);
     const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
-    const [nextZIndex, setNextZIndex] = useState(100);
+    const nextZIndexRef = useRef(100);
+
+    const getNextZIndex = () => nextZIndexRef.current++;
 
     const registerApp = (config: AppConfig) => {
         setApps(prev => {
@@ -43,30 +46,39 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         const app = apps.find(a => a.id === appId);
         if (!app) return;
 
-        // If app allows single instance and is open, just focus it
-        const existing = windows.find(w => w.appId === appId);
-        if (existing) {
-            focusWindow(existing.id);
-            if (existing.isMinimized) minimizeWindow(existing.id); // Toggle back
-            return;
-        }
+        setWindows(prevWindows => {
+            const existing = prevWindows.find(w => w.appId === appId);
+            if (existing) {
+                const nextZIndex = getNextZIndex();
+                return prevWindows.map(w => {
+                    if (w.id !== existing.id) return w;
+                    return {
+                        ...w,
+                        isMinimized: false,
+                        zIndex: nextZIndex,
+                        ...(contentProps !== undefined ? { component: <app.component {...contentProps} /> } : {}),
+                    };
+                });
+            }
 
-        const newWindow: WindowState = {
-            id: Math.random().toString(36).substr(2, 9),
-            appId: app.id,
-            title: app.title,
-            icon: app.icon,
-            component: <app.component {...contentProps} />,
-            isOpen: true,
-            isMinimized: false,
-            isMaximized: false,
-            zIndex: nextZIndex,
-            position: { x: 50 + (windows.length * 20), y: 50 + (windows.length * 20) }, // Cascade
-            size: { width: app.defaultWidth || 800, height: app.defaultHeight || 600 }
-        };
+            const nextZIndex = getNextZIndex();
+            const offset = prevWindows.length * 20;
+            const newWindow: WindowState = {
+                id: globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 11),
+                appId: app.id,
+                title: app.title,
+                icon: app.icon,
+                component: <app.component {...contentProps} />,
+                isOpen: true,
+                isMinimized: false,
+                isMaximized: false,
+                zIndex: nextZIndex,
+                position: { x: 50 + offset, y: 50 + offset },
+                size: { width: app.defaultWidth || 800, height: app.defaultHeight || 600 }
+            };
 
-        setWindows([...windows, newWindow]);
-        setNextZIndex(prev => prev + 1);
+            return [...prevWindows, newWindow];
+        });
         setIsStartMenuOpen(false);
     };
 
@@ -79,16 +91,17 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     };
 
     const toggleMaximizeWindow = (id: string) => {
-        setWindows(prev => prev.map(w => w.id === id ? { ...w, isMaximized: !w.isMaximized } : w));
-        focusWindow(id);
+        const nextZIndex = getNextZIndex();
+        setWindows(prev => prev.map(w => w.id === id ? { ...w, isMaximized: !w.isMaximized, zIndex: nextZIndex } : w));
     };
 
     const focusWindow = (id: string) => {
+        const nextZIndex = getNextZIndex();
         setWindows(prev => prev.map(w => w.id === id ? { ...w, zIndex: nextZIndex } : w));
-        setNextZIndex(prev => prev + 1);
     };
 
-    const toggleStartMenu = () => setIsStartMenuOpen(!isStartMenuOpen);
+    const toggleStartMenu = () => setIsStartMenuOpen(prev => !prev);
+    const closeStartMenu = () => setIsStartMenuOpen(false);
     const setWallpaper = (url: string) => setActiveWallpaper(url);
 
     return (
@@ -104,7 +117,8 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
             activeWallpaper,
             setWallpaper,
             isStartMenuOpen,
-            toggleStartMenu
+            toggleStartMenu,
+            closeStartMenu
         }}>
             {children}
         </OSContext.Provider>

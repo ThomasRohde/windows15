@@ -7,7 +7,7 @@ export const StartMenu = () => {
     if (!isStartMenuOpen) return null;
 
     return (
-        <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 w-[600px] h-[70vh] max-h-[700px] glass-panel rounded-xl shadow-2xl z-40 flex flex-col animate-fade-in-up origin-bottom">
+        <div data-start-menu className="fixed bottom-24 left-1/2 transform -translate-x-1/2 w-[600px] h-[70vh] max-h-[700px] glass-panel rounded-xl shadow-2xl z-40 flex flex-col animate-fade-in-up origin-bottom">
             {/* Search */}
             <div className="p-6 pb-2">
                 <div className="bg-black/20 h-10 rounded-lg flex items-center px-4 gap-3 border border-white/5">

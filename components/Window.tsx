@@ -15,15 +15,19 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
     const dragOffsetRef = useRef({ x: 0, y: 0 });
     const pointerIdRef = useRef<number | null>(null);
     const positionRef = useRef(window.position);
+    const restorePositionRef = useRef(window.position);
     const pendingPositionRef = useRef<{ x: number; y: number } | null>(null);
     const rafIdRef = useRef<number | null>(null);
 
     useEffect(() => {
-        if (!window.isMaximized) {
-            positionRef.current = window.position;
-            setPosition(window.position);
+        if (window.isMaximized) {
+            restorePositionRef.current = positionRef.current;
+            return;
         }
-    }, [window.position, window.isMaximized]);
+
+        positionRef.current = restorePositionRef.current;
+        setPosition(restorePositionRef.current);
+    }, [window.isMaximized]);
 
     useEffect(() => {
         return () => {
@@ -102,6 +106,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
         }
 
         setPosition(positionRef.current);
+        restorePositionRef.current = positionRef.current;
 
         try {
             e.currentTarget.releasePointerCapture(e.pointerId);
@@ -150,7 +155,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
             onPointerDown={() => focusWindow(window.id)}
         >
             <div
-                className={`glass-panel flex h-full w-full flex-col overflow-hidden ${isDragging ? 'transition-none' : 'transition-all duration-200'} ${window.isMaximized ? '' : 'shadow-2xl rounded-xl border border-white/10'} ${isDragging ? 'opacity-90' : 'animate-pop-in'}`}
+                className={`glass-panel flex h-full w-full flex-col overflow-hidden animate-pop-in ${isDragging ? 'transition-none opacity-90' : 'transition-all duration-200'} ${window.isMaximized ? '' : 'shadow-2xl rounded-xl border border-white/10'}`}
                 style={chromeStyle}
             >
             {/* Title Bar */}

@@ -14,7 +14,7 @@ import { Notepad } from './apps/Notepad';
 import { Settings } from './apps/Settings';
 
 const Desktop = () => {
-    const { windows, registerApp, activeWallpaper, openWindow, isStartMenuOpen, toggleStartMenu } = useOS();
+    const { windows, registerApp, activeWallpaper, isStartMenuOpen, closeStartMenu } = useOS();
 
     // Register Applications on boot
     useEffect(() => {
@@ -28,7 +28,13 @@ const Desktop = () => {
     return (
         <div 
             className="relative h-screen w-screen overflow-hidden select-none"
-            onClick={() => { if(isStartMenuOpen) toggleStartMenu() }}
+            onPointerDown={(e) => {
+                if (!isStartMenuOpen) return;
+                const target = e.target as HTMLElement;
+                if (target.closest('[data-start-menu]')) return;
+                if (target.closest('[data-taskbar]')) return;
+                closeStartMenu();
+            }}
         >
             {/* Wallpaper */}
             <div 

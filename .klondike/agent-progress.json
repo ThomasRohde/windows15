@@ -84,11 +84,6 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F019",
-        "description": "Multi-tab sync test verification",
-        "status": "not-started"
-      },
-      {
         "id": "F004",
         "description": "Sync status indicator component",
         "status": "not-started"
@@ -96,6 +91,11 @@
       {
         "id": "F008",
         "description": "PWA update prompt flow",
+        "status": "not-started"
+      },
+      {
+        "id": "F014",
+        "description": "Error messaging for sync issues",
         "status": "not-started"
       }
     ]

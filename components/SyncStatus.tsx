@@ -4,7 +4,7 @@ import { useDb, getCloudDatabaseUrl } from '../utils/storage';
 export const SyncStatus = () => {
     const db = useDb();
     const isCloudConfigured = Boolean(getCloudDatabaseUrl());
-    
+
     const [user, setUser] = useState(() => db.cloud.currentUser.value);
     const [syncState, setSyncState] = useState(() => db.cloud.syncState.value);
     const [isOnline, setIsOnline] = useState(() => (typeof navigator !== 'undefined' ? navigator.onLine : true));
@@ -86,11 +86,10 @@ export const SyncStatus = () => {
                 onClick={handleSyncNow}
                 disabled={!isLoggedIn || isSyncing || !isOnline}
                 title={isLoggedIn && isOnline ? 'Sync now' : tooltipText}
-                className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-colors ${
-                    isLoggedIn && isOnline && !isSyncing
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-colors ${isLoggedIn && isOnline && !isSyncing
                         ? 'hover:bg-white/10 cursor-pointer'
                         : 'cursor-default'
-                }`}
+                    }`}
             >
                 <span className={`material-symbols-outlined text-[18px] ${statusColor}`}>
                     {statusIcon}

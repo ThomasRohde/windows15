@@ -21,16 +21,16 @@ export const Taskbar = () => {
         <div data-taskbar className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
             <div className="flex items-center h-16 px-3 glass-panel rounded-full shadow-2xl ring-1 ring-white/10 gap-2 md:gap-4 transition-all">
                 {/* Start Button */}
-                <button 
+                <button
                     onClick={toggleStartMenu}
                     className={`w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-all active:scale-95 group relative ml-1 ${isStartMenuOpen ? 'bg-white/10' : ''}`}
                 >
                     <div className="absolute inset-0 bg-primary/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <span className="material-symbols-outlined text-primary text-3xl relative z-10" style={{ fontVariationSettings: "'FILL' 1" }}>grid_view</span>
                 </button>
-                
+
                 <div className="w-px h-8 bg-white/10 mx-1"></div>
-                
+
                 {/* App Icons (Pinned + Open) */}
                 <div className="flex gap-1 md:gap-2">
                     {/* Render Pinned Apps */}
@@ -39,11 +39,11 @@ export const Taskbar = () => {
                         if (!app) return null;
                         const isOpen = windows.some(w => w.appId === id && !w.isMinimized);
                         const isRunning = windows.some(w => w.appId === id);
-                        
+
                         return (
-                            <TaskbarIcon 
+                            <TaskbarIcon
                                 key={id}
-                                icon={app.icon} 
+                                icon={app.icon}
                                 colorClass={app.color.replace('bg-', 'text-')}
                                 active={isOpen}
                                 running={isRunning}
@@ -72,7 +72,7 @@ export const Taskbar = () => {
                         <span className="text-xs font-semibold text-white leading-none mb-0.5">{formatTime(time)}</span>
                         <span className="text-[10px] text-white/60 leading-none">{formatDate(time)}</span>
                     </div>
-                    <button 
+                    <button
                         className="w-1 h-8 border-l border-white/20 ml-2 hover:bg-white/20"
                         onClick={() => windows.forEach(w => minimizeWindow(w.id))}
                     ></button>
@@ -93,11 +93,11 @@ interface TaskbarIconProps {
 
 const TaskbarIcon: React.FC<TaskbarIconProps> = ({ icon, active, running, onClick, colorClass = "text-white", filled }) => {
     return (
-        <button 
+        <button
             onClick={onClick}
             className={`relative w-10 h-10 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all hover:-translate-y-1 group ${active ? 'bg-white/10' : ''}`}
         >
-            <span 
+            <span
                 className={`material-symbols-outlined text-2xl group-hover:text-primary transition-colors ${colorClass}`}
                 style={filled ? { fontVariationSettings: "'FILL' 1" } : {}}
             >

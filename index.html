@@ -1,53 +1,49 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Windows 15 Desktop Concept</title>
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script>
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              primary: "#137fec",
-              "background-light": "#f6f7f8",
-              "background-dark": "#101922",
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Windows 15 Desktop Concept</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#137fec",
+            "background-light": "#f6f7f8",
+            "background-dark": "#101922",
+          },
+          fontFamily: {
+            display: ["Inter", "sans-serif"],
+          },
+          animation: {
+            "fade-in-up": "fadeInUp 0.5s ease-out",
+            "pop-in": "popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+          },
+          keyframes: {
+            fadeInUp: {
+              "0%": { opacity: "0", transform: "translateX(-50%) translateY(24px) scale(0.98)" },
+              "100%": { opacity: "1", transform: "translateX(-50%) translateY(0px) scale(1)" },
             },
-            fontFamily: {
-              display: ["Inter", "sans-serif"],
-            },
-            animation: {
-              "fade-in-up": "fadeInUp 0.5s ease-out",
-              "pop-in": "popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-            },
-             keyframes: {
-               fadeInUp: {
-                "0%": { opacity: "0", transform: "translateX(-50%) translateY(24px) scale(0.98)" },
-                "100%": { opacity: "1", transform: "translateX(-50%) translateY(0px) scale(1)" },
-               },
-               popIn: {
-                 "0%": { opacity: "0", transform: "scale(0.9)" },
-                 "100%": { opacity: "1", transform: "scale(1)" },
-              }
-            },
+            popIn: {
+              "0%": { opacity: "0", transform: "scale(0.9)" },
+              "100%": { opacity: "1", transform: "scale(1)" },
+            }
           },
         },
-      };
-    </script>
+      },
+    };
+  </script>
   <script type="importmap">
 {
   "imports": {
@@ -57,10 +53,12 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+  <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-background-dark text-white font-display overflow-hidden h-screen w-screen selection:bg-primary/30">
-    <div id="root"></div>
+
+<body class="bg-background-dark text-white font-display overflow-hidden h-screen w-screen selection:bg-primary/30">
+  <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>

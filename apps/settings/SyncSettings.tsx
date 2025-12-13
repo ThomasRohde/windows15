@@ -124,14 +124,14 @@ export const SyncSettings = () => {
         }
         setValidationError(null);
         setIsReconnecting(true);
-        
+
         try {
             // Close current db
             await db.close();
-            
+
             // Update config - this triggers DbProvider to create new instance
             setCloudDatabaseUrl(validated.url);
-            
+
             // Wait a moment for DbProvider to reinitialize
             await new Promise(resolve => setTimeout(resolve, 500));
         } catch (error) {
@@ -146,20 +146,20 @@ export const SyncSettings = () => {
         setActionError(null);
         if (!confirm('Disconnect from Dexie Cloud? Local data will be kept.')) return;
         setIsReconnecting(true);
-        
+
         try {
             await db.cloud.logout({ force: true });
         } catch {
             // Best-effort; user might not be logged in.
         }
-        
+
         try {
             // Close current db
             await db.close();
-            
+
             // Update config - this triggers DbProvider to create new instance
             setCloudDatabaseUrl(null);
-            
+
             // Wait a moment for DbProvider to reinitialize
             await new Promise(resolve => setTimeout(resolve, 500));
         } catch (error) {
@@ -214,18 +214,18 @@ export const SyncSettings = () => {
     const connectionBadge = isReconnecting
         ? { label: 'Reconnecting...', className: 'bg-yellow-500/15 text-yellow-200 animate-pulse' }
         : !isCloudConfigured
-        ? { label: 'Local-only', className: 'bg-white/10 text-white/80' }
-        : syncState.status === 'error' || syncState.phase === 'error'
-          ? { label: 'Error', className: 'bg-red-500/15 text-red-200' }
-          : syncState.status === 'offline' || !isOnline
-            ? { label: 'Offline', className: 'bg-amber-500/15 text-amber-200' }
-            : { label: 'Cloud configured', className: 'bg-blue-500/15 text-blue-200' };
+            ? { label: 'Local-only', className: 'bg-white/10 text-white/80' }
+            : syncState.status === 'error' || syncState.phase === 'error'
+                ? { label: 'Error', className: 'bg-red-500/15 text-red-200' }
+                : syncState.status === 'offline' || !isOnline
+                    ? { label: 'Offline', className: 'bg-amber-500/15 text-amber-200' }
+                    : { label: 'Cloud configured', className: 'bg-blue-500/15 text-blue-200' };
 
     const loginBadge = !isCloudConfigured
         ? null
         : isLoggedIn
-          ? { label: user?.email ? `Logged in: ${user.email}` : 'Logged in', className: 'bg-emerald-500/15 text-emerald-200' }
-          : { label: 'Login required', className: 'bg-white/10 text-white/70' };
+            ? { label: user?.email ? `Logged in: ${user.email}` : 'Logged in', className: 'bg-emerald-500/15 text-emerald-200' }
+            : { label: 'Login required', className: 'bg-white/10 text-white/70' };
 
     const primaryOrigin = origin || '(unknown)';
     const prodOriginNeeded = PROD_ORIGIN !== origin;

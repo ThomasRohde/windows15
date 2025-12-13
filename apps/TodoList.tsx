@@ -9,7 +9,7 @@ export const TodoList = () => {
     const db = useDb();
     const { value: todosRaw, loading } = useDexieLiveQuery(() => db.todos.orderBy('createdAt').toArray(), [db]);
     const todos = Array.isArray(todosRaw) ? todosRaw : [];
-    
+
     const [input, setInput] = useState('');
     const [filter, setFilter] = useState<Filter>('all');
 
@@ -28,9 +28,9 @@ export const TodoList = () => {
     };
 
     const toggleTodo = async (id: string) => {
-        await db.todos.update(id, { 
+        await db.todos.update(id, {
             completed: !todos.find(t => t.id === id)?.completed,
-            updatedAt: Date.now() 
+            updatedAt: Date.now()
         });
     };
 
@@ -70,11 +70,10 @@ export const TodoList = () => {
                     <button
                         key={f}
                         onClick={() => setFilter(f)}
-                        className={`px-3 py-1 rounded-lg text-sm transition-colors capitalize ${
-                            filter === f
+                        className={`px-3 py-1 rounded-lg text-sm transition-colors capitalize ${filter === f
                                 ? 'bg-blue-500 text-white'
                                 : 'bg-white/10 text-white/70 hover:bg-white/20'
-                        }`}
+                            }`}
                     >
                         {f}
                     </button>

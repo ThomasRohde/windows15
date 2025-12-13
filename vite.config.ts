@@ -12,8 +12,10 @@ const normalizeBasePath = (raw?: string) => {
     return basePath;
 };
 
+const basePath = normalizeBasePath(process.env.BASE_PATH);
+
 export default defineConfig({
-    base: normalizeBasePath(process.env.BASE_PATH),
+    base: basePath,
     server: {
         port: 5000,
         host: "0.0.0.0",
@@ -37,29 +39,29 @@ export default defineConfig({
                 background_color: "#101922",
                 display: "standalone",
                 orientation: "any",
-                start_url: "/",
-                scope: "/",
+                start_url: basePath,
+                scope: basePath,
                 icons: [
                     {
-                        src: "/icon-192.png",
+                        src: "icon-192.png",
                         sizes: "192x192",
                         type: "image/png",
                         purpose: "any",
                     },
                     {
-                        src: "/icon-512.png",
+                        src: "icon-512.png",
                         sizes: "512x512",
                         type: "image/png",
                         purpose: "any",
                     },
                     {
-                        src: "/icon-maskable-192.png",
+                        src: "icon-maskable-192.png",
                         sizes: "192x192",
                         type: "image/png",
                         purpose: "maskable",
                     },
                     {
-                        src: "/icon-maskable-512.png",
+                        src: "icon-maskable-512.png",
                         sizes: "512x512",
                         type: "image/png",
                         purpose: "maskable",

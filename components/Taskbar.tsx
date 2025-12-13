@@ -14,7 +14,7 @@ export const Taskbar = () => {
     const formatDate = (date: Date) => date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
 
     // Filter pinned apps from registry
-    const pinnedApps = ['browser', 'explorer', 'settings', 'notepad', 'calculator'];
+    const pinnedApps = ['explorer', 'browser', 'mail', 'calendar', 'notepad', 'calculator', 'settings'];
 
     return (
         <div data-taskbar className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">

@@ -2,7 +2,7 @@ import React from 'react';
 import { useOS } from '../context/OSContext';
 
 export const StartMenu = () => {
-    const { isStartMenuOpen, toggleStartMenu, apps, openWindow } = useOS();
+    const { isStartMenuOpen, apps, openWindow } = useOS();
 
     if (!isStartMenuOpen) return null;
 
@@ -36,19 +36,6 @@ export const StartMenu = () => {
                             <span className="text-xs text-white/80 text-center font-medium">{app.title}</span>
                         </button>
                     ))}
-                    {/* Dummy Pinned Apps */}
-                    <button className="flex flex-col items-center gap-2 p-2 rounded hover:bg-white/10 group opacity-50">
-                         <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
-                            <span className="material-symbols-outlined text-white">mail</span>
-                         </div>
-                         <span className="text-xs text-white/80">Mail</span>
-                    </button>
-                    <button className="flex flex-col items-center gap-2 p-2 rounded hover:bg-white/10 group opacity-50">
-                         <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
-                            <span className="material-symbols-outlined text-white">calendar_month</span>
-                         </div>
-                         <span className="text-xs text-white/80">Calendar</span>
-                    </button>
                 </div>
 
                 <div className="mt-8">

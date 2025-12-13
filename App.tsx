@@ -10,6 +10,8 @@ import { OSProvider, useOS } from './context/OSContext';
 import { FileExplorer } from './components/FileExplorer';
 import { Browser } from './apps/Browser';
 import { Calculator } from './apps/Calculator';
+import { Calendar } from './apps/Calendar';
+import { Mail } from './apps/Mail';
 import { Notepad } from './apps/Notepad';
 import { Settings } from './apps/Settings';
 
@@ -20,6 +22,8 @@ const Desktop = () => {
     useEffect(() => {
         registerApp({ id: 'explorer', title: 'File Explorer', icon: 'folder', color: 'bg-yellow-400', component: FileExplorer });
         registerApp({ id: 'browser', title: 'Chrome', icon: 'public', color: 'bg-blue-400', component: Browser });
+        registerApp({ id: 'mail', title: 'Mail', icon: 'mail', color: 'bg-sky-400', component: Mail, defaultWidth: 1000, defaultHeight: 680 });
+        registerApp({ id: 'calendar', title: 'Calendar', icon: 'calendar_month', color: 'bg-purple-400', component: Calendar, defaultWidth: 980, defaultHeight: 720 });
         registerApp({ id: 'calculator', title: 'Calculator', icon: 'calculate', color: 'bg-orange-400', component: Calculator, defaultWidth: 320, defaultHeight: 480 });
         registerApp({ id: 'notepad', title: 'Notepad', icon: 'description', color: 'bg-blue-300', component: Notepad });
         registerApp({ id: 'settings', title: 'Settings', icon: 'settings', color: 'bg-gray-400', component: Settings });

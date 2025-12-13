@@ -1,13 +1,85 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useOS } from '../context/OSContext';
+import { readJsonIfPresent, STORAGE_KEYS, subscribeToStorageKey } from '../utils/storage';
+
+type CalendarEvent = {
+  id: string;
+  title: string;
+  date: string; // YYYY-MM-DD
+  allDay: boolean;
+  startTime: string; // HH:MM
+  endTime: string; // HH:MM
+};
 
 export const Widgets: React.FC = () => {
+  const { openWindow } = useOS();
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>(() => {
+    const existing = readJsonIfPresent<CalendarEvent[]>(STORAGE_KEYS.calendarEvents);
+    return Array.isArray(existing) ? existing : [];
+  });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentDate(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    return subscribeToStorageKey(STORAGE_KEYS.calendarEvents, () => {
+      const updated = readJsonIfPresent<CalendarEvent[]>(STORAGE_KEYS.calendarEvents);
+      setCalendarEvents(Array.isArray(updated) ? updated : []);
+    });
+  }, []);
+
+  const pad2 = (value: number) => value.toString().padStart(2, '0');
+  const toYmd = (date: Date) => `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+  const toHm = (date: Date) => `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+  const fromYmd = (ymd: string) => {
+    const [y, m, d] = ymd.split('-').map(Number);
+    if (!y || !m || !d) return new Date();
+    return new Date(y, m - 1, d);
+  };
+
+  const formatTime = (hm: string) => {
+    const [h, m] = hm.split(':').map(Number);
+    const date = new Date();
+    date.setHours(h || 0, m || 0, 0, 0);
+    return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  };
+
+  const nextEvent = useMemo(() => {
+    const todayKey = toYmd(currentDate);
+    const nowTimeKey = toHm(currentDate);
+
+    const upcoming = calendarEvents
+      .filter(event => {
+        if (event.date > todayKey) return true;
+        if (event.date < todayKey) return false;
+        if (event.allDay) return true;
+        return event.startTime >= nowTimeKey;
+      })
+      .slice()
+      .sort((a, b) => {
+        const dateSort = a.date.localeCompare(b.date);
+        if (dateSort !== 0) return dateSort;
+        const aTime = a.allDay ? '00:00' : a.startTime;
+        const bTime = b.allDay ? '00:00' : b.startTime;
+        return aTime.localeCompare(bTime);
+      });
+
+    return upcoming[0] ?? null;
+  }, [calendarEvents, currentDate]);
+
+  const openCalendar = (ymd?: string) => {
+    if (ymd) {
+      openWindow('calendar', { initialDate: ymd });
+      return;
+    }
+    openWindow('calendar');
+  };
+
+  const year = currentDate.getFullYear();
+  const monthIndex = currentDate.getMonth();
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
   const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
   const daysInPrevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0).getDate();
@@ -16,18 +88,32 @@ export const Widgets: React.FC = () => {
   const calendarDays = [];
   // Previous month padding
   for (let i = 0; i < firstDayOfMonth; i++) {
-    calendarDays.push(<span key={`prev-${i}`} className="text-white/20">{daysInPrevMonth - firstDayOfMonth + i + 1}</span>);
+    const dayNumber = daysInPrevMonth - firstDayOfMonth + i + 1;
+    const cellDate = new Date(year, monthIndex - 1, dayNumber);
+    calendarDays.push(
+      <button
+        key={`prev-${i}`}
+        type="button"
+        onClick={() => openCalendar(toYmd(cellDate))}
+        className="text-white/20 hover:text-white/60"
+      >
+        {dayNumber}
+      </button>
+    );
   }
   // Current month
   for (let i = 1; i <= daysInMonth; i++) {
     const isToday = i === today;
+    const cellDate = new Date(year, monthIndex, i);
     calendarDays.push(
-        <span 
+        <button 
             key={`day-${i}`} 
+            type="button"
+            onClick={() => openCalendar(toYmd(cellDate))}
             className={`${isToday ? 'bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center mx-auto shadow-lg shadow-primary/50' : 'hover:text-white cursor-pointer'}`}
         >
             {i}
-        </span>
+        </button>
     );
   }
 
@@ -52,7 +138,14 @@ export const Widgets: React.FC = () => {
       <div className="p-5 glass-panel rounded-xl pointer-events-auto hover:bg-white/5 transition-colors cursor-default flex-1 max-h-80 flex flex-col">
         <div className="flex justify-between items-center mb-4">
           <span className="font-medium text-white">{currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</span>
-          <span className="material-symbols-outlined text-white/50 text-sm cursor-pointer hover:text-white">chevron_right</span>
+          <button
+            type="button"
+            onClick={() => openCalendar(toYmd(currentDate))}
+            className="material-symbols-outlined text-white/50 text-sm cursor-pointer hover:text-white"
+            title="Open Calendar"
+          >
+            chevron_right
+          </button>
         </div>
         <div className="grid grid-cols-7 gap-1 text-center text-xs text-white/60 mb-2">
           <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
@@ -61,13 +154,34 @@ export const Widgets: React.FC = () => {
             {calendarDays}
         </div>
         <div className="mt-auto pt-4 border-t border-white/10">
-          <div className="flex items-center gap-3">
-            <div className="w-1 h-8 rounded-full bg-purple-500"></div>
-            <div className="flex flex-col">
-              <span className="text-xs text-white/90 font-medium">Design Review</span>
-              <span className="text-[10px] text-white/50">10:00 AM - 11:30 AM</span>
-            </div>
-          </div>
+          {nextEvent ? (
+            <button
+              type="button"
+              onClick={() => openCalendar(nextEvent.date)}
+              className="w-full flex items-center gap-3 text-left hover:bg-white/5 rounded-lg p-2 -m-2 transition-colors"
+            >
+              <div className="w-1 h-8 rounded-full bg-purple-500"></div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs text-white/90 font-medium truncate">{nextEvent.title}</span>
+                <span className="text-[10px] text-white/50 truncate">
+                  {nextEvent.date === toYmd(currentDate) ? '' : `${fromYmd(nextEvent.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · `}
+                  {nextEvent.allDay ? 'All day' : `${formatTime(nextEvent.startTime)} - ${formatTime(nextEvent.endTime)}`}
+                </span>
+              </div>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => openCalendar(toYmd(currentDate))}
+              className="w-full flex items-center gap-3 text-left hover:bg-white/5 rounded-lg p-2 -m-2 transition-colors"
+            >
+              <div className="w-1 h-8 rounded-full bg-white/20"></div>
+              <div className="flex flex-col">
+                <span className="text-xs text-white/80 font-medium">No upcoming events</span>
+                <span className="text-[10px] text-white/50">Add one in Calendar</span>
+              </div>
+            </button>
+          )}
         </div>
       </div>
 

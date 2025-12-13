@@ -65,7 +65,8 @@ Apps receive props from the window manager and can request to open other apps vi
 The OS includes 22 demo applications:
 
 **Original Apps:**
-- File Explorer, Browser, Mail, Calendar, Calculator, Notepad, Settings
+- File Explorer, Browser, Mail, Calendar, Calculator, Settings
+- Notepad - Full-featured text editor with File menu (New, Open, Save, Save As), Edit menu, IndexedDB persistence, unsaved changes indicator
 
 **Utility Apps:**
 - Timer - Stopwatch and countdown timer with lap recording

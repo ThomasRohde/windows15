@@ -220,6 +220,46 @@ export const deleteFile = async (id: string): Promise<void> => {
     dispatchSyncEvent(STORE_FILES, id);
 };
 
+const addFileToFolder = (
+    files: FileSystemItem[],
+    folderId: string,
+    newFile: FileSystemItem
+): FileSystemItem[] => {
+    return files.map((file) => {
+        if (file.id === folderId && file.children) {
+            return {
+                ...file,
+                children: [...file.children, newFile],
+            };
+        }
+        if (file.children) {
+            return {
+                ...file,
+                children: addFileToFolder(file.children, folderId, newFile),
+            };
+        }
+        return file;
+    });
+};
+
+export const saveFileToFolder = async (
+    file: FileSystemItem,
+    folderId: string = 'documents'
+): Promise<void> => {
+    const files = await getFiles();
+    const existingFile = findFileById(files, file.id);
+
+    let updatedFiles: FileSystemItem[];
+    if (existingFile) {
+        updatedFiles = updateFileInTree(files, file.id, file);
+    } else {
+        updatedFiles = addFileToFolder(files, folderId, file);
+    }
+
+    await saveFiles(updatedFiles);
+    dispatchSyncEvent(STORE_FILES, file.id);
+};
+
 export const getSetting = async <T = unknown>(key: string): Promise<T | null> => {
     const db = await getDB();
 

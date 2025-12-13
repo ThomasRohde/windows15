@@ -32,11 +32,24 @@ Preferred communication style: Simple, everyday language.
 
 ### Data Persistence
 
-**Local Storage**: The `utils/storage.ts` module provides a simple JSON-based persistence layer using `localStorage`. Currently used for:
+**IndexedDB File System**: The `utils/fileSystem.ts` module provides a comprehensive IndexedDB-based persistence layer using the "windows15-fs" database. Object stores include:
+- `files` - Virtual file system tree (documents, folders, images with nested structure)
+- `settings` - Application settings (wallpaper preference, other configs)
+- `windowStates` - Window positions and sizes per app
+
+**Local Storage**: The `utils/storage.ts` module provides simple JSON-based persistence using `localStorage` for:
 - Mail messages (`windows15.mail.messages`)
 - Calendar events (`windows15.calendar.events`)
 
-**Cross-Component Sync**: A custom event system (`windows15:storage-sync`) allows components to subscribe to storage key changes for real-time updates without prop drilling.
+**Cross-Component Sync**: Custom event systems allow components to subscribe to data changes:
+- `windows15:fs-sync` - IndexedDB file system changes
+- `windows15:storage-sync` - localStorage changes
+
+**Persistence Features**:
+- File Explorer loads/saves files to IndexedDB with create folder and delete support
+- Window positions and sizes persist across sessions
+- Wallpaper choice persists across page refreshes
+- Files seeded with INITIAL_FILES on first load
 
 ### Application Architecture
 

@@ -24,9 +24,9 @@ klondike feature list  # List all features
 ### Current Priority Features
 | ID | Description | Status |
 |----|-------------|--------|
-| F017 | PWA icons generation | ⏳ Not started |
 | F019 | Multi-tab sync test verification | ⏳ Not started |
 | F004 | Sync status indicator component | ⏳ Not started |
+| F008 | PWA update prompt flow | ⏳ Not started |
 
 ---
 

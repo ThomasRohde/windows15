@@ -1,333 +1,305 @@
-# PRD: Windows15 — BYO Dexie Cloud Sync (Bring Your Own Database)
+# Windows15 — Real‑time Dexie Sync (No Refresh) + Full PWA Enablement (PRD)
 
-Owner: Thomas  
-Repo: https://github.com/ThomasRohde/windows15  
-Deployment target: GitHub Pages (`https://thomasrohde.github.io/windows15`)
+Version: 1.0  
+Owner: Thomas Rohde  
+Date: 2025-12-13  
+Repo: `ThomasRohde/windows15`
 
-## What you’re really trying to achieve (so we don’t miss the point)
-You want persistent, cross-device state (and eventually “real apps” like Notepad notes, browser bookmarks, etc.) for a purely static site hosted on GitHub Pages—without running your own backend.
+## Why this PRD exists
 
-Dexie + Dexie Cloud is a good fit: it keeps an offline-first local DB (IndexedDB) and adds optional two-way sync + auth when configured.
+You have integrated Dexie.js successfully, but synchronization only “shows up” after refreshing open browser windows/tabs. In practice this usually means one (or both) of these are true:
 
-This PRD describes a “BYO Dexie Cloud” approach:
-- Every user creates their own Dexie Cloud database.
-- The Windows15 app only asks for the user’s database URL and then uses Dexie Cloud auth to log them in to *their* database.
-- No shared database, no server-side code, no admin work for you.
+1) The UI is not reactive to IndexedDB mutations (so the DB updates but React doesn’t re-render).  
+2) Dexie Cloud configuration/open happens too early/late, so other tabs need a hard reload before they “attach” to the correct cloud-suffixed local DB name. Dexie Cloud’s docs explicitly state `db.cloud.configure()` must be called before requests are made to the DB (before it opens) so the DB knows how to open the right backing store.
 
-## Background / Context
-Windows15 is a UI concept (React + Vite) where some state is stored in localStorage today. The app runs fully client-side on GitHub Pages (no backend).
+This PRD fixes both by:
+- making UI read paths reactive via `dexie-react-hooks` / `useLiveQuery()`
+- introducing a “DB lifecycle” provider that initializes Dexie only after reading the saved cloud configuration and can *hot-reinitialize* the DB instance when config changes (without a full page reload)
 
-Dexie Cloud requires:
-1) a cloud database URL (created via `npx dexie-cloud create`), and  
-2) the app’s origin to be whitelisted in that database (via `npx dexie-cloud whitelist <origin>`),  
-3) `db.cloud.configure({ databaseUrl })` to run before the DB is used.
+At the same time, we will make Windows15 a “real” installable PWA with offline caching and (optionally) Dexie Cloud service-worker background/periodic sync.
 
-## Goals
-1) Add a proper persistence layer using Dexie (IndexedDB) to replace/augment localStorage.
-2) Add an optional Dexie Cloud sync mode when the user supplies a `databaseUrl`.
-3) Provide an in-app onboarding flow that tells users exactly how to create + whitelist their own Dexie Cloud DB.
-4) Keep the default experience “works without setup” (local-only mode) for casual visitors.
+## Goals (what success looks like)
+
+Real-time sync without refresh:
+- With two tabs/windows open to the app, edits made in one are reflected in the other within 1 second without manual refresh.
+- Remote changes (from another device) are pulled automatically while the app is open; and (when installed as a PWA in supporting browsers) periodic/background sync can keep the local DB warm even when not active.
+
+Full PWA enablement:
+- The app is installable (manifest, icons, correct scope/start_url for GitHub Pages).
+- App shell loads offline after at least one successful online visit (offline-first UX).
+- Clear update flow: prompt or auto-update behavior is defined and tested.
 
 ## Non-goals
-- No single shared Dexie Cloud DB for all visitors (that’s a different approach).
-- No self-hosted/on-prem Dexie Cloud server setup.
-- No advanced access-control model / role management beyond defaults.
-- No guarantee of “no friction”—BYO is intentionally a bit manual.
 
-## Key product decision: BYO vs shared DB (tradeoffs)
-BYO Dexie Cloud is great when:
-- you want *zero* ops and don’t want to be responsible for other users’ data.
-- you’re okay with onboarding friction (CLI step, whitelist step).
+- Building a custom backend or abandoning Dexie Cloud (BYO Dexie Cloud stays).
+- Implementing push notifications (optional future enhancement).
+- Offline-first for first-time visitors with zero prior visit (out of scope for a static PWA; requires preinstall packaging or more complex distribution).
 
-BYO Dexie Cloud is annoying when:
-- you expect lots of random visitors to actually use sync (they won’t).
-- you want “one click enable sync” for everyone (shared DB is better for that).
+## Target users / personas
 
-Given you explicitly don’t mind friction and likely only you will use it, BYO is reasonable.
+- Primary: Thomas (power user, will actually use sync and PWA install).
+- Secondary: Random visitor (may try the app; can opt into BYO Dexie Cloud if desired).
 
-## Personas & user stories
-Persona A: “Thomas / power user”
-- As a user, I want to connect Windows15 to my own Dexie Cloud DB so my desktop state syncs across devices.
-- As a user, I want a clear error if my origin isn’t whitelisted, and guidance to fix it.
+## Assumptions & constraints
 
-Persona B: “Random visitor”
-- As a visitor, I want Windows15 to still work without sign-up.
-- As a visitor, if I choose to enable sync, I want a checklist that walks me through creation + configuration.
+- Hosting on GitHub Pages (requires correct base path and service worker scope).
+- No server-side authentication is implemented by Windows15; Dexie Cloud handles auth on the client as needed.
+- The existing UI may be using “load once” patterns (e.g., `useEffect(() => db.table.toArray()...)`) that do not re-render on DB changes.
 
-## Scope: what data to persist/sync (MVP)
-MVP should sync the “OS state” and a couple of obvious apps.
+## User stories
 
-Persist + sync (MVP tables):
-1) `kv` (key-value state store)
-   - Covers: wallpaper selection, widget layout, pinned apps, window placements, app-specific settings, etc.
-   - Enables fast migration from localStorage.
-2) `notes` (Notepad)
-   - Basic note list, edit, delete, timestamps.
-3) `bookmarks` (Browser bookmarks)
-   - URL + title + folder path.
-
-Local-only (MVP, unsynced):
-- Any “ephemeral” state that doesn’t matter across devices:
-  - transient UI state (open menus, hover, drag-in-progress)
-  - volatile caches
-  - debug flags
-
-Post-MVP candidates:
-- File Explorer virtual filesystem (files/folders)
-- Mail drafts
-- Calendar events
-- App installations / “store” concept
-- Browser history
-- Per-app permissions
+1) As a user, when I update data in one open window, other windows show the update immediately.  
+2) As a user, I can see if I’m “in sync”, “pulling”, “pushing”, “offline”, or in error.  
+3) As a user, I can change my Dexie Cloud database URL and the app reconnects without a full page refresh.  
+4) As a user, I can install Windows15 as a PWA and it loads offline with the last cached app shell.  
+5) As a user, I can get a clear prompt when a new version is available (or the app auto-updates—explicitly defined).
 
 ## Functional requirements
 
-### FR1: Add Dexie persistence layer (local-only baseline)
-- Add Dexie DB with schema versioning.
-- Replace direct localStorage access for persistent state with a `StorageService` abstraction.
-- Provide migration from existing localStorage keys into Dexie on first run after upgrade.
-- Keep localStorage as fallback for a limited time (or behind a feature flag) to reduce risk.
+### FR1 — Reactive UI for all persisted views
+- Any UI surface that reads persisted state from Dexie must be converted to a reactive query:
+  - Use `useLiveQuery()` for list/detail queries.
+  - Use `useObservable()` for Dexie Cloud observables (e.g., `db.cloud.currentUser`, `db.cloud.syncState`).
+- Remove patterns where state is loaded once and stored in React state without an observer.
 
-Acceptance:
-- User can refresh the page and keeps state from Dexie (even if localStorage is cleared after migration is done).
-- No sync required; everything works offline.
+Acceptance criteria:
+- In a second tab, the same screen updates without refresh when the first tab writes to Dexie.
 
-### FR2: Optional Dexie Cloud sync via user-provided databaseUrl
-- Add dexie-cloud-addon and configure cloud sync when a `databaseUrl` has been provided.
-- Provide UI in Settings app: “Sync” section with:
-  - Status: Local-only / Connected / Error
-  - Current app origin (copy button): `window.location.origin`
-  - Field: “Dexie Cloud database URL” (paste)
-  - Buttons: “Connect”, “Disconnect”, “Login/Logout”, “Reset local data”
-  - A collapsible “How to set up” wizard.
+### FR2 — Automatic sync “kick” and correctness on first load
+- Ensure Dexie Cloud is configured before opening and querying the DB:
+  - Read saved config (Dexie Cloud database URL, any flags) *before* creating/using the Dexie instance.
+  - Avoid any Dexie queries before configuration is applied.
 
-Acceptance:
-- When user pastes a valid databaseUrl and the origin is whitelisted, Windows15 syncs `kv`, `notes`, `bookmarks` across devices.
-- If origin is not whitelisted, UI surfaces a clear fix (“Run: npx dexie-cloud whitelist <origin>”).
+Acceptance criteria:
+- Opening a second tab immediately attaches to the correct cloud-backed DB (no refresh required).
 
-### FR3: Onboarding wizard for BYO Dexie Cloud
-In Settings → Sync, present a step-by-step checklist (copy/paste friendly):
+### FR3 — Hot reconnection when cloud config changes (no reload)
+- When the user sets/changes the Dexie Cloud database URL:
+  - Close the active Dexie instance cleanly.
+  - Create a new Dexie instance configured with the new URL.
+  - Swap it into the app through a provider/context (soft restart).
+- Propagate config change across tabs:
+  - Write config to `localStorage`.
+  - Broadcast via `BroadcastChannel` (preferred) and/or `storage` event as fallback.
+  - Other tabs detect config change and perform the same hot reinit.
 
-Step 0: Create Dexie account (link out)
-Step 1: Create DB (CLI)
-- `npx dexie-cloud create`
-- explain that this creates `dexie-cloud.json` and `dexie-cloud.key` locally
+Acceptance criteria:
+- Changing config in Tab A makes Tab B reconnect within 3 seconds (shows “reconnecting…” state) without manual refresh.
 
-Step 2: Whitelist origins
-- Dev origin (example): `http://localhost:5173` (or show user’s current local origin when running locally)
-- Prod origin: `https://thomasrohde.github.io` (IMPORTANT: origin excludes path like `/windows15`)
+### FR4 — Sync status component
+- Add a small “sync status” indicator (taskbar/system tray style) showing:
+  - Logged in/out status (from `db.cloud.currentUser`)
+  - Sync phase/status + progress + error (from `db.cloud.syncState`)
+  - WebSocket status if available (nice-to-have)
+  - “Sync now” action that calls `db.cloud.sync({ purpose: 'pull' })` and/or `db.cloud.sync()`.
 
-Commands:
-- `npx dexie-cloud whitelist <origin>`
+Acceptance criteria:
+- UI visibly reflects transitions: offline → online, pulling/pushing → in-sync, error states.
 
-Step 3: Copy the databaseUrl from `dexie-cloud.json` and paste it into Windows15 → Settings → Sync.
+### FR5 — Fully enabled PWA
+Must-have PWA items:
+- Web app manifest with correct:
+  - `name`, `short_name`, `icons`, `theme_color`, `background_color`
+  - `display: standalone`
+  - `start_url` and `scope` compatible with GitHub Pages base path
+- Service worker:
+  - Precache app shell/assets
+  - Runtime caching for external CDN dependencies (e.g., Tailwind CDN) if still used
+  - Explicitly exclude Dexie Cloud endpoints from caching
+- Install UX:
+  - Ensure browser install works; optionally add “Install” button (nice-to-have).
+- Update UX:
+  - Choose either “prompt to update” or “auto update” and implement consistently.
 
-Acceptance:
-- A new user can enable sync by following only the wizard steps (no external doc required).
+Acceptance criteria:
+- Lighthouse (or equivalent) shows the app as installable.
+- After one successful load, the app reloads offline and shows the shell UI.
 
-### FR4: “Works without auth” / “auth required” behavior
-Policy:
-- Default: don’t force authentication for local-only mode.
-- If cloud sync is configured, require login before syncing sensitive tables (MVP uses defaults).
+### FR6 — Dexie Cloud service worker integration (optional but recommended)
+If using Dexie Cloud’s `tryUseServiceWorker` / periodic sync:
+- Register a service worker and integrate Dexie Cloud’s service-worker script as described in their docs.
+- Configure `db.cloud.configure({ tryUseServiceWorker: true, periodicSync: { minInterval } })` when applicable.
+- Provide a fallback for browsers without periodic sync support (app-open eager sync still works).
 
-Implementation options:
-- Set `requireAuth: true` when databaseUrl is present, so syncing waits for login.
-- Alternatively keep `requireAuth` false and let the user opt in to login; for MVP we prefer `requireAuth: true` to avoid confusion.
+Acceptance criteria:
+- In Chrome/Edge with the PWA installed, periodic sync registration succeeds (where supported) and does not break normal operation.
 
-Acceptance:
-- If cloud sync is configured, “Connected” implies “Logged in (or prompt)”, not “silently doing nothing”.
+## UX requirements
 
-### FR5: Basic “multi-device correctness” rules
-- Use stable primary keys and updated timestamps.
-- For `kv`, store JSON values and an `updatedAt` (client timestamp) to enable simple last-write-wins for conflicting keys.
-- Prefer idempotent writes: same action on two devices results in deterministic merges.
+- No “refresh to sync” instructions anywhere.
+- Errors are actionable:
+  - “Invalid database URL”
+  - “Network offline”
+  - “Auth required / login needed”
+- Sync indicator should never be noisy; keep it minimal but informative.
+- When hot reinitializing DB, show a non-blocking toast/banner “Reconnecting…” and disable writes briefly if needed.
 
-Acceptance:
-- Editing a note on device A and then on device B produces a sane final result (last edit wins).
-- Bookmark list converges across devices.
+## Technical design (developer-ready)
 
-## UX requirements (Settings → Sync)
-- Show connection mode badge:
-  - “Local-only” (no databaseUrl configured)
-  - “Cloud configured” (databaseUrl stored)
-  - “Logged in” (cloud user exists)
-  - “Syncing / Online / Offline” (best effort)
-- Show explicit, copyable “App Origin” value (this is what must be whitelisted).
-- Provide “Disconnect” that:
-  - logs out (optional)
-  - disables cloud by clearing stored databaseUrl
-  - keeps local Dexie data unless the user chooses “Reset local data”.
+### Proposed architecture
 
-## Technical design
+1) `DbProvider` (React context)
+- Holds current `db` instance and a `dbState`:
+  - `status`: `initializing | ready | reconnecting | error`
+  - `error?`
+  - `cloudConfig?` (databaseUrl + options)
+- Exposes:
+  - `db`
+  - `reconfigureCloud(config)`
+  - `syncNow()`
+  - `signIn()` / `signOut()` (if you expose these)
 
-### Dependencies
-Add:
-- `dexie`
-- `dexie-cloud-addon`
+2) `dbFactory`
+- Pure function that creates a fresh Dexie instance:
+  - defines schema
+  - attaches dexie-cloud-addon if configured
+  - calls `db.cloud.configure()` BEFORE any open/query happens
 
-### DB schema (MVP)
-Create a module, e.g. `utils/db.ts` or `utils/storage/db.ts`:
+3) Reactive reads
+- Convert all data-driven UI to use:
+  - `useLiveQuery(() => db.table.where(...).toArray(), [deps])`
+  - `useObservable(db.cloud.currentUser)`
+  - `useObservable(db.cloud.syncState)`
 
-- `kv`
-  - `key: string` (primary key)
-  - `valueJson: string`
-  - `updatedAt: number` (ms since epoch)
-- `notes`
-  - `id: string` (primary key; uuid)
-  - `title: string`
-  - `content: string`
-  - `updatedAt: number`
-  - `createdAt: number`
-- `bookmarks`
-  - `id: string` (uuid)
-  - `url: string`
-  - `title: string`
-  - `folder: string` (path-like string)
-  - `updatedAt: number`
-  - `createdAt: number`
+4) Cross-tab config propagation
+- `BroadcastChannel('windows15-config')` message contains:
+  - `{ databaseUrl, updatedAt }`
+- Write-through to `localStorage` key `windows15.dexieCloud.databaseUrl` for persistence and fallback eventing.
+- Listener triggers `DbProvider.reconfigureCloud()`
 
-Indexes:
-- `kv`: primary key only
-- `notes`: `updatedAt`, `createdAt`
-- `bookmarks`: `folder`, `updatedAt`
+### File/module layout (suggested)
 
-### Cloud configuration rules
-- Read `databaseUrl` from a stable local config store (localStorage is acceptable for *just* the URL and UX prefs; the actual data goes in Dexie).
-- IMPORTANT: call `db.cloud.configure({ databaseUrl, ... })` before any DB requests happen (before the app renders components that touch the DB).
+- `src/data/db/schema.ts`
+- `src/data/db/dbFactory.ts`
+- `src/data/db/DbProvider.tsx`
+- `src/data/db/useDb.ts`
+- `src/ui/SyncStatus.tsx`
+- `src/pwa/registerPwa.ts`
+- `public/manifest.webmanifest`
+- `public/icons/*`
+- `public/sw.js` (if using `injectManifest` strategy) or `src/sw.ts` (depending on chosen setup)
 
-Recommended cloud options (MVP):
-- `requireAuth: true` when databaseUrl exists
-- `tryUseServiceWorker: false` (avoid SW complexity in MVP; revisit later)
-- `customLoginGui: false` (use default login UI in MVP)
-- `unsyncedTables: []` (or list local-only tables if you add them)
+### Key implementation notes
 
-### Storage abstraction
-Introduce a small “storage API” so you can migrate incrementally without rewriting everything at once.
+- Important: `db.cloud.configure()` must run before any Dexie requests (so don’t let components import a pre-opened singleton and query immediately).
+- Avoid importing `db` at module top-level in components. Prefer `const { db } = useDb()` from context.
 
-Example interface:
-- `get<T>(key): Promise<T | undefined>`
-- `set<T>(key, value): Promise<void>`
-- `remove(key): Promise<void>`
-- `subscribe(key, handler): unsubscribe` (optional)
-- `export(): Promise<Blob>` (optional, later)
-- `import(blob): Promise<void>` (optional, later)
+### PWA implementation choice
 
-Implementations:
-- `DexieStorageService` (MVP default)
-- `LocalStorageService` (legacy fallback for migration)
+Use `vite-plugin-pwa` (injectManifest strategy) so you can:
+- control caching rules
+- integrate Dexie Cloud’s service worker script
+- implement update prompts cleanly
 
-### Migration plan (localStorage → Dexie `kv`)
-- On first load after adding Dexie:
-  1) read all known localStorage keys used by Windows15
-  2) write them into `kv` (with `updatedAt = Date.now()`)
-  3) mark “migrationComplete = true” in `kv` or localStorage
-  4) optionally clear migrated localStorage keys (but keep a safety toggle during beta)
+Minimal config expectations:
+- GitHub Pages base path awareness (manifest start_url/scope and SW scope)
+- Workbox precache + runtime caching for external CDN resources (if any)
 
-### Error handling (common failure modes)
-1) Invalid databaseUrl format
-- Detect with `new URL(databaseUrl)` and ensure `https:`.
-- Show inline error.
+### Service worker + Dexie Cloud integration (concept)
 
-2) Origin not whitelisted
-- Detect via thrown auth/network error during sync/login.
-- Show “Whitelist required” and provide the exact origin string + command snippet.
+Option A (recommended): injectManifest + `importScripts()` Dexie Cloud SW bundle:
+- In SW file:
+  - precacheAndRoute(__WB_MANIFEST)
+  - import Dexie Cloud SW script (either as a copied asset or via Vite asset URL import)
+- In app:
+  - configure Dexie Cloud with `tryUseServiceWorker: true`
 
-3) User not logged in (requireAuth enabled)
-- Show “Login required” and provide a Login button (calls `db.cloud.login()`).
-- Show current user email when logged in.
+## Backlog / tasks
 
-4) Offline
-- Show “Offline (local changes queued)” and last successful sync timestamp (best effort).
+### P0 (must ship)
 
-### Security / privacy
-- Treat `databaseUrl` as configuration, not a secret. Tokens/session material are handled by Dexie Cloud addon internally.
-- Do not log tokens or DB URLs to console in production builds.
-- Provide “Disconnect” and “Reset local data” for privacy hygiene.
+1) Add deps
+- `dexie-react-hooks`
+- `vite-plugin-pwa`
 
-## Implementation plan (developer tasks)
+2) Introduce `DbProvider` + `dbFactory`
+- Move all Dexie instance creation to factory/provider
+- Ensure no Dexie queries happen before provider is ready
 
-### Phase 0: Discovery (1–2 hours)
-- Inventory all localStorage usage (search `localStorage` in repo).
-- Identify which keys represent durable state vs ephemeral UI state.
-- Decide which keys to sync in MVP (`kv` list).
+3) Convert read paths to reactive
+- Replace non-reactive loads with `useLiveQuery`
+- Replace cloud user/sync state with `useObservable`
 
-### Phase 1: Add Dexie local persistence (no cloud)
-1) Add dependencies.
-2) Add Dexie DB module with schema.
-3) Implement `StorageService` abstraction.
-4) Replace the highest-value localStorage usage with StorageService:
-   - wallpaper / theme
-   - pinned apps
-   - desktop icon layout
-   - any Settings app prefs
-5) Add migration from localStorage → `kv`.
+4) Cross-tab config propagation
+- Implement BroadcastChannel + localStorage sync
+- Hot reinit in other tabs
 
-### Phase 2: Add cloud sync configuration UI (Settings → Sync)
-1) Add “Sync” panel to Settings app.
-2) Persist `databaseUrl` in localStorage (or in `kv`—but be careful: you need DB configured before DB use, so localStorage is simpler for bootstrap).
-3) Add connect/disconnect actions.
-4) Add copyable “origin” display.
+5) PWA baseline
+- Manifest + icons
+- Service worker registration
+- Offline app shell (precache)
+- Update prompt behavior (choose and implement)
 
-### Phase 3: Dexie Cloud integration
-1) Enable `dexie-cloud-addon` on the Dexie instance.
-2) If databaseUrl is present:
-   - call `db.cloud.configure({ databaseUrl, requireAuth: true })` before any DB ops.
-3) Add login/logout UI:
-   - Login calls `db.cloud.login()`
-   - Logout calls `db.cloud.logout()`
-4) Add basic status indicator (connected/logged in/offline/error).
+### P1 (strongly recommended)
 
-### Phase 4: Persist real app data (MVP tables)
-- Implement Notepad notes in Dexie (`notes` table).
-- Implement Browser bookmarks in Dexie (`bookmarks` table).
-- Wire existing UI to these tables (or add minimal UI if needed).
+6) Sync status UI
+- Minimal indicator + “Sync now”
+- Error/Offline messaging
 
-### Phase 5: Test & ship
-- Local dev origin: verify whitelist and sync at `http://localhost:<port>`.
-- GitHub Pages origin: verify whitelist and sync at `https://thomasrohde.github.io`.
-- Verify:
-  - local-only mode with no setup
-  - cloud mode with setup
-  - migration behavior
-  - disconnect + reconnect
-  - multi-device sync for notes/bookmarks
+7) Dexie Cloud SW background/periodic sync
+- Integrate Dexie Cloud SW
+- Enable `tryUseServiceWorker` + `periodicSync` where supported
 
-## Acceptance criteria (must pass)
-- The app still runs fully on GitHub Pages with no backend.
-- Local-only mode: persistent state survives refresh.
-- Cloud mode:
-  - With databaseUrl configured and origin whitelisted, notes and bookmarks sync across devices.
-  - With databaseUrl configured but origin not whitelisted, user gets a precise fix instruction.
-- “Disconnect” disables cloud without breaking local-only persistence.
+### P2 (nice-to-have)
 
-## Open questions (answer during implementation)
-1) Which localStorage keys are “durable” and should be moved into `kv`?
-2) Should `kv` store per-feature namespaces (recommended) or keep raw legacy keys?
-3) Do you want service worker integration for more resilient background sync (post-MVP)?
+8) “Install” button & onboarding
+- Detect installability and show a subtle install CTA
+- Small onboarding explaining BYO Dexie Cloud
 
-## Reference commands (for onboarding UI text)
-- Create DB:
-  - `npx dexie-cloud create`
-- Whitelist origin:
-  - `npx dexie-cloud whitelist https://thomasrohde.github.io`
-  - `npx dexie-cloud whitelist http://localhost:5173`
-- Locate DB URL:
-  - open `dexie-cloud.json` and copy `databaseUrl`
+9) Remove Tailwind CDN dependency
+- Compile Tailwind locally for stronger offline guarantees and faster cold start
 
-## Suggested folder/files (implementation guideline)
-- `utils/storage/`
-  - `db.ts` (Dexie + schema + cloud config)
-  - `storageService.ts` (interface + default instance)
-  - `localStorageMigration.ts`
-- `apps/settings/` (or wherever Settings app lives)
-  - `SyncSettings.tsx` (UI + actions)
+## Acceptance test plan
 
-## “Codex-ready” instructions (paste into your Codex run prompt)
-Implement this PRD in `ThomasRohde/windows15`:
-- Add Dexie + dexie-cloud-addon.
-- Introduce `StorageService` abstraction.
-- Migrate durable localStorage keys into a Dexie `kv` table.
-- Add Settings → Sync UI where user can paste Dexie Cloud `databaseUrl`, see `window.location.origin`, and trigger login/logout.
-- When `databaseUrl` exists, configure `db.cloud.configure({ databaseUrl, requireAuth: true })` before any DB operations.
-- Sync MVP tables: `kv`, `notes`, `bookmarks`.
-- Ensure the app still works in local-only mode with no setup.
+### Multi-tab sync (local)
+- Open Tab A and Tab B to the same app origin.
+- Make a change in Tab A (create/update/delete).
+- Observe Tab B updates within 1 second with no refresh.
+
+### Multi-device sync (Dexie Cloud)
+- Device 1 and Device 2 logged into same Dexie Cloud DB.
+- Change on Device 1 shows on Device 2 while app is open (eager sync).
+
+### Config change hot-reinit
+- In Tab A, change databaseUrl.
+- Tab A reconnects without full refresh.
+- Tab B auto-reconnects within 3 seconds without refresh.
+
+### PWA install & offline
+- Install app in Chrome/Edge.
+- Go offline.
+- Launch installed app: shell loads and previously visited routes/apps load if cached.
+
+### Update flow
+- Build + deploy new version.
+- Client detects update and shows prompt (or auto-reloads, depending on chosen strategy).
+
+## Telemetry / debugging (developer-only)
+
+- Optional console logging gated by `localStorage.windows15.debugSync = "1"`:
+  - config changes
+  - db lifecycle transitions
+  - syncState changes and last sync timestamps
+
+## Risks & mitigations
+
+- Risk: Some components import a `db` singleton directly and will bypass provider.
+  - Mitigation: enforce via lint rule or codemod; quick grep for `import { db } from`.
+
+- Risk: Service worker caching breaks Dexie Cloud endpoints or auth.
+  - Mitigation: explicitly exclude cloud endpoints from caching; keep runtime caching to static assets only.
+
+- Risk: Hot DB swap causes transient null/undefined data in UI.
+  - Mitigation: `DbProvider` exposes readiness; components show skeleton/placeholder during reconnect.
+
+## Open questions
+
+1) Do you want every random visitor to be able to use local-only mode by default, and optionally “connect Dexie Cloud”? (recommended)  
+2) Which PWA update behavior do you prefer: “prompt” (safer) or “autoUpdate” (simpler, but can surprise users)?  
+3) Do you want unsynced/local-only tables (e.g., UI layout preferences) separated from synced data?
+
+## References (implementation docs)
+
+- Dexie React hooks: `useLiveQuery()` / `useObservable()`
+- Dexie Cloud: `db.cloud.configure()`, `DexieCloudOptions`, `SyncState`, `db.cloud.currentUser`, `db.cloud.events.syncComplete`
+- Vite PWA plugin docs: injectManifest strategy, update prompt / autoUpdate

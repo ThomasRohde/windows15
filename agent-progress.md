@@ -24,6 +24,9 @@ klondike feature list  # List all features
 ### Current Priority Features
 | ID | Description | Status |
 |----|-------------|--------|
+| F033 | Extract app registry from App.tsx to dedicated config module | ⏳ Not started |
+| F034 | Add barrel exports (index.ts) for all module directories | ⏳ Not started |
+| F035 | Extract custom hooks from components into hooks/ directory | ⏳ Not started |
 
 ---
 

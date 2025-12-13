@@ -42,7 +42,7 @@ const Desktop = () => {
         registerApp({ id: 'calculator', title: 'Calculator', icon: 'calculate', color: 'bg-orange-400', component: Calculator, defaultWidth: 320, defaultHeight: 480 });
         registerApp({ id: 'notepad', title: 'Notepad', icon: 'description', color: 'bg-blue-300', component: Notepad });
         registerApp({ id: 'settings', title: 'Settings', icon: 'settings', color: 'bg-gray-400', component: Settings });
-        registerApp({ id: 'terminal', title: 'Terminal', icon: 'terminal', color: 'bg-gray-800', component: Terminal, defaultWidth: 700, defaultHeight: 450 });
+        registerApp({ id: 'terminal', title: 'Terminal', icon: 'terminal', color: 'bg-green-600', component: Terminal, defaultWidth: 700, defaultHeight: 450 });
         registerApp({ id: 'systeminfo', title: 'System Info', icon: 'info', color: 'bg-blue-500', component: SystemInfo, defaultWidth: 600, defaultHeight: 650 });
         registerApp({ id: 'imageviewer', title: 'Image Viewer', icon: 'image', color: 'bg-green-500', component: ImageViewer, defaultWidth: 800, defaultHeight: 600 });
         registerApp({ id: 'timer', title: 'Timer', icon: 'timer', color: 'bg-red-400', component: Timer, defaultWidth: 400, defaultHeight: 500 });

@@ -6,6 +6,7 @@ import { Window } from './components/Window';
 import { StartMenu } from './components/StartMenu';
 import { PWAUpdatePrompt } from './components/PWAUpdatePrompt';
 import { ReconnectingToast } from './components/ReconnectingToast';
+import { InstallButton } from './components/InstallButton';
 import { OSProvider, useOS } from './context/OSContext';
 import { DbProvider, useDb } from './context/DbContext';
 import { useDexieLiveQuery } from './utils/storage/react';
@@ -150,6 +151,7 @@ const Desktop = () => {
             <Taskbar />
             <PWAUpdatePrompt />
             <ReconnectingToast />
+            <InstallButton />
         </div>
     );
 };

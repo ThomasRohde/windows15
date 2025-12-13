@@ -364,11 +364,13 @@
         "No jarring UI changes"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-13T15:29:05.805688",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "ReconnectingToast uses isReconnecting from DbContext. Non-blocking toast at top. Timeout message if takes over 5s. Auto-disappears on completion."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-13T15:28:20.121590",
       "notes": "Implementation: DbProvider sets status='reconnecting', UI shows toast. Optionally disable form submissions during reconnect. Clear toast when status='ready'. Edge cases: Reconnect takes too long - show timeout message. Dependencies: F010 Hot reconnection. Gotchas: Toast should not block user from reading content."
@@ -437,13 +439,13 @@
         "Onboarding explains BYO Dexie Cloud"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-13T15:29:31.876082",
       "notes": "Implementation: Listen for beforeinstallprompt event, store deferredPrompt. Show 'Install App' button when available. Call deferredPrompt.prompt() on click. Edge cases: Event not fired if already installed or not installable. Dependencies: F005 PWA manifest. Gotchas: Only works in Chrome/Edge, not Firefox/Safari."
     },
     {
@@ -531,13 +533,15 @@
         "Login/logout work correctly"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-13T15:29:27.312084",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "SyncSettings already uses useDb hook from DbProvider. Subscribes to currentUser and syncState observables. Connect/disconnect trigger hot-reinit via setCloudDatabaseUrl. Status badges reflect real sync state. Login/logout work correctly."
+      ],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-13T15:29:15.416899",
       "notes": "Implementation: Update SyncSettings.tsx to use useDb() and sync status observables. Remove any direct db access. Use reconfigureCloud() for URL changes. Edge cases: Handle transition from local-only to cloud mode. Dependencies: F002, F010. Gotchas: Current SyncSettings may have old patterns to replace."
     },
     {
@@ -787,8 +791,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-13T15:28:15.309106",
+    "lastUpdated": "2025-12-13T15:29:27.312096",
     "totalFeatures": 32,
-    "passingFeatures": 23
+    "passingFeatures": 25
   }
 }

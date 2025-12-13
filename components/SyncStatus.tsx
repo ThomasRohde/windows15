@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDb, getCloudDatabaseUrl } from '../utils/storage';
+import { debugSync } from '../utils/debugLogger';
 
 // Helper to create user-friendly error messages
 const getUserFriendlyError = (error: any, isOnline: boolean): string => {
@@ -45,8 +46,25 @@ export const SyncStatus = () => {
     const [showErrorTooltip, setShowErrorTooltip] = useState(false);
 
     useEffect(() => {
-        const userSub = db.cloud.currentUser.subscribe({ next: setUser });
-        const syncSub = db.cloud.syncState.subscribe({ next: setSyncState });
+        const userSub = db.cloud.currentUser.subscribe({ 
+            next: (newUser) => {
+                debugSync.sync('Current user changed', { 
+                    isLoggedIn: newUser?.isLoggedIn, 
+                    email: newUser?.email 
+                });
+                setUser(newUser);
+            }
+        });
+        const syncSub = db.cloud.syncState.subscribe({ 
+            next: (newState) => {
+                debugSync.sync('Sync state changed', { 
+                    status: newState?.status, 
+                    phase: newState?.phase,
+                    error: newState?.error?.message 
+                });
+                setSyncState(newState);
+            }
+        });
         return () => {
             userSub.unsubscribe();
             syncSub.unsubscribe();

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useMemo, ReactNode, useEffect, useSta
 import { Windows15DexieDB } from '../utils/storage/db';
 import { configSync } from '../utils/storage/configSync';
 import { getCloudDatabaseUrl } from '../utils/storage/cloudConfig';
+import { debugSync } from '../utils/debugLogger';
 
 interface DbContextValue {
     db: Windows15DexieDB;
@@ -26,28 +27,35 @@ export interface DbProviderProps {
  */
 export const DbProvider: React.FC<DbProviderProps> = ({ children }) => {
     // Create database instance once and memoize it
-    const [db, setDb] = useState(() => new Windows15DexieDB());
+    const [db, setDb] = useState(() => {
+        debugSync.db('Creating initial database instance');
+        return new Windows15DexieDB();
+    });
     const [isReconnecting, setIsReconnecting] = useState(false);
 
     // Listen for config changes from other tabs
     useEffect(() => {
         const unsubscribe = configSync.subscribe(async (message) => {
             const currentUrl = getCloudDatabaseUrl();
+            debugSync.config('Config sync message received', { newUrl: message.databaseUrl, currentUrl });
 
             // Only reinitialize if the URL actually changed
             if (message.databaseUrl !== currentUrl) {
-                console.log('[DbProvider] Config changed, performing hot reconnection...');
+                debugSync.db('Config changed, performing hot reconnection');
                 setIsReconnecting(true);
 
                 try {
                     // Close existing database
+                    debugSync.db('Closing existing database');
                     await db.close();
 
                     // Create new database instance with updated config
+                    debugSync.db('Creating new database instance with updated config');
                     const newDb = new Windows15DexieDB();
                     setDb(newDb);
+                    debugSync.db('Hot reconnection complete');
                 } catch (error) {
-                    console.error('[DbProvider] Error during hot reconnection:', error);
+                    debugSync.error('Error during hot reconnection', error);
                 } finally {
                     setIsReconnecting(false);
                 }

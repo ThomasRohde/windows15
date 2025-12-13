@@ -5,6 +5,8 @@
  * to propagate Dexie Cloud configuration changes across tabs.
  */
 
+import { debugSync } from '../debugLogger';
+
 export type ConfigChangeMessage = {
     type: 'config-change';
     databaseUrl: string | null;
@@ -27,13 +29,15 @@ class ConfigSyncManager {
         if (typeof BroadcastChannel !== 'undefined') {
             try {
                 this.channel = new BroadcastChannel(CHANNEL_NAME);
+                debugSync.config('BroadcastChannel initialized');
                 this.channel.onmessage = (event) => {
                     if (event.data?.type === 'config-change') {
+                        debugSync.config('Received config change via BroadcastChannel', event.data);
                         this.notifyListeners(event.data);
                     }
                 };
             } catch (error) {
-                console.warn('BroadcastChannel not available:', error);
+                debugSync.error('BroadcastChannel not available', error);
             }
         }
     }
@@ -41,9 +45,13 @@ class ConfigSyncManager {
     private setupStorageListener() {
         if (typeof window === 'undefined') return;
 
+        debugSync.config('Storage listener initialized');
         window.addEventListener('storage', (event) => {
             if (event.key === STORAGE_EVENT_KEY) {
                 // Storage event fires in OTHER tabs when localStorage changes
+                debugSync.config('Received config change via storage event', { 
+                    newValue: event.newValue 
+                });
                 this.notifyListeners({
                     type: 'config-change',
                     databaseUrl: event.newValue,

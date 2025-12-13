@@ -340,11 +340,13 @@
         "Errors are actionable not technical"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-13T15:28:15.309093",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Added getUserFriendlyError helpers. Network errors show Check connection. Auth errors show login prompt. Whitelist errors show actionable command. Error tooltip on hover."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-13T15:26:15.637009",
       "notes": "Implementation: Use syncState.error and currentUser to determine error type. Display user-friendly messages like 'Check your internet connection' not 'WebSocket error'. Edge cases: Distinguish between auth errors and network errors. Dependencies: F004 SyncStatus. Gotchas: Don't show raw error objects to users."
@@ -362,13 +364,13 @@
         "No jarring UI changes"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-13T15:28:20.121590",
       "notes": "Implementation: DbProvider sets status='reconnecting', UI shows toast. Optionally disable form submissions during reconnect. Clear toast when status='ready'. Edge cases: Reconnect takes too long - show timeout message. Dependencies: F010 Hot reconnection. Gotchas: Toast should not block user from reading content."
     },
     {
@@ -785,8 +787,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-13T15:26:11.359613",
+    "lastUpdated": "2025-12-13T15:28:15.309106",
     "totalFeatures": 32,
-    "passingFeatures": 22
+    "passingFeatures": 23
   }
 }

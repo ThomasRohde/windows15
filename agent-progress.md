@@ -24,9 +24,9 @@ klondike feature list  # List all features
 ### Current Priority Features
 | ID | Description | Status |
 |----|-------------|--------|
-| F014 | Error messaging for sync issues | 🔄 In progress |
-| F015 | Reconnecting toast/banner during hot swap | ⏳ Not started |
+| F015 | Reconnecting toast/banner during hot swap | 🔄 In progress |
 | F020 | Multi-device sync test verification | ⏳ Not started |
+| F021 | Lighthouse PWA audit passing | ⏳ Not started |
 
 ---
 

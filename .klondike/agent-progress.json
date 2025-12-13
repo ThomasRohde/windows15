@@ -101,18 +101,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F014",
-        "description": "Error messaging for sync issues",
-        "status": "in-progress"
-      },
-      {
         "id": "F015",
         "description": "Reconnecting toast/banner during hot swap",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F020",
         "description": "Multi-device sync test verification",
+        "status": "not-started"
+      },
+      {
+        "id": "F021",
+        "description": "Lighthouse PWA audit passing",
         "status": "not-started"
       }
     ]

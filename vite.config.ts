@@ -14,8 +14,9 @@ const normalizeBasePath = (raw?: string) => {
 export default defineConfig({
   base: normalizeBasePath(process.env.BASE_PATH),
   server: {
-    port: 3000,
+    port: 5000,
     host: '0.0.0.0',
+    allowedHosts: true,
   },
   plugins: [react()],
   resolve: {

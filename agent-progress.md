@@ -24,9 +24,9 @@ klondike feature list  # List all features
 ### Current Priority Features
 | ID | Description | Status |
 |----|-------------|--------|
-| F003 | Cross-tab config propagation | ⏳ Not started |
-| F007 | Offline app shell loading | ⏳ Not started |
 | F010 | Hot reconnection without page reload | ⏳ Not started |
+| F017 | PWA icons generation | ⏳ Not started |
+| F019 | Multi-tab sync test verification | ⏳ Not started |
 
 ---
 

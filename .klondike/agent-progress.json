@@ -51,18 +51,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F003",
-        "description": "Cross-tab config propagation",
-        "status": "not-started"
-      },
-      {
-        "id": "F007",
-        "description": "Offline app shell loading",
-        "status": "not-started"
-      },
-      {
         "id": "F010",
         "description": "Hot reconnection without page reload",
+        "status": "not-started"
+      },
+      {
+        "id": "F017",
+        "description": "PWA icons generation",
+        "status": "not-started"
+      },
+      {
+        "id": "F019",
+        "description": "Multi-tab sync test verification",
         "status": "not-started"
       }
     ]

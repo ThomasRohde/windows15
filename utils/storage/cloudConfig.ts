@@ -1,3 +1,5 @@
+import { configSync } from './configSync';
+
 const CLOUD_DATABASE_URL_KEY = 'windows15.dexieCloud.databaseUrl';
 
 const canUseDomStorage = () => typeof globalThis !== 'undefined' && typeof globalThis.localStorage !== 'undefined';
@@ -17,9 +19,12 @@ export const setCloudDatabaseUrl = (databaseUrl: string | null) => {
     try {
         if (!databaseUrl) {
             globalThis.localStorage.removeItem(CLOUD_DATABASE_URL_KEY);
-            return;
+        } else {
+            globalThis.localStorage.setItem(CLOUD_DATABASE_URL_KEY, databaseUrl);
         }
-        globalThis.localStorage.setItem(CLOUD_DATABASE_URL_KEY, databaseUrl);
+
+        // Broadcast change to other tabs
+        configSync.broadcast(databaseUrl);
     } catch {
         // Ignore storage access/quota errors.
     }

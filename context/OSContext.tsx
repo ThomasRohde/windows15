@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useRef, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useRef, useState, useEffect, ReactNode } from 'react';
 import { WindowState, AppConfig } from '../types';
 import { WALLPAPERS } from '../utils/constants';
+import { initDB, getSetting, saveSetting, getWindowStates, saveWindowStates, WindowStateRecord } from '../utils/fileSystem';
 
 interface OSContextType {
     windows: WindowState[];
@@ -10,6 +11,7 @@ interface OSContextType {
     toggleMaximizeWindow: (id: string) => void;
     focusWindow: (id: string) => void;
     resizeWindow: (id: string, size: { width: number; height: number }, position?: { x: number; y: number }) => void;
+    updateWindowPosition: (id: string, position: { x: number; y: number }) => void;
     registerApp: (config: AppConfig) => void;
     apps: AppConfig[];
     activeWallpaper: string;
@@ -33,8 +35,51 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [activeWallpaper, setActiveWallpaper] = useState(WALLPAPERS[0].url);
     const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
     const nextZIndexRef = useRef(100);
+    const savedWindowStatesRef = useRef<WindowStateRecord[]>([]);
 
     const getNextZIndex = () => nextZIndexRef.current++;
+
+    useEffect(() => {
+        const initialize = async () => {
+            try {
+                await initDB();
+                
+                const savedWallpaper = await getSetting<string>('wallpaper');
+                if (savedWallpaper) {
+                    setActiveWallpaper(savedWallpaper);
+                }
+                
+                const savedStates = await getWindowStates();
+                savedWindowStatesRef.current = savedStates;
+            } catch (error) {
+                console.error('Failed to initialize from IndexedDB:', error);
+            }
+        };
+        
+        initialize();
+    }, []);
+
+    const persistWindowStates = (windowsToSave: WindowState[]) => {
+        const states: WindowStateRecord[] = windowsToSave.map(w => ({
+            appId: w.appId,
+            state: {
+                position: w.position,
+                size: w.size
+            }
+        }));
+        
+        const existingAppIds = new Set(states.map(s => s.appId));
+        savedWindowStatesRef.current.forEach(saved => {
+            if (!existingAppIds.has(saved.appId)) {
+                states.push(saved);
+            }
+        });
+        
+        savedWindowStatesRef.current = states;
+        saveWindowStates(states).catch(err => 
+            console.error('Failed to save window states:', err)
+        );
+    };
 
     const registerApp = (config: AppConfig) => {
         setApps(prev => {
@@ -64,6 +109,11 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
             const nextZIndex = getNextZIndex();
             const offset = prevWindows.length * 20;
+            
+            const savedState = savedWindowStatesRef.current.find(s => s.appId === appId);
+            const savedPosition = savedState?.state?.position;
+            const savedSize = savedState?.state?.size;
+            
             const newWindow: WindowState = {
                 id: globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 11),
                 appId: app.id,
@@ -74,8 +124,8 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                 isMinimized: false,
                 isMaximized: false,
                 zIndex: nextZIndex,
-                position: { x: 50 + offset, y: 50 + offset },
-                size: { width: app.defaultWidth || 800, height: app.defaultHeight || 600 }
+                position: savedPosition || { x: 50 + offset, y: 50 + offset },
+                size: savedSize || { width: app.defaultWidth || 800, height: app.defaultHeight || 600 }
             };
 
             return [...prevWindows, newWindow];
@@ -84,7 +134,32 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     };
 
     const closeWindow = (id: string) => {
-        setWindows(prev => prev.filter(w => w.id !== id));
+        setWindows(prev => {
+            const windowToClose = prev.find(w => w.id === id);
+            if (windowToClose) {
+                const existingIndex = savedWindowStatesRef.current.findIndex(
+                    s => s.appId === windowToClose.appId
+                );
+                const newRecord: WindowStateRecord = {
+                    appId: windowToClose.appId,
+                    state: {
+                        position: windowToClose.position,
+                        size: windowToClose.size
+                    }
+                };
+                
+                if (existingIndex >= 0) {
+                    savedWindowStatesRef.current[existingIndex] = newRecord;
+                } else {
+                    savedWindowStatesRef.current.push(newRecord);
+                }
+                
+                saveWindowStates(savedWindowStatesRef.current).catch(err =>
+                    console.error('Failed to save window states:', err)
+                );
+            }
+            return prev.filter(w => w.id !== id);
+        });
     };
 
     const minimizeWindow = (id: string) => {
@@ -93,7 +168,11 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
     const toggleMaximizeWindow = (id: string) => {
         const nextZIndex = getNextZIndex();
-        setWindows(prev => prev.map(w => w.id === id ? { ...w, isMaximized: !w.isMaximized, zIndex: nextZIndex } : w));
+        setWindows(prev => {
+            const updated = prev.map(w => w.id === id ? { ...w, isMaximized: !w.isMaximized, zIndex: nextZIndex } : w);
+            persistWindowStates(updated);
+            return updated;
+        });
     };
 
     const focusWindow = (id: string) => {
@@ -102,19 +181,40 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     };
 
     const resizeWindow = (id: string, size: { width: number; height: number }, position?: { x: number; y: number }) => {
-        setWindows(prev => prev.map(w => {
-            if (w.id !== id) return w;
-            return {
-                ...w,
-                size,
-                ...(position ? { position } : {})
-            };
-        }));
+        setWindows(prev => {
+            const updated = prev.map(w => {
+                if (w.id !== id) return w;
+                return {
+                    ...w,
+                    size,
+                    ...(position ? { position } : {})
+                };
+            });
+            persistWindowStates(updated);
+            return updated;
+        });
+    };
+
+    const updateWindowPosition = (id: string, position: { x: number; y: number }) => {
+        setWindows(prev => {
+            const updated = prev.map(w => {
+                if (w.id !== id) return w;
+                return { ...w, position };
+            });
+            persistWindowStates(updated);
+            return updated;
+        });
     };
 
     const toggleStartMenu = () => setIsStartMenuOpen(prev => !prev);
     const closeStartMenu = () => setIsStartMenuOpen(false);
-    const setWallpaper = (url: string) => setActiveWallpaper(url);
+    
+    const setWallpaper = (url: string) => {
+        setActiveWallpaper(url);
+        saveSetting('wallpaper', url).catch(err =>
+            console.error('Failed to save wallpaper setting:', err)
+        );
+    };
 
     return (
         <OSContext.Provider value={{
@@ -125,6 +225,7 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
             toggleMaximizeWindow,
             focusWindow,
             resizeWindow,
+            updateWindowPosition,
             registerApp,
             apps,
             activeWallpaper,

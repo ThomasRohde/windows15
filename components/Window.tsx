@@ -12,7 +12,7 @@ const MIN_WIDTH = 200;
 const MIN_HEIGHT = 150;
 
 export const Window: React.FC<WindowProps> = ({ window }) => {
-    const { closeWindow, minimizeWindow, toggleMaximizeWindow, focusWindow, resizeWindow } = useOS();
+    const { closeWindow, minimizeWindow, toggleMaximizeWindow, focusWindow, resizeWindow, updateWindowPosition } = useOS();
     const [isDragging, setIsDragging] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
     const [resizeDir, setResizeDir] = useState<ResizeDirection>(null);
@@ -125,6 +125,8 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
 
         setPosition(positionRef.current);
         restorePositionRef.current = positionRef.current;
+        
+        updateWindowPosition(window.id, positionRef.current);
 
         try {
             e.currentTarget.releasePointerCapture(e.pointerId);

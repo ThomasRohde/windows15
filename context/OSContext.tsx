@@ -9,6 +9,7 @@ interface OSContextType {
     minimizeWindow: (id: string) => void;
     toggleMaximizeWindow: (id: string) => void;
     focusWindow: (id: string) => void;
+    resizeWindow: (id: string, size: { width: number; height: number }, position?: { x: number; y: number }) => void;
     registerApp: (config: AppConfig) => void;
     apps: AppConfig[];
     activeWallpaper: string;
@@ -100,6 +101,17 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         setWindows(prev => prev.map(w => w.id === id ? { ...w, zIndex: nextZIndex } : w));
     };
 
+    const resizeWindow = (id: string, size: { width: number; height: number }, position?: { x: number; y: number }) => {
+        setWindows(prev => prev.map(w => {
+            if (w.id !== id) return w;
+            return {
+                ...w,
+                size,
+                ...(position ? { position } : {})
+            };
+        }));
+    };
+
     const toggleStartMenu = () => setIsStartMenuOpen(prev => !prev);
     const closeStartMenu = () => setIsStartMenuOpen(false);
     const setWallpaper = (url: string) => setActiveWallpaper(url);
@@ -112,6 +124,7 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
             minimizeWindow,
             toggleMaximizeWindow,
             focusWindow,
+            resizeWindow,
             registerApp,
             apps,
             activeWallpaper,

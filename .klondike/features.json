@@ -194,11 +194,13 @@
         "Reload happens cleanly"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-13T15:26:11.359599",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Changed registerType to prompt. Created PWAUpdatePrompt component using useRegisterSW. Shows dialog on update with Update Now and Later buttons. Clean reload on update."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-13T15:25:07.067220",
       "notes": "Implementation: Use vite-plugin-pwa's registerSW with onNeedRefresh callback. Show toast/modal prompting user to update. Call updateSW() on confirm. Edge cases: Handle update while user has unsaved work - warn before reload. Dependencies: vite-plugin-pwa. Gotchas: autoUpdate vs prompt - use prompt for safer UX."
@@ -338,13 +340,13 @@
         "Errors are actionable not technical"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-13T15:26:15.637009",
       "notes": "Implementation: Use syncState.error and currentUser to determine error type. Display user-friendly messages like 'Check your internet connection' not 'WebSocket error'. Edge cases: Distinguish between auth errors and network errors. Dependencies: F004 SyncStatus. Gotchas: Don't show raw error objects to users."
     },
     {
@@ -783,8 +785,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-13T15:25:02.284376",
+    "lastUpdated": "2025-12-13T15:26:11.359613",
     "totalFeatures": 32,
-    "passingFeatures": 21
+    "passingFeatures": 22
   }
 }

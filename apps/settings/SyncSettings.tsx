@@ -16,6 +16,39 @@ const isProbablyWhitelistError = (message: string) => {
     return lower.includes('whitelist') || lower.includes('origin') || lower.includes('not allowed');
 };
 
+const getUserFriendlyErrorMessage = (error: any): string => {
+    const errorMsg = error?.message || String(error);
+    const lowerMsg = errorMsg.toLowerCase();
+
+    // Auth errors
+    if (lowerMsg.includes('unauthorized') || lowerMsg.includes('login required')) {
+        return 'Authentication required. Please log in to continue.';
+    }
+
+    // Network errors
+    if (lowerMsg.includes('network') || lowerMsg.includes('fetch failed') || lowerMsg.includes('timeout')) {
+        return 'Cannot reach the database server. Check your internet connection.';
+    }
+
+    // Permission/whitelist errors
+    if (lowerMsg.includes('whitelist') || lowerMsg.includes('origin') || lowerMsg.includes('not allowed')) {
+        return 'This origin is not whitelisted. Run the whitelist command below.';
+    }
+
+    // Invalid URL
+    if (lowerMsg.includes('invalid') && lowerMsg.includes('url')) {
+        return 'The database URL format is invalid. Please check and try again.';
+    }
+
+    // Connection refused
+    if (lowerMsg.includes('connection refused') || lowerMsg.includes('econnrefused')) {
+        return 'Database server is not responding. Verify the URL is correct.';
+    }
+
+    // Generic fallback with sanitized error
+    return `Sync error: ${errorMsg.substring(0, 100)}`;
+};
+
 const copyToClipboard = async (value: string): Promise<boolean> => {
     const text = value ?? '';
     if (!text) return false;
@@ -135,8 +168,7 @@ export const SyncSettings = () => {
             // Wait a moment for DbProvider to reinitialize
             await new Promise(resolve => setTimeout(resolve, 500));
         } catch (error) {
-            const message = error instanceof Error ? error.message : 'Connection failed.';
-            setActionError(message);
+            setActionError(getUserFriendlyErrorMessage(error));
         } finally {
             setIsReconnecting(false);
         }
@@ -163,8 +195,7 @@ export const SyncSettings = () => {
             // Wait a moment for DbProvider to reinitialize
             await new Promise(resolve => setTimeout(resolve, 500));
         } catch (error) {
-            const message = error instanceof Error ? error.message : 'Disconnection failed.';
-            setActionError(message);
+            setActionError(getUserFriendlyErrorMessage(error));
         } finally {
             setIsReconnecting(false);
         }
@@ -176,8 +207,7 @@ export const SyncSettings = () => {
         try {
             await db.cloud.login();
         } catch (err) {
-            const message = err instanceof Error ? err.message : 'Login failed.';
-            setActionError(message);
+            setActionError(getUserFriendlyErrorMessage(err));
         } finally {
             setIsWorking(false);
         }
@@ -189,8 +219,7 @@ export const SyncSettings = () => {
         try {
             await db.cloud.logout();
         } catch (err) {
-            const message = err instanceof Error ? err.message : 'Logout failed.';
-            setActionError(message);
+            setActionError(getUserFriendlyErrorMessage(err));
         } finally {
             setIsWorking(false);
         }
@@ -204,8 +233,7 @@ export const SyncSettings = () => {
             await db.delete();
             globalThis.location?.reload();
         } catch (err) {
-            const message = err instanceof Error ? err.message : 'Reset failed.';
-            setActionError(message);
+            setActionError(getUserFriendlyErrorMessage(err));
         } finally {
             setIsWorking(false);
         }
@@ -307,7 +335,7 @@ export const SyncSettings = () => {
 
                 {(actionError || syncState.error) && (
                     <div className="text-xs bg-red-500/15 text-red-100 border border-red-500/20 rounded-lg px-3 py-2">
-                        {actionError ?? syncState.error?.message ?? 'Unknown error'}
+                        {actionError ?? getUserFriendlyErrorMessage(syncState.error)}
                         {showWhitelistHint && (
                             <div className="mt-2 text-[11px] text-white/70">
                                 Whitelist your origin:

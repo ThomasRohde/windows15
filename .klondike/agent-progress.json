@@ -101,18 +101,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F008",
-        "description": "PWA update prompt flow",
-        "status": "in-progress"
-      },
-      {
         "id": "F014",
         "description": "Error messaging for sync issues",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F015",
         "description": "Reconnecting toast/banner during hot swap",
+        "status": "not-started"
+      },
+      {
+        "id": "F020",
+        "description": "Multi-device sync test verification",
         "status": "not-started"
       }
     ]

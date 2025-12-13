@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useOS } from '../context/OSContext';
-import { readJsonIfPresent, STORAGE_KEYS, subscribeToStorageKey } from '../utils/storage';
+import { STORAGE_KEYS, storageService, useDexieLiveQuery } from '../utils/storage';
 
 type CalendarEvent = {
   id: string;
@@ -47,10 +47,11 @@ const weatherCodeToInfo: Record<number, { icon: string; condition: string }> = {
 export const Widgets: React.FC = () => {
   const { openWindow } = useOS();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>(() => {
-    const existing = readJsonIfPresent<CalendarEvent[]>(STORAGE_KEYS.calendarEvents);
-    return Array.isArray(existing) ? existing : [];
-  });
+  const { value: calendarEventsRaw } = useDexieLiveQuery(
+    () => storageService.get<CalendarEvent[]>(STORAGE_KEYS.calendarEvents),
+    [STORAGE_KEYS.calendarEvents]
+  );
+  const calendarEvents = Array.isArray(calendarEventsRaw) ? calendarEventsRaw : [];
   const [weather, setWeather] = useState<WidgetWeather>({
     temp: 72,
     high: 75,
@@ -110,13 +111,6 @@ export const Widgets: React.FC = () => {
     } else {
       fetchWeather(37.7749, -122.4194, 'San Francisco');
     }
-  }, []);
-
-  useEffect(() => {
-    return subscribeToStorageKey(STORAGE_KEYS.calendarEvents, () => {
-      const updated = readJsonIfPresent<CalendarEvent[]>(STORAGE_KEYS.calendarEvents);
-      setCalendarEvents(Array.isArray(updated) ? updated : []);
-    });
   }, []);
 
   const pad2 = (value: number) => value.toString().padStart(2, '0');

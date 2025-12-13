@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { migrateLegacyLocalStorageToDexieKv } from './utils/storage';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -8,8 +9,19 @@ if (!rootElement) {
 }
 
 const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+
+const bootstrap = async () => {
+  try {
+    await migrateLegacyLocalStorageToDexieKv();
+  } catch {
+    // Best-effort; app still works without legacy migration.
+  }
+
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+};
+
+bootstrap();

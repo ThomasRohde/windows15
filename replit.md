@@ -32,23 +32,19 @@ Preferred communication style: Simple, everyday language.
 
 ### Data Persistence
 
-**IndexedDB File System**: The `utils/fileSystem.ts` module provides a comprehensive IndexedDB-based persistence layer using the "windows15-fs" database. Object stores include:
-- `files` - Virtual file system tree (documents, folders, images with nested structure)
-- `settings` - Application settings (wallpaper preference, other configs)
-- `windowStates` - Window positions and sizes per app
+**Dexie (IndexedDB) + Optional Sync**: The `utils/storage/` modules provide an offline-first Dexie database with optional BYO Dexie Cloud sync. MVP tables:
+- `kv` - key/value OS + app state (wallpaper, window layout, mail, calendar, etc.)
+- `notes` - Notepad notes list (synced)
+- `bookmarks` - Browser bookmarks (synced)
 
-**Local Storage**: The `utils/storage.ts` module provides simple JSON-based persistence using `localStorage` for:
-- Mail messages (`windows15.mail.messages`)
-- Calendar events (`windows15.calendar.events`)
+**IndexedDB File System**: The `utils/fileSystem.ts` module still provides the virtual filesystem backing File Explorer.
 
-**Cross-Component Sync**: Custom event systems allow components to subscribe to data changes:
-- `windows15:fs-sync` - IndexedDB file system changes
-- `windows15:storage-sync` - localStorage changes
+**Local Storage**: Used only for small bootstrap config (Dexie Cloud `databaseUrl`) and one-time legacy migration flags.
 
 **Persistence Features**:
 - File Explorer loads/saves files to IndexedDB with create folder and delete support
-- Window positions and sizes persist across sessions
-- Wallpaper choice persists across page refreshes
+- Window positions and sizes persist across sessions (Dexie `kv`)
+- Wallpaper choice persists across page refreshes (Dexie `kv`)
 - Files seeded with INITIAL_FILES on first load
 
 ### Application Architecture

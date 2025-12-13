@@ -1,7 +1,14 @@
 import React, { createContext, useContext, useRef, useState, useEffect, ReactNode } from 'react';
 import { WindowState, AppConfig } from '../types';
 import { WALLPAPERS } from '../utils/constants';
-import { initDB, getSetting, saveSetting, getWindowStates, saveWindowStates, WindowStateRecord } from '../utils/fileSystem';
+import { getSetting, getWindowStates, WindowStateRecord } from '../utils/fileSystem';
+import { storageService } from '../utils/storage';
+
+const KV_KEYS = {
+    wallpaper: 'windows15.os.wallpaper',
+    openWindows: 'windows15.os.openWindows',
+    windowStates: 'windows15.os.windowStates',
+} as const;
 
 interface OSContextType {
     windows: WindowState[];
@@ -45,22 +52,43 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     useEffect(() => {
         const initialize = async () => {
             try {
-                await initDB();
-                
-                const savedWallpaper = await getSetting<string>('wallpaper');
+                const [savedWallpaper, savedStates, savedOpenApps] = await Promise.all([
+                    storageService.get<string>(KV_KEYS.wallpaper),
+                    storageService.get<WindowStateRecord[]>(KV_KEYS.windowStates),
+                    storageService.get<string[]>(KV_KEYS.openWindows),
+                ]);
+
                 if (savedWallpaper) {
                     setActiveWallpaper(savedWallpaper);
+                } else {
+                    const legacyWallpaper = await getSetting<string>('wallpaper');
+                    if (legacyWallpaper) {
+                        setActiveWallpaper(legacyWallpaper);
+                        storageService.set(KV_KEYS.wallpaper, legacyWallpaper).catch(() => undefined);
+                    }
                 }
-                
-                const savedStates = await getWindowStates();
-                savedWindowStatesRef.current = savedStates;
-                
-                const savedOpenApps = await getSetting<string[]>('openWindows');
-                if (savedOpenApps && savedOpenApps.length > 0) {
+
+                if (Array.isArray(savedStates)) {
+                    savedWindowStatesRef.current = savedStates;
+                } else {
+                    const legacyStates = await getWindowStates();
+                    if (legacyStates.length > 0) {
+                        savedWindowStatesRef.current = legacyStates;
+                        storageService.set(KV_KEYS.windowStates, legacyStates).catch(() => undefined);
+                    }
+                }
+
+                if (Array.isArray(savedOpenApps) && savedOpenApps.length > 0) {
                     openAppIdsRef.current = savedOpenApps;
+                } else {
+                    const legacyOpenApps = await getSetting<string[]>('openWindows');
+                    if (legacyOpenApps && legacyOpenApps.length > 0) {
+                        openAppIdsRef.current = legacyOpenApps;
+                        storageService.set(KV_KEYS.openWindows, legacyOpenApps).catch(() => undefined);
+                    }
                 }
             } catch (error) {
-                console.error('Failed to initialize from IndexedDB:', error);
+                console.error('Failed to initialize from Dexie:', error);
             } finally {
                 setIsInitialized(true);
             }
@@ -86,14 +114,10 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         });
         
         savedWindowStatesRef.current = states;
-        saveWindowStates(states).catch(err => 
-            console.error('Failed to save window states:', err)
-        );
-        
+        storageService.set(KV_KEYS.windowStates, states).catch(() => undefined);
+
         const openAppIds = windowsToSave.map(w => w.appId);
-        saveSetting('openWindows', openAppIds).catch(err =>
-            console.error('Failed to save open windows:', err)
-        );
+        storageService.set(KV_KEYS.openWindows, openAppIds).catch(() => undefined);
     };
     
     useEffect(() => {
@@ -188,10 +212,7 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
             };
 
             const newWindows = [...prevWindows, newWindow];
-            const openAppIds = newWindows.map(w => w.appId);
-            saveSetting('openWindows', openAppIds).catch(err =>
-                console.error('Failed to save open windows:', err)
-            );
+            persistWindowStates(newWindows);
             return newWindows;
         });
         setIsStartMenuOpen(false);
@@ -218,15 +239,10 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                     savedWindowStatesRef.current.push(newRecord);
                 }
                 
-                saveWindowStates(savedWindowStatesRef.current).catch(err =>
-                    console.error('Failed to save window states:', err)
-                );
+                storageService.set(KV_KEYS.windowStates, savedWindowStatesRef.current).catch(() => undefined);
             }
             const remaining = prev.filter(w => w.id !== id);
-            const openAppIds = remaining.map(w => w.appId);
-            saveSetting('openWindows', openAppIds).catch(err =>
-                console.error('Failed to save open windows:', err)
-            );
+            persistWindowStates(remaining);
             return remaining;
         });
     };
@@ -280,9 +296,7 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     
     const setWallpaper = (url: string) => {
         setActiveWallpaper(url);
-        saveSetting('wallpaper', url).catch(err =>
-            console.error('Failed to save wallpaper setting:', err)
-        );
+        storageService.set(KV_KEYS.wallpaper, url).catch(() => undefined);
     };
 
     return (

@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "dexie": "^4.2.1",
+    "dexie-cloud-addon": "^4.2.4",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
   },

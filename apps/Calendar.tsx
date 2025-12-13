@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { readJsonIfPresent, STORAGE_KEYS, writeJson } from '../utils/storage';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { STORAGE_KEYS, storageService, useDexieLiveQuery } from '../utils/storage';
 
 type CalendarEvent = {
     id: string;
@@ -110,11 +110,12 @@ const normalizeInitialDate = (value?: string) => {
 };
 
 export const Calendar = ({ initialDate }: { initialDate?: string }) => {
-    const [events, setEvents] = useState<CalendarEvent[]>(() => {
-        const existing = readJsonIfPresent<CalendarEvent[]>(STORAGE_KEYS.calendarEvents);
-        if (existing !== null && Array.isArray(existing)) return existing;
-        return seedEvents();
-    });
+    const { value: persistedEvents, isLoading: isLoadingEvents } = useDexieLiveQuery(
+        () => storageService.get<CalendarEvent[]>(STORAGE_KEYS.calendarEvents),
+        [STORAGE_KEYS.calendarEvents]
+    );
+    const didInitFromStorageRef = useRef(false);
+    const [events, setEvents] = useState<CalendarEvent[]>([]);
 
     const [monthCursor, setMonthCursor] = useState(() => {
         const start = normalizeInitialDate(initialDate) ?? toYmd(new Date());
@@ -126,7 +127,23 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
     const [draftError, setDraftError] = useState<string | null>(null);
 
     useEffect(() => {
-        writeJson(STORAGE_KEYS.calendarEvents, events);
+        if (isLoadingEvents) return;
+        if (didInitFromStorageRef.current) return;
+        didInitFromStorageRef.current = true;
+
+        if (Array.isArray(persistedEvents)) {
+            setEvents(persistedEvents);
+            return;
+        }
+
+        const seeded = seedEvents();
+        setEvents(seeded);
+        storageService.set(STORAGE_KEYS.calendarEvents, seeded).catch(() => undefined);
+    }, [isLoadingEvents, persistedEvents]);
+
+    useEffect(() => {
+        if (!didInitFromStorageRef.current) return;
+        storageService.set(STORAGE_KEYS.calendarEvents, events).catch(() => undefined);
     }, [events]);
 
     useEffect(() => {

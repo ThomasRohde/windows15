@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { readJsonIfPresent, STORAGE_KEYS, writeJson } from '../utils/storage';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { STORAGE_KEYS, storageService, useDexieLiveQuery } from '../utils/storage';
 
 type MailboxId = 'inbox' | 'sent' | 'drafts' | 'trash';
 
@@ -95,11 +95,12 @@ const MAILBOX_LABELS: Record<MailboxId, string> = {
 };
 
 export const Mail = () => {
-    const [messages, setMessages] = useState<MailMessage[]>(() => {
-        const existing = readJsonIfPresent<MailMessage[]>(STORAGE_KEYS.mailMessages);
-        if (existing !== null && Array.isArray(existing)) return existing;
-        return seedMessages();
-    });
+    const { value: persistedMessages, isLoading: isLoadingMessages } = useDexieLiveQuery(
+        () => storageService.get<MailMessage[]>(STORAGE_KEYS.mailMessages),
+        [STORAGE_KEYS.mailMessages]
+    );
+    const didInitFromStorageRef = useRef(false);
+    const [messages, setMessages] = useState<MailMessage[]>([]);
 
     const [activeMailbox, setActiveMailbox] = useState<MailboxId>('inbox');
     const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
@@ -108,7 +109,23 @@ export const Mail = () => {
     const [composeError, setComposeError] = useState<string | null>(null);
 
     useEffect(() => {
-        writeJson(STORAGE_KEYS.mailMessages, messages);
+        if (isLoadingMessages) return;
+        if (didInitFromStorageRef.current) return;
+        didInitFromStorageRef.current = true;
+
+        if (Array.isArray(persistedMessages)) {
+            setMessages(persistedMessages);
+            return;
+        }
+
+        const seeded = seedMessages();
+        setMessages(seeded);
+        storageService.set(STORAGE_KEYS.mailMessages, seeded).catch(() => undefined);
+    }, [isLoadingMessages, persistedMessages]);
+
+    useEffect(() => {
+        if (!didInitFromStorageRef.current) return;
+        storageService.set(STORAGE_KEYS.mailMessages, messages).catch(() => undefined);
     }, [messages]);
 
     const mailboxCounts = useMemo(() => {

@@ -1,0 +1,13 @@
+{
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+  "chat.promptFiles": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "files.exclude": {
+    "**/.git": true,
+    "**/node_modules": true,
+    "**/.dev-server.log": true,
+    "**/.dev-server.pid": true
+  }
+}

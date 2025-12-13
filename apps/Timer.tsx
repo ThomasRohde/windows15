@@ -8,11 +8,15 @@ export const Timer = () => {
     const [isRunning, setIsRunning] = useState(false);
     const [laps, setLaps] = useState<number[]>([]);
     const [countdownInput, setCountdownInput] = useState({ hours: 0, minutes: 5, seconds: 0 });
-    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    const intervalIdsRef = useRef<Set<ReturnType<typeof setInterval>>>(new Set());
+    const runTokenRef = useRef(0);
 
     useEffect(() => {
-        if (isRunning) {
-            intervalRef.current = setInterval(() => {
+        if (!isRunning) return;
+
+        const token = ++runTokenRef.current;
+        const intervalId = setInterval(() => {
+            if (runTokenRef.current !== token) return;
                 setTime(prev => {
                     if (mode === 'countdown') {
                         if (prev <= 0) {
@@ -24,13 +28,19 @@ export const Timer = () => {
                     return prev + 10;
                 });
             }, 10);
-        } else if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-        }
+
+        intervalIdsRef.current.add(intervalId);
         return () => {
-            if (intervalRef.current) clearInterval(intervalRef.current);
+            clearInterval(intervalId);
+            intervalIdsRef.current.delete(intervalId);
         };
     }, [isRunning, mode]);
+
+    const stopAllIntervals = () => {
+        runTokenRef.current++;
+        intervalIdsRef.current.forEach(id => clearInterval(id));
+        intervalIdsRef.current.clear();
+    };
 
     const formatTime = (ms: number) => {
         const hours = Math.floor(ms / 3600000);
@@ -52,9 +62,13 @@ export const Timer = () => {
         setIsRunning(true);
     };
 
-    const handleStop = () => setIsRunning(false);
+    const handleStop = () => {
+        stopAllIntervals();
+        setIsRunning(false);
+    };
 
     const handleReset = () => {
+        stopAllIntervals();
         setIsRunning(false);
         setTime(0);
         setLaps([]);
@@ -73,7 +87,16 @@ export const Timer = () => {
 
     const Btn = ({ label, onClick, variant = 'default' }: { label: string; onClick: () => void; variant?: 'default' | 'primary' | 'danger' }) => (
         <button
-            onClick={onClick}
+            type="button"
+            onPointerDown={(e) => e.stopPropagation()}
+            onPointerUp={(e) => {
+                e.stopPropagation();
+                onClick();
+            }}
+            onClick={(e) => {
+                e.stopPropagation();
+                if (e.detail === 0) onClick();
+            }}
             className={`px-6 py-3 rounded-lg text-lg font-medium transition-all active:scale-95
                 ${variant === 'primary' ? 'bg-green-500 text-white hover:bg-green-400' : ''}
                 ${variant === 'danger' ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30' : ''}

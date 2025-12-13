@@ -33,11 +33,24 @@ export type TodoRecord = {
     updatedAt: number;
 };
 
+export type DesktopIconRecord = {
+    id: string;
+    label: string;
+    icon: string;
+    colorClass: string;
+    appId: string;
+    position: { x: number; y: number };
+    order: number;
+    createdAt: number;
+    updatedAt: number;
+};
+
 export class Windows15DexieDB extends Dexie {
     kv!: Table<KvRecord, string>;
     notes!: Table<NoteRecord, string>;
     bookmarks!: Table<BookmarkRecord, string>;
     todos!: Table<TodoRecord, string>;
+    desktopIcons!: Table<DesktopIconRecord, string>;
 
     constructor() {
         super("windows15", { addons: [dexieCloud] });
@@ -53,6 +66,14 @@ export class Windows15DexieDB extends Dexie {
             notes: "@id, updatedAt, createdAt",
             bookmarks: "@id, folder, updatedAt, createdAt",
             todos: "@id, completed, updatedAt, createdAt",
+        });
+
+        this.version(3).stores({
+            kv: "key, updatedAt",
+            notes: "@id, updatedAt, createdAt",
+            bookmarks: "@id, folder, updatedAt, createdAt",
+            todos: "@id, completed, updatedAt, createdAt",
+            desktopIcons: "@id, order, updatedAt, createdAt",
         });
 
         const databaseUrl = getCloudDatabaseUrl();

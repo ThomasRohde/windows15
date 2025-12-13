@@ -5,7 +5,9 @@ import { Taskbar } from './components/Taskbar';
 import { Window } from './components/Window';
 import { StartMenu } from './components/StartMenu';
 import { OSProvider, useOS } from './context/OSContext';
-import { DbProvider } from './context/DbContext';
+import { DbProvider, useDb } from './context/DbContext';
+import { useDexieLiveQuery } from './utils/storage/react';
+import { DesktopIconRecord } from './utils/storage/db';
 
 // Apps
 import { FileExplorer } from './components/FileExplorer';
@@ -34,6 +36,40 @@ import { RecycleBin } from './apps/RecycleBin';
 
 const Desktop = () => {
     const { windows, registerApp, activeWallpaper, isStartMenuOpen, closeStartMenu } = useOS();
+    const db = useDb();
+    
+    // Load desktop icons reactively
+    const { value: iconsRaw, loading: iconsLoading } = useDexieLiveQuery(
+        () => db.desktopIcons.orderBy('order').toArray(), 
+        [db]
+    );
+    const icons = Array.isArray(iconsRaw) ? iconsRaw : [];
+
+    // Initialize default icons if none exist
+    useEffect(() => {
+        const initializeIcons = async () => {
+            const count = await db.desktopIcons.count();
+            if (count === 0) {
+                const defaultIcons: DesktopIconRecord[] = [
+                    { id: 'icon-thispc', label: 'This PC', icon: 'computer', colorClass: 'text-blue-300', appId: 'explorer', position: { x: 20, y: 24 }, order: 0, createdAt: Date.now(), updatedAt: Date.now() },
+                    { id: 'icon-documents', label: 'Documents', icon: 'folder_open', colorClass: 'text-yellow-300', appId: 'explorer', position: { x: 20, y: 140 }, order: 1, createdAt: Date.now(), updatedAt: Date.now() },
+                    { id: 'icon-browser', label: 'Browser', icon: 'public', colorClass: 'text-green-300', appId: 'browser', position: { x: 20, y: 256 }, order: 2, createdAt: Date.now(), updatedAt: Date.now() },
+                    { id: 'icon-terminal', label: 'Terminal', icon: 'terminal', colorClass: 'text-green-400', appId: 'terminal', position: { x: 20, y: 372 }, order: 3, createdAt: Date.now(), updatedAt: Date.now() },
+                    { id: 'icon-timer', label: 'Timer', icon: 'timer', colorClass: 'text-red-300', appId: 'timer', position: { x: 140, y: 24 }, order: 4, createdAt: Date.now(), updatedAt: Date.now() },
+                    { id: 'icon-json', label: 'JSON Viewer', icon: 'data_object', colorClass: 'text-amber-300', appId: 'jsonviewer', position: { x: 140, y: 140 }, order: 5, createdAt: Date.now(), updatedAt: Date.now() },
+                    { id: 'icon-todo', label: 'Todo List', icon: 'checklist', colorClass: 'text-lime-300', appId: 'todolist', position: { x: 140, y: 256 }, order: 6, createdAt: Date.now(), updatedAt: Date.now() },
+                    { id: 'icon-recyclebin', label: 'Recycle Bin', icon: 'delete', colorClass: 'text-gray-300', appId: 'recyclebin', position: { x: 140, y: 372 }, order: 7, createdAt: Date.now(), updatedAt: Date.now() },
+                ];
+                await db.desktopIcons.bulkAdd(defaultIcons);
+            }
+        };
+        initializeIcons();
+    }, [db]);
+
+    // Handle icon position changes
+    const handleIconPositionChange = async (id: string, position: { x: number; y: number }) => {
+        await db.desktopIcons.update(id, { position, updatedAt: Date.now() });
+    };
 
     // Register Applications on boot
     useEffect(() => {
@@ -82,15 +118,19 @@ const Desktop = () => {
             </div>
 
             {/* Desktop Icons */}
-            <div className="relative z-0 flex flex-col gap-4 p-4 pt-6 w-min h-[calc(100vh-80px)] flex-wrap content-start">
-                <DesktopIcon icon="computer" label="This PC" colorClass="text-blue-300" appId="explorer" />
-                <DesktopIcon icon="folder_open" label="Documents" colorClass="text-yellow-300" appId="explorer" />
-                <DesktopIcon icon="public" label="Browser" colorClass="text-green-300" appId="browser" />
-                <DesktopIcon icon="terminal" label="Terminal" colorClass="text-green-400" appId="terminal" />
-                <DesktopIcon icon="timer" label="Timer" colorClass="text-red-300" appId="timer" />
-                <DesktopIcon icon="data_object" label="JSON Viewer" colorClass="text-amber-300" appId="jsonviewer" />
-                <DesktopIcon icon="checklist" label="Todo List" colorClass="text-lime-300" appId="todolist" />
-                <DesktopIcon icon="delete" label="Recycle Bin" colorClass="text-gray-300" appId="recyclebin" />
+            <div className="relative z-0 w-full h-[calc(100vh-80px)]">
+                {!iconsLoading && icons.map(iconData => (
+                    <DesktopIcon
+                        key={iconData.id}
+                        id={iconData.id}
+                        icon={iconData.icon}
+                        label={iconData.label}
+                        colorClass={iconData.colorClass}
+                        appId={iconData.appId}
+                        position={iconData.position}
+                        onPositionChange={handleIconPositionChange}
+                    />
+                ))}
             </div>
 
             {/* Window Manager Layer */}

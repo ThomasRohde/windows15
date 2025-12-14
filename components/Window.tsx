@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, Suspense, memo } from 'react';
-import { useOS } from '../context/OSContext';
+import { useOS, useWindowSpace } from '../context/OSContext';
 import { WindowState } from '../types';
 import { AppLoadingSkeleton } from './AppLoadingSkeleton';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -7,6 +7,8 @@ import { WINDOW } from '../utils/constants';
 
 interface WindowProps {
     window: WindowState;
+    /** Maximum z-index among all windows (for 3D depth calculation) */
+    maxZIndex?: number;
 }
 
 type ResizeDirection = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | null;
@@ -30,17 +32,20 @@ const areWindowPropsEqual = (prevProps: WindowProps, nextProps: WindowProps): bo
         prev.position.y === next.position.y &&
         prev.size.width === next.size.width &&
         prev.size.height === next.size.height &&
-        prev.component === next.component
+        prev.component === next.component &&
+        prevProps.maxZIndex === nextProps.maxZIndex
     );
 };
 
 /**
  * Window component with dragging, resizing, and window controls.
  * Memoized with custom comparator to prevent unnecessary re-renders.
+ * Supports 3D mode with depth transforms (F087).
  */
-export const Window: React.FC<WindowProps> = memo(function Window({ window }) {
+export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZIndex = window.zIndex }) {
     const { closeWindow, minimizeWindow, toggleMaximizeWindow, focusWindow, resizeWindow, updateWindowPosition } =
         useOS();
+    const { is3DMode, getWindowTransform, getWindowShadow } = useWindowSpace();
     const [isDragging, setIsDragging] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
     const [resizeDir, setResizeDir] = useState<ResizeDirection>(null);
@@ -261,6 +266,13 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window }) {
 
     if (window.isMinimized) return null;
 
+    // Calculate if this window is focused (highest z-index)
+    const isFocused = window.zIndex === maxZIndex;
+
+    // Get 3D transforms and shadow (F087)
+    const transform3D = is3DMode && !window.isMaximized ? getWindowTransform(window.zIndex, maxZIndex, isFocused) : '';
+    const shadow3D = is3DMode && !window.isMaximized ? getWindowShadow(window.zIndex, maxZIndex) : '';
+
     const outerStyle: React.CSSProperties = window.isMaximized
         ? {
               position: 'fixed',
@@ -275,15 +287,20 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window }) {
               left: 0,
               width: size.width,
               height: size.height,
-              transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
+              transform: transform3D
+                  ? `translate3d(${position.x}px, ${position.y}px, 0) ${transform3D}`
+                  : `translate3d(${position.x}px, ${position.y}px, 0)`,
               willChange: isDragging || isResizing ? 'transform, width, height' : undefined,
+              // Apply 3D shadow when in 3D mode
+              ...(shadow3D ? ({ '--window-shadow': shadow3D } as React.CSSProperties) : {}),
           };
 
     const chromeStyle: React.CSSProperties | undefined = (() => {
-        if (!window.isMaximized && !isDragging && !isResizing) return undefined;
+        if (!window.isMaximized && !isDragging && !isResizing && !shadow3D) return undefined;
         return {
             ...(window.isMaximized ? { borderRadius: 0, boxShadow: 'none' } : {}),
             ...(isDragging || isResizing ? { backdropFilter: 'none', WebkitBackdropFilter: 'none' } : {}),
+            ...(shadow3D ? { boxShadow: shadow3D } : {}),
         };
     })();
 

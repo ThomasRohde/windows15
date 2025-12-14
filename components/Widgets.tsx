@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useLocalization, useOS } from '../context';
+import { useLocalization, useOS, useWindowSpace } from '../context';
 import { STORAGE_KEYS, storageService, useDexieLiveQuery } from '../utils/storage';
 import { formatTemperature } from '../utils/localization';
 import { SystemStatusWidget } from './SystemStatusWidget';
@@ -49,6 +49,7 @@ const weatherCodeToInfo: Record<number, { icon: string; condition: string }> = {
 export const Widgets: React.FC = () => {
     const { openWindow } = useOS();
     const { unitSystem, formatTimeShortFromHm } = useLocalization();
+    const { is3DMode, toggle3DMode, prefersReducedMotion } = useWindowSpace();
     const [currentDate, setCurrentDate] = useState(new Date());
     const { value: calendarEventsRaw } = useDexieLiveQuery(
         () => storageService.get<CalendarEvent[]>(STORAGE_KEYS.calendarEvents),
@@ -203,6 +204,44 @@ export const Widgets: React.FC = () => {
 
     return (
         <div className="hidden lg:flex absolute right-6 top-6 bottom-24 w-80 flex-col gap-4 pointer-events-none z-0">
+            {/* Quick Settings (F087) */}
+            <div className="p-4 glass-panel rounded-xl pointer-events-auto hover:bg-white/5 transition-colors cursor-default">
+                <div className="flex items-center gap-3 mb-3">
+                    <span className="material-symbols-outlined text-white/60">tune</span>
+                    <span className="text-sm font-medium text-white/90">Quick Settings</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                    {/* 3D Space Toggle */}
+                    <button
+                        type="button"
+                        onClick={toggle3DMode}
+                        disabled={prefersReducedMotion}
+                        className={`flex flex-col items-center justify-center gap-1 p-3 rounded-xl transition-all ${
+                            is3DMode
+                                ? 'bg-primary/30 text-primary ring-1 ring-primary/50'
+                                : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
+                        } ${prefersReducedMotion ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        title={
+                            prefersReducedMotion
+                                ? 'Disabled (reduced motion preference)'
+                                : 'Toggle 3D Window Space (Ctrl+Alt+3)'
+                        }
+                    >
+                        <span className="material-symbols-outlined text-xl">view_in_ar</span>
+                        <span className="text-[10px] font-medium">3D Space</span>
+                    </button>
+                    {/* Placeholder toggles for future features */}
+                    <div className="flex flex-col items-center justify-center gap-1 p-3 rounded-xl bg-white/5 text-white/40">
+                        <span className="material-symbols-outlined text-xl">dark_mode</span>
+                        <span className="text-[10px] font-medium">Dark</span>
+                    </div>
+                    <div className="flex flex-col items-center justify-center gap-1 p-3 rounded-xl bg-white/5 text-white/40">
+                        <span className="material-symbols-outlined text-xl">bluetooth</span>
+                        <span className="text-[10px] font-medium">Bluetooth</span>
+                    </div>
+                </div>
+            </div>
+
             {/* Weather Widget */}
             <div className="p-5 glass-panel rounded-xl pointer-events-auto hover:bg-white/5 transition-colors cursor-default">
                 <div className="flex justify-between items-start mb-2">

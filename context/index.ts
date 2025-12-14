@@ -14,3 +14,7 @@ export { WallpaperProvider, useWallpaper } from './WallpaperContext';
 export { StartMenuProvider, useStartMenu } from './StartMenuContext';
 export { WindowProvider, useWindowManager } from './WindowContext';
 export { LocalizationProvider, useLocalization } from './LocalizationContext';
+
+// 3D Window Space context (F087)
+export { WindowSpaceProvider, useWindowSpace } from './WindowSpaceContext';
+export type { WindowSpaceMode, WindowSpaceSettings } from './WindowSpaceContext';

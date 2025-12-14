@@ -12,7 +12,7 @@ import {
     Screensaver,
     WallpaperHost,
 } from './components';
-import { OSProvider, useOS, DbProvider, useDb } from './context';
+import { OSProvider, useOS, DbProvider, useDb, useWindowSpace } from './context';
 import { useDexieLiveQuery } from './utils/storage/react';
 import { DesktopIconRecord } from './utils/storage/db';
 import { APP_REGISTRY } from './apps';
@@ -29,7 +29,14 @@ const Desktop = () => {
         isStartMenuOpen,
         closeStartMenu,
     } = useOS();
+    const { is3DMode, settings: windowSpaceSettings, toggle3DMode } = useWindowSpace();
     const db = useDb();
+
+    // Calculate max z-index for 3D depth calculations
+    const maxZIndex = useMemo(() => {
+        if (windows.length === 0) return 0;
+        return Math.max(...windows.map(w => w.zIndex));
+    }, [windows]);
 
     // Load desktop icons reactively
     const { value: iconsRaw, isLoading: iconsLoading } = useDexieLiveQuery(
@@ -183,7 +190,18 @@ const Desktop = () => {
         'ctrl+w': () => focusedWindow && closeWindow(focusedWindow.id),
         'alt+f4': () => focusedWindow && closeWindow(focusedWindow.id),
         'ctrl+m': () => focusedWindow && minimizeWindow(focusedWindow.id),
+        // 3D Window Space toggle (F087)
+        'ctrl+alt+3': () => toggle3DMode(),
     });
+
+    // CSS perspective for 3D mode
+    const windowLayerStyle: React.CSSProperties = is3DMode
+        ? {
+              perspective: `${windowSpaceSettings.perspective}px`,
+              perspectiveOrigin: '50% 50%',
+              transformStyle: 'preserve-3d' as const,
+          }
+        : {};
 
     return (
         <div
@@ -217,11 +235,11 @@ const Desktop = () => {
                     ))}
             </div>
 
-            {/* Window Manager Layer */}
-            <div className="absolute inset-0 z-10 pointer-events-none">
+            {/* Window Manager Layer - applies CSS perspective in 3D mode (F087) */}
+            <div className="absolute inset-0 z-10 pointer-events-none" style={windowLayerStyle}>
                 {windows.map(window => (
                     <div key={window.id} className="pointer-events-auto">
-                        <Window window={window} />
+                        <Window window={window} maxZIndex={maxZIndex} />
                     </div>
                 ))}
             </div>

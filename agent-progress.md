@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                                                  | Status         |
 | ---- | ---------------------------------------------------------------------------- | -------------- |
-| F086 | WallpaperScheduler manages render loop with FPS cap and battery saver mode   | 🔄 In progress |
-| F087 | Basic 3D toggle applies CSS transforms to windows with depth and perspective | ⏳ Not started |
+| F087 | Basic 3D toggle applies CSS transforms to windows with depth and perspective | 🔄 In progress |
 | F088 | Wallpaper Studio app with gallery view and built-in wallpaper packs          | ⏳ Not started |
+| F089 | WebGPU shader wallpaper runtime with WGSL support                            | ⏳ Not started |
 
 ---
 

@@ -24,6 +24,22 @@ vi.mock('../../context/OSContext', () => ({
         resizeWindow: mockResizeWindow,
         updateWindowPosition: mockUpdateWindowPosition,
     }),
+    useWindowSpace: () => ({
+        is3DMode: false,
+        settings: {
+            mode: 'flat',
+            perspective: 1000,
+            tiltOnDrag: true,
+            depthIntensity: 0.5,
+            motion: 'full',
+        },
+        toggle3DMode: vi.fn(),
+        setMode: vi.fn(),
+        updateSettings: vi.fn(),
+        getWindowTransform: () => '',
+        getWindowShadow: () => '0 10px 40px rgba(0, 0, 0, 0.3)',
+        prefersReducedMotion: false,
+    }),
 }));
 
 // Mock requestAnimationFrame

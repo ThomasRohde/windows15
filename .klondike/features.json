@@ -2251,11 +2251,21 @@
         "No dropped frames during normal desktop interaction"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T16:42:09.617446",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "WallpaperScheduler class created with: FPS cap support (15/30/60)",
+        "battery saver mode (auto-caps to 30 FPS + 75% resolution)",
+        "Page Visibility API integration",
+        "frame budget tracking (12ms limit)",
+        "Battery Status API detection",
+        "stats tracking (currentFps",
+        "droppedFrames",
+        "avgFrameTime). Integrated into WallpaperHost component. Build passes",
+        "54 tests pass."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T16:34:59.594454",
       "notes": "Implementation: Create WallpaperScheduler.ts. Use requestAnimationFrame with timestamp delta to enforce FPS cap. Battery saver renders to smaller OffscreenCanvas then upscales. Edge cases: Tab visibility changes, rapid settings updates. Dependencies: F085 (WallpaperHost). Context: Ensures wallpapers don't impact desktop performance. Gotchas: Don't starve main thread - consider yielding if frame budget exceeded."
@@ -2275,13 +2285,13 @@
         "Toggle is instantaneous without page reload"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T16:42:19.886660",
       "notes": "Implementation: Add WindowSpaceMode.ts in platform/desktop/window-space/. Apply CSS transform: translateZ() and scale() based on window z-order. Store ui.windowSpaceMode in settings. Edge cases: Window focus changes during drag, rapid toggle. Dependencies: F084 (settings storage), existing Window.tsx. Context: Milestone 1 foundation for 3D Window Space. Gotchas: Don't break existing drag/resize - transforms are visual only. Test with reduced motion preference."
     },
     {
@@ -2782,8 +2792,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T16:33:52.452053",
+    "lastUpdated": "2025-12-14T16:42:09.617460",
     "totalFeatures": 108,
-    "passingFeatures": 85
+    "passingFeatures": 86
   }
 }

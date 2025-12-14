@@ -1103,11 +1103,21 @@
         "Tests verify user interactions"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T05:21:21.082871",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "28 component tests added: 10 for DesktopIcon (rendering",
+        "double-click",
+        "drag behavior)",
+        "9 for StartMenu (visibility",
+        "app display",
+        "interactions)",
+        "9 for Window (title bar",
+        "controls",
+        "maximize/minimize). All 41 tests passing with test-utils.tsx mock providers."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T05:17:27.591004",
       "notes": "Implementation: Create components/__tests__/DesktopIcon.test.tsx etc. Use render() screen.getByRole() userEvent.click(). Mock OSContext with custom wrapper. Edge cases: Window.tsx needs pointer event mocking. Dependencies: F042 (Vitest setup). Context: Component tests catch regressions in UI behavior. Gotchas: Wrap tests in providers - create test-utils.tsx with renderWithProviders helper."
@@ -1262,13 +1272,23 @@
         "Status badges in README"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T05:24:30.909278",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Created .github/workflows/ci.yml with: (1) lint-and-test job with Node 18/20 matrix",
+        "(2) format:check",
+        "lint",
+        "test:run",
+        "build steps",
+        "(3) test-coverage job with artifact upload",
+        "(4) npm cache for faster CI. Added CI status badge to README.md. All local checks pass: 41 tests",
+        "lint warnings only",
+        "build succeeds."
+      ],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T05:21:28.827380",
       "notes": "Implementation: Create .github/workflows/ci.yml with jobs for lint test build. Use actions/setup-node@v4. Cache node_modules. Add badges to README.md. Edge cases: Matrix test on Node 18 and 20. Dependencies: F040 F041 F042. Context: CI ensures code quality on every commit. Gotchas: Use npm ci not npm install for reproducible builds."
     },
     {
@@ -1351,13 +1371,13 @@
         "axe-core audit passes with no critical issues"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T05:25:05.856144",
       "notes": "Implementation: Add role='button' aria-label to icon buttons. Add role='dialog' to windows. Use focus trap in modals. Add aria-live regions for status updates. Test with axe DevTools. Edge cases: Drag operations need aria-grabbed. Dependencies: None. Context: Accessibility is required for inclusive software. Gotchas: Don't use aria-label on elements with visible text - use aria-labelledby."
     },
     {
@@ -1453,8 +1473,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T05:16:43.500589",
+    "lastUpdated": "2025-12-14T05:24:30.909290",
     "totalFeatures": 58,
-    "passingFeatures": 42
+    "passingFeatures": 44
   }
 }

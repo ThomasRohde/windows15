@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import {
+    AriaLiveProvider,
     DesktopIcon,
     Widgets,
     Taskbar,
@@ -209,7 +210,9 @@ const App: React.FC = () => {
     return (
         <DbProvider>
             <OSProvider>
-                <Desktop />
+                <AriaLiveProvider>
+                    <Desktop />
+                </AriaLiveProvider>
             </OSProvider>
         </DbProvider>
     );

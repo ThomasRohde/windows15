@@ -266,9 +266,14 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
     const resizeHandleClass = 'absolute z-[60]';
     const handleSize = 8;
 
+    const titleId = `window-title-${window.id}`;
+
     return (
         <div
             ref={windowRef}
+            role="dialog"
+            aria-labelledby={titleId}
+            aria-modal="false"
             className="absolute"
             style={{
                 ...outerStyle,
@@ -291,13 +296,14 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                     onDoubleClick={() => toggleMaximizeWindow(window.id)}
                 >
                     <div className="flex items-center gap-3 min-w-0 flex-shrink">
-                        <span className="material-symbols-outlined text-white/70 text-[18px] flex-shrink-0">
+                        <span className="material-symbols-outlined text-white/70 text-[18px] flex-shrink-0" aria-hidden="true">
                             {window.icon}
                         </span>
-                        <span className="text-sm font-medium text-white/80 truncate">{window.title}</span>
+                        <span id={titleId} className="text-sm font-medium text-white/80 truncate">{window.title}</span>
                     </div>
-                    <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+                    <div className="flex items-center gap-1 flex-shrink-0 ml-2" role="group" aria-label="Window controls">
                         <button
+                            aria-label="Minimize window"
                             onPointerDown={e => e.stopPropagation()}
                             onClick={e => {
                                 e.stopPropagation();
@@ -305,9 +311,10 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                             }}
                             className="w-8 h-8 flex items-center justify-center rounded hover:bg-white/10 text-white/70 transition-colors"
                         >
-                            <span className="material-symbols-outlined text-[18px]">minimize</span>
+                            <span className="material-symbols-outlined text-[18px]" aria-hidden="true">minimize</span>
                         </button>
                         <button
+                            aria-label={window.isMaximized ? 'Restore window' : 'Maximize window'}
                             onPointerDown={e => e.stopPropagation()}
                             onClick={e => {
                                 e.stopPropagation();
@@ -315,11 +322,12 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                             }}
                             className="w-8 h-8 flex items-center justify-center rounded hover:bg-white/10 text-white/70 transition-colors"
                         >
-                            <span className="material-symbols-outlined text-[16px]">
+                            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">
                                 {window.isMaximized ? 'close_fullscreen' : 'crop_square'}
                             </span>
                         </button>
                         <button
+                            aria-label="Close window"
                             onPointerDown={e => e.stopPropagation()}
                             onClick={e => {
                                 e.stopPropagation();
@@ -327,7 +335,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                             }}
                             className="w-8 h-8 flex items-center justify-center rounded hover:bg-red-500 text-white/70 hover:text-white transition-colors"
                         >
-                            <span className="material-symbols-outlined text-[18px]">close</span>
+                            <span className="material-symbols-outlined text-[18px]" aria-hidden="true">close</span>
                         </button>
                     </div>
                 </div>

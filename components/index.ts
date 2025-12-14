@@ -3,6 +3,7 @@
  */
 
 export { AppLoadingSkeleton } from './AppLoadingSkeleton';
+export { AriaLiveProvider, useAriaLive } from './AriaLiveRegion';
 export { DesktopIcon } from './DesktopIcon';
 export { ErrorBoundary } from './ErrorBoundary';
 export { FileExplorer } from './FileExplorer';

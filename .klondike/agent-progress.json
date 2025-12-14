@@ -164,18 +164,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F043",
-        "description": "Add React Testing Library component tests",
+        "id": "F054",
+        "description": "Add accessibility (a11y) improvements",
         "status": "in-progress"
       },
       {
-        "id": "F050",
-        "description": "Add GitHub Actions CI/CD pipeline",
+        "id": "F044",
+        "description": "Add Playwright E2E testing infrastructure",
         "status": "not-started"
       },
       {
-        "id": "F054",
-        "description": "Add accessibility (a11y) improvements",
+        "id": "F045",
+        "description": "Memoize expensive component renders with React.memo",
         "status": "not-started"
       }
     ]

@@ -55,6 +55,8 @@ export const DesktopIcon: React.FC<DraggableDesktopIconProps> = ({
 
     return (
         <button
+            aria-label={`${label} - double-click to open`}
+            aria-grabbed={isDragging}
             onDoubleClick={handleClick}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
@@ -65,10 +67,11 @@ export const DesktopIcon: React.FC<DraggableDesktopIconProps> = ({
                 top: `${position.y}px`,
                 cursor: isDragging ? 'grabbing' : 'default',
             }}
-            className="group flex flex-col items-center gap-2 p-2 rounded hover:bg-white/10 transition-colors w-24 focus:outline-none focus:bg-white/10"
+            className="group flex flex-col items-center gap-2 p-2 rounded hover:bg-white/10 transition-colors w-24 focus:outline-none focus:bg-white/10 focus:ring-2 focus:ring-blue-400/50"
         >
             <div
                 className={`w-12 h-12 bg-opacity-20 rounded-lg flex items-center justify-center ring-1 ring-white/10 group-hover:scale-105 transition-transform duration-300 ${colorClass.replace('text-', 'bg-').replace('300', '500')}/20 ${colorClass}`}
+                aria-hidden="true"
             >
                 <span className="material-symbols-outlined text-3xl">{icon}</span>
             </div>

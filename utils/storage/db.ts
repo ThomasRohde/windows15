@@ -81,6 +81,62 @@ export type TerminalAliasRecord = {
     updatedAt: number;
 };
 
+// ==========================================
+// Wow Pack: Wallpapers and Arcade (F084)
+// ==========================================
+
+/**
+ * Wallpaper manifest stored in IndexedDB
+ */
+export type WallpaperRecord = {
+    id: string; // Unique wallpaper ID (e.g., 'aurora-shader')
+    name: string; // Display name
+    type: 'shader' | 'scene' | 'image'; // Wallpaper runtime type
+    manifest: string; // JSON stringified manifest from wallpaper.json
+    installedAt: number;
+    updatedAt: number;
+};
+
+/**
+ * Wallpaper assets (textures, shaders, etc.)
+ */
+export type WallpaperAssetRecord = {
+    id?: number; // Auto-incremented
+    wallpaperId: string; // Foreign key to WallpaperRecord.id
+    path: string; // Relative path within the wallpaper pack
+    blob: Blob; // Binary asset data
+    mimeType: string; // MIME type of the asset
+    createdAt: number;
+};
+
+/**
+ * Arcade game entry in the library
+ */
+export type ArcadeGameRecord = {
+    id: string; // Unique game ID
+    title: string; // Display title
+    type: 'wasm4' | 'custom'; // Runtime type (MVP: wasm4 only)
+    cartridgeBlob: Blob; // The .wasm cartridge file
+    iconBlob?: Blob; // Optional custom icon
+    tags: string[]; // Tags for filtering
+    lastPlayedAt?: number; // Last played timestamp
+    createdAt: number;
+    updatedAt: number;
+};
+
+/**
+ * Arcade save state
+ */
+export type ArcadeSaveRecord = {
+    id?: number; // Auto-incremented
+    gameId: string; // Foreign key to ArcadeGameRecord.id
+    slot: number; // Save slot number (1-3)
+    dataBlob: Blob; // Save state binary data
+    meta: string; // JSON stringified metadata (screenshot thumbnail, timestamp, etc.)
+    createdAt: number;
+    updatedAt: number;
+};
+
 export class Windows15DexieDB extends Dexie {
     kv!: Table<KvRecord, string>;
     notes!: Table<NoteRecord, string>;
@@ -91,6 +147,11 @@ export class Windows15DexieDB extends Dexie {
     $screensaverSettings!: Table<ScreensaverSettingsRecord, string>;
     $terminalSessions!: Table<TerminalSessionRecord, number>;
     $terminalAliases!: Table<TerminalAliasRecord, string>;
+    // Wow Pack tables (local-only, prefixed with $)
+    $wallpapers!: Table<WallpaperRecord, string>;
+    $wallpaperAssets!: Table<WallpaperAssetRecord, number>;
+    $arcadeGames!: Table<ArcadeGameRecord, string>;
+    $arcadeSaves!: Table<ArcadeSaveRecord, number>;
 
     constructor() {
         super('windows15', { addons: [dexieCloud] });
@@ -203,6 +264,25 @@ export class Windows15DexieDB extends Dexie {
             $screensaverSettings: 'id, updatedAt, createdAt',
             $terminalSessions: '++id, updatedAt, createdAt',
             $terminalAliases: 'name, updatedAt, createdAt',
+        });
+
+        // Version 9: Wow Pack - Wallpapers and Arcade storage (F084)
+        this.version(9).stores({
+            kv: 'key, updatedAt',
+            notes: '@id, updatedAt, createdAt',
+            bookmarks: '@id, folder, updatedAt, createdAt',
+            todos: '@id, completed, priority, dueDate, sortOrder, updatedAt, createdAt',
+            desktopIcons: '@id, order, updatedAt, createdAt',
+            $terminalHistory: '++id, executedAt',
+            $screensaverSettings: 'id, updatedAt, createdAt',
+            $terminalSessions: '++id, updatedAt, createdAt',
+            $terminalAliases: 'name, updatedAt, createdAt',
+            // Wallpaper storage
+            $wallpapers: 'id, type, installedAt, updatedAt',
+            $wallpaperAssets: '++id, wallpaperId, path, createdAt',
+            // Arcade storage
+            $arcadeGames: 'id, type, lastPlayedAt, createdAt, updatedAt',
+            $arcadeSaves: '++id, gameId, slot, createdAt, updatedAt',
         });
 
         const databaseUrl = getCloudDatabaseUrl();

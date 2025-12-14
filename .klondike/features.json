@@ -2071,11 +2071,15 @@
         "Settings accessible via 'theme' command or context menu"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T16:29:38.171291",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Theme commands (theme",
+        "fontsize",
+        "font) implemented. 4 color schemes available. Preferences persist in IndexedDB kv table. Context menu has theme/font submenus. Tests pass."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T14:17:33.382552",
       "notes": "Store terminal preferences in kv table with keys: terminal.theme, terminal.fontSize, terminal.fontFamily. Predefined themes: { classic: green on black, powershell: blue on black, amber: amber on black, light: black on white }. Add 'theme list' and 'theme set <name>' commands. CSS variables for easy theming."
@@ -2194,13 +2198,13 @@
         "Schema migration runs without data loss"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T16:30:06.594127",
       "notes": "Implementation: Extend existing Dexie db.ts with new tables. Use Dexie versioning for migration. Edge cases: Handle migration when tables partially exist. Dependencies: Existing db.ts and Dexie setup. Context: Foundation for Milestone 1 - enables all Wow Pack features to persist data. Gotchas: Blob storage for cartridges should use efficient IndexedDB binary storage, not base64."
     },
     {
@@ -2771,8 +2775,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T14:47:21.260812",
+    "lastUpdated": "2025-12-14T16:29:38.171305",
     "totalFeatures": 108,
-    "passingFeatures": 82
+    "passingFeatures": 83
   }
 }

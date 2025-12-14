@@ -30,7 +30,7 @@ klondike feature list  # List all features
 
 | ID   | Description                                                                 | Status         |
 | ---- | --------------------------------------------------------------------------- | -------------- |
-| F084 | Dexie schema updates for wallpapers and arcade storage                      | ⏳ Not started |
+| F084 | Dexie schema updates for wallpapers and arcade storage                      | 🔄 In progress |
 | F085 | WallpaperHost component renders live wallpaper behind desktop icons/windows | ⏳ Not started |
 | F086 | WallpaperScheduler manages render loop with FPS cap and battery saver mode  | ⏳ Not started |
 

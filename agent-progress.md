@@ -24,9 +24,9 @@ klondike feature list  # List all features
 ### Current Priority Features
 | ID | Description | Status |
 |----|-------------|--------|
-| F034 | Add barrel exports (index.ts) for all module directories | 🔄 In progress |
-| F035 | Extract custom hooks from components into hooks/ directory | ⏳ Not started |
+| F035 | Extract custom hooks from components into hooks/ directory | 🔄 In progress |
 | F036 | Add comprehensive TypeScript strict mode and type improvements | ⏳ Not started |
+| F037 | Split OSContext into smaller focused contexts | ⏳ Not started |
 
 ---
 

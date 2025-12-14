@@ -860,11 +860,17 @@
         "Import paths simplified throughout codebase"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T04:29:32.496145",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Build passes",
+        "barrel exports created in apps/",
+        "components/",
+        "context/",
+        "utils/. App.tsx updated to use simplified imports from barrel files."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T04:28:17.235205",
       "notes": "Implementation: Create index.ts in each directory with named exports. Use 'export { X } from ./X' pattern. Edge cases: Avoid circular dependencies by checking import order. Dependencies: None. Context: Clean imports like 'import { Notepad, Browser } from ./apps' instead of individual files. Gotchas: May need to reorder exports if circular deps detected."
@@ -882,13 +888,13 @@
         "Each hook has proper TypeScript generics where applicable"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T04:29:39.281104",
       "notes": "Implementation: Create hooks/useWindowDrag.ts, useWindowResize.ts from Window.tsx logic. Add useDebounce for Notepad autosave. Add useLocalStorage generic hook. Edge cases: Preserve pointer capture logic in drag hook. Dependencies: None. Context: Window.tsx is 390 lines with complex drag/resize logic that could be reusable. Gotchas: Hooks must handle cleanup properly (useEffect returns)."
     },
     {
@@ -1412,8 +1418,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-13T17:04:35.573147",
+    "lastUpdated": "2025-12-14T04:29:32.496157",
     "totalFeatures": 58,
-    "passingFeatures": 33
+    "passingFeatures": 34
   }
 }

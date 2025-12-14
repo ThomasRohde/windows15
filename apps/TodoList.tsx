@@ -45,7 +45,7 @@ export const TodoList = () => {
         try {
             const now = Date.now();
             await db.todos.add({
-                id: generateUuid(),
+                id: `tds${generateUuid()}`,
                 text: trimmedInput,
                 completed: false,
                 createdAt: now,

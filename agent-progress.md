@@ -28,10 +28,9 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                               | Status         |
-| ---- | ------------------------------------------------------------------------- | -------------- |
-| F101 | Service Worker caches built-in wallpaper packs and demo carts for offline | 🔄 In progress |
-| F102 | Wallpaper rendering in Web Worker with OffscreenCanvas                    | ⏳ Not started |
+| ID   | Description                                            | Status         |
+| ---- | ------------------------------------------------------ | -------------- |
+| F102 | Wallpaper rendering in Web Worker with OffscreenCanvas | 🔄 In progress |
 
 ---
 

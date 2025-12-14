@@ -1,18 +1,20 @@
 /**
- * Runtime Factory (F089, F090)
+ * Runtime Factory (F089, F090, F102)
  *
  * Automatically selects and creates the best available shader runtime
  * based on browser capabilities. Prefers WebGPU, falls back to WebGL2.
+ * Supports offloading to Web Worker with OffscreenCanvas (F102).
  */
 
 import type { WallpaperRuntime } from '../types/wallpaper';
 import { ShaderWallpaperRuntime, isWebGPUAvailable, createShaderRuntimeFromUrl } from './ShaderWallpaperRuntime';
 import { WebGL2ShaderRuntime, isWebGL2Available, createWebGL2RuntimeFromUrl } from './WebGL2ShaderRuntime';
+import { WorkerWallpaperRuntime, supportsOffscreenCanvas } from '../workers';
 
 /**
  * Runtime type enumeration
  */
-export type RuntimeType = 'webgpu' | 'webgl2' | 'none';
+export type RuntimeType = 'webgpu' | 'webgl2' | 'worker' | 'none';
 
 /**
  * Detect the best available runtime for the current browser
@@ -41,21 +43,38 @@ export interface CreateShaderRuntimeOptions {
     glslUrl?: string;
     /** Force a specific runtime type */
     forceRuntime?: RuntimeType;
+    /** Use Web Worker for rendering if available (F102) */
+    useWorker?: boolean;
 }
 
 /**
  * Create the best available shader runtime
  *
  * Priority order:
- * 1. WebGPU with WGSL shader
- * 2. WebGL2 with GLSL shader (fallback)
+ * 1. Web Worker with OffscreenCanvas (if useWorker is true)
+ * 2. WebGPU with WGSL shader
+ * 3. WebGL2 with GLSL shader (fallback)
  *
  * @returns A promise resolving to the runtime, or null if no runtime is available
  */
 export async function createShaderRuntime(options: CreateShaderRuntimeOptions = {}): Promise<WallpaperRuntime | null> {
-    const { wgslCode, glslCode, wgslUrl, glslUrl, forceRuntime } = options;
+    const { wgslCode, glslCode, wgslUrl, glslUrl, forceRuntime, useWorker } = options;
 
     const preferredRuntime = forceRuntime ?? getPreferredRuntime();
+
+    // Try Web Worker runtime first if requested (F102)
+    if ((useWorker || forceRuntime === 'worker') && supportsOffscreenCanvas()) {
+        try {
+            console.log('[RuntimeFactory] Creating Web Worker runtime');
+            return new WorkerWallpaperRuntime({
+                shaderUrl: wgslUrl,
+                glslUrl: glslUrl,
+            });
+        } catch (error) {
+            console.warn('[RuntimeFactory] Worker runtime creation failed, trying main thread:', error);
+            // Fall through to main thread runtimes
+        }
+    }
 
     // Try WebGPU first
     if (preferredRuntime === 'webgpu') {
@@ -94,6 +113,8 @@ export interface RuntimeCapabilities {
     webgpu: boolean;
     /** WebGL2 support */
     webgl2: boolean;
+    /** Web Worker with OffscreenCanvas support (F102) */
+    worker: boolean;
     /** Best available runtime */
     preferred: RuntimeType;
     /** Device description (if available) */
@@ -107,6 +128,7 @@ export async function getRuntimeCapabilities(): Promise<RuntimeCapabilities> {
     const capabilities: RuntimeCapabilities = {
         webgpu: isWebGPUAvailable(),
         webgl2: isWebGL2Available(),
+        worker: supportsOffscreenCanvas(),
         preferred: getPreferredRuntime(),
     };
 

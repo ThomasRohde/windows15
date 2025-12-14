@@ -125,6 +125,12 @@ export default [
                 MediaStreamAudioSourceNode: 'readonly',
                 // DOM exception
                 DOMException: 'readonly',
+                // Web Worker globals (F102)
+                Worker: 'readonly',
+                OffscreenCanvas: 'readonly',
+                OffscreenCanvasRenderingContext2D: 'readonly',
+                MessageEvent: 'readonly',
+                self: 'readonly',
             },
         },
         plugins: {

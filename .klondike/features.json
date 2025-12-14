@@ -2690,11 +2690,16 @@
         "Cache updates on new version deploy"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T19:38:26.738203",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Added public/wallpapers with 2 built-in shader packs (gradient-flow",
+        "particle-field)",
+        "public/demo-carts manifest",
+        "extended VitePWA config with includeAssets and workbox runtimeCaching for offline-first caching. Build confirms 58 precache entries."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T19:35:57.666859",
       "notes": "Implementation: Extend existing Workbox config to include wallpaper packs and demo-carts folders. Use precache manifest. Edge cases: Large pack updates, partial cache. Dependencies: F088 (Wallpaper Studio), F096 (Arcade). Context: Offline-first UX per PRD. Gotchas: Don't cache user-imported content in SW; that stays in IndexedDB."
@@ -2713,13 +2718,13 @@
         "No UI jank during heavy shader rendering"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T19:38:46.061277",
       "notes": "Implementation: Move WallpaperRuntime into worker. Use transferControlToOffscreen(). Message protocol for settings, resize, audio bands. Edge cases: OffscreenCanvas not supported (fallback to main thread), worker crash. Dependencies: F085-F090 (wallpaper system). Context: PRD recommends as optimization. Gotchas: WebGPU in worker has varying support; feature detect."
     },
     {
@@ -2891,8 +2896,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T19:35:45.625377",
+    "lastUpdated": "2025-12-14T19:38:26.738213",
     "totalFeatures": 108,
-    "passingFeatures": 106
+    "passingFeatures": 107
   }
 }

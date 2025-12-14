@@ -336,14 +336,9 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F101",
-        "description": "Service Worker caches built-in wallpaper packs and demo carts for offline",
-        "status": "in-progress"
-      },
-      {
         "id": "F102",
         "description": "Wallpaper rendering in Web Worker with OffscreenCanvas",
-        "status": "not-started"
+        "status": "in-progress"
       }
     ]
   }

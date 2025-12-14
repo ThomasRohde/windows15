@@ -1335,11 +1335,15 @@
         "No relative imports with more than 2 levels"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T05:59:40.891595",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Path aliases already configured in tsconfig.json and vite.config.ts with @/* mapping. Updated 8 files with ../../ imports to use @/ aliases. All 41 unit tests pass",
+        "7 E2E tests pass",
+        "build succeeds."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T05:57:26.713800",
       "notes": "Implementation: Add paths to tsconfig.json compilerOptions. Add resolve.alias to vite.config.ts. Find/replace '../..' imports. Edge cases: Some tools may need additional config (Jest etc). Dependencies: None. Context: Deep relative imports like '../../../utils' are error-prone. Gotchas: IDE may need restart to pick up path aliases."
@@ -1475,13 +1479,13 @@
         "package.json has prepare script"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T06:00:01.268999",
       "notes": "Implementation: npx husky-init. npm install -D lint-staged. Add lint-staged config to package.json. Configure pre-commit to run lint-staged. Edge cases: Allow --no-verify escape hatch for emergencies. Dependencies: F040 F041. Context: Pre-commit hooks catch issues before they enter history. Gotchas: Husky v9 has different setup than v8 - check docs."
     },
     {
@@ -1509,8 +1513,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T05:56:54.613865",
+    "lastUpdated": "2025-12-14T05:59:40.891612",
     "totalFeatures": 58,
-    "passingFeatures": 49
+    "passingFeatures": 50
   }
 }

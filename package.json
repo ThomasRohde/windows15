@@ -16,7 +16,8 @@
         "test:coverage": "vitest run --coverage",
         "test:e2e": "playwright test",
         "test:e2e:ui": "playwright test --ui",
-        "test:e2e:report": "playwright show-report"
+        "test:e2e:report": "playwright show-report",
+        "prepare": "husky"
     },
     "dependencies": {
         "dexie": "^4.2.1",
@@ -43,7 +44,9 @@
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-react": "^7.37.5",
         "eslint-plugin-react-hooks": "^7.0.1",
+        "husky": "^9.1.7",
         "jsdom": "^27.3.0",
+        "lint-staged": "^16.2.7",
         "postcss": "^8.5.6",
         "prettier": "^3.7.4",
         "sharp": "^0.34.5",
@@ -52,5 +55,14 @@
         "vite": "^6.2.0",
         "vite-plugin-pwa": "^1.2.0",
         "vitest": "^4.0.15"
+    },
+    "lint-staged": {
+        "*.{js,jsx,ts,tsx}": [
+            "eslint --fix",
+            "prettier --write"
+        ],
+        "*.{json,md,css}": [
+            "prettier --write"
+        ]
     }
 }

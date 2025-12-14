@@ -188,9 +188,9 @@
         "status": "not-started"
       },
       {
-        "id": "F051",
-        "description": "Add path aliases for cleaner imports",
-        "status": "in-progress"
+        "id": "F052",
+        "description": "Add centralized event bus for cross-component communication",
+        "status": "not-started"
       }
     ]
   }

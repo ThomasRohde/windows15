@@ -10,6 +10,7 @@ import { WallpaperProvider, useWallpaper } from './WallpaperContext';
 import { StartMenuProvider, useStartMenu } from './StartMenuContext';
 import { WindowProvider, useWindowManager } from './WindowContext';
 import { LocalizationProvider } from './LocalizationContext';
+import { ScreensaverProvider } from './ScreensaverContext';
 
 /**
  * Combined interface for backward compatibility
@@ -90,9 +91,11 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
             <StartMenuProvider>
                 <LocalizationProvider>
                     <WallpaperProvider>
-                        <WindowProvider>
-                            <OSContextBridge>{children}</OSContextBridge>
-                        </WindowProvider>
+                        <ScreensaverProvider>
+                            <WindowProvider>
+                                <OSContextBridge>{children}</OSContextBridge>
+                            </WindowProvider>
+                        </ScreensaverProvider>
                     </WallpaperProvider>
                 </LocalizationProvider>
             </StartMenuProvider>
@@ -106,3 +109,4 @@ export { useWallpaper } from './WallpaperContext';
 export { useStartMenu } from './StartMenuContext';
 export { useWindowManager } from './WindowContext';
 export { useLocalization } from './LocalizationContext';
+export { useScreensaver } from './ScreensaverContext';

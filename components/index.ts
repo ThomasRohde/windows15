@@ -21,6 +21,7 @@ export {
 } from './LoadingSkeleton';
 export { PWAUpdatePrompt } from './PWAUpdatePrompt';
 export { ReconnectingToast } from './ReconnectingToast';
+export { Screensaver } from './Screensaver';
 export { StartMenu } from './StartMenu';
 export { SyncStatus } from './SyncStatus';
 export { Taskbar } from './Taskbar';

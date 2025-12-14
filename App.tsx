@@ -9,6 +9,7 @@ import {
     PWAUpdatePrompt,
     ReconnectingToast,
     InstallButton,
+    Screensaver,
 } from './components';
 import { OSProvider, useOS, DbProvider, useDb } from './context';
 import { useDexieLiveQuery } from './utils/storage/react';
@@ -236,6 +237,7 @@ const Desktop = () => {
             <PWAUpdatePrompt />
             <ReconnectingToast />
             <InstallButton />
+            <Screensaver />
         </div>
     );
 };

@@ -1892,13 +1892,13 @@
         "Screensaver preferences persist across sessions in Dexie"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": "2025-12-14T10:58:29.974071",
+      "lastWorkedOn": "2025-12-14T11:20:26.953611",
       "notes": "Implementation: Create ScreensaverApp component + settings panel. Use canvas API for animations. Track mouse/keyboard events globally via OSContext. Store config in screensaverSettings table (timeout, selectedAnimation, animationOptions). Edge cases: handle visibility change (tab switching), prevent screensaver during active apps, ensure canvas cleanup on exit. Dependencies: F053 keyboard shortcuts may conflict - ensure screensaver bypasses shortcuts when active. Performance: use offscreen canvas for complex animations, throttle mouse move checks to 100ms."
     },
     {
@@ -2092,11 +2092,15 @@
         "Selected text visually highlighted"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T11:20:14.702069",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Implemented copy/paste with Ctrl+C/V keyboard shortcuts",
+        "right-click context menu with copy/paste/select all/clear options",
+        "and Ctrl+Shift+C to copy all output. Build passes. Clipboard API properly used."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T11:17:40.871630",
       "notes": "Input already supports paste via browser. Add onPaste handler for Ctrl+V. Implement selection tracking on output div. Use document.execCommand or Clipboard API for copy. Context menu: copy selection, paste, clear, select all. Ensure Ctrl+C doesn't conflict with SIGINT behavior (only copy when text selected)."
@@ -2128,8 +2132,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T11:17:29.814423",
+    "lastUpdated": "2025-12-14T11:20:14.702082",
     "totalFeatures": 83,
-    "passingFeatures": 75
+    "passingFeatures": 76
   }
 }

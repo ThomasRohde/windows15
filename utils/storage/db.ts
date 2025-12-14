@@ -54,6 +54,15 @@ export type TerminalHistoryRecord = {
     executedAt: number;
 };
 
+export type ScreensaverSettingsRecord = {
+    id: string;
+    enabled: boolean;
+    timeout: number; // Idle timeout in milliseconds (default 5 minutes = 300000)
+    animation: 'starfield' | 'matrix' | 'bouncing-logo' | 'geometric';
+    createdAt: number;
+    updatedAt: number;
+};
+
 export class Windows15DexieDB extends Dexie {
     kv!: Table<KvRecord, string>;
     notes!: Table<NoteRecord, string>;
@@ -61,6 +70,7 @@ export class Windows15DexieDB extends Dexie {
     todos!: Table<TodoRecord, string>;
     desktopIcons!: Table<DesktopIconRecord, string>;
     terminalHistory!: Table<TerminalHistoryRecord, number>;
+    screensaverSettings!: Table<ScreensaverSettingsRecord, string>;
 
     constructor() {
         super('windows15', { addons: [dexieCloud] });
@@ -141,6 +151,16 @@ export class Windows15DexieDB extends Dexie {
 
                 await Promise.all(sorted.map((todo, index) => todosTable.update(todo.id, { sortOrder: index })));
             });
+
+        this.version(6).stores({
+            kv: 'key, updatedAt',
+            notes: '@id, updatedAt, createdAt',
+            bookmarks: '@id, folder, updatedAt, createdAt',
+            todos: '@id, completed, priority, dueDate, sortOrder, updatedAt, createdAt',
+            desktopIcons: '@id, order, updatedAt, createdAt',
+            terminalHistory: '++id, executedAt',
+            screensaverSettings: '@id, updatedAt, createdAt',
+        });
 
         const databaseUrl = getCloudDatabaseUrl();
         if (databaseUrl) {

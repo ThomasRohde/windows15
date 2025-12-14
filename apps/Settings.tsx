@@ -3,11 +3,12 @@ import { useOS } from '../context/OSContext';
 import { WALLPAPERS } from '../utils/constants';
 import { SyncSettings } from './settings/SyncSettings';
 import { LocalizationSettings } from './settings/LocalizationSettings';
+import { ScreensaverSettings } from './settings/ScreensaverSettings';
 
 export const Settings = () => {
     const { activeWallpaper, setWallpaper } = useOS();
     const [activeSection, setActiveSection] = useState<
-        'personalization' | 'localization' | 'sync' | 'network' | 'apps'
+        'personalization' | 'localization' | 'sync' | 'network' | 'apps' | 'screensaver'
     >('personalization');
 
     return (
@@ -76,6 +77,19 @@ export const Settings = () => {
                         </span>
                         <span className="text-sm font-medium">Apps</span>
                     </button>
+
+                    <button
+                        type="button"
+                        onClick={() => setActiveSection('screensaver')}
+                        className={`p-2 rounded flex items-center gap-3 text-left ${activeSection === 'screensaver' ? 'bg-white/10' : 'hover:bg-white/5 text-white/70'}`}
+                    >
+                        <span
+                            className={`material-symbols-outlined ${activeSection === 'screensaver' ? 'text-primary' : ''}`}
+                        >
+                            screenshot_monitor
+                        </span>
+                        <span className="text-sm font-medium">Screensaver</span>
+                    </button>
                 </div>
             </div>
 
@@ -127,6 +141,8 @@ export const Settings = () => {
                         <p className="text-sm text-white/60">App management is not implemented in this demo.</p>
                     </div>
                 )}
+
+                {activeSection === 'screensaver' && <ScreensaverSettings />}
             </div>
         </div>
     );

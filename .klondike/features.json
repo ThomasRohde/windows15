@@ -1667,13 +1667,17 @@
         "Visual indicator for overdue todos"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T07:24:00.930587",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Implemented priority levels and due dates with color coding",
+        "sorting",
+        "and inline editing. Build passes successfully."
+      ],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T07:19:54.650717",
       "notes": "Extend TodoRecord type with dueDate?: number and priority?: 'low'|'medium'|'high'. Add date picker component. Use color coding for priorities (green/yellow/red). Filter/sort by these new fields. Requires Dexie schema version bump."
     },
     {
@@ -1686,13 +1690,16 @@
         "Works in combination with status filters"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T07:58:34.697558",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Implemented search functionality with case-insensitive filtering",
+        "works with status filters. Build passes successfully."
+      ],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T07:24:10.522370",
       "notes": "Add search input above or integrated with filter tabs. Use case-insensitive string matching. Debounce search input for performance. Consider using Dexie's .filter() or client-side filtering for simplicity."
     },
     {
@@ -1724,13 +1731,13 @@
         "High usage triggers warning colors (yellow/red)"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T07:58:46.091083",
       "notes": "Use setInterval with useState. Generate random values with slight variance from previous value for realism. Consider using requestAnimationFrame for smoother animations. CPU should fluctuate 15-45% normally, spike occasionally to 60-80%."
     },
     {
@@ -1743,13 +1750,13 @@
         "Display DOM node count"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T07:58:46.669572",
       "notes": "Use window.performance.memory (Chrome only) for heap info. Use PerformanceObserver for real metrics. Fallback to simulated values for unsupported browsers. Consider showing: heapUsed/heapTotal, domNodes, resourceCount."
     },
     {
@@ -1762,13 +1769,13 @@
         "Shows effective bandwidth estimate"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T07:58:47.452010",
       "notes": "Use navigator.onLine and online/offline events. Use Navigator.connection API for connection info (experimental, Chrome only). Add visual indicator: green dot for online, red for offline. Show 'Offline Mode' when disconnected."
     },
     {
@@ -1781,13 +1788,13 @@
         "Shows estimated time remaining"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T07:58:48.047692",
       "notes": "Use Navigator.getBattery() API. Show battery icon that fills based on level. Add charging bolt icon when plugged in. Display 'Charging' or time remaining. Graceful fallback if API unavailable (show 'N/A' or hide section)."
     },
     {
@@ -1800,13 +1807,13 @@
         "Color-coded warning when near quota"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T07:58:48.646296",
       "notes": "Use navigator.storage.estimate() for StorageManager API. Shows used/quota in MB/GB. Add progress bar like CPU/memory. Yellow warning at 75%%, red at 90%%. This is actual real data from the browser!"
     },
     {
@@ -1819,13 +1826,13 @@
         "Includes mini performance graph/sparkline"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T07:58:49.344769",
       "notes": "Add expand/collapse animation. Track 'uptime' as time since page load. Show FPS estimate using requestAnimationFrame timing. Consider adding a small sparkline chart showing CPU history (last 30 data points). Use CSS transitions for smooth expand."
     },
     {
@@ -1853,8 +1860,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T07:14:55.223872",
+    "lastUpdated": "2025-12-14T07:58:34.697589",
     "totalFeatures": 73,
-    "passingFeatures": 63
+    "passingFeatures": 65
   }
 }

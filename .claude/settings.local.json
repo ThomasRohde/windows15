@@ -20,7 +20,14 @@
             "Bash(Select-Object Mode, Name)",
             "Bash(./init.sh)",
             "Bash(CI=true npm test:*)",
-            "Bash(npx vitest:*)"
+            "Bash(npx vitest:*)",
+            "Bash(curl:*)",
+            "Bash(cat:*)",
+            "Bash(find:*)",
+            "Bash(npm run lint)",
+            "Bash(npm run test:run:*)",
+            "Bash(git stash push:*)",
+            "Bash(git stash:*)"
         ]
     }
 }

@@ -40,17 +40,25 @@ const areWindowPropsEqual = (prevProps: WindowProps, nextProps: WindowProps): bo
 /**
  * Window component with dragging, resizing, and window controls.
  * Memoized with custom comparator to prevent unnecessary re-renders.
- * Supports 3D mode with depth transforms (F087).
+ * Supports 3D mode with depth transforms (F087) and tilt on drag (F093).
  */
 export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZIndex = window.zIndex }) {
     const { closeWindow, minimizeWindow, toggleMaximizeWindow, focusWindow, resizeWindow, updateWindowPosition } =
         useOS();
-    const { is3DMode, getWindowTransform, getWindowShadow } = useWindowSpace();
+    const {
+        is3DMode,
+        getWindowTransform,
+        getWindowShadow,
+        settings: windowSpaceSettings,
+        prefersReducedMotion,
+    } = useWindowSpace();
     const [isDragging, setIsDragging] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
     const [resizeDir, setResizeDir] = useState<ResizeDirection>(null);
     const [position, setPosition] = useState(window.position);
     const [size, setSize] = useState(window.size);
+    // Tilt state for 3D drag effect (F093)
+    const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 });
 
     const windowRef = useRef<HTMLDivElement>(null);
     const dragOffsetRef = useRef({ x: 0, y: 0 });
@@ -63,6 +71,9 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
     const pendingSizeRef = useRef<{ width: number; height: number } | null>(null);
     const rafIdRef = useRef<number | null>(null);
     const resizeStartRef = useRef({ x: 0, y: 0, width: 0, height: 0, posX: 0, posY: 0 });
+    // Refs for tilt velocity calculation (F093)
+    const lastPointerRef = useRef({ x: 0, y: 0, time: 0 });
+    const velocityRef = useRef({ vx: 0, vy: 0 });
 
     useEffect(() => {
         if (window.isMaximized) {
@@ -122,12 +133,18 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
                 x: e.clientX - rect.left,
                 y: e.clientY - rect.top,
             };
+            // Initialize velocity tracking for tilt (F093)
+            lastPointerRef.current = { x: e.clientX, y: e.clientY, time: performance.now() };
+            velocityRef.current = { vx: 0, vy: 0 };
         }
         try {
             e.currentTarget.setPointerCapture(e.pointerId);
         } catch {}
         e.preventDefault();
     };
+
+    // Calculate tilt should be enabled (F093)
+    const shouldTilt = is3DMode && windowSpaceSettings.tiltOnDrag && !prefersReducedMotion && !window.isMaximized;
 
     const handlePointerMove = (e: React.PointerEvent) => {
         if (!isDragging) return;
@@ -136,6 +153,29 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
             x: e.clientX - dragOffsetRef.current.x,
             y: e.clientY - dragOffsetRef.current.y,
         };
+
+        // Calculate velocity for tilt effect (F093)
+        if (shouldTilt) {
+            const now = performance.now();
+            const dt = now - lastPointerRef.current.time;
+            if (dt > 0) {
+                const vx = (e.clientX - lastPointerRef.current.x) / dt;
+                const vy = (e.clientY - lastPointerRef.current.y) / dt;
+                // Smooth velocity with exponential moving average
+                velocityRef.current = {
+                    vx: velocityRef.current.vx * 0.7 + vx * 0.3,
+                    vy: velocityRef.current.vy * 0.7 + vy * 0.3,
+                };
+                // Map velocity to rotation (clamped to ±10 degrees)
+                const maxRotation = 10;
+                const sensitivity = 8; // Higher = less sensitive
+                const rotateY = Math.max(-maxRotation, Math.min(maxRotation, velocityRef.current.vx * sensitivity));
+                const rotateX = Math.max(-maxRotation, Math.min(maxRotation, -velocityRef.current.vy * sensitivity));
+                setTilt({ rotateX, rotateY });
+            }
+            lastPointerRef.current = { x: e.clientX, y: e.clientY, time: now };
+        }
+
         scheduleApply();
     };
 
@@ -145,6 +185,12 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
 
         pointerIdRef.current = null;
         setIsDragging(false);
+
+        // Reset tilt with smooth animation (F093)
+        if (shouldTilt) {
+            setTilt({ rotateX: 0, rotateY: 0 });
+            velocityRef.current = { vx: 0, vy: 0 };
+        }
 
         if (rafIdRef.current !== null) {
             globalThis.cancelAnimationFrame(rafIdRef.current);
@@ -273,6 +319,20 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
     const transform3D = is3DMode && !window.isMaximized ? getWindowTransform(window.zIndex, maxZIndex, isFocused) : '';
     const shadow3D = is3DMode && !window.isMaximized ? getWindowShadow(window.zIndex, maxZIndex) : '';
 
+    // Build tilt transform string (F093)
+    const tiltTransform =
+        shouldTilt && isDragging && (tilt.rotateX !== 0 || tilt.rotateY !== 0)
+            ? `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`
+            : '';
+
+    // Combine all transforms
+    const buildTransform = () => {
+        const parts = [`translate3d(${position.x}px, ${position.y}px, 0)`];
+        if (transform3D) parts.push(transform3D);
+        if (tiltTransform) parts.push(tiltTransform);
+        return parts.join(' ');
+    };
+
     const outerStyle: React.CSSProperties = window.isMaximized
         ? {
               position: 'fixed',
@@ -287,10 +347,10 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
               left: 0,
               width: size.width,
               height: size.height,
-              transform: transform3D
-                  ? `translate3d(${position.x}px, ${position.y}px, 0) ${transform3D}`
-                  : `translate3d(${position.x}px, ${position.y}px, 0)`,
+              transform: buildTransform(),
               willChange: isDragging || isResizing ? 'transform, width, height' : undefined,
+              // Smooth transition for tilt return animation (F093)
+              transition: !isDragging && shouldTilt ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)' : undefined,
               // Apply 3D shadow when in 3D mode
               ...(shadow3D ? ({ '--window-shadow': shadow3D } as React.CSSProperties) : {}),
           };

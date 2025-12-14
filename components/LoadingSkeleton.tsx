@@ -13,11 +13,7 @@ export const SkeletonBlock: React.FC<{
     className?: string;
     style?: React.CSSProperties;
 }> = ({ className = '', style }) => (
-    <div
-        className={`bg-white/10 rounded animate-pulse ${className}`}
-        style={style}
-        aria-hidden="true"
-    />
+    <div className={`bg-white/10 rounded animate-pulse ${className}`} style={style} aria-hidden="true" />
 );
 
 /**

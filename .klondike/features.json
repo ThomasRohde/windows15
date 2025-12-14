@@ -2718,11 +2718,16 @@
         "No UI jank during heavy shader rendering"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T19:43:35.776389",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Created workers/WallpaperWorker.ts with WebGL2 rendering in dedicated worker",
+        "workers/WorkerWallpaperRuntime.ts wrapper using OffscreenCanvas.transferControlToOffscreen()",
+        "message protocol for settings/resize/audio/start/stop",
+        "integrated into runtimeFactory with useWorker option"
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T19:38:46.061277",
       "notes": "Implementation: Move WallpaperRuntime into worker. Use transferControlToOffscreen(). Message protocol for settings, resize, audio bands. Edge cases: OffscreenCanvas not supported (fallback to main thread), worker crash. Dependencies: F085-F090 (wallpaper system). Context: PRD recommends as optimization. Gotchas: WebGPU in worker has varying support; feature detect."
@@ -2896,8 +2901,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T19:38:26.738213",
+    "lastUpdated": "2025-12-14T19:43:35.776410",
     "totalFeatures": 108,
-    "passingFeatures": 107
+    "passingFeatures": 108
   }
 }

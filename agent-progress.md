@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                      | Status         |
-| ---- | ------------------------------------------------ | -------------- |
-| F060 | Add todo edit functionality to TodoList app      | 🔄 In progress |
-| F061 | Add bulk operations to TodoList app              | ⏳ Not started |
-| F062 | Add todo persistence and sync verification tests | ⏳ Not started |
+| ID   | Description                                         | Status         |
+| ---- | --------------------------------------------------- | -------------- |
+| F061 | Add bulk operations to TodoList app                 | 🔄 In progress |
+| F062 | Add todo persistence and sync verification tests    | ⏳ Not started |
+| F073 | Add process list simulation to System Status widget | ⏳ Not started |
 
 ---
 

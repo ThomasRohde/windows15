@@ -18,6 +18,7 @@ export const TodoList = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editText, setEditText] = useState('');
+    const [showConfirmation, setShowConfirmation] = useState<'clear' | 'deleteAll' | null>(null);
 
     const addTodo = async () => {
         const trimmedInput = input.trim();
@@ -126,6 +127,49 @@ export const TodoList = () => {
         }
     };
 
+    const completeAll = async () => {
+        try {
+            const activeTodos = todos.filter(t => !t.completed);
+            const now = Date.now();
+
+            await Promise.all(
+                activeTodos.map(todo =>
+                    db.todos.update(todo.id, {
+                        completed: true,
+                        updatedAt: now,
+                    })
+                )
+            );
+            setError(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to complete all tasks');
+            console.error('Error completing all todos:', err);
+        }
+    };
+
+    const clearCompleted = async () => {
+        try {
+            const completedIds = todos.filter(t => t.completed).map(t => t.id);
+            await db.todos.bulkDelete(completedIds);
+            setError(null);
+            setShowConfirmation(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to clear completed tasks');
+            console.error('Error clearing completed todos:', err);
+        }
+    };
+
+    const deleteAll = async () => {
+        try {
+            await db.todos.clear();
+            setError(null);
+            setShowConfirmation(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to delete all tasks');
+            console.error('Error deleting all todos:', err);
+        }
+    };
+
     const filteredTodos = todos.filter(todo => {
         if (filter === 'active') return !todo.completed;
         if (filter === 'completed') return todo.completed;
@@ -133,9 +177,39 @@ export const TodoList = () => {
     });
 
     const activeCount = todos.filter(t => !t.completed).length;
+    const completedCount = todos.length - activeCount;
 
     return (
         <div className="h-full bg-[#1e1e1e] p-4 flex flex-col gap-4">
+            {showConfirmation && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-[#2d2d2d] border border-white/20 rounded-lg p-6 max-w-md mx-4">
+                        <h3 className="text-white text-lg font-semibold mb-2">
+                            {showConfirmation === 'clear' ? 'Clear Completed Tasks?' : 'Delete All Tasks?'}
+                        </h3>
+                        <p className="text-white/70 mb-4">
+                            {showConfirmation === 'clear'
+                                ? `This will permanently delete ${completedCount} completed task${completedCount !== 1 ? 's' : ''}. This action cannot be undone.`
+                                : `This will permanently delete all ${todos.length} task${todos.length !== 1 ? 's' : ''}. This action cannot be undone.`}
+                        </p>
+                        <div className="flex gap-2 justify-end">
+                            <button
+                                onClick={() => setShowConfirmation(null)}
+                                className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={showConfirmation === 'clear' ? clearCompleted : deleteAll}
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-400 transition-colors"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {error && (
                 <div className="bg-red-500/20 border border-red-500/50 text-red-300 px-4 py-2 rounded-lg flex items-center justify-between">
                     <span>{error}</span>
@@ -169,18 +243,50 @@ export const TodoList = () => {
                 </button>
             </div>
 
-            <div className="flex gap-2">
-                {(['all', 'active', 'completed'] as Filter[]).map(f => (
-                    <button
-                        key={f}
-                        onClick={() => setFilter(f)}
-                        className={`px-3 py-1 rounded-lg text-sm transition-colors capitalize ${
-                            filter === f ? 'bg-blue-500 text-white' : 'bg-white/10 text-white/70 hover:bg-white/20'
-                        }`}
-                    >
-                        {f}
-                    </button>
-                ))}
+            <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2">
+                    {(['all', 'active', 'completed'] as Filter[]).map(f => (
+                        <button
+                            key={f}
+                            onClick={() => setFilter(f)}
+                            className={`px-3 py-1 rounded-lg text-sm transition-colors capitalize ${
+                                filter === f ? 'bg-blue-500 text-white' : 'bg-white/10 text-white/70 hover:bg-white/20'
+                            }`}
+                        >
+                            {f}
+                        </button>
+                    ))}
+                </div>
+
+                {todos.length > 0 && (
+                    <div className="flex gap-2 ml-auto">
+                        {activeCount > 0 && (
+                            <button
+                                onClick={completeAll}
+                                className="px-3 py-1 rounded-lg text-sm bg-green-500/20 text-green-300 hover:bg-green-500/30 transition-colors"
+                                title="Mark all tasks as completed"
+                            >
+                                Complete All
+                            </button>
+                        )}
+                        {completedCount > 0 && (
+                            <button
+                                onClick={() => setShowConfirmation('clear')}
+                                className="px-3 py-1 rounded-lg text-sm bg-orange-500/20 text-orange-300 hover:bg-orange-500/30 transition-colors"
+                                title="Delete all completed tasks"
+                            >
+                                Clear Completed
+                            </button>
+                        )}
+                        <button
+                            onClick={() => setShowConfirmation('deleteAll')}
+                            className="px-3 py-1 rounded-lg text-sm bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-colors"
+                            title="Delete all tasks"
+                        >
+                            Delete All
+                        </button>
+                    </div>
+                )}
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-2">

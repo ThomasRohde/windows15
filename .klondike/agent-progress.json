@@ -150,11 +150,6 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F041",
-        "description": "Add Prettier for consistent code formatting",
-        "status": "in-progress"
-      },
-      {
         "id": "F042",
         "description": "Add Vitest unit testing infrastructure",
         "status": "not-started"
@@ -162,6 +157,11 @@
       {
         "id": "F043",
         "description": "Add React Testing Library component tests",
+        "status": "not-started"
+      },
+      {
+        "id": "F050",
+        "description": "Add GitHub Actions CI/CD pipeline",
         "status": "not-started"
       }
     ]

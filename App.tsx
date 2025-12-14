@@ -16,10 +16,10 @@ import { APP_REGISTRY } from './apps/registry';
 const Desktop = () => {
     const { windows, registerApp, activeWallpaper, isStartMenuOpen, closeStartMenu } = useOS();
     const db = useDb();
-    
+
     // Load desktop icons reactively
     const { value: iconsRaw, loading: iconsLoading } = useDexieLiveQuery(
-        () => db.desktopIcons.orderBy('order').toArray(), 
+        () => db.desktopIcons.orderBy('order').toArray(),
         [db]
     );
     const icons = Array.isArray(iconsRaw) ? iconsRaw : [];
@@ -76,7 +76,7 @@ const Desktop = () => {
     }, []);
 
     return (
-        <div 
+        <div
             className="relative h-screen w-screen overflow-hidden select-none"
             onPointerDown={(e) => {
                 if (!isStartMenuOpen) return;
@@ -87,8 +87,8 @@ const Desktop = () => {
             }}
         >
             {/* Wallpaper */}
-            <div 
-                className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-700 ease-in-out transform scale-105" 
+            <div
+                className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-700 ease-in-out transform scale-105"
                 style={{ backgroundImage: `url('${activeWallpaper}')` }}
             >
                 <div className="absolute inset-0 bg-black/10 backdrop-blur-[0px]"></div>
@@ -132,13 +132,13 @@ const Desktop = () => {
 };
 
 const App: React.FC = () => {
-  return (
-    <DbProvider>
-      <OSProvider>
-          <Desktop />
-      </OSProvider>
-    </DbProvider>
-  );
+    return (
+        <DbProvider>
+            <OSProvider>
+                <Desktop />
+            </OSProvider>
+        </DbProvider>
+    );
 };
 
 export default App;

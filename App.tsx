@@ -10,6 +10,7 @@ import {
     ReconnectingToast,
     InstallButton,
     Screensaver,
+    WallpaperHost,
 } from './components';
 import { OSProvider, useOS, DbProvider, useDb } from './context';
 import { useDexieLiveQuery } from './utils/storage/react';
@@ -195,13 +196,8 @@ const Desktop = () => {
                 closeStartMenu();
             }}
         >
-            {/* Wallpaper */}
-            <div
-                className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-700 ease-in-out transform scale-105"
-                style={{ backgroundImage: `url('${activeWallpaper}')` }}
-            >
-                <div className="absolute inset-0 bg-black/10 backdrop-blur-[0px]"></div>
-            </div>
+            {/* Wallpaper Layer - WallpaperHost handles both static and live wallpapers */}
+            <WallpaperHost fallbackImage={activeWallpaper} />
 
             {/* Desktop Icons */}
             <div className="absolute inset-0 z-10 w-full h-[calc(100vh-80px)] pointer-events-none">

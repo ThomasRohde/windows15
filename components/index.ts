@@ -25,5 +25,6 @@ export { Screensaver } from './Screensaver';
 export { StartMenu } from './StartMenu';
 export { SyncStatus } from './SyncStatus';
 export { Taskbar } from './Taskbar';
+export { WallpaperHost } from './WallpaperHost';
 export { Widgets } from './Widgets';
 export { Window } from './Window';

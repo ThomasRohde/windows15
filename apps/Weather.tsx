@@ -94,7 +94,7 @@ export const Weather = () => {
                 }
                 setForecast(forecastDays);
                 setLoading(false);
-            } catch (err) {
+            } catch {
                 setError('Failed to fetch weather data');
                 setLoading(false);
             }

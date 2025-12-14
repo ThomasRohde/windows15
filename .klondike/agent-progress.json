@@ -150,18 +150,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F039",
-        "description": "Add React Error Boundaries for graceful error handling",
-        "status": "in-progress"
-      },
-      {
         "id": "F040",
         "description": "Add ESLint with React and TypeScript recommended rules",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F041",
         "description": "Add Prettier for consistent code formatting",
+        "status": "not-started"
+      },
+      {
+        "id": "F042",
+        "description": "Add Vitest unit testing infrastructure",
         "status": "not-started"
       }
     ]

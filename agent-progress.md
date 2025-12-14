@@ -24,9 +24,9 @@ klondike feature list  # List all features
 ### Current Priority Features
 | ID | Description | Status |
 |----|-------------|--------|
-| F039 | Add React Error Boundaries for graceful error handling | 🔄 In progress |
-| F040 | Add ESLint with React and TypeScript recommended rules | ⏳ Not started |
+| F040 | Add ESLint with React and TypeScript recommended rules | 🔄 In progress |
 | F041 | Add Prettier for consistent code formatting | ⏳ Not started |
+| F042 | Add Vitest unit testing infrastructure | ⏳ Not started |
 
 ---
 

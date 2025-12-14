@@ -511,7 +511,7 @@ export const STORE_NAMES = {
 const findParentFolderId = (
     files: FileSystemItem[],
     targetId: string,
-    parentId: string = 'root'
+    _parentId: string = 'root'
 ): string | null => {
     for (const file of files) {
         if (file.children) {

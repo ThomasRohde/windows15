@@ -3,7 +3,7 @@ import { useOS } from '../context/OSContext';
 import { SyncStatus } from './SyncStatus';
 
 export const Taskbar = () => {
-    const { toggleStartMenu, isStartMenuOpen, apps, openWindow, windows, minimizeWindow, focusWindow } = useOS();
+    const { toggleStartMenu, isStartMenuOpen, apps, openWindow, windows, minimizeWindow } = useOS();
     const [time, setTime] = useState(new Date());
 
     useEffect(() => {

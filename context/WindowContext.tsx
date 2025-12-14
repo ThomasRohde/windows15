@@ -2,7 +2,7 @@
  * WindowContext - Handles window state management
  */
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode, useCallback } from 'react';
-import { WindowState, AppConfig } from '../types';
+import { WindowState } from '../types';
 import { getWindowStates, WindowStateRecord } from '../utils/fileSystem';
 import { storageService } from '../utils/storage';
 import { useAppRegistry } from './AppRegistryContext';

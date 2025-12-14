@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { useDb, useDexieLiveQuery } from '../utils/storage';
-import { getFiles, saveFile, saveFileToFolder } from '../utils/fileSystem';
+import { getFiles, saveFileToFolder } from '../utils/fileSystem';
 import { FileSystemItem } from '../types';
 
 interface NotepadProps {

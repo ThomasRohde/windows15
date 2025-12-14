@@ -23,7 +23,7 @@ export const Base64Tool = () => {
             const decoded = decodeURIComponent(escape(atob(input)));
             setOutput(decoded);
             setError(null);
-        } catch (e) {
+        } catch {
             setError('Invalid Base64 string');
             setOutput('');
         }
@@ -42,7 +42,7 @@ export const Base64Tool = () => {
             await navigator.clipboard.writeText(output);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
-        } catch (e) {
+        } catch {
             setError('Failed to copy to clipboard');
         }
     };

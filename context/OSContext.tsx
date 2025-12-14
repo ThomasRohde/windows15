@@ -5,7 +5,6 @@
  * functionality from the split contexts through a single useOS hook.
  */
 import React, { createContext, useContext, ReactNode } from 'react';
-import { AppConfig } from '../types';
 import { AppRegistryProvider, useAppRegistry } from './AppRegistryContext';
 import { WallpaperProvider, useWallpaper } from './WallpaperContext';
 import { StartMenuProvider, useStartMenu } from './StartMenuContext';

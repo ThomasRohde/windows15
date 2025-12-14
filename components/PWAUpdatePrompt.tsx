@@ -5,7 +5,7 @@ export const PWAUpdatePrompt = () => {
     const [showPrompt, setShowPrompt] = useState(false);
 
     const {
-        offlineReady: [offlineReady, setOfflineReady],
+        offlineReady: [_offlineReady, _setOfflineReady],
         needRefresh: [needRefresh, setNeedRefresh],
         updateServiceWorker,
     } = useRegisterSW({

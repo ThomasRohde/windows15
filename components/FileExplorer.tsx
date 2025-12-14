@@ -134,6 +134,7 @@ export const FileExplorer = () => {
         });
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const removeItemFromTree = (items: FileSystemItem[], itemId: string): FileSystemItem[] => {
         return items
             .filter(item => item.id !== itemId)

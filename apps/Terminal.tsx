@@ -82,7 +82,7 @@ export const Terminal = () => {
     const commandHistory = useLiveQuery(
         async () => {
             if (!db) return [];
-            const history = await db.terminalHistory.orderBy('executedAt').toArray();
+            const history = await db.$terminalHistory.orderBy('executedAt').toArray();
             return history.map(h => h.command);
         },
         [db],
@@ -187,20 +187,20 @@ export const Terminal = () => {
         if (db) {
             try {
                 // Add new command to history
-                await db.terminalHistory.add({
+                await db.$terminalHistory.add({
                     command: trimmed,
                     executedAt: Date.now(),
                 });
 
                 // Enforce MAX_HISTORY limit (FIFO eviction)
-                const count = await db.terminalHistory.count();
+                const count = await db.$terminalHistory.count();
                 if (count > MAX_HISTORY) {
-                    const oldest = await db.terminalHistory
+                    const oldest = await db.$terminalHistory
                         .orderBy('executedAt')
                         .limit(count - MAX_HISTORY)
                         .toArray();
                     const oldestIds = oldest.map(h => h.id).filter((id): id is number => id !== undefined);
-                    await db.terminalHistory.bulkDelete(oldestIds);
+                    await db.$terminalHistory.bulkDelete(oldestIds);
                 }
             } catch (error) {
                 console.error('Failed to save terminal history:', error);

@@ -9,7 +9,7 @@ import { db } from '../utils/storage/db';
 // Mock the database
 vi.mock('../utils/storage/db', () => ({
     db: {
-        terminalHistory: {
+        $terminalHistory: {
             add: vi.fn(),
             count: vi.fn(() => Promise.resolve(0)),
             orderBy: vi.fn(() => ({
@@ -46,7 +46,7 @@ describe('Terminal - Command History Persistence (F076)', () => {
         await user.type(input, 'help{Enter}');
 
         await waitFor(() => {
-            expect(db.terminalHistory.add).toHaveBeenCalledWith(
+            expect(db.$terminalHistory.add).toHaveBeenCalledWith(
                 expect.objectContaining({
                     command: 'help',
                     executedAt: expect.any(Number),
@@ -62,7 +62,7 @@ describe('Terminal - Command History Persistence (F076)', () => {
             { id: 3, command: 'help', executedAt: Date.now() - 1000 },
         ];
 
-        vi.mocked(db.terminalHistory.orderBy).mockReturnValue({
+        vi.mocked(db.$terminalHistory.orderBy).mockReturnValue({
             toArray: vi.fn(() => Promise.resolve(mockHistory)),
             limit: vi.fn(() => ({
                 toArray: vi.fn(() => Promise.resolve([])),
@@ -97,10 +97,10 @@ describe('Terminal - Command History Persistence (F076)', () => {
         const user = userEvent.setup();
 
         // Mock that we have 500 commands already
-        vi.mocked(db.terminalHistory.count).mockResolvedValue(501);
+        vi.mocked(db.$terminalHistory.count).mockResolvedValue(501);
 
         const oldestCommands = [{ id: 1, command: 'oldest', executedAt: Date.now() - 100000 }];
-        vi.mocked(db.terminalHistory.orderBy).mockReturnValue({
+        vi.mocked(db.$terminalHistory.orderBy).mockReturnValue({
             toArray: vi.fn(() => Promise.resolve([])),
             limit: vi.fn(() => ({
                 toArray: vi.fn(() => Promise.resolve(oldestCommands)),
@@ -113,7 +113,7 @@ describe('Terminal - Command History Persistence (F076)', () => {
         await user.type(input, 'new-command{Enter}');
 
         await waitFor(() => {
-            expect(db.terminalHistory.bulkDelete).toHaveBeenCalledWith([1]);
+            expect(db.$terminalHistory.bulkDelete).toHaveBeenCalledWith([1]);
         });
     });
 
@@ -123,7 +123,7 @@ describe('Terminal - Command History Persistence (F076)', () => {
             { id: 2, command: 'second', executedAt: Date.now() - 1000 },
         ];
 
-        vi.mocked(db.terminalHistory.orderBy).mockReturnValue({
+        vi.mocked(db.$terminalHistory.orderBy).mockReturnValue({
             toArray: vi.fn(() => Promise.resolve(mockHistory)),
             limit: vi.fn(() => ({
                 toArray: vi.fn(() => Promise.resolve([])),
@@ -171,6 +171,6 @@ describe('Terminal - Command History Persistence (F076)', () => {
         // Wait a bit to ensure no async calls are made
         await new Promise(resolve => setTimeout(resolve, 100));
 
-        expect(db.terminalHistory.add).not.toHaveBeenCalled();
+        expect(db.$terminalHistory.add).not.toHaveBeenCalled();
     });
 });

@@ -73,8 +73,8 @@ export class Windows15DexieDB extends Dexie {
     bookmarks!: Table<BookmarkRecord, string>;
     todos!: Table<TodoRecord, string>;
     desktopIcons!: Table<DesktopIconRecord, string>;
-    terminalHistory!: Table<TerminalHistoryRecord, number>;
-    screensaverSettings!: Table<ScreensaverSettingsRecord, string>;
+    $terminalHistory!: Table<TerminalHistoryRecord, number>;
+    $screensaverSettings!: Table<ScreensaverSettingsRecord, string>;
 
     constructor() {
         super('windows15', { addons: [dexieCloud] });
@@ -115,7 +115,7 @@ export class Windows15DexieDB extends Dexie {
                 bookmarks: '@id, folder, updatedAt, createdAt',
                 todos: '@id, completed, priority, dueDate, sortOrder, updatedAt, createdAt',
                 desktopIcons: '@id, order, updatedAt, createdAt',
-                terminalHistory: '++id, executedAt',
+                $terminalHistory: '++id, executedAt',
             })
             .upgrade(async tx => {
                 const todosTable = tx.table<TodoRecord, string>('todos');
@@ -162,8 +162,8 @@ export class Windows15DexieDB extends Dexie {
             bookmarks: '@id, folder, updatedAt, createdAt',
             todos: '@id, completed, priority, dueDate, sortOrder, updatedAt, createdAt',
             desktopIcons: '@id, order, updatedAt, createdAt',
-            terminalHistory: '++id, executedAt',
-            screensaverSettings: '@id, updatedAt, createdAt',
+            $terminalHistory: '++id, executedAt',
+            $screensaverSettings: 'id, updatedAt, createdAt',
         });
 
         const databaseUrl = getCloudDatabaseUrl();

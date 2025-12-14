@@ -36,7 +36,7 @@ export const ScreensaverProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     // Load screensaver settings reactively
     const { value: settingsArray } = useDexieLiveQuery(
-        () => db.screensaverSettings.where('id').equals(DEFAULT_SETTINGS_ID).toArray(),
+        () => db.$screensaverSettings.where('id').equals(DEFAULT_SETTINGS_ID).toArray(),
         [db]
     );
     const settings = settingsArray?.[0] || null;
@@ -44,10 +44,10 @@ export const ScreensaverProvider: React.FC<{ children: ReactNode }> = ({ childre
     // Initialize default settings if none exist
     useEffect(() => {
         const initializeSettings = async () => {
-            const count = await db.screensaverSettings.count();
+            const count = await db.$screensaverSettings.count();
             if (count === 0) {
                 const now = Date.now();
-                await db.screensaverSettings.add({
+                await db.$screensaverSettings.add({
                     id: DEFAULT_SETTINGS_ID,
                     enabled: true,
                     timeout: DEFAULT_TIMEOUT,
@@ -69,7 +69,7 @@ export const ScreensaverProvider: React.FC<{ children: ReactNode }> = ({ childre
     // Update settings helper
     const updateSettings = useCallback(
         async (updates: Partial<ScreensaverSettingsRecord>) => {
-            await db.screensaverSettings.update(DEFAULT_SETTINGS_ID, {
+            await db.$screensaverSettings.update(DEFAULT_SETTINGS_ID, {
                 ...updates,
                 updatedAt: Date.now(),
             });

@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: In Progress
+## Current Status: Session Ended
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                   | Status         |
 | ---- | --------------------------------------------- | -------------- |
-| F075 | Screensaver displays smooth animations        | 🔄 In progress |
 | F077 | Terminal supports tab completion for commands | ⏳ Not started |
 | F078 | Terminal output persists and can be exported  | ⏳ Not started |
+| F081 | Terminal supports command aliases and scripts | ⏳ Not started |
 
 ---
 
@@ -492,8 +492,8 @@ klondike feature list  # List all features
 ### Session 16 - 2025-12-14
 
 **Agent**: Coding Agent
-**Duration**: (in progress)
-**Focus**: F074 - User can enable and configure animated screensaver
+**Duration**: ~session
+**Focus**: Completed F074 and F075 screensaver features. F074: Implemented comprehensive screensaver system with database schema, idle timeout tracking, 4 canvas animations (starfield, matrix, bouncing-logo, geometric) at 60fps, settings UI, and persistence. F075: Extended with live preview canvas, speed/intensity sliders (0.25x-2x), clock/date overlays respecting localization. All settings persist to Dexie. Build and lint pass. Project now at 94% completion (78/83 features).
 
 #### Completed
 
@@ -501,7 +501,7 @@ klondike feature list  # List all features
 
 #### In Progress
 
-- Session started
+- None
 
 #### Blockers
 
@@ -509,7 +509,9 @@ klondike feature list  # List all features
 
 #### Recommended Next Steps
 
-1. Continue implementation
+1. Continue with remaining Terminal features (F077
+2. F078
+3. F081) or other P3/P4 features.
 
 #### Technical Notes
 

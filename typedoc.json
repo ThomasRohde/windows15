@@ -1,0 +1,22 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "entryPoints": ["hooks/index.ts", "context/index.ts", "utils/index.ts", "types.ts"],
+    "out": "docs/api",
+    "name": "Windows 15 API Documentation",
+    "readme": "README.md",
+    "includeVersion": true,
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "excludeInternal": true,
+    "skipErrorChecking": true,
+    "plugin": [],
+    "theme": "default",
+    "cleanOutputDir": true,
+    "categorizeByGroup": true,
+    "sort": ["alphabetical"],
+    "validation": {
+        "notExported": false,
+        "invalidLink": false,
+        "notDocumented": false
+    }
+}

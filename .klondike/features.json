@@ -1192,13 +1192,13 @@
         "TypeDoc generates API documentation"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T06:10:37.934108",
       "notes": "Implementation: Add /** */ comments above exports. Include @example for hooks. Consider adding TypeDoc: npm install -D typedoc. Add 'docs': 'typedoc' to scripts. Edge cases: Private helpers don't need JSDoc. Dependencies: None. Context: Good docs make codebase accessible to new contributors. Gotchas: Keep docs in sync with implementation - stale docs worse than none."
     },
     {
@@ -1383,11 +1383,16 @@
         "Shortcuts documented in keyboard-shortcuts.md"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T06:10:18.386244",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "useHotkey/useHotkeys hooks created",
+        "global shortcuts added for apps and window control",
+        "documentation created",
+        "all 41 tests pass"
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T06:05:35.277105",
       "notes": "Implementation: Create useHotkeys hook using keydown event listener. Use useEffect with window.addEventListener. Parse key combos (Ctrl+Shift+X). Edge cases: Prevent default for browser shortcuts we override. Dependencies: F035. Context: Power users expect keyboard navigation. Gotchas: Check for input/textarea focus before triggering global shortcuts."
@@ -1520,8 +1525,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T06:05:21.370561",
+    "lastUpdated": "2025-12-14T06:10:18.386264",
     "totalFeatures": 58,
-    "passingFeatures": 53
+    "passingFeatures": 54
   }
 }

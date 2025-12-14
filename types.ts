@@ -1,50 +1,107 @@
+/**
+ * Core type definitions for Windows 15
+ * @module types
+ */
 import { ReactNode } from 'react';
 
+/**
+ * Represents a file or folder in the file system.
+ * Used by File Explorer, Recycle Bin, and other file-related components.
+ */
 export interface FileSystemItem {
+    /** Unique identifier for the item */
     id: string;
+    /** Display name of the file or folder */
     name: string;
+    /** Type of the item - determines icon and behavior */
     type: 'folder' | 'image' | 'code' | 'presentation' | 'video' | 'document' | 'cloud' | 'audio' | 'shortcut';
-    content?: string; // For text files
-    src?: string; // For media
+    /** Text content for document files */
+    content?: string;
+    /** Source URL for media files (images, videos, audio) */
+    src?: string;
+    /** Human-readable file size (e.g., "2.5 MB") */
     size?: string;
+    /** Last modified date string */
     date?: string;
+    /** Child items for folders */
     children?: FileSystemItem[];
-    deletedFrom?: string; // Original folder ID for recycle bin items
-    deletedAt?: string; // Timestamp when item was deleted
-    icon?: string; // Material Symbols name (shortcuts)
-    appId?: string; // App to launch (shortcuts)
-    targetPath?: string[]; // File Explorer path to navigate (shortcuts)
-    colorClass?: string; // Optional Tailwind color for shortcut icon
+    /** Original folder ID when item is in recycle bin */
+    deletedFrom?: string;
+    /** ISO timestamp when item was deleted */
+    deletedAt?: string;
+    /** Material Symbols icon name for shortcuts */
+    icon?: string;
+    /** App ID to launch when shortcut is activated */
+    appId?: string;
+    /** Path segments to navigate in File Explorer */
+    targetPath?: string[];
+    /** Tailwind color class for shortcut icon */
+    colorClass?: string;
 }
 
+/**
+ * Represents the state of an open window.
+ * Managed by WindowContext for window lifecycle and positioning.
+ */
 export interface WindowState {
+    /** Unique window instance ID */
     id: string;
+    /** ID of the application displayed in this window */
     appId: string;
+    /** Window title displayed in title bar and taskbar */
     title: string;
+    /** Material Symbols icon name */
     icon: string;
+    /** React component to render in the window content area */
     component: ReactNode;
+    /** Whether the window is currently open */
     isOpen: boolean;
+    /** Whether the window is minimized to taskbar */
     isMinimized: boolean;
+    /** Whether the window is maximized to fill screen */
     isMaximized: boolean;
+    /** Stacking order - higher values appear on top */
     zIndex: number;
+    /** Window position in screen coordinates */
     position: { x: number; y: number };
+    /** Window dimensions in pixels */
     size: { width: number; height: number };
 }
 
+/**
+ * Configuration for registering an application.
+ * Used by the app registry to create window instances.
+ */
 export interface AppConfig {
+    /** Unique application identifier */
     id: string;
+    /** Display title for the application */
     title: string;
+    /** Material Symbols icon name */
     icon: string;
+    /** Tailwind color class for icon styling */
     color: string;
+    /** React component factory for the application */
     component: (props: any) => ReactNode;
+    /** Default window width when opening the app */
     defaultWidth?: number;
+    /** Default window height when opening the app */
     defaultHeight?: number;
 }
 
+/**
+ * Props for desktop icon component.
+ * Used to render clickable icons on the desktop.
+ */
 export interface DesktopIconProps {
+    /** Text label displayed below the icon */
     label: string;
+    /** Material Symbols icon name */
     icon: string;
-    appId?: string; // ID of app to launch
+    /** ID of app to launch when double-clicked */
+    appId?: string;
+    /** Tailwind color class for icon styling */
     colorClass?: string;
+    /** Custom click handler (alternative to appId) */
     onClick?: () => void;
 }

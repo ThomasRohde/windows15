@@ -46,3 +46,6 @@ test-results/
 
 # Bundle analysis
 stats.html
+
+# Generated API documentation
+docs/api/

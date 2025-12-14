@@ -30,7 +30,7 @@ klondike feature list  # List all features
 
 | ID   | Description                                                 | Status         |
 | ---- | ----------------------------------------------------------- | -------------- |
-| F046 | Add JSDoc documentation to all public APIs                  | ⏳ Not started |
+| F046 | Add JSDoc documentation to all public APIs                  | 🔄 In progress |
 | F049 | Refactor Notepad.tsx into smaller sub-components            | ⏳ Not started |
 | F052 | Add centralized event bus for cross-component communication | ⏳ Not started |
 

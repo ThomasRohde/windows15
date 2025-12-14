@@ -1,3 +1,11 @@
+/**
+ * File system utilities for IndexedDB-based file storage
+ *
+ * Provides a virtual file system with folders, files, and settings persistence.
+ * Used by File Explorer, Notepad, and other file-related applications.
+ *
+ * @module utils/fileSystem
+ */
 import { FileSystemItem, WindowState } from '../types';
 import { DEFAULT_DESKTOP_SHORTCUTS, INITIAL_FILES } from './constants';
 
@@ -14,20 +22,36 @@ type FsSyncDetail = { store: string; key?: string };
 
 let dbInstance: IDBDatabase | null = null;
 
+/**
+ * Settings record stored in IndexedDB
+ */
 export interface SettingRecord {
+    /** Setting key identifier */
     key: string;
+    /** Setting value (any JSON-serializable type) */
     value: unknown;
 }
 
+/**
+ * Window state record for session persistence
+ */
 export interface WindowStateRecord {
+    /** Application ID */
     appId: string;
+    /** Partial window state (position, size, etc.) */
     state: Partial<WindowState>;
 }
 
+/**
+ * Check if IndexedDB is available in the current environment
+ */
 const canUseIndexedDB = (): boolean => {
     return typeof globalThis !== 'undefined' && typeof globalThis.indexedDB !== 'undefined';
 };
 
+/**
+ * Dispatch a sync event to notify listeners of file system changes
+ */
 const dispatchSyncEvent = (store: string, key?: string): void => {
     try {
         globalThis.dispatchEvent(new CustomEvent<FsSyncDetail>(FS_SYNC_EVENT, { detail: { store, key } }));
@@ -36,6 +60,20 @@ const dispatchSyncEvent = (store: string, key?: string): void => {
     }
 };
 
+/**
+ * Subscribe to file system changes in a specific store
+ *
+ * @param store - The store name to watch ('files', 'settings', 'windowStates')
+ * @param listener - Callback invoked when the store changes
+ * @returns Unsubscribe function
+ *
+ * @example
+ * ```tsx
+ * const unsubscribe = subscribeToFileSystem('files', (key) => {
+ *   console.log('File changed:', key);
+ * });
+ * ```
+ */
 export const subscribeToFileSystem = (store: string, listener: (key?: string) => void): (() => void) => {
     const handleCustom = (event: Event) => {
         const detail = (event as CustomEvent<FsSyncDetail>).detail;
@@ -58,6 +96,12 @@ export const subscribeToFileSystem = (store: string, listener: (key?: string) =>
     };
 };
 
+/**
+ * Initialize or get the IndexedDB database instance
+ *
+ * @returns Promise resolving to the database instance
+ * @throws Error if IndexedDB is not available
+ */
 export const initDB = (): Promise<IDBDatabase> => {
     return new Promise((resolve, reject) => {
         if (dbInstance) {

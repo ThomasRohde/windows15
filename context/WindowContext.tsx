@@ -1,5 +1,10 @@
 /**
- * WindowContext - Handles window state management
+ * WindowContext - Window state management and lifecycle
+ *
+ * Provides window creation, destruction, focus, minimize, maximize,
+ * resize, and position management for the desktop environment.
+ *
+ * @module context/WindowContext
  */
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode, useCallback } from 'react';
 import { WindowState } from '../types';
@@ -14,21 +19,71 @@ const KV_KEYS = {
     windowStates: 'windows15.os.windowStates',
 } as const;
 
+/**
+ * Window management context interface
+ */
 interface WindowContextType {
+    /** Currently open windows */
     windows: WindowState[];
+    /**
+     * Open a new window for an application
+     * @param appId - The registered application ID
+     * @param contentProps - Optional props to pass to the app component
+     */
     openWindow: (appId: string, contentProps?: Record<string, unknown>) => void;
+    /**
+     * Close a window by ID
+     * @param id - The window instance ID
+     */
     closeWindow: (id: string) => void;
+    /**
+     * Minimize a window to the taskbar
+     * @param id - The window instance ID
+     */
     minimizeWindow: (id: string) => void;
+    /**
+     * Toggle between maximized and normal window state
+     * @param id - The window instance ID
+     */
     toggleMaximizeWindow: (id: string) => void;
+    /**
+     * Bring a window to the front
+     * @param id - The window instance ID
+     */
     focusWindow: (id: string) => void;
+    /**
+     * Resize a window and optionally update its position
+     * @param id - The window instance ID
+     * @param size - New dimensions
+     * @param position - Optional new position
+     */
     resizeWindow: (id: string, size: { width: number; height: number }, position?: { x: number; y: number }) => void;
+    /**
+     * Update window position
+     * @param id - The window instance ID
+     * @param position - New position coordinates
+     */
     updateWindowPosition: (id: string, position: { x: number; y: number }) => void;
 }
 
 const WindowContext = createContext<WindowContextType | undefined>(undefined);
 
 /**
- * Hook to access window management
+ * Hook to access window management functions
+ *
+ * @returns Window management context
+ * @throws Error if used outside WindowProvider
+ *
+ * @example
+ * ```tsx
+ * const { openWindow, closeWindow, windows } = useWindowManager();
+ *
+ * // Open an app
+ * openWindow('notepad');
+ *
+ * // Close a window
+ * closeWindow(windowId);
+ * ```
  */
 export const useWindowManager = () => {
     const context = useContext(WindowContext);
@@ -43,7 +98,8 @@ interface WindowProviderProps {
 }
 
 /**
- * Provider for window state management
+ * Provider component for window state management.
+ * Handles window lifecycle, persistence, and session restoration.
  */
 export const WindowProvider: React.FC<WindowProviderProps> = ({ children }) => {
     const { apps, getApp } = useAppRegistry();

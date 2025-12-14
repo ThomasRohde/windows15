@@ -8,7 +8,15 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 export default [
     // Ignore patterns
     {
-        ignores: ['dist/**', 'dev-dist/**', 'node_modules/**', '*.config.js', '*.config.cjs', 'scripts/**'],
+        ignores: [
+            'dist/**',
+            'dev-dist/**',
+            'node_modules/**',
+            '*.config.js',
+            '*.config.cjs',
+            'scripts/**',
+            'docs/api/**',
+        ],
     },
 
     // JavaScript recommended rules

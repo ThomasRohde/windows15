@@ -15,6 +15,7 @@ export const TodoList = () => {
 
     const [input, setInput] = useState('');
     const [filter, setFilter] = useState<Filter>('all');
+    const [searchQuery, setSearchQuery] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -189,8 +190,16 @@ export const TodoList = () => {
 
     const filteredAndSortedTodos = useMemo(() => {
         const filtered = todos.filter(todo => {
-            if (filter === 'active') return !todo.completed;
-            if (filter === 'completed') return todo.completed;
+            // Apply status filter
+            if (filter === 'active' && todo.completed) return false;
+            if (filter === 'completed' && !todo.completed) return false;
+
+            // Apply search filter
+            if (searchQuery.trim()) {
+                const query = searchQuery.toLowerCase();
+                return todo.text.toLowerCase().includes(query);
+            }
+
             return true;
         });
 
@@ -219,7 +228,7 @@ export const TodoList = () => {
             // Created date: newer first
             return b.createdAt - a.createdAt;
         });
-    }, [todos, filter]);
+    }, [todos, filter, searchQuery]);
 
     const activeCount = todos.filter(t => !t.completed).length;
     const completedCount = todos.length - activeCount;
@@ -368,6 +377,25 @@ export const TodoList = () => {
                 </div>
             </div>
 
+            <div className="flex gap-2 items-center">
+                <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    placeholder="Search tasks..."
+                    className="flex-1 bg-black/30 text-white px-3 py-1 rounded-lg border border-white/10 focus:outline-none focus:border-blue-500 text-sm min-w-0"
+                />
+                {searchQuery && (
+                    <button
+                        onClick={() => setSearchQuery('')}
+                        className="text-white/50 hover:text-white text-xs"
+                        title="Clear search"
+                    >
+                        ✕
+                    </button>
+                )}
+            </div>
+
             <div className="flex gap-2 flex-wrap">
                 <div className="flex gap-2">
                     {(['all', 'active', 'completed'] as Filter[]).map(f => (
@@ -419,7 +447,11 @@ export const TodoList = () => {
                     <div className="text-white/40 text-center py-8">Loading tasks...</div>
                 ) : filteredAndSortedTodos.length === 0 ? (
                     <div className="text-white/40 text-center py-8">
-                        {filter === 'all' ? 'No tasks yet' : `No ${filter} tasks`}
+                        {searchQuery
+                            ? `No tasks matching "${searchQuery}"`
+                            : filter === 'all'
+                              ? 'No tasks yet'
+                              : `No ${filter} tasks`}
                     </div>
                 ) : (
                     filteredAndSortedTodos.map(todo => (

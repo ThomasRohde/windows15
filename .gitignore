@@ -10,7 +10,6 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-storybook-static
 *.local
 
 # Editor directories and files
@@ -51,5 +50,3 @@ stats.html
 # Generated API documentation
 docs/api/
 
-*storybook.log
-storybook-static

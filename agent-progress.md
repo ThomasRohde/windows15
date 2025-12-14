@@ -24,9 +24,9 @@ klondike feature list  # List all features
 ### Current Priority Features
 | ID | Description | Status |
 |----|-------------|--------|
-| F035 | Extract custom hooks from components into hooks/ directory | 🔄 In progress |
-| F036 | Add comprehensive TypeScript strict mode and type improvements | ⏳ Not started |
+| F036 | Add comprehensive TypeScript strict mode and type improvements | 🔄 In progress |
 | F037 | Split OSContext into smaller focused contexts | ⏳ Not started |
+| F038 | Add React.lazy code splitting for all app components | ⏳ Not started |
 
 ---
 

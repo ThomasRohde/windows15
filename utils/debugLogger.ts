@@ -18,7 +18,7 @@ const isDebugEnabled = (): boolean => {
 
 const formatTimestamp = (): string => {
     const now = new Date();
-    return now.toISOString().split("T")[1].substring(0, 12);
+    return now.toISOString().split("T")[1]?.substring(0, 12) ?? '';
 };
 
 export const debugSync = {

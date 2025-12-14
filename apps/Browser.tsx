@@ -256,7 +256,7 @@ export const Browser = () => {
         }
 
         const now = Date.now();
-        const id = db.bookmarks?.newId ? db.bookmarks.newId() : createId();
+        const id = createId();
         await db.bookmarks.add({
             id,
             url: trimmedUrl,

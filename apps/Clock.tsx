@@ -104,7 +104,8 @@ export const Clock = () => {
         );
     };
 
-    const selectedTime = getTimeForZone(timeZones[selectedZone]);
+    const selectedTz = timeZones[selectedZone];
+    const selectedTime = selectedTz ? getTimeForZone(selectedTz) : new Date();
 
     return (
         <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
@@ -125,7 +126,7 @@ export const Clock = () => {
 
             <div className="flex-1 bg-black/20 rounded-xl p-4 flex flex-col items-center justify-center">
                 <div className="text-white/60 text-lg mb-2">
-                    {timeZones[selectedZone].name} {timeZones[selectedZone].offset && `(${timeZones[selectedZone].offset})`}
+                    {selectedTz?.name ?? 'Unknown'} {selectedTz?.offset && `(${selectedTz.offset})`}
                 </div>
                 
                 {viewMode === 'digital' ? (

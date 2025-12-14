@@ -19,7 +19,7 @@ const Desktop = () => {
     const db = useDb();
 
     // Load desktop icons reactively
-    const { value: iconsRaw, loading: iconsLoading } = useDexieLiveQuery(
+    const { value: iconsRaw, isLoading: iconsLoading } = useDexieLiveQuery(
         () => db.desktopIcons.orderBy('order').toArray(),
         [db]
     );

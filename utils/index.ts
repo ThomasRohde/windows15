@@ -6,7 +6,7 @@
 export * from "./constants";
 
 // Debug logging
-export { debugLog, debugError, debugWarn } from "./debugLogger";
+export { debugSync } from "./debugLogger";
 
 // File system utilities
 export * from "./fileSystem";

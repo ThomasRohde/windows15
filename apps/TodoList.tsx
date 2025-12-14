@@ -7,7 +7,7 @@ const createId = () => globalThis.crypto?.randomUUID?.() ?? Math.random().toStri
 
 export const TodoList = () => {
     const db = useDb();
-    const { value: todosRaw, loading } = useDexieLiveQuery(() => db.todos.orderBy('createdAt').toArray(), [db]);
+    const { value: todosRaw, isLoading: loading } = useDexieLiveQuery(() => db.todos.orderBy('createdAt').toArray(), [db]);
     const todos = Array.isArray(todosRaw) ? todosRaw : [];
 
     const [input, setInput] = useState('');

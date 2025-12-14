@@ -32,7 +32,8 @@ const NotesPanel = () => {
     useEffect(() => {
         if (selectedId) return;
         if (notes.length === 0) return;
-        setSelectedId(notes[0].id);
+        const firstNote = notes[0];
+        if (firstNote) setSelectedId(firstNote.id);
     }, [notes, selectedId]);
 
     useEffect(() => {
@@ -63,7 +64,7 @@ const NotesPanel = () => {
 
     const createNote = async () => {
         const now = Date.now();
-        const id = db.notes?.newId ? db.notes.newId() : createId();
+        const id = createId();
         await db.notes.add({ id, title: 'Untitled', content: '', createdAt: now, updatedAt: now });
         setSelectedId(id);
     };

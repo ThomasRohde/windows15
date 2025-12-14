@@ -1,5 +1,8 @@
 import React, { ComponentType, LazyExoticComponent } from "react";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyProps = any;
+
 /**
  * Configuration for a registered application
  */
@@ -12,8 +15,8 @@ export interface AppConfig {
     icon: string;
     /** Tailwind background color class */
     color: string;
-    /** Lazily loaded component */
-    component: LazyExoticComponent<ComponentType<unknown>>;
+    /** Lazily loaded component - accepts components with optional props */
+    component: LazyExoticComponent<ComponentType<AnyProps>>;
     /** Default window width in pixels */
     defaultWidth?: number;
     /** Default window height in pixels */

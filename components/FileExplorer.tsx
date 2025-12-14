@@ -37,17 +37,19 @@ export const FileExplorer = () => {
         if (files.length === 0) return;
 
         // Find the root folder - it might not be at index 0
-        let folder = files.find(f => f.id === 'root') || files[0];
+        let folder: FileSystemItem | undefined = files.find(f => f.id === 'root') ?? files[0];
+        if (!folder) return;
 
         for (let i = 1; i < currentPath.length; i++) {
-            const next = folder.children?.find(c => c.id === currentPath[i]);
+            if (!folder) break;
+            const next: FileSystemItem | undefined = folder.children?.find(c => c.id === currentPath[i]);
             if (next) {
                 folder = next;
             } else {
                 break;
             }
         }
-        setCurrentFolder(folder);
+        setCurrentFolder(folder ?? null);
     }, [currentPath, files]);
 
     useEffect(() => {

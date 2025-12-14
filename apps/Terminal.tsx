@@ -38,7 +38,7 @@ export const Terminal = () => {
         setHistoryIndex(-1);
 
         const parts = trimmed.split(' ');
-        const command = parts[0].toLowerCase();
+        const command = (parts[0] ?? '').toLowerCase();
         const args = parts.slice(1).join(' ');
 
         switch (command) {
@@ -117,7 +117,7 @@ export const Terminal = () => {
             if (commandHistory.length > 0) {
                 const newIndex = historyIndex === -1 ? commandHistory.length - 1 : Math.max(0, historyIndex - 1);
                 setHistoryIndex(newIndex);
-                setInput(commandHistory[newIndex]);
+                setInput(commandHistory[newIndex] ?? '');
             }
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
@@ -128,7 +128,7 @@ export const Terminal = () => {
                     setInput('');
                 } else {
                     setHistoryIndex(newIndex);
-                    setInput(commandHistory[newIndex]);
+                    setInput(commandHistory[newIndex] ?? '');
                 }
             }
         }

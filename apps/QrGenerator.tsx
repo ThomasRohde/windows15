@@ -26,7 +26,8 @@ export const QrGenerator = () => {
                     const isOuter = y === 0 || y === 6 || x === 0 || x === 6;
                     const isInner = x >= 2 && x <= 4 && y >= 2 && y <= 4;
                     if (startX + x < size && startY + y < size) {
-                        matrix[startY + y][startX + x] = isOuter || isInner;
+                        const row = matrix[startY + y];
+                        if (row) row[startX + x] = isOuter || isInner;
                     }
                 }
             }
@@ -37,8 +38,10 @@ export const QrGenerator = () => {
         addFinderPattern(0, size - 7);
 
         for (let i = 8; i < size - 8; i++) {
-            matrix[6][i] = i % 2 === 0;
-            matrix[i][6] = i % 2 === 0;
+            const row6 = matrix[6];
+            const rowI = matrix[i];
+            if (row6) row6[i] = i % 2 === 0;
+            if (rowI) rowI[6] = i % 2 === 0;
         }
 
         let hash = 0;
@@ -48,9 +51,10 @@ export const QrGenerator = () => {
 
         for (let y = 9; y < size - 9; y++) {
             for (let x = 9; x < size - 9; x++) {
-                if (matrix[y][x]) continue;
+                const row = matrix[y];
+                if (!row || row[x]) continue;
                 const seed = (hash + x * 31 + y * 17) & 0xFFFFFFFF;
-                matrix[y][x] = ((seed * 1103515245 + 12345) & 0x7FFFFFFF) % 3 !== 0;
+                row[x] = ((seed * 1103515245 + 12345) & 0x7FFFFFFF) % 3 !== 0;
             }
         }
 
@@ -76,8 +80,10 @@ export const QrGenerator = () => {
 
         ctx.fillStyle = '#000000';
         for (let y = 0; y < size; y++) {
+            const row = matrix[y];
+            if (!row) continue;
             for (let x = 0; x < size; x++) {
-                if (matrix[y][x]) {
+                if (row[x]) {
                     ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
                 }
             }

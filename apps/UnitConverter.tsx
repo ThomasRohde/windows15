@@ -75,6 +75,11 @@ export const UnitConverter = () => {
         const fromUnitData = currentUnits[fromUnit];
         const toUnitData = currentUnits[toUnit];
 
+        if (!fromUnitData || !toUnitData) {
+            setResult('');
+            return;
+        }
+
         const baseValue = fromUnitData.toBase(value);
         const convertedValue = toUnitData.fromBase(baseValue);
 
@@ -164,7 +169,7 @@ export const UnitConverter = () => {
                     <div className="text-white text-lg mt-1">
                         {inputValue && result ? (
                             <>
-                                {inputValue} {currentUnits[fromUnit].value} = {result} {currentUnits[toUnit].value}
+                                {inputValue} {currentUnits[fromUnit]?.value} = {result} {currentUnits[toUnit]?.value}
                             </>
                         ) : (
                             'Enter a value to convert'

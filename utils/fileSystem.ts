@@ -154,6 +154,8 @@ const ensureDesktopShortcuts = (files: FileSystemItem[]): FileSystemItem[] | nul
     if (rootIndex === -1) return null;
 
     const root = files[rootIndex];
+    if (!root) return null;
+    
     const rootChildren = root.children ?? [];
     const desktopExisting = rootChildren.find((child) => child.id === 'desktop' && child.type === 'folder');
 
@@ -262,7 +264,9 @@ const ensureDesktopShortcuts = (files: FileSystemItem[]): FileSystemItem[] | nul
     if (!picturesExisting && desktopPhoto) nextRootChildren.push(nextPicturesFolder);
 
     const nextRoot: FileSystemItem = {
-        ...root,
+        id: root.id,
+        name: root.name,
+        type: root.type,
         children: nextRootChildren,
     };
 

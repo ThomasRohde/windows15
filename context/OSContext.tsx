@@ -39,7 +39,7 @@ export const useOS = () => {
 export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [windows, setWindows] = useState<WindowState[]>([]);
     const [apps, setApps] = useState<AppConfig[]>([]);
-    const [activeWallpaper, setActiveWallpaper] = useState(WALLPAPERS[0].url);
+    const [activeWallpaper, setActiveWallpaper] = useState(WALLPAPERS[0]?.url ?? '');
     const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
     const nextZIndexRef = useRef(100);

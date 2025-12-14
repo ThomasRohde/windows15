@@ -159,10 +159,10 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
         const map: Record<string, CalendarEvent[]> = {};
         for (const event of events) {
             map[event.date] ||= [];
-            map[event.date].push(event);
+            map[event.date]!.push(event);
         }
         for (const key of Object.keys(map)) {
-            map[key].sort(compareTime);
+            map[key]!.sort(compareTime);
         }
         return map;
     }, [events]);

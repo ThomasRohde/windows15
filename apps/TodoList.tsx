@@ -14,30 +14,76 @@ export const TodoList = () => {
 
     const [input, setInput] = useState('');
     const [filter, setFilter] = useState<Filter>('all');
+    const [error, setError] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const addTodo = async () => {
-        if (input.trim()) {
+        const trimmedInput = input.trim();
+
+        // Validation
+        if (!trimmedInput) {
+            setError('Task cannot be empty');
+            return;
+        }
+
+        if (trimmedInput.length > 500) {
+            setError('Task is too long (max 500 characters)');
+            return;
+        }
+
+        // Prevent duplicate submissions
+        if (isSubmitting) {
+            return;
+        }
+
+        setIsSubmitting(true);
+        setError(null);
+
+        try {
             const now = Date.now();
             await db.todos.add({
                 id: generateUuid(),
-                text: input.trim(),
+                text: trimmedInput,
                 completed: false,
                 createdAt: now,
                 updatedAt: now,
             });
             setInput('');
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to add task');
+            console.error('Error adding todo:', err);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     const toggleTodo = async (id: string) => {
-        await db.todos.update(id, {
-            completed: !todos.find(t => t.id === id)?.completed,
-            updatedAt: Date.now(),
-        });
+        try {
+            const todo = todos.find(t => t.id === id);
+            if (!todo) {
+                setError('Task not found');
+                return;
+            }
+
+            await db.todos.update(id, {
+                completed: !todo.completed,
+                updatedAt: Date.now(),
+            });
+            setError(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to update task');
+            console.error('Error toggling todo:', err);
+        }
     };
 
     const deleteTodo = async (id: string) => {
-        await db.todos.delete(id);
+        try {
+            await db.todos.delete(id);
+            setError(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to delete task');
+            console.error('Error deleting todo:', err);
+        }
     };
 
     const filteredTodos = todos.filter(todo => {
@@ -50,20 +96,36 @@ export const TodoList = () => {
 
     return (
         <div className="h-full bg-[#1e1e1e] p-4 flex flex-col gap-4">
+            {error && (
+                <div className="bg-red-500/20 border border-red-500/50 text-red-300 px-4 py-2 rounded-lg flex items-center justify-between">
+                    <span>{error}</span>
+                    <button
+                        onClick={() => setError(null)}
+                        className="text-red-300 hover:text-red-100 ml-2"
+                        aria-label="Dismiss error"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
+
             <div className="flex gap-2">
                 <input
                     type="text"
                     value={input}
                     onChange={e => setInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && addTodo()}
+                    onKeyDown={e => e.key === 'Enter' && !isSubmitting && addTodo()}
                     placeholder="Add a new task..."
-                    className="flex-1 bg-black/30 text-white px-4 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-blue-500"
+                    disabled={isSubmitting}
+                    maxLength={500}
+                    className="flex-1 bg-black/30 text-white px-4 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <button
                     onClick={addTodo}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-400 transition-colors"
+                    disabled={isSubmitting}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-500"
                 >
-                    Add
+                    {isSubmitting ? 'Adding...' : 'Add'}
                 </button>
             </div>
 

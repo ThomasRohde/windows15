@@ -210,16 +210,16 @@
       {
         "id": "F059",
         "description": "Add error handling and validation to TodoList app",
-        "status": "not-started"
-      },
-      {
-        "id": "F063",
-        "description": "Improve UUID generation reliability in TodoList",
         "status": "in-progress"
       },
       {
         "id": "F060",
         "description": "Add todo edit functionality to TodoList app",
+        "status": "not-started"
+      },
+      {
+        "id": "F061",
+        "description": "Add bulk operations to TodoList app",
         "status": "not-started"
       }
     ]

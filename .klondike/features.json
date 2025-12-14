@@ -1552,13 +1552,13 @@
         "Duplicate rapid submissions prevented"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T07:08:50.781380",
       "notes": "Currently no error handling in addTodo/toggleTodo/deleteTodo. Add try-catch around db operations. Use toast notifications or inline error display. Add debounce or disable-while-submitting pattern for add button."
     },
     {
@@ -1628,11 +1628,14 @@
         "IDs are guaranteed unique across Dexie Cloud sync"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T07:08:48.926346",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Implemented cryptographically secure UUID generation using crypto.randomUUID() with fallback to crypto.getRandomValues(). Build passes",
+        "code committed."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T07:06:07.245633",
       "notes": "Current fallback to Math.random() is non-cryptographic. Replace with: crypto.randomUUID?.() || crypto.getRandomValues(new Uint8Array(16)) converted to hex string. Critical for Dexie Cloud where ID collisions would cause sync issues."
@@ -1830,8 +1833,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T07:04:13.000888",
+    "lastUpdated": "2025-12-14T07:08:48.926388",
     "totalFeatures": 73,
-    "passingFeatures": 58
+    "passingFeatures": 59
   }
 }

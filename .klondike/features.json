@@ -2507,11 +2507,18 @@
         "Wallpaper animation pauses or dims during overview"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T17:27:44.265470",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Overview mode opens via Ctrl+Tab or Alt+Space",
+        "shows responsive grid of windows",
+        "arrow keys navigate",
+        "Enter selects and exits",
+        "Esc closes without change",
+        "applies 3D depth when enabled"
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T17:23:13.256749",
       "notes": "Implementation: Create OverviewMode.tsx in platform/desktop/window-space/. Generate window cards with title and app icon. Use CSS grid layout with subtle depth. Edge cases: No windows open, single window, many windows (pagination?). Dependencies: F087 (3D toggle). Context: Milestone 3 - quick window switching. Gotchas: Must preserve focus history; overview is modal overlay."
@@ -2746,13 +2753,13 @@
         "Validation runs before runtime initialization"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T17:28:12.568535",
       "notes": "Implementation: Create manifest validator in wallpaper-studio/. Use JSON schema or manual validation. Log validation errors. Edge cases: Missing fields, extra fields, oversized assets. Dependencies: F088 (Wallpaper Studio). Context: Security per PRD section 9. Gotchas: Don't trust user-installed packs; always validate."
     },
     {
@@ -2770,11 +2777,18 @@
         "Click on card focuses window and exits overview"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T17:27:48.866047",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "WindowCard component displays app icon from registry",
+        "window title",
+        "glass-panel styling",
+        "responsive grid layout",
+        "hover highlights card",
+        "click focuses window"
+      ],
       "blockedBy": null,
       "lastWorkedOn": null,
       "notes": "Implementation: Create simplified WindowCard component for overview. Get icon from app registry. Style with glass effect. Edge cases: Very long titles, missing icons. Dependencies: F095 (Overview mode). Context: MVP uses simplified cards per PRD (live thumbnails v2). Gotchas: Keep cards lightweight; no live rendering needed for MVP."
@@ -2836,8 +2850,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T17:22:59.819822",
+    "lastUpdated": "2025-12-14T17:27:48.866059",
     "totalFeatures": 108,
-    "passingFeatures": 94
+    "passingFeatures": 96
   }
 }

@@ -95,7 +95,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
         }
         try {
             e.currentTarget.setPointerCapture(e.pointerId);
-        } catch {}
+        } catch { }
         e.preventDefault();
     };
 
@@ -132,7 +132,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
 
         try {
             e.currentTarget.releasePointerCapture(e.pointerId);
-        } catch {}
+        } catch { }
     };
 
     const handleResizeStart = (e: React.PointerEvent, direction: ResizeDirection) => {
@@ -156,7 +156,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
 
         try {
             (e.target as HTMLElement).setPointerCapture(e.pointerId);
-        } catch {}
+        } catch { }
     };
 
     const handleResizeMove = (e: React.PointerEvent) => {
@@ -231,7 +231,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
 
         try {
             (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-        } catch {}
+        } catch { }
     };
 
     if (window.isMinimized) return null;
@@ -239,21 +239,21 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
     const MAXIMIZED_BOTTOM_GAP_PX = 96;
     const outerStyle: React.CSSProperties = window.isMaximized
         ? {
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: `calc(100vh - ${MAXIMIZED_BOTTOM_GAP_PX}px)`,
-              transform: 'none',
-          }
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: `calc(100vh - ${MAXIMIZED_BOTTOM_GAP_PX}px)`,
+            transform: 'none',
+        }
         : {
-              top: 0,
-              left: 0,
-              width: size.width,
-              height: size.height,
-              transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
-              willChange: isDragging || isResizing ? 'transform, width, height' : undefined,
-          };
+            top: 0,
+            left: 0,
+            width: size.width,
+            height: size.height,
+            transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
+            willChange: isDragging || isResizing ? 'transform, width, height' : undefined,
+        };
 
     const chromeStyle: React.CSSProperties | undefined = (() => {
         if (!window.isMaximized && !isDragging && !isResizing) return undefined;

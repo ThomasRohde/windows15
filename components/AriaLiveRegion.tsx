@@ -10,7 +10,7 @@ export const useAriaLive = () => {
     const context = useContext(AriaLiveContext);
     if (!context) {
         // Return a no-op if not in provider (for testing)
-        return { announce: () => {} };
+        return { announce: () => { } };
     }
     return context;
 };

@@ -2226,11 +2226,13 @@
         "Wallpaper pauses when tab not visible (Page Visibility API)"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T16:33:52.452040",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "WallpaperHost component created with z-index 0 positioning. Canvas resizes on viewport change. Page Visibility API pauses animation. Settings persist via kv table. Runtime dispose handled on switch. Integrated into App.tsx."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T16:31:44.128440",
       "notes": "Implementation: Create WallpaperHost.ts in platform/desktop/wallpaper/. Use WallpaperRuntime interface from PRD. Mount canvas absolutely positioned behind WindowContext layer. Edge cases: Handle rapid wallpaper switching, viewport resize during animation. Dependencies: F084 (Dexie schema). Context: Milestone 1 foundation - desktop integration point for all wallpaper types. Gotchas: Z-index must be lower than all windows and icons; test with 3D mode enabled."
@@ -2249,13 +2251,13 @@
         "No dropped frames during normal desktop interaction"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T16:34:59.594454",
       "notes": "Implementation: Create WallpaperScheduler.ts. Use requestAnimationFrame with timestamp delta to enforce FPS cap. Battery saver renders to smaller OffscreenCanvas then upscales. Edge cases: Tab visibility changes, rapid settings updates. Dependencies: F085 (WallpaperHost). Context: Ensures wallpapers don't impact desktop performance. Gotchas: Don't starve main thread - consider yielding if frame budget exceeded."
     },
     {
@@ -2780,8 +2782,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T16:31:27.202225",
+    "lastUpdated": "2025-12-14T16:33:52.452053",
     "totalFeatures": 108,
-    "passingFeatures": 84
+    "passingFeatures": 85
   }
 }

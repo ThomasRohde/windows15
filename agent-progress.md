@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                                                  | Status         |
 | ---- | ---------------------------------------------------------------------------- | -------------- |
-| F085 | WallpaperHost component renders live wallpaper behind desktop icons/windows  | 🔄 In progress |
-| F086 | WallpaperScheduler manages render loop with FPS cap and battery saver mode   | ⏳ Not started |
+| F086 | WallpaperScheduler manages render loop with FPS cap and battery saver mode   | 🔄 In progress |
 | F087 | Basic 3D toggle applies CSS transforms to windows with depth and perspective | ⏳ Not started |
+| F088 | Wallpaper Studio app with gallery view and built-in wallpaper packs          | ⏳ Not started |
 
 ---
 

@@ -2,16 +2,20 @@
  * WallpaperHost Component (F085)
  *
  * Renders live wallpaper behind desktop icons and windows.
- * Manages wallpaper lifecycle, Page Visibility API, and canvas resizing.
+ * Manages wallpaper lifecycle and canvas resizing.
+ * Uses WallpaperScheduler (F086) for render loop management.
  */
-import React, { useRef, useEffect, useCallback, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useDb } from '../context/DbContext';
 import type { WallpaperRuntime, WallpaperSettings, WallpaperManifest } from '../types/wallpaper';
 import { DEFAULT_WALLPAPER_SETTINGS } from '../types/wallpaper';
+import { WallpaperScheduler } from '../utils/WallpaperScheduler';
 
 interface WallpaperHostProps {
     /** Fallback image URL when no live wallpaper is active */
     fallbackImage?: string;
+    /** Enable battery saver mode */
+    batterySaver?: boolean;
 }
 
 /**
@@ -22,18 +26,17 @@ interface WallpaperHostProps {
  * - Resizes canvas correctly on viewport change
  * - Persists wallpaper selection via Dexie kv table
  * - Disposes prior runtime on wallpaper switch
- * - Pauses animation when tab not visible (Page Visibility API)
+ * - Uses WallpaperScheduler for FPS-capped render loop
+ * - Battery saver mode auto-reduces FPS and resolution
  */
-export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage }) => {
+export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, batterySaver = false }) => {
     const db = useDb();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const runtimeRef = useRef<WallpaperRuntime | null>(null);
-    const animationFrameRef = useRef<number | null>(null);
-    const lastFrameTimeRef = useRef<number>(0);
+    const schedulerRef = useRef<WallpaperScheduler | null>(null);
 
     const [activeWallpaper, setActiveWallpaper] = useState<WallpaperManifest | null>(null);
     const [settings, setSettings] = useState<WallpaperSettings>(DEFAULT_WALLPAPER_SETTINGS);
-    const [isVisible, setIsVisible] = useState(!document.hidden);
     const [isLiveWallpaperActive, setIsLiveWallpaperActive] = useState(false);
 
     // Load active wallpaper from settings on mount
@@ -62,17 +65,29 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage }) =
         void loadWallpaperPreference();
     }, [db]);
 
-    // Page Visibility API - pause when tab hidden
+    // Initialize scheduler
     useEffect(() => {
-        const handleVisibilityChange = () => {
-            setIsVisible(!document.hidden);
-        };
+        schedulerRef.current = new WallpaperScheduler({
+            fpsCap: settings.fpsCap,
+            batterySaver,
+            quality: settings.quality,
+        });
 
-        document.addEventListener('visibilitychange', handleVisibilityChange);
         return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            if (schedulerRef.current) {
+                schedulerRef.current.dispose();
+                schedulerRef.current = null;
+            }
         };
     }, []);
+
+    // Update scheduler config when settings change
+    useEffect(() => {
+        if (schedulerRef.current) {
+            schedulerRef.current.updateFromSettings(settings);
+            schedulerRef.current.updateConfig({ batterySaver });
+        }
+    }, [settings, batterySaver]);
 
     // Handle canvas resize on viewport change
     useEffect(() => {
@@ -81,18 +96,19 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage }) =
 
         const handleResize = () => {
             const dpr = window.devicePixelRatio || 1;
+            const scale = schedulerRef.current?.resolutionScale ?? 1;
             const width = window.innerWidth;
             const height = window.innerHeight;
 
-            // Update canvas dimensions
-            canvas.width = width * dpr;
-            canvas.height = height * dpr;
+            // Update canvas dimensions (with resolution scaling for battery saver)
+            canvas.width = Math.floor(width * dpr * scale);
+            canvas.height = Math.floor(height * dpr * scale);
             canvas.style.width = `${width}px`;
             canvas.style.height = `${height}px`;
 
             // Notify runtime of resize
             if (runtimeRef.current) {
-                runtimeRef.current.resize(width, height, dpr);
+                runtimeRef.current.resize(width, height, dpr * scale);
             }
         };
 
@@ -105,44 +121,31 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage }) =
         };
     }, []);
 
-    // Frame rate limited render loop
-    const renderLoop = useCallback(
-        (timestamp: number) => {
-            if (!isVisible || !runtimeRef.current) {
-                animationFrameRef.current = requestAnimationFrame(renderLoop);
-                return;
-            }
-
-            const frameInterval = 1000 / settings.fpsCap;
-            const elapsed = timestamp - lastFrameTimeRef.current;
-
-            if (elapsed >= frameInterval) {
-                lastFrameTimeRef.current = timestamp - (elapsed % frameInterval);
-                runtimeRef.current.render(timestamp);
-            }
-
-            animationFrameRef.current = requestAnimationFrame(renderLoop);
-        },
-        [isVisible, settings.fpsCap]
-    );
-
-    // Start/stop render loop based on visibility and active wallpaper
+    // Start/stop render loop via scheduler
     useEffect(() => {
-        if (isLiveWallpaperActive && isVisible && runtimeRef.current) {
-            animationFrameRef.current = requestAnimationFrame(renderLoop);
+        const scheduler = schedulerRef.current;
+        const runtime = runtimeRef.current;
+
+        if (isLiveWallpaperActive && runtime && scheduler) {
+            // Start scheduler with render callback
+            scheduler.start((timestamp: number) => {
+                runtime.render(timestamp);
+            });
         }
 
         return () => {
-            if (animationFrameRef.current) {
-                cancelAnimationFrame(animationFrameRef.current);
-                animationFrameRef.current = null;
+            if (scheduler) {
+                scheduler.stop();
             }
         };
-    }, [isLiveWallpaperActive, isVisible, renderLoop]);
+    }, [isLiveWallpaperActive, activeWallpaper]);
 
     // Clean up runtime on unmount or wallpaper change
     useEffect(() => {
         return () => {
+            if (schedulerRef.current) {
+                schedulerRef.current.stop();
+            }
             if (runtimeRef.current) {
                 runtimeRef.current.dispose();
                 runtimeRef.current = null;

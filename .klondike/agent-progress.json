@@ -304,18 +304,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F085",
-        "description": "WallpaperHost component renders live wallpaper behind desktop icons/windows",
-        "status": "in-progress"
-      },
-      {
         "id": "F086",
         "description": "WallpaperScheduler manages render loop with FPS cap and battery saver mode",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F087",
         "description": "Basic 3D toggle applies CSS transforms to windows with depth and perspective",
+        "status": "not-started"
+      },
+      {
+        "id": "F088",
+        "description": "Wallpaper Studio app with gallery view and built-in wallpaper packs",
         "status": "not-started"
       }
     ]

@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocalization } from '../context';
+import { useDb } from '../context/DbContext';
+import { useLiveQuery } from 'dexie-react-hooks';
 
 interface OutputLine {
     id: number;
@@ -7,19 +9,32 @@ interface OutputLine {
     text: string;
 }
 
+const MAX_HISTORY = 500;
+
 export const Terminal = () => {
     const { formatDateLong, formatTimeLong } = useLocalization();
+    const db = useDb();
     const [input, setInput] = useState('');
     const [output, setOutput] = useState<OutputLine[]>([
         { id: 0, type: 'output', text: 'Windows15 Command Prompt [Version 15.0.28500.1000]' },
         { id: 1, type: 'output', text: '(c) 2024 Windows15 Corporation. All rights reserved.' },
         { id: 2, type: 'output', text: '' },
     ]);
-    const [commandHistory, setCommandHistory] = useState<string[]>([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
     const outputRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const idCounter = useRef(3);
+
+    // Load command history from IndexedDB
+    const commandHistory = useLiveQuery(
+        async () => {
+            if (!db) return [];
+            const history = await db.terminalHistory.orderBy('executedAt').toArray();
+            return history.map(h => h.command);
+        },
+        [db],
+        []
+    );
 
     useEffect(() => {
         if (outputRef.current) {
@@ -31,12 +46,35 @@ export const Terminal = () => {
         setOutput(prev => [...prev, { id: idCounter.current++, type, text }]);
     };
 
-    const executeCommand = (cmd: string) => {
+    const executeCommand = async (cmd: string) => {
         const trimmed = cmd.trim();
         if (!trimmed) return;
 
         addOutput(`C:\\Users\\Guest>${trimmed}`, 'command');
-        setCommandHistory(prev => [...prev, trimmed]);
+
+        // Save command to database with FIFO eviction
+        if (db) {
+            try {
+                // Add new command to history
+                await db.terminalHistory.add({
+                    command: trimmed,
+                    executedAt: Date.now(),
+                });
+
+                // Enforce MAX_HISTORY limit (FIFO eviction)
+                const count = await db.terminalHistory.count();
+                if (count > MAX_HISTORY) {
+                    const oldest = await db.terminalHistory
+                        .orderBy('executedAt')
+                        .limit(count - MAX_HISTORY)
+                        .toArray();
+                    await db.terminalHistory.bulkDelete(oldest.map(h => h.id!));
+                }
+            } catch (error) {
+                console.error('Failed to save terminal history:', error);
+            }
+        }
+
         setHistoryIndex(-1);
 
         const parts = trimmed.split(' ');
@@ -112,18 +150,18 @@ export const Terminal = () => {
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
-            executeCommand(input);
+            void executeCommand(input);
             setInput('');
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
-            if (commandHistory.length > 0) {
+            if (commandHistory && commandHistory.length > 0) {
                 const newIndex = historyIndex === -1 ? commandHistory.length - 1 : Math.max(0, historyIndex - 1);
                 setHistoryIndex(newIndex);
                 setInput(commandHistory[newIndex] ?? '');
             }
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
-            if (historyIndex !== -1) {
+            if (commandHistory && historyIndex !== -1) {
                 const newIndex = historyIndex + 1;
                 if (newIndex >= commandHistory.length) {
                     setHistoryIndex(-1);

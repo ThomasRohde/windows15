@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: Session Ended
+## Current Status: In Progress
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -28,8 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID  | Description | Status |
-| --- | ----------- | ------ |
+| ID   | Description                                       | Status         |
+| ---- | ------------------------------------------------- | -------------- |
+| F076 | Terminal command history persists across sessions | 🔄 In progress |
+| F079 | Terminal supports filesystem navigation commands  | ⏳ Not started |
+| F082 | Terminal supports copy/paste and text selection   | ⏳ Not started |
 
 ---
 
@@ -447,6 +450,34 @@ klondike feature list  # List all features
 
 1. Review drag-reorder UX
 2. commit changes
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 15 - 2025-12-14
+
+**Agent**: Coding Agent
+**Duration**: (in progress)
+**Focus**: Implement remaining P2-P4 features (F076-F083)
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- Session started
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Continue implementation
 
 #### Technical Notes
 

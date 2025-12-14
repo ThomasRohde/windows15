@@ -48,12 +48,19 @@ export type DesktopIconRecord = {
     updatedAt: number;
 };
 
+export type TerminalHistoryRecord = {
+    id?: number;
+    command: string;
+    executedAt: number;
+};
+
 export class Windows15DexieDB extends Dexie {
     kv!: Table<KvRecord, string>;
     notes!: Table<NoteRecord, string>;
     bookmarks!: Table<BookmarkRecord, string>;
     todos!: Table<TodoRecord, string>;
     desktopIcons!: Table<DesktopIconRecord, string>;
+    terminalHistory!: Table<TerminalHistoryRecord, number>;
 
     constructor() {
         super('windows15', { addons: [dexieCloud] });
@@ -94,6 +101,7 @@ export class Windows15DexieDB extends Dexie {
                 bookmarks: '@id, folder, updatedAt, createdAt',
                 todos: '@id, completed, priority, dueDate, sortOrder, updatedAt, createdAt',
                 desktopIcons: '@id, order, updatedAt, createdAt',
+                terminalHistory: '++id, executedAt',
             })
             .upgrade(async tx => {
                 const todosTable = tx.table<TodoRecord, string>('todos');

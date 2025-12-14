@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: In Progress
+## Current Status: Session Ended
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -28,11 +28,10 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                                                  | Status         |
-| ---- | -------------------------------------------------------------------------------------------- | -------------- |
-| F062 | Add todo persistence and sync verification tests                                             | ⏳ Not started |
-| F067 | Add simulated CPU/Memory metrics with realistic fluctuation patterns to System Status widget | 🔄 In progress |
-| F068 | Add browser Performance API metrics to System Status widget                                  | 🔄 In progress |
+| ID   | Description                                      | Status         |
+| ---- | ------------------------------------------------ | -------------- |
+| F062 | Add todo persistence and sync verification tests | ⏳ Not started |
+| F066 | Add drag-to-reorder functionality for todos      | ⏳ Not started |
 
 ---
 
@@ -402,8 +401,8 @@ klondike feature list  # List all features
 ### Session 13 - 2025-12-14
 
 **Agent**: Coding Agent
-**Duration**: (in progress)
-**Focus**: Implement multiple features: F062, F064, F065, F067-F072
+**Duration**: ~session
+**Focus**: Implemented 8 features across TodoList and System Status widget: F064 (todo priority/due dates), F065 (todo search), F067-F072 (System Status enhancements including CPU/Memory metrics, network status, battery, storage, and expandable details). All features tested and verified. Build passes. Project advanced from 86.3% to 97.3% completion.
 
 #### Completed
 
@@ -411,7 +410,7 @@ klondike feature list  # List all features
 
 #### In Progress
 
-- Session started
+- None
 
 #### Blockers
 
@@ -419,7 +418,7 @@ klondike feature list  # List all features
 
 #### Recommended Next Steps
 
-1. Continue implementation
+1. Only 2 features remaining: F062 (todo tests) and F066 (drag-to-reorder todos). Project is 97.3% complete!
 
 #### Technical Notes
 

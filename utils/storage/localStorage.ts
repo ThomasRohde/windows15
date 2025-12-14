@@ -1,6 +1,7 @@
 export const STORAGE_KEYS = {
     mailMessages: 'windows15.mail.messages',
     calendarEvents: 'windows15.calendar.events',
+    osLocalization: 'windows15.os.localization',
 } as const;
 
 const STORAGE_SYNC_EVENT = 'windows15:storage-sync';

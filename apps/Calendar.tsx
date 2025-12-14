@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { STORAGE_KEYS, storageService, useDexieLiveQuery } from '../utils/storage';
 import { SkeletonCalendar } from '../components/LoadingSkeleton';
+import { useLocalization } from '../context';
 
 type CalendarEvent = {
     id: string;
@@ -115,6 +116,7 @@ const normalizeInitialDate = (value?: string) => {
 };
 
 export const Calendar = ({ initialDate }: { initialDate?: string }) => {
+    const { formatTimeShortFromHm } = useLocalization();
     const { value: persistedEvents, isLoading: isLoadingEvents } = useDexieLiveQuery(
         () => storageService.get<CalendarEvent[]>(STORAGE_KEYS.calendarEvents),
         [STORAGE_KEYS.calendarEvents]
@@ -358,7 +360,10 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                                                             className="text-[10px] px-2 py-1 rounded bg-white/10 text-white/80 truncate"
                                                             title={event.title}
                                                         >
-                                                            {event.allDay ? 'All day' : event.startTime} · {event.title}
+                                                            {event.allDay
+                                                                ? 'All day'
+                                                                : formatTimeShortFromHm(event.startTime)}{' '}
+                                                            · {event.title}
                                                         </div>
                                                     ))}
                                                     {dayEvents.length > 2 && (
@@ -406,7 +411,9 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                                                     {event.title}
                                                 </div>
                                                 <div className="mt-0.5 text-[11px] text-white/50">
-                                                    {event.allDay ? 'All day' : `${event.startTime} – ${event.endTime}`}
+                                                    {event.allDay
+                                                        ? 'All day'
+                                                        : `${formatTimeShortFromHm(event.startTime)} – ${formatTimeShortFromHm(event.endTime)}`}
                                                     {event.location ? ` · ${event.location}` : ''}
                                                 </div>
                                             </div>

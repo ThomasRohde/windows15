@@ -98,10 +98,10 @@ const resolveInput = (raw: string): { url: string; modeSuggestion?: ViewMode } |
 
 export const Browser = () => {
     const db = useDb();
-    const initialEntry: HistoryEntry = { url: 'https://example.com', mode: 'live' };
+    const initialEntry: HistoryEntry = { url: 'https://thomasrohde.github.io', mode: 'live' };
 
     const [state, setState] = useState<BrowserState>({
-        input: 'example.com',
+        input: 'thomasrohde.github.io',
         history: [initialEntry],
         historyIndex: 0,
         reloadNonce: 0,

@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { useOS } from '../context/OSContext';
 import { WALLPAPERS } from '../utils/constants';
 import { SyncSettings } from './settings/SyncSettings';
+import { LocalizationSettings } from './settings/LocalizationSettings';
 
 export const Settings = () => {
     const { activeWallpaper, setWallpaper } = useOS();
-    const [activeSection, setActiveSection] = useState<'personalization' | 'sync' | 'network' | 'apps'>(
-        'personalization'
-    );
+    const [activeSection, setActiveSection] = useState<
+        'personalization' | 'localization' | 'sync' | 'network' | 'apps'
+    >('personalization');
 
     return (
         <div className="h-full bg-background-dark text-white flex">
@@ -37,6 +38,19 @@ export const Settings = () => {
                             sync
                         </span>
                         <span className="text-sm font-medium">Sync</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => setActiveSection('localization')}
+                        className={`p-2 rounded flex items-center gap-3 text-left ${activeSection === 'localization' ? 'bg-white/10' : 'hover:bg-white/5 text-white/70'}`}
+                    >
+                        <span
+                            className={`material-symbols-outlined ${activeSection === 'localization' ? 'text-primary' : ''}`}
+                        >
+                            language
+                        </span>
+                        <span className="text-sm font-medium">Time &amp; language</span>
                     </button>
 
                     <button
@@ -97,6 +111,8 @@ export const Settings = () => {
                 )}
 
                 {activeSection === 'sync' && <SyncSettings />}
+
+                {activeSection === 'localization' && <LocalizationSettings />}
 
                 {activeSection === 'network' && (
                     <div className="max-w-2xl">

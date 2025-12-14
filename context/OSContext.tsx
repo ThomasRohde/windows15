@@ -9,6 +9,7 @@ import { AppRegistryProvider, useAppRegistry } from './AppRegistryContext';
 import { WallpaperProvider, useWallpaper } from './WallpaperContext';
 import { StartMenuProvider, useStartMenu } from './StartMenuContext';
 import { WindowProvider, useWindowManager } from './WindowContext';
+import { LocalizationProvider } from './LocalizationContext';
 
 /**
  * Combined interface for backward compatibility
@@ -87,11 +88,13 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     return (
         <AppRegistryProvider>
             <StartMenuProvider>
-                <WallpaperProvider>
-                    <WindowProvider>
-                        <OSContextBridge>{children}</OSContextBridge>
-                    </WindowProvider>
-                </WallpaperProvider>
+                <LocalizationProvider>
+                    <WallpaperProvider>
+                        <WindowProvider>
+                            <OSContextBridge>{children}</OSContextBridge>
+                        </WindowProvider>
+                    </WallpaperProvider>
+                </LocalizationProvider>
             </StartMenuProvider>
         </AppRegistryProvider>
     );
@@ -102,3 +105,4 @@ export { useAppRegistry } from './AppRegistryContext';
 export { useWallpaper } from './WallpaperContext';
 export { useStartMenu } from './StartMenuContext';
 export { useWindowManager } from './WindowContext';
+export { useLocalization } from './LocalizationContext';

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocalization } from '../context';
 
 interface TimeZone {
     name: string;
@@ -15,6 +16,7 @@ const timeZones: TimeZone[] = [
 ];
 
 export const Clock = () => {
+    const { formatTimeLong, formatDateLong } = useLocalization();
     const [currentTime, setCurrentTime] = useState(new Date());
     const [viewMode, setViewMode] = useState<'digital' | 'analog'>('digital');
     const [selectedZone, setSelectedZone] = useState(0);
@@ -29,24 +31,6 @@ export const Clock = () => {
             return currentTime;
         }
         return new Date(currentTime.toLocaleString('en-US', { timeZone: tz.timezone }));
-    };
-
-    const formatTime = (date: Date) => {
-        return date.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true,
-        });
-    };
-
-    const formatDate = (date: Date) => {
-        return date.toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        });
     };
 
     const AnalogClock = ({ date }: { date: Date }) => {
@@ -131,13 +115,13 @@ export const Clock = () => {
 
                 {viewMode === 'digital' ? (
                     <>
-                        <span className="text-5xl font-light text-white font-mono">{formatTime(selectedTime)}</span>
-                        <span className="text-white/60 mt-2">{formatDate(selectedTime)}</span>
+                        <span className="text-5xl font-light text-white font-mono">{formatTimeLong(selectedTime)}</span>
+                        <span className="text-white/60 mt-2">{formatDateLong(selectedTime)}</span>
                     </>
                 ) : (
                     <>
                         <AnalogClock date={selectedTime} />
-                        <span className="text-white/60 mt-4">{formatDate(selectedTime)}</span>
+                        <span className="text-white/60 mt-4">{formatDateLong(selectedTime)}</span>
                     </>
                 )}
             </div>
@@ -154,7 +138,7 @@ export const Clock = () => {
                                 className={`flex justify-between items-center p-2 rounded-lg transition-all ${selectedZone === index ? 'bg-orange-500/30' : 'hover:bg-white/10'}`}
                             >
                                 <span className="text-white">{tz.name}</span>
-                                <span className="text-white/80 font-mono text-sm">{formatTime(tzTime)}</span>
+                                <span className="text-white/80 font-mono text-sm">{formatTimeLong(tzTime)}</span>
                             </button>
                         );
                     })}

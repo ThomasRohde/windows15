@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useOS } from '../context/OSContext';
+import { useLocalization, useOS } from '../context';
 import { STORAGE_KEYS, storageService, useDexieLiveQuery } from '../utils/storage';
+import { formatTemperature } from '../utils/localization';
 import { SystemStatusWidget } from './SystemStatusWidget';
 
 type CalendarEvent = {
@@ -47,6 +48,7 @@ const weatherCodeToInfo: Record<number, { icon: string; condition: string }> = {
 
 export const Widgets: React.FC = () => {
     const { openWindow } = useOS();
+    const { unitSystem, formatTimeShortFromHm } = useLocalization();
     const [currentDate, setCurrentDate] = useState(new Date());
     const { value: calendarEventsRaw } = useDexieLiveQuery(
         () => storageService.get<CalendarEvent[]>(STORAGE_KEYS.calendarEvents),
@@ -54,13 +56,17 @@ export const Widgets: React.FC = () => {
     );
     const calendarEvents = Array.isArray(calendarEventsRaw) ? calendarEventsRaw : [];
     const [weather, setWeather] = useState<WidgetWeather>({
-        temp: 72,
-        high: 75,
-        low: 62,
+        temp: 22,
+        high: 24,
+        low: 17,
         condition: 'Mostly Sunny',
         icon: 'sunny',
         location: 'Loading...',
     });
+
+    const tempDisplay = useMemo(() => formatTemperature(weather.temp, unitSystem), [weather.temp, unitSystem]);
+    const highDisplay = useMemo(() => formatTemperature(weather.high, unitSystem), [weather.high, unitSystem]);
+    const lowDisplay = useMemo(() => formatTemperature(weather.low, unitSystem), [weather.low, unitSystem]);
 
     useEffect(() => {
         const timer = setInterval(() => setCurrentDate(new Date()), 60000);
@@ -71,7 +77,7 @@ export const Widgets: React.FC = () => {
         const fetchWeather = async (lat: number, lon: number, location: string) => {
             try {
                 const response = await fetch(
-                    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=auto&temperature_unit=fahrenheit`
+                    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=auto`
                 );
                 const data = await response.json();
                 const code = data.current.weather_code;
@@ -123,12 +129,7 @@ export const Widgets: React.FC = () => {
         return new Date(y, m - 1, d);
     };
 
-    const formatTime = (hm: string) => {
-        const [h, m] = hm.split(':').map(Number);
-        const date = new Date();
-        date.setHours(h || 0, m || 0, 0, 0);
-        return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-    };
+    const formatTime = (hm: string) => formatTimeShortFromHm(hm);
 
     const nextEvent = useMemo(() => {
         const todayKey = toYmd(currentDate);
@@ -206,7 +207,10 @@ export const Widgets: React.FC = () => {
             <div className="p-5 glass-panel rounded-xl pointer-events-auto hover:bg-white/5 transition-colors cursor-default">
                 <div className="flex justify-between items-start mb-2">
                     <div className="flex flex-col">
-                        <span className="text-3xl font-light text-white">{weather.temp}°</span>
+                        <span className="text-3xl font-light text-white">
+                            {tempDisplay.value}
+                            {tempDisplay.unit}
+                        </span>
                         <span className="text-sm text-white/60">{weather.condition}</span>
                     </div>
                     <span className="material-symbols-outlined text-yellow-300 text-4xl">{weather.icon}</span>
@@ -214,7 +218,7 @@ export const Widgets: React.FC = () => {
                 <div className="flex justify-between items-center mt-4 text-xs text-white/50 border-t border-white/10 pt-3">
                     <span>{weather.location}</span>
                     <span>
-                        H:{weather.high}° L:{weather.low}°
+                        H:{highDisplay.value}° L:{lowDisplay.value}°
                     </span>
                 </div>
             </div>

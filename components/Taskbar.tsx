@@ -1,5 +1,5 @@
 import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
-import { useOS } from '../context/OSContext';
+import { useLocalization, useOS } from '../context';
 import { SyncStatus } from './SyncStatus';
 
 // Pinned apps configuration - static list
@@ -7,16 +7,13 @@ const PINNED_APPS = ['explorer', 'browser', 'mail', 'calendar', 'notepad', 'calc
 
 export const Taskbar = () => {
     const { toggleStartMenu, isStartMenuOpen, apps, openWindow, windows, minimizeWindow } = useOS();
+    const { formatTimeShort, formatDateShort } = useLocalization();
     const [time, setTime] = useState(new Date());
 
     useEffect(() => {
         const timer = setInterval(() => setTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
-
-    const formatTime = (date: Date) => date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-    const formatDate = (date: Date) =>
-        date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
 
     // Memoize click handlers to prevent TaskbarIcon re-renders
     const openWindowHandlers = useMemo(() => {
@@ -89,8 +86,10 @@ export const Taskbar = () => {
                     <SyncStatus />
                     {/* Clock */}
                     <div className="flex flex-col items-end justify-center px-3 py-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer text-right min-w-[80px]">
-                        <span className="text-xs font-semibold text-white leading-none mb-0.5">{formatTime(time)}</span>
-                        <span className="text-[10px] text-white/60 leading-none">{formatDate(time)}</span>
+                        <span className="text-xs font-semibold text-white leading-none mb-0.5">
+                            {formatTimeShort(time)}
+                        </span>
+                        <span className="text-[10px] text-white/60 leading-none">{formatDateShort(time)}</span>
                     </div>
                     <button
                         className="w-1 h-8 border-l border-white/20 ml-2 hover:bg-white/20"

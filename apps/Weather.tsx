@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useLocalization } from '../context';
+import { formatSpeed, formatTemperature } from '../utils/localization';
 
 interface WeatherData {
     location: string;
@@ -47,12 +49,8 @@ const getWeatherInfo = (code: number) => {
     return weatherCodeToIcon[code] || { icon: 'wb_sunny', condition: 'Unknown' };
 };
 
-const getDayName = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { weekday: 'short' });
-};
-
 export const Weather = () => {
+    const { locale, unitSystem } = useLocalization();
     const [weather, setWeather] = useState<WeatherData | null>(null);
     const [forecast, setForecast] = useState<ForecastDay[]>([]);
     const [loading, setLoading] = useState(true);
@@ -60,7 +58,10 @@ export const Weather = () => {
     const [locationName, setLocationName] = useState('Detecting location...');
 
     useEffect(() => {
-        const fetchWeather = async (lat: number, lon: number) => {
+        const weekdayFormatter = new Intl.DateTimeFormat(locale, { weekday: 'short' });
+        const getDayName = (dateStr: string) => weekdayFormatter.format(new Date(dateStr));
+
+        const fetchWeather = async (lat: number, lon: number, location: string) => {
             try {
                 const response = await fetch(
                     `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`
@@ -72,7 +73,7 @@ export const Weather = () => {
                 const weatherInfo = getWeatherInfo(current.weather_code);
 
                 setWeather({
-                    location: locationName,
+                    location,
                     temperature: Math.round(current.temperature_2m),
                     condition: weatherInfo.condition,
                     icon: weatherInfo.icon,
@@ -124,19 +125,19 @@ export const Weather = () => {
             navigator.geolocation.getCurrentPosition(
                 async position => {
                     const { latitude, longitude } = position.coords;
-                    await getLocationName(latitude, longitude);
-                    fetchWeather(latitude, longitude);
+                    const loc = await getLocationName(latitude, longitude);
+                    fetchWeather(latitude, longitude, loc);
                 },
                 () => {
                     setLocationName('San Francisco, CA');
-                    fetchWeather(37.7749, -122.4194);
+                    fetchWeather(37.7749, -122.4194, 'San Francisco, CA');
                 }
             );
         } else {
             setLocationName('San Francisco, CA');
-            fetchWeather(37.7749, -122.4194);
+            fetchWeather(37.7749, -122.4194, 'San Francisco, CA');
         }
-    }, []);
+    }, [locale]);
 
     if (loading) {
         return (
@@ -154,15 +155,24 @@ export const Weather = () => {
         );
     }
 
+    const temperature = formatTemperature(weather.temperature, unitSystem);
+    const high = formatTemperature(weather.high, unitSystem);
+    const low = formatTemperature(weather.low, unitSystem);
+    const feelsLike = formatTemperature(weather.feelsLike, unitSystem);
+    const wind = formatSpeed(weather.windSpeed, unitSystem);
+
     return (
         <div className="h-full bg-background-dark p-4 flex flex-col gap-4 overflow-y-auto">
             <div className="bg-black/20 rounded-xl p-6 flex flex-col items-center">
                 <div className="text-white/60 text-lg">{locationName}</div>
                 <span className="material-symbols-outlined text-7xl text-orange-400 my-4">{weather.icon}</span>
-                <div className="text-6xl font-light text-white">{weather.temperature}°C</div>
+                <div className="text-6xl font-light text-white">
+                    {temperature.value}
+                    {temperature.unit}
+                </div>
                 <div className="text-white/80 text-xl mt-2">{weather.condition}</div>
                 <div className="text-white/60 mt-1">
-                    H: {weather.high}° L: {weather.low}°
+                    H: {high.value}° L: {low.value}°
                 </div>
             </div>
 
@@ -172,7 +182,10 @@ export const Weather = () => {
                     <div className="flex flex-col items-center">
                         <span className="material-symbols-outlined text-white/60 text-2xl">thermostat</span>
                         <span className="text-white/60 text-xs mt-1">Feels Like</span>
-                        <span className="text-white text-lg">{weather.feelsLike}°</span>
+                        <span className="text-white text-lg">
+                            {feelsLike.value}
+                            {feelsLike.unit}
+                        </span>
                     </div>
                     <div className="flex flex-col items-center">
                         <span className="material-symbols-outlined text-white/60 text-2xl">water_drop</span>
@@ -182,7 +195,9 @@ export const Weather = () => {
                     <div className="flex flex-col items-center">
                         <span className="material-symbols-outlined text-white/60 text-2xl">air</span>
                         <span className="text-white/60 text-xs mt-1">Wind</span>
-                        <span className="text-white text-lg">{weather.windSpeed} km/h</span>
+                        <span className="text-white text-lg">
+                            {wind.value} {wind.unit}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -194,8 +209,10 @@ export const Weather = () => {
                         <div key={idx} className="flex flex-col items-center">
                             <span className="text-white/60 text-sm">{day.day}</span>
                             <span className="material-symbols-outlined text-orange-400 text-2xl my-2">{day.icon}</span>
-                            <span className="text-white text-sm">{day.high}°</span>
-                            <span className="text-white/40 text-sm">{day.low}°</span>
+                            <span className="text-white text-sm">{formatTemperature(day.high, unitSystem).value}°</span>
+                            <span className="text-white/40 text-sm">
+                                {formatTemperature(day.low, unitSystem).value}°
+                            </span>
                         </div>
                     ))}
                 </div>

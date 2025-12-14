@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useLocalization } from '../context';
 
 interface OutputLine {
     id: number;
@@ -7,6 +8,7 @@ interface OutputLine {
 }
 
 export const Terminal = () => {
+    const { formatDateLong, formatTimeLong } = useLocalization();
     const [input, setInput] = useState('');
     const [output, setOutput] = useState<OutputLine[]>([
         { id: 0, type: 'output', text: 'Windows15 Command Prompt [Version 15.0.28500.1000]' },
@@ -58,12 +60,10 @@ export const Terminal = () => {
                 addOutput('  hostname - Display computer name');
                 break;
             case 'date':
-                addOutput(
-                    `The current date is: ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`
-                );
+                addOutput(`The current date is: ${formatDateLong(new Date())}`);
                 break;
             case 'time':
-                addOutput(`The current time is: ${new Date().toLocaleTimeString()}`);
+                addOutput(`The current time is: ${formatTimeLong(new Date())}`);
                 break;
             case 'echo':
                 addOutput(args || '');

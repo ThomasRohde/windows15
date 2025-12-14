@@ -13,3 +13,4 @@ export { AppRegistryProvider, useAppRegistry } from './AppRegistryContext';
 export { WallpaperProvider, useWallpaper } from './WallpaperContext';
 export { StartMenuProvider, useStartMenu } from './StartMenuContext';
 export { WindowProvider, useWindowManager } from './WindowContext';
+export { LocalizationProvider, useLocalization } from './LocalizationContext';

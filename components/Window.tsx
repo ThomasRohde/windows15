@@ -14,7 +14,8 @@ const MIN_WIDTH = 200;
 const MIN_HEIGHT = 150;
 
 export const Window: React.FC<WindowProps> = ({ window }) => {
-    const { closeWindow, minimizeWindow, toggleMaximizeWindow, focusWindow, resizeWindow, updateWindowPosition } = useOS();
+    const { closeWindow, minimizeWindow, toggleMaximizeWindow, focusWindow, resizeWindow, updateWindowPosition } =
+        useOS();
     const [isDragging, setIsDragging] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
     const [resizeDir, setResizeDir] = useState<ResizeDirection>(null);
@@ -89,13 +90,12 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
             pointerIdRef.current = e.pointerId;
             dragOffsetRef.current = {
                 x: e.clientX - rect.left,
-                y: e.clientY - rect.top
+                y: e.clientY - rect.top,
             };
         }
         try {
             e.currentTarget.setPointerCapture(e.pointerId);
-        } catch {
-        }
+        } catch {}
         e.preventDefault();
     };
 
@@ -132,8 +132,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
 
         try {
             e.currentTarget.releasePointerCapture(e.pointerId);
-        } catch {
-        }
+        } catch {}
     };
 
     const handleResizeStart = (e: React.PointerEvent, direction: ResizeDirection) => {
@@ -152,13 +151,12 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
             width: sizeRef.current.width,
             height: sizeRef.current.height,
             posX: positionRef.current.x,
-            posY: positionRef.current.y
+            posY: positionRef.current.y,
         };
 
         try {
             (e.target as HTMLElement).setPointerCapture(e.pointerId);
-        } catch {
-        }
+        } catch {}
     };
 
     const handleResizeMove = (e: React.PointerEvent) => {
@@ -233,38 +231,39 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
 
         try {
             (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-        } catch {
-        }
+        } catch {}
     };
 
     if (window.isMinimized) return null;
 
     const MAXIMIZED_BOTTOM_GAP_PX = 96;
-    const outerStyle: React.CSSProperties = window.isMaximized ? {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: `calc(100vh - ${MAXIMIZED_BOTTOM_GAP_PX}px)`,
-        transform: 'none',
-    } : {
-        top: 0,
-        left: 0,
-        width: size.width,
-        height: size.height,
-        transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
-        willChange: (isDragging || isResizing) ? 'transform, width, height' : undefined,
-    };
+    const outerStyle: React.CSSProperties = window.isMaximized
+        ? {
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: `calc(100vh - ${MAXIMIZED_BOTTOM_GAP_PX}px)`,
+              transform: 'none',
+          }
+        : {
+              top: 0,
+              left: 0,
+              width: size.width,
+              height: size.height,
+              transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
+              willChange: isDragging || isResizing ? 'transform, width, height' : undefined,
+          };
 
     const chromeStyle: React.CSSProperties | undefined = (() => {
         if (!window.isMaximized && !isDragging && !isResizing) return undefined;
         return {
             ...(window.isMaximized ? { borderRadius: 0, boxShadow: 'none' } : {}),
-            ...((isDragging || isResizing) ? { backdropFilter: 'none', WebkitBackdropFilter: 'none' } : {}),
+            ...(isDragging || isResizing ? { backdropFilter: 'none', WebkitBackdropFilter: 'none' } : {}),
         };
     })();
 
-    const resizeHandleClass = "absolute z-[60]";
+    const resizeHandleClass = 'absolute z-[60]';
     const handleSize = 8;
 
     return (
@@ -273,12 +272,12 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
             className="absolute"
             style={{
                 ...outerStyle,
-                zIndex: window.zIndex
+                zIndex: window.zIndex,
             }}
             onPointerDown={() => focusWindow(window.id)}
         >
             <div
-                className={`glass-panel flex h-full w-full flex-col overflow-hidden animate-pop-in ${(isDragging || isResizing) ? 'transition-none opacity-90' : 'transition-all duration-200'} ${window.isMaximized ? '' : 'shadow-2xl rounded-xl border border-white/10'}`}
+                className={`glass-panel flex h-full w-full flex-col overflow-hidden animate-pop-in ${isDragging || isResizing ? 'transition-none opacity-90' : 'transition-all duration-200'} ${window.isMaximized ? '' : 'shadow-2xl rounded-xl border border-white/10'}`}
                 style={chromeStyle}
             >
                 {/* Title Bar */}
@@ -292,17 +291,42 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                     onDoubleClick={() => toggleMaximizeWindow(window.id)}
                 >
                     <div className="flex items-center gap-3 min-w-0 flex-shrink">
-                        <span className="material-symbols-outlined text-white/70 text-[18px] flex-shrink-0">{window.icon}</span>
+                        <span className="material-symbols-outlined text-white/70 text-[18px] flex-shrink-0">
+                            {window.icon}
+                        </span>
                         <span className="text-sm font-medium text-white/80 truncate">{window.title}</span>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-                        <button onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); minimizeWindow(window.id); }} className="w-8 h-8 flex items-center justify-center rounded hover:bg-white/10 text-white/70 transition-colors">
+                        <button
+                            onPointerDown={e => e.stopPropagation()}
+                            onClick={e => {
+                                e.stopPropagation();
+                                minimizeWindow(window.id);
+                            }}
+                            className="w-8 h-8 flex items-center justify-center rounded hover:bg-white/10 text-white/70 transition-colors"
+                        >
                             <span className="material-symbols-outlined text-[18px]">minimize</span>
                         </button>
-                        <button onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); toggleMaximizeWindow(window.id); }} className="w-8 h-8 flex items-center justify-center rounded hover:bg-white/10 text-white/70 transition-colors">
-                            <span className="material-symbols-outlined text-[16px]">{window.isMaximized ? 'close_fullscreen' : 'crop_square'}</span>
+                        <button
+                            onPointerDown={e => e.stopPropagation()}
+                            onClick={e => {
+                                e.stopPropagation();
+                                toggleMaximizeWindow(window.id);
+                            }}
+                            className="w-8 h-8 flex items-center justify-center rounded hover:bg-white/10 text-white/70 transition-colors"
+                        >
+                            <span className="material-symbols-outlined text-[16px]">
+                                {window.isMaximized ? 'close_fullscreen' : 'crop_square'}
+                            </span>
                         </button>
-                        <button onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); closeWindow(window.id); }} className="w-8 h-8 flex items-center justify-center rounded hover:bg-red-500 text-white/70 hover:text-white transition-colors">
+                        <button
+                            onPointerDown={e => e.stopPropagation()}
+                            onClick={e => {
+                                e.stopPropagation();
+                                closeWindow(window.id);
+                            }}
+                            className="w-8 h-8 flex items-center justify-center rounded hover:bg-red-500 text-white/70 hover:text-white transition-colors"
+                        >
                             <span className="material-symbols-outlined text-[18px]">close</span>
                         </button>
                     </div>
@@ -311,9 +335,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                 {/* Content */}
                 <div className="flex-1 overflow-auto relative z-40 bg-black/20">
                     <ErrorBoundary title={window.title}>
-                        <Suspense fallback={<AppLoadingSkeleton title={window.title} />}>
-                            {window.component}
-                        </Suspense>
+                        <Suspense fallback={<AppLoadingSkeleton title={window.title} />}>{window.component}</Suspense>
                     </ErrorBoundary>
                 </div>
             </div>
@@ -325,7 +347,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                     <div
                         className={`${resizeHandleClass} top-0 left-[${handleSize}px] right-[${handleSize}px] cursor-n-resize`}
                         style={{ height: handleSize, left: handleSize, right: handleSize }}
-                        onPointerDown={(e) => handleResizeStart(e, 'n')}
+                        onPointerDown={e => handleResizeStart(e, 'n')}
                         onPointerMove={handleResizeMove}
                         onPointerUp={handleResizeEnd}
                         onPointerCancel={handleResizeEnd}
@@ -333,7 +355,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                     <div
                         className={`${resizeHandleClass} bottom-0 left-[${handleSize}px] right-[${handleSize}px] cursor-s-resize`}
                         style={{ height: handleSize, left: handleSize, right: handleSize }}
-                        onPointerDown={(e) => handleResizeStart(e, 's')}
+                        onPointerDown={e => handleResizeStart(e, 's')}
                         onPointerMove={handleResizeMove}
                         onPointerUp={handleResizeEnd}
                         onPointerCancel={handleResizeEnd}
@@ -341,7 +363,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                     <div
                         className={`${resizeHandleClass} left-0 top-[${handleSize}px] bottom-[${handleSize}px] cursor-w-resize`}
                         style={{ width: handleSize, top: handleSize, bottom: handleSize }}
-                        onPointerDown={(e) => handleResizeStart(e, 'w')}
+                        onPointerDown={e => handleResizeStart(e, 'w')}
                         onPointerMove={handleResizeMove}
                         onPointerUp={handleResizeEnd}
                         onPointerCancel={handleResizeEnd}
@@ -349,7 +371,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                     <div
                         className={`${resizeHandleClass} right-0 top-[${handleSize}px] bottom-[${handleSize}px] cursor-e-resize`}
                         style={{ width: handleSize, top: handleSize, bottom: handleSize }}
-                        onPointerDown={(e) => handleResizeStart(e, 'e')}
+                        onPointerDown={e => handleResizeStart(e, 'e')}
                         onPointerMove={handleResizeMove}
                         onPointerUp={handleResizeEnd}
                         onPointerCancel={handleResizeEnd}
@@ -359,7 +381,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                     <div
                         className={`${resizeHandleClass} top-0 left-0 cursor-nw-resize`}
                         style={{ width: handleSize, height: handleSize }}
-                        onPointerDown={(e) => handleResizeStart(e, 'nw')}
+                        onPointerDown={e => handleResizeStart(e, 'nw')}
                         onPointerMove={handleResizeMove}
                         onPointerUp={handleResizeEnd}
                         onPointerCancel={handleResizeEnd}
@@ -367,7 +389,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                     <div
                         className={`${resizeHandleClass} top-0 right-0 cursor-ne-resize`}
                         style={{ width: handleSize, height: handleSize }}
-                        onPointerDown={(e) => handleResizeStart(e, 'ne')}
+                        onPointerDown={e => handleResizeStart(e, 'ne')}
                         onPointerMove={handleResizeMove}
                         onPointerUp={handleResizeEnd}
                         onPointerCancel={handleResizeEnd}
@@ -375,7 +397,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                     <div
                         className={`${resizeHandleClass} bottom-0 left-0 cursor-sw-resize`}
                         style={{ width: handleSize, height: handleSize }}
-                        onPointerDown={(e) => handleResizeStart(e, 'sw')}
+                        onPointerDown={e => handleResizeStart(e, 'sw')}
                         onPointerMove={handleResizeMove}
                         onPointerUp={handleResizeEnd}
                         onPointerCancel={handleResizeEnd}
@@ -383,7 +405,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                     <div
                         className={`${resizeHandleClass} bottom-0 right-0 cursor-se-resize`}
                         style={{ width: handleSize, height: handleSize }}
-                        onPointerDown={(e) => handleResizeStart(e, 'se')}
+                        onPointerDown={e => handleResizeStart(e, 'se')}
                         onPointerMove={handleResizeMove}
                         onPointerUp={handleResizeEnd}
                         onPointerCancel={handleResizeEnd}

@@ -1,12 +1,6 @@
 {
-  "$schema": "https://code.claude.com/schemas/settings.json",
-  "permissions": {
-    "allow": [
-      "Bash(klondike:*)",
-      "Bash(git:*)",
-      "Bash(npm:*)",
-      "Bash(uv:*)",
-      "Bash(pytest:*)"
-    ]
-  }
+    "$schema": "https://code.claude.com/schemas/settings.json",
+    "permissions": {
+        "allow": ["Bash(klondike:*)", "Bash(git:*)", "Bash(npm:*)", "Bash(uv:*)", "Bash(pytest:*)"]
+    }
 }

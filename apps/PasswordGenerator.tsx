@@ -39,7 +39,7 @@ export const PasswordGenerator = () => {
 
     const getStrength = () => {
         if (!password || password === 'Select at least one option') return { label: '', color: '', width: '0%' };
-        
+
         let score = 0;
         if (password.length >= 12) score++;
         if (password.length >= 16) score++;
@@ -59,12 +59,7 @@ export const PasswordGenerator = () => {
 
     const Checkbox = ({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) => (
         <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-                type="checkbox"
-                checked={checked}
-                onChange={onChange}
-                className="w-4 h-4 rounded accent-blue-500"
-            />
+            <input type="checkbox" checked={checked} onChange={onChange} className="w-4 h-4 rounded accent-blue-500" />
             <span className="text-white/80">{label}</span>
         </label>
     );
@@ -116,7 +111,7 @@ export const PasswordGenerator = () => {
                         min="8"
                         max="64"
                         value={length}
-                        onChange={(e) => setLength(Number(e.target.value))}
+                        onChange={e => setLength(Number(e.target.value))}
                         className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500"
                     />
                     <div className="flex justify-between text-xs text-white/40 mt-1">

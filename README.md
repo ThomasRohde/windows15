@@ -38,10 +38,10 @@ A futuristic Windows-style desktop UI built with React + Vite: glassmorphism, dr
 ### Enable Sync (BYO Dexie Cloud)
 
 1. Create a Dexie Cloud database:
-   - `npx dexie-cloud create`
+    - `npx dexie-cloud create`
 2. Whitelist your app origin (copy it from Settings > Sync):
-   - `npx dexie-cloud whitelist <origin>`
-   - GitHub Pages origin is `https://thomasrohde.github.io` (no `/windows15` path).
+    - `npx dexie-cloud whitelist <origin>`
+    - GitHub Pages origin is `https://thomasrohde.github.io` (no `/windows15` path).
 3. Open `dexie-cloud.json`, copy `databaseUrl`, then paste it into Settings > Sync and click Connect + Login.
 
 ## Local Development

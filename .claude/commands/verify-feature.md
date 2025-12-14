@@ -13,6 +13,7 @@ klondike feature show F00X
 ```
 
 This displays:
+
 - Feature ID and description
 - Acceptance Criteria (ALL must pass)
 - Current status and notes
@@ -27,6 +28,7 @@ klondike validate
 ### 3. Design Verification Plan
 
 For each acceptance criterion, define:
+
 - **Test method**: How to verify (browser, API call, CLI command, etc.)
 - **Expected result**: What success looks like
 - **Evidence to capture**: What to save (screenshot path, log file, command output)
@@ -36,17 +38,20 @@ For each acceptance criterion, define:
 Perform each test **as a real user would**:
 
 **For Web Applications:**
+
 - Navigate through the actual UI
 - Click buttons, fill forms, submit data
 - Check that results appear correctly
 - Verify error states work
 
 **For APIs:**
+
 - Make actual HTTP requests
 - Test happy path AND error cases
 - Verify response format matches spec
 
 **For CLI Tools:**
+
 - Run actual commands
 - Test with various arguments
 - Verify output format
@@ -57,6 +62,7 @@ For each acceptance criterion:
 
 ```markdown
 #### Criterion: "<description>"
+
 - **Method**: <how tested>
 - **Result**: ✅ PASS / ❌ FAIL
 - **Evidence**: <screenshot path, command output, etc.>

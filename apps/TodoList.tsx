@@ -7,7 +7,10 @@ const createId = () => globalThis.crypto?.randomUUID?.() ?? Math.random().toStri
 
 export const TodoList = () => {
     const db = useDb();
-    const { value: todosRaw, isLoading: loading } = useDexieLiveQuery(() => db.todos.orderBy('createdAt').toArray(), [db]);
+    const { value: todosRaw, isLoading: loading } = useDexieLiveQuery(
+        () => db.todos.orderBy('createdAt').toArray(),
+        [db]
+    );
     const todos = Array.isArray(todosRaw) ? todosRaw : [];
 
     const [input, setInput] = useState('');
@@ -30,7 +33,7 @@ export const TodoList = () => {
     const toggleTodo = async (id: string) => {
         await db.todos.update(id, {
             completed: !todos.find(t => t.id === id)?.completed,
-            updatedAt: Date.now()
+            updatedAt: Date.now(),
         });
     };
 
@@ -52,8 +55,8 @@ export const TodoList = () => {
                 <input
                     type="text"
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && addTodo()}
+                    onChange={e => setInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && addTodo()}
                     placeholder="Add a new task..."
                     className="flex-1 bg-black/30 text-white px-4 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-blue-500"
                 />
@@ -70,10 +73,9 @@ export const TodoList = () => {
                     <button
                         key={f}
                         onClick={() => setFilter(f)}
-                        className={`px-3 py-1 rounded-lg text-sm transition-colors capitalize ${filter === f
-                                ? 'bg-blue-500 text-white'
-                                : 'bg-white/10 text-white/70 hover:bg-white/20'
-                            }`}
+                        className={`px-3 py-1 rounded-lg text-sm transition-colors capitalize ${
+                            filter === f ? 'bg-blue-500 text-white' : 'bg-white/10 text-white/70 hover:bg-white/20'
+                        }`}
                     >
                         {f}
                     </button>
@@ -82,19 +84,14 @@ export const TodoList = () => {
 
             <div className="flex-1 overflow-y-auto space-y-2">
                 {loading ? (
-                    <div className="text-white/40 text-center py-8">
-                        Loading tasks...
-                    </div>
+                    <div className="text-white/40 text-center py-8">Loading tasks...</div>
                 ) : filteredTodos.length === 0 ? (
                     <div className="text-white/40 text-center py-8">
                         {filter === 'all' ? 'No tasks yet' : `No ${filter} tasks`}
                     </div>
                 ) : (
                     filteredTodos.map(todo => (
-                        <div
-                            key={todo.id}
-                            className="flex items-center gap-3 bg-black/20 p-3 rounded-lg group"
-                        >
+                        <div key={todo.id} className="flex items-center gap-3 bg-black/20 p-3 rounded-lg group">
                             <input
                                 type="checkbox"
                                 checked={todo.completed}

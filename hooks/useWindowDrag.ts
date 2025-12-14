@@ -20,7 +20,7 @@
  * });
  * ```
  */
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 export interface Position {
     x: number;
@@ -110,7 +110,7 @@ export function useWindowDrag({
 
             // Don't drag if clicking interactive elements
             const target = e.target as HTMLElement;
-            if (target.closest("button, a, input, textarea, select")) return;
+            if (target.closest('button, a, input, textarea, select')) return;
 
             setIsDragging(true);
             pointerIdRef.current = e.pointerId;
@@ -148,11 +148,7 @@ export function useWindowDrag({
     const onPointerUp = useCallback(
         (e: React.PointerEvent) => {
             if (!isDragging) return;
-            if (
-                pointerIdRef.current !== null &&
-                pointerIdRef.current !== e.pointerId
-            )
-                return;
+            if (pointerIdRef.current !== null && pointerIdRef.current !== e.pointerId) return;
 
             pointerIdRef.current = null;
             setIsDragging(false);

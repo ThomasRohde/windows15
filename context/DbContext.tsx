@@ -35,7 +35,7 @@ export const DbProvider: React.FC<DbProviderProps> = ({ children }) => {
 
     // Listen for config changes from other tabs
     useEffect(() => {
-        const unsubscribe = configSync.subscribe(async (message) => {
+        const unsubscribe = configSync.subscribe(async message => {
             const currentUrl = getCloudDatabaseUrl();
             debugSync.config('Config sync message received', { newUrl: message.databaseUrl, currentUrl });
 

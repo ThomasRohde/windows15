@@ -1,6 +1,6 @@
 ---
-description: "Git practices for long-running agent workflows"
-applyTo: "**/*"
+description: 'Git practices for long-running agent workflows'
+applyTo: '**/*'
 ---
 
 # Git Practices for Long-Running Agents
@@ -36,15 +36,15 @@ Use conventional commit format:
 
 ### Types
 
-| Type | Use For |
-|------|---------|
-| `feat` | New feature |
-| `fix` | Bug fix |
+| Type       | Use For                             |
+| ---------- | ----------------------------------- |
+| `feat`     | New feature                         |
+| `fix`      | Bug fix                             |
 | `refactor` | Code change (no new feature or fix) |
-| `docs` | Documentation only |
-| `test` | Adding or updating tests |
-| `chore` | Maintenance, dependencies |
-| `style` | Formatting (no code change) |
+| `docs`     | Documentation only                  |
+| `test`     | Adding or updating tests            |
+| `chore`    | Maintenance, dependencies           |
+| `style`    | Formatting (no code change)         |
 
 ### Examples
 
@@ -149,7 +149,7 @@ For projects using klondike, use the built-in release command:
 ```bash
 # Bump and release (runs tests, commits, tags, pushes)
 klondike release --bump patch   # 0.2.0 -> 0.2.1
-klondike release --bump minor   # 0.2.0 -> 0.3.0  
+klondike release --bump minor   # 0.2.0 -> 0.3.0
 klondike release --bump major   # 0.2.0 -> 1.0.0
 
 # Preview first

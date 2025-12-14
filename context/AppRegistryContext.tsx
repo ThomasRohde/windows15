@@ -40,13 +40,12 @@ export const AppRegistryProvider: React.FC<AppRegistryProviderProps> = ({ childr
         });
     }, []);
 
-    const getApp = useCallback((appId: string) => {
-        return apps.find(a => a.id === appId);
-    }, [apps]);
-
-    return (
-        <AppRegistryContext.Provider value={{ apps, registerApp, getApp }}>
-            {children}
-        </AppRegistryContext.Provider>
+    const getApp = useCallback(
+        (appId: string) => {
+            return apps.find(a => a.id === appId);
+        },
+        [apps]
     );
+
+    return <AppRegistryContext.Provider value={{ apps, registerApp, getApp }}>{children}</AppRegistryContext.Provider>;
 };

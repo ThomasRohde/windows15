@@ -66,7 +66,7 @@ export const Weather = () => {
                     `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`
                 );
                 const data = await response.json();
-                
+
                 const current = data.current;
                 const daily = data.daily;
                 const weatherInfo = getWeatherInfo(current.weather_code);
@@ -106,7 +106,12 @@ export const Weather = () => {
                     `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
                 );
                 const data = await response.json();
-                const city = data.address?.city || data.address?.town || data.address?.village || data.address?.county || 'Your Location';
+                const city =
+                    data.address?.city ||
+                    data.address?.town ||
+                    data.address?.village ||
+                    data.address?.county ||
+                    'Your Location';
                 const country = data.address?.country_code?.toUpperCase() || '';
                 setLocationName(`${city}${country ? ', ' + country : ''}`);
                 return `${city}${country ? ', ' + country : ''}`;
@@ -117,7 +122,7 @@ export const Weather = () => {
 
         if ('geolocation' in navigator) {
             navigator.geolocation.getCurrentPosition(
-                async (position) => {
+                async position => {
                     const { latitude, longitude } = position.coords;
                     await getLocationName(latitude, longitude);
                     fetchWeather(latitude, longitude);

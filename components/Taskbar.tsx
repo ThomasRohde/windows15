@@ -12,7 +12,8 @@ export const Taskbar = () => {
     }, []);
 
     const formatTime = (date: Date) => date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-    const formatDate = (date: Date) => date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+    const formatDate = (date: Date) =>
+        date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
 
     // Filter pinned apps from registry
     const pinnedApps = ['explorer', 'browser', 'mail', 'calendar', 'notepad', 'calculator', 'settings'];
@@ -26,7 +27,12 @@ export const Taskbar = () => {
                     className={`w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-all active:scale-95 group relative ml-1 ${isStartMenuOpen ? 'bg-white/10' : ''}`}
                 >
                     <div className="absolute inset-0 bg-primary/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <span className="material-symbols-outlined text-primary text-3xl relative z-10" style={{ fontVariationSettings: "'FILL' 1" }}>grid_view</span>
+                    <span
+                        className="material-symbols-outlined text-primary text-3xl relative z-10"
+                        style={{ fontVariationSettings: "'FILL' 1" }}
+                    >
+                        grid_view
+                    </span>
                 </button>
 
                 <div className="w-px h-8 bg-white/10 mx-1"></div>
@@ -91,7 +97,14 @@ interface TaskbarIconProps {
     filled?: boolean;
 }
 
-const TaskbarIcon: React.FC<TaskbarIconProps> = ({ icon, active, running, onClick, colorClass = "text-white", filled }) => {
+const TaskbarIcon: React.FC<TaskbarIconProps> = ({
+    icon,
+    active,
+    running,
+    onClick,
+    colorClass = 'text-white',
+    filled,
+}) => {
     return (
         <button
             onClick={onClick}
@@ -103,7 +116,12 @@ const TaskbarIcon: React.FC<TaskbarIconProps> = ({ icon, active, running, onClic
             >
                 {icon}
             </span>
-            {running && <div className="absolute -bottom-1 w-1 h-1 bg-white/80 rounded-full transition-all duration-300" style={{ width: active ? '16px' : '4px', borderRadius: active ? '2px' : '50%' }}></div>}
+            {running && (
+                <div
+                    className="absolute -bottom-1 w-1 h-1 bg-white/80 rounded-full transition-all duration-300"
+                    style={{ width: active ? '16px' : '4px', borderRadius: active ? '2px' : '50%' }}
+                ></div>
+            )}
         </button>
     );
 };

@@ -35,4 +35,3 @@ export const migrateLegacyLocalStorageToDexieKv = async (): Promise<void> => {
 
     setFlag();
 };
-

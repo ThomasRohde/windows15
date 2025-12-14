@@ -9,7 +9,7 @@ type StorageSyncDetail = { key: string };
 
 const canUseDomStorage = () => typeof globalThis !== 'undefined' && typeof globalThis.localStorage !== 'undefined';
 
-export const readJsonIfPresent = <T,>(key: string): T | null => {
+export const readJsonIfPresent = <T>(key: string): T | null => {
     if (!canUseDomStorage()) return null;
     try {
         const raw = globalThis.localStorage.getItem(key);
@@ -20,12 +20,12 @@ export const readJsonIfPresent = <T,>(key: string): T | null => {
     }
 };
 
-export const readJson = <T,>(key: string, fallback: T): T => {
+export const readJson = <T>(key: string, fallback: T): T => {
     const value = readJsonIfPresent<T>(key);
     return value === null ? fallback : value;
 };
 
-export const writeJson = <T,>(key: string, value: T) => {
+export const writeJson = <T>(key: string, value: T) => {
     if (canUseDomStorage()) {
         try {
             globalThis.localStorage.setItem(key, JSON.stringify(value));

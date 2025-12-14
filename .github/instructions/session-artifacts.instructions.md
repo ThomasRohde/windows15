@@ -1,13 +1,14 @@
 ---
-description: "Long-running agent session management and context bridging"
-applyTo: "**/agent-progress.md,**/.klondike/features.json,**/.klondike/agent-progress.json"
+description: 'Long-running agent session management and context bridging'
+applyTo: '**/agent-progress.md,**/.klondike/features.json,**/.klondike/agent-progress.json'
 ---
 
 # Session Artifact Instructions
 
 These files are critical infrastructure for multi-context-window agent workflows. Handle with care.
 
-> **⚠️ CRITICAL**: The klondike CLI is the **only** interface for these artifacts. 
+> **⚠️ CRITICAL**: The klondike CLI is the **only** interface for these artifacts.
+>
 > - **Never read** `.klondike/features.json`, `.klondike/agent-progress.json`, or `agent-progress.md` directly
 > - **Always use** `klondike` commands to access project state
 > - The CLI output is the canonical source of truth
@@ -15,6 +16,7 @@ These files are critical infrastructure for multi-context-window agent workflows
 ## agent-progress.md
 
 ### Purpose
+
 Bridge context between agent sessions. Each agent starts fresh and uses this file to understand what happened before.
 
 ### Management
@@ -32,11 +34,12 @@ klondike progress                                     # Regenerate file
 ## .klondike/features.json
 
 ### Purpose
+
 Prevent premature "victory declaration" by maintaining a structured checklist of all features, with explicit status tracking and verification evidence.
 
 ### Management
 
-This file is managed **exclusively** by the klondike CLI. 
+This file is managed **exclusively** by the klondike CLI.
 
 **To access feature data, use these commands:**
 
@@ -65,26 +68,33 @@ klondike feature block F00X --reason "..."                         # Mark blocke
 ### CLI Commands for State Changes
 
 **Starting Work:**
+
 ```bash
 klondike feature start F00X
 ```
+
 Sets `status: "in-progress"` and `lastWorkedOn` timestamp.
 
 **Verifying (after E2E testing):**
+
 ```bash
 klondike feature verify F00X --evidence "test-results/F00X.png" --notes "Tested on Chrome/Firefox"
 ```
+
 Sets `status: "verified"`, `passes: true`, `verifiedAt`, and `evidenceLinks`.
 
 **Blocking:**
+
 ```bash
 klondike feature block F00X --reason "Waiting for API integration"
 ```
+
 Sets `status: "blocked"` and `blockedBy` reason.
 
 ### Verification Requirements
 
 Before setting `passes: true` and `status: verified`:
+
 1. All acceptance criteria must be tested
 2. Tests must be end-to-end (not just unit tests)
 3. Tests must be on the actual running system
@@ -100,6 +110,7 @@ Before setting `passes: true` and `status: verified`:
 ## Why This Matters
 
 Without these artifacts:
+
 - Agents don't know what was done before
 - Agents declare "done" too early
 - Features get left half-implemented
@@ -107,6 +118,7 @@ Without these artifacts:
 - Quality degrades over time
 
 With these artifacts:
+
 - Clear handoffs between sessions
 - Objective completion criteria
 - Traceable progress history

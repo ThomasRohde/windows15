@@ -1,24 +1,24 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(npx tsc:*)",
-      "Bash(npm run build:*)",
-      "Bash(dir)",
-      "Bash(klondike status:*)",
-      "Bash(klondike validate:*)",
-      "Bash(klondike feature:*)",
-      "Bash(klondike session start:*)",
-      "Bash(powershell -ExecutionPolicy Bypass -File .init.ps1)",
-      "Bash(powershell:*)",
-      "Bash(npm run dev:*)",
-      "Bash(npm install:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(klondike session end:*)",
-      "Bash(Get-Location)",
-      "Bash(Get-ChildItem -Force)",
-      "Bash(Select-Object Mode, Name)",
-      "Bash(./init.sh)"
-    ]
-  }
+    "permissions": {
+        "allow": [
+            "Bash(npx tsc:*)",
+            "Bash(npm run build:*)",
+            "Bash(dir)",
+            "Bash(klondike status:*)",
+            "Bash(klondike validate:*)",
+            "Bash(klondike feature:*)",
+            "Bash(klondike session start:*)",
+            "Bash(powershell -ExecutionPolicy Bypass -File .init.ps1)",
+            "Bash(powershell:*)",
+            "Bash(npm run dev:*)",
+            "Bash(npm install:*)",
+            "Bash(git add:*)",
+            "Bash(git commit:*)",
+            "Bash(klondike session end:*)",
+            "Bash(Get-Location)",
+            "Bash(Get-ChildItem -Force)",
+            "Bash(Select-Object Mode, Name)",
+            "Bash(./init.sh)"
+        ]
+    }
 }

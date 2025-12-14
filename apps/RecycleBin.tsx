@@ -6,7 +6,7 @@ import {
     permanentlyDelete,
     emptyRecycleBin,
     subscribeToFileSystem,
-    STORE_NAMES
+    STORE_NAMES,
 } from '../utils/fileSystem';
 import { FileSystemItem } from '../types';
 
@@ -110,7 +110,7 @@ export const RecycleBin = () => {
     }
 
     return (
-        <div className="flex h-full w-full flex-col bg-transparent" onContextMenu={(e) => handleContextMenu(e)}>
+        <div className="flex h-full w-full flex-col bg-transparent" onContextMenu={e => handleContextMenu(e)}>
             {/* Toolbar */}
             <div className="h-12 border-b border-white/5 flex items-center px-4 gap-4">
                 <div className="flex items-center gap-2 text-white/70">
@@ -143,14 +143,16 @@ export const RecycleBin = () => {
                                 key={item.id}
                                 onClick={() => setSelectedItem(item)}
                                 onDoubleClick={() => handleRestore(item)}
-                                onContextMenu={(e) => handleContextMenu(e, item)}
+                                onContextMenu={e => handleContextMenu(e, item)}
                                 className={`group flex flex-col items-center gap-2 p-2 rounded cursor-pointer transition-colors ${
                                     selectedItem?.id === item.id
                                         ? 'bg-blue-500/30 ring-1 ring-blue-400'
                                         : 'hover:bg-white/10'
                                 }`}
                             >
-                                <span className={`material-symbols-outlined text-5xl drop-shadow-lg ${getItemIconColor(item)}`}>
+                                <span
+                                    className={`material-symbols-outlined text-5xl drop-shadow-lg ${getItemIconColor(item)}`}
+                                >
                                     {getItemIcon(item)}
                                 </span>
                                 <span className="text-xs text-white/80 text-center font-medium truncate w-full px-1">
@@ -193,30 +195,32 @@ export const RecycleBin = () => {
             )}
 
             {/* Context Menu - rendered via portal to escape overflow:hidden */}
-            {contextMenu && contextMenu.item && createPortal(
-                <div
-                    className="fixed bg-gray-900/95 backdrop-blur border border-white/10 rounded-lg shadow-xl py-1 min-w-[160px] z-[9999]"
-                    style={{ left: contextMenu.x, top: contextMenu.y }}
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <button
-                        onClick={() => contextMenu.item && handleRestore(contextMenu.item)}
-                        className="w-full px-4 py-2 text-sm text-white/80 hover:bg-white/10 flex items-center gap-2 text-left"
+            {contextMenu &&
+                contextMenu.item &&
+                createPortal(
+                    <div
+                        className="fixed bg-gray-900/95 backdrop-blur border border-white/10 rounded-lg shadow-xl py-1 min-w-[160px] z-[9999]"
+                        style={{ left: contextMenu.x, top: contextMenu.y }}
+                        onClick={e => e.stopPropagation()}
                     >
-                        <span className="material-symbols-outlined text-lg text-green-400">restore</span>
-                        Restore
-                    </button>
-                    <div className="border-t border-white/10 my-1"></div>
-                    <button
-                        onClick={() => contextMenu.item && handlePermanentDelete(contextMenu.item)}
-                        className="w-full px-4 py-2 text-sm text-red-400 hover:bg-white/10 flex items-center gap-2 text-left"
-                    >
-                        <span className="material-symbols-outlined text-lg">delete_forever</span>
-                        Delete Permanently
-                    </button>
-                </div>,
-                document.body
-            )}
+                        <button
+                            onClick={() => contextMenu.item && handleRestore(contextMenu.item)}
+                            className="w-full px-4 py-2 text-sm text-white/80 hover:bg-white/10 flex items-center gap-2 text-left"
+                        >
+                            <span className="material-symbols-outlined text-lg text-green-400">restore</span>
+                            Restore
+                        </button>
+                        <div className="border-t border-white/10 my-1"></div>
+                        <button
+                            onClick={() => contextMenu.item && handlePermanentDelete(contextMenu.item)}
+                            className="w-full px-4 py-2 text-sm text-red-400 hover:bg-white/10 flex items-center gap-2 text-left"
+                        >
+                            <span className="material-symbols-outlined text-lg">delete_forever</span>
+                            Delete Permanently
+                        </button>
+                    </div>,
+                    document.body
+                )}
         </div>
     );
 };

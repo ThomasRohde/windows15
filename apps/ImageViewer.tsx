@@ -5,7 +5,9 @@ interface ImageViewerProps {
 }
 
 export const ImageViewer = ({ initialSrc }: ImageViewerProps) => {
-    const [imageSrc, setImageSrc] = useState(initialSrc || 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1000&q=80');
+    const [imageSrc, setImageSrc] = useState(
+        initialSrc || 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1000&q=80'
+    );
     const [urlInput, setUrlInput] = useState('');
     const [zoom, setZoom] = useState(100);
     const [error, setError] = useState(false);
@@ -40,7 +42,7 @@ export const ImageViewer = ({ initialSrc }: ImageViewerProps) => {
     return (
         <div className="h-full bg-[#1e1e1e] flex flex-col">
             <div className="flex items-center gap-2 p-2 bg-black/20 border-b border-white/5">
-                <button 
+                <button
                     onClick={handleZoomOut}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                     title="Zoom Out"
@@ -48,7 +50,7 @@ export const ImageViewer = ({ initialSrc }: ImageViewerProps) => {
                     <span className="material-symbols-outlined text-white/80 text-xl">zoom_out</span>
                 </button>
                 <span className="text-white/60 text-sm min-w-[50px] text-center">{zoom}%</span>
-                <button 
+                <button
                     onClick={handleZoomIn}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                     title="Zoom In"
@@ -56,7 +58,7 @@ export const ImageViewer = ({ initialSrc }: ImageViewerProps) => {
                     <span className="material-symbols-outlined text-white/80 text-xl">zoom_in</span>
                 </button>
                 <div className="w-px h-6 bg-white/10 mx-1" />
-                <button 
+                <button
                     onClick={handleFitToWindow}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                     title="Fit to Window"
@@ -68,11 +70,11 @@ export const ImageViewer = ({ initialSrc }: ImageViewerProps) => {
                     type="text"
                     placeholder="Enter image URL..."
                     value={urlInput}
-                    onChange={(e) => setUrlInput(e.target.value)}
+                    onChange={e => setUrlInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     className="flex-1 max-w-md bg-black/30 text-white text-sm px-3 py-1.5 rounded-lg outline-none focus:ring-1 focus:ring-blue-500 placeholder-white/30"
                 />
-                <button 
+                <button
                     onClick={handleLoadUrl}
                     className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-lg transition-colors"
                 >
@@ -80,10 +82,7 @@ export const ImageViewer = ({ initialSrc }: ImageViewerProps) => {
                 </button>
             </div>
 
-            <div 
-                ref={containerRef}
-                className="flex-1 overflow-auto flex items-center justify-center p-4 bg-[#0d0d0d]"
-            >
+            <div ref={containerRef} className="flex-1 overflow-auto flex items-center justify-center p-4 bg-[#0d0d0d]">
                 {error ? (
                     <div className="text-center">
                         <span className="material-symbols-outlined text-6xl text-white/20 mb-4">broken_image</span>
@@ -93,11 +92,11 @@ export const ImageViewer = ({ initialSrc }: ImageViewerProps) => {
                     <img
                         src={imageSrc}
                         alt="Viewer content"
-                        style={{ 
+                        style={{
                             maxWidth: zoom === 100 ? '100%' : 'none',
                             maxHeight: zoom === 100 ? '100%' : 'none',
                             width: zoom !== 100 ? `${zoom}%` : 'auto',
-                            objectFit: 'contain'
+                            objectFit: 'contain',
                         }}
                         className="transition-transform duration-200"
                         onError={() => setError(true)}

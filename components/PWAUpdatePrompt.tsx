@@ -43,11 +43,10 @@ export const PWAUpdatePrompt = () => {
                         <span className="material-symbols-outlined text-blue-400 text-2xl">update</span>
                     </div>
                     <div className="flex-1">
-                        <h3 className="text-white font-semibold text-base mb-1">
-                            Update Available
-                        </h3>
+                        <h3 className="text-white font-semibold text-base mb-1">Update Available</h3>
                         <p className="text-white/70 text-sm mb-3">
-                            A new version of Windows 15 is available. Update now to get the latest features and improvements.
+                            A new version of Windows 15 is available. Update now to get the latest features and
+                            improvements.
                         </p>
                         <div className="flex gap-2">
                             <button

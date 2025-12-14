@@ -18,31 +18,35 @@ This repository uses a **multi-context-window agent workflow** designed to maint
 ## Required Artifacts
 
 ### 1. Progress File (`agent-progress.md`)
+
 - **Purpose**: Handoff document between agent sessions
 - **Location**: Project root (auto-generated from `.klondike/agent-progress.json`)
 - **Update frequency**: Automatically updated by `klondike session end`
 - **Content**: What was done, what's next, any blockers
 
 ### 2. Feature Registry (`.klondike/features.json`)
+
 - **Purpose**: Prevent premature "victory declaration" and track completion
 - **Location**: `.klondike/` directory
 - **Managed by**: `klondike feature` commands
 - **Rules**:
-  - Use `klondike feature verify F00X` to mark as passing
-  - Use `klondike feature start F00X` to begin work
-  - Never manually edit - use CLI commands
+    - Use `klondike feature verify F00X` to mark as passing
+    - Use `klondike feature start F00X` to begin work
+    - Never manually edit - use CLI commands
 
 ### 3. Init Script (`init.sh` / `init.ps1`)
+
 - **Purpose**: Reproducible environment startup
 - **Location**: Project root
 - **Must include**:
-  - Dev server startup **in background** (using `&` in bash, `Start-Job` in PowerShell)
-  - Health checks with timeout
-  - Clean exit after server is ready (script should NOT block waiting for server)
+    - Dev server startup **in background** (using `&` in bash, `Start-Job` in PowerShell)
+    - Health checks with timeout
+    - Clean exit after server is ready (script should NOT block waiting for server)
 
 ## Agent Behavior Rules
 
 ### Starting a Session
+
 1. Run `pwd` / `Get-Location` to confirm working directory
 2. Run `klondike status` to see project overview and recent work
 3. Run `klondike validate` to check artifact integrity
@@ -52,12 +56,14 @@ This repository uses a **multi-context-window agent workflow** designed to maint
 7. Run basic smoke test before new work
 
 ### During a Session
+
 - Work on **ONE feature at a time** - use `klondike feature start F00X` to track
 - Make atomic, reviewable commits with descriptive messages
 - Test incrementally - don't batch testing to the end
 - If you hit a blocker, use `klondike feature block F00X --reason "..."` and move to next task
 
 ### Ending a Session
+
 1. Ensure code compiles/passes linting
 2. Commit all changes with clear messages
 3. For verified features, run `klondike feature verify F00X --evidence "..."`
@@ -100,7 +106,7 @@ This repository uses a **multi-context-window agent workflow** designed to maint
 Before running checks, detect available commands:
 
 1. **Python with uv**: Check for `pyproject.toml` with `[tool.uv]` or `uv.lock`
-   - Use `uv run` prefix for all commands
+    - Use `uv run` prefix for all commands
 2. **Python with pip**: Check for `pyproject.toml`, `setup.py`, or `requirements.txt`
 3. **Node.js**: Read `package.json` → look for `scripts.build`, `scripts.test`, `scripts.lint`
 4. **Rust**: Check for `Cargo.toml`
@@ -108,12 +114,12 @@ Before running checks, detect available commands:
 
 ### Step 2: Run Detected Commands
 
-| Check | Python (uv) | Python (pip) | Node.js | Rust | Go |
-|-------|-------------|--------------|---------|------|----|
-| Lint | `uv run ruff check src tests` | `ruff check` or `flake8` | `npm run lint` | `cargo clippy` | `golangci-lint` |
-| Format | `uv run ruff format --check src tests` | `ruff format --check` | `npm run format` | `cargo fmt --check` | `gofmt -l` |
-| Test | `uv run pytest` | `pytest` | `CI=true npm test` | `cargo test` | `go test` |
-| Build | N/A (interpreted) | N/A | `npm run build` | `cargo build` | `go build` |
+| Check  | Python (uv)                            | Python (pip)             | Node.js            | Rust                | Go              |
+| ------ | -------------------------------------- | ------------------------ | ------------------ | ------------------- | --------------- |
+| Lint   | `uv run ruff check src tests`          | `ruff check` or `flake8` | `npm run lint`     | `cargo clippy`      | `golangci-lint` |
+| Format | `uv run ruff format --check src tests` | `ruff format --check`    | `npm run format`   | `cargo fmt --check` | `gofmt -l`      |
+| Test   | `uv run pytest`                        | `pytest`                 | `CI=true npm test` | `cargo test`        | `go test`       |
+| Build  | N/A (interpreted)                      | N/A                      | `npm run build`    | `cargo build`       | `go build`      |
 
 ### Step 3: Record Results Before Commit
 
@@ -121,16 +127,18 @@ Before running checks, detect available commands:
 
 ```markdown
 #### Pre-Commit Verification
-| Command | Exit Code | Notes |
-|---------|-----------|-------|
-| <lint command> | 0 | ✅ |
-| <format command> | 0 | ✅ |
-| <test command> | 0 | ✅ N tests passed |
+
+| Command          | Exit Code | Notes             |
+| ---------------- | --------- | ----------------- |
+| <lint command>   | 0         | ✅                |
+| <format command> | 0         | ✅                |
+| <test command>   | 0         | ✅ N tests passed |
 ```
 
 ### Step 4: Commit Only If All Pass
 
 If you skip verification and a build/test fails after commit:
+
 1. Immediately fix the issue
 2. Amend the commit or create a fix commit
 3. Never leave the repository in a broken state
@@ -174,6 +182,7 @@ klondike progress            # Show/regenerate progress
 ### .klondike/features.json - MANAGED BY CLI
 
 **Use these commands:**
+
 - `klondike feature add "description" --category X --priority N --criteria "..." --notes "..."` - Add feature
 - `klondike feature start F00X` - Mark in-progress
 - `klondike feature verify F00X --evidence "..."` - Mark verified
@@ -185,6 +194,7 @@ klondike progress            # Show/regenerate progress
 > edge cases, dependencies, and gotchas. A weaker agent will implement—give them context.
 
 **Forbidden:**
+
 - Manually editing `.klondike/features.json`
 - **Reading `.klondike/features.json` directly** (use `klondike feature list` or `klondike feature show`)
 - Deleting features
@@ -195,6 +205,7 @@ klondike progress            # Show/regenerate progress
 This file is automatically generated by the klondike CLI from `.klondike/agent-progress.json`.
 
 **Use these commands:**
+
 - `klondike session start --focus "..."` - Start new session
 - `klondike session end --summary "..." --next "..."` - End session with summary
 - `klondike progress` - Regenerate and display progress file

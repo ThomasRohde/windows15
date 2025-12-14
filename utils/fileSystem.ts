@@ -36,10 +36,7 @@ const dispatchSyncEvent = (store: string, key?: string): void => {
     }
 };
 
-export const subscribeToFileSystem = (
-    store: string,
-    listener: (key?: string) => void
-): (() => void) => {
+export const subscribeToFileSystem = (store: string, listener: (key?: string) => void): (() => void) => {
     const handleCustom = (event: Event) => {
         const detail = (event as CustomEvent<FsSyncDetail>).detail;
         if (detail?.store !== store) return;
@@ -84,7 +81,7 @@ export const initDB = (): Promise<IDBDatabase> => {
             resolve(dbInstance);
         };
 
-        request.onupgradeneeded = (event) => {
+        request.onupgradeneeded = event => {
             const db = (event.target as IDBOpenDBRequest).result;
 
             if (!db.objectStoreNames.contains(STORE_FILES)) {
@@ -118,12 +115,8 @@ const findFileById = (files: FileSystemItem[], id: string): FileSystemItem | nul
     return null;
 };
 
-const updateFileInTree = (
-    files: FileSystemItem[],
-    id: string,
-    updatedFile: FileSystemItem
-): FileSystemItem[] => {
-    return files.map((file) => {
+const updateFileInTree = (files: FileSystemItem[], id: string, updatedFile: FileSystemItem): FileSystemItem[] => {
+    return files.map(file => {
         if (file.id === id) return updatedFile;
         if (file.children) {
             return {
@@ -137,8 +130,8 @@ const updateFileInTree = (
 
 const deleteFileFromTree = (files: FileSystemItem[], id: string): FileSystemItem[] => {
     return files
-        .filter((file) => file.id !== id)
-        .map((file) => {
+        .filter(file => file.id !== id)
+        .map(file => {
             if (file.children) {
                 return {
                     ...file,
@@ -150,14 +143,14 @@ const deleteFileFromTree = (files: FileSystemItem[], id: string): FileSystemItem
 };
 
 const ensureDesktopShortcuts = (files: FileSystemItem[]): FileSystemItem[] | null => {
-    const rootIndex = files.findIndex((file) => file.id === 'root' && file.type === 'folder');
+    const rootIndex = files.findIndex(file => file.id === 'root' && file.type === 'folder');
     if (rootIndex === -1) return null;
 
     const root = files[rootIndex];
     if (!root) return null;
-    
+
     const rootChildren = root.children ?? [];
-    const desktopExisting = rootChildren.find((child) => child.id === 'desktop' && child.type === 'folder');
+    const desktopExisting = rootChildren.find(child => child.id === 'desktop' && child.type === 'folder');
 
     const desktopFolder: FileSystemItem = desktopExisting ?? {
         id: 'desktop',
@@ -167,13 +160,13 @@ const ensureDesktopShortcuts = (files: FileSystemItem[]): FileSystemItem[] | nul
     };
 
     const desktopChildren = desktopFolder.children ?? [];
-    const desktopSampleItems = desktopChildren.filter((child) => child.id === 'f1' || child.id === 'f2');
-    const cleanedChildren = desktopChildren.filter((child) => child.id !== 'f1' && child.id !== 'f2');
+    const desktopSampleItems = desktopChildren.filter(child => child.id === 'f1' || child.id === 'f2');
+    const cleanedChildren = desktopChildren.filter(child => child.id !== 'f1' && child.id !== 'f2');
 
-    const existingById = new Map(cleanedChildren.map((child) => [child.id, child]));
-    const defaultShortcutIds = new Set(DEFAULT_DESKTOP_SHORTCUTS.map((item) => item.id));
+    const existingById = new Map(cleanedChildren.map(child => [child.id, child]));
+    const defaultShortcutIds = new Set(DEFAULT_DESKTOP_SHORTCUTS.map(item => item.id));
 
-    const nextShortcutChildren = DEFAULT_DESKTOP_SHORTCUTS.flatMap((shortcut) => {
+    const nextShortcutChildren = DEFAULT_DESKTOP_SHORTCUTS.flatMap(shortcut => {
         const existingInDesktop = existingById.get(shortcut.id);
         if (existingInDesktop) return [existingInDesktop];
 
@@ -182,7 +175,7 @@ const ensureDesktopShortcuts = (files: FileSystemItem[]): FileSystemItem[] | nul
 
         return [shortcut];
     });
-    const remainingChildren = cleanedChildren.filter((child) => !defaultShortcutIds.has(child.id));
+    const remainingChildren = cleanedChildren.filter(child => !defaultShortcutIds.has(child.id));
     const nextDesktopChildren = [...nextShortcutChildren, ...remainingChildren];
 
     const nextDesktopFolder: FileSystemItem = {
@@ -190,8 +183,8 @@ const ensureDesktopShortcuts = (files: FileSystemItem[]): FileSystemItem[] | nul
         children: nextDesktopChildren,
     };
 
-    const documentsExisting = rootChildren.find((child) => child.id === 'documents' && child.type === 'folder');
-    const picturesExisting = rootChildren.find((child) => child.id === 'pictures' && child.type === 'folder');
+    const documentsExisting = rootChildren.find(child => child.id === 'documents' && child.type === 'folder');
+    const picturesExisting = rootChildren.find(child => child.id === 'pictures' && child.type === 'folder');
 
     const documentsFolder: FileSystemItem = documentsExisting ?? {
         id: 'documents',
@@ -207,19 +200,19 @@ const ensureDesktopShortcuts = (files: FileSystemItem[]): FileSystemItem[] | nul
         children: [],
     };
 
-    const desktopPdf = desktopSampleItems.find((item) => item.id === 'f1');
-    const desktopPhoto = desktopSampleItems.find((item) => item.id === 'f2');
+    const desktopPdf = desktopSampleItems.find(item => item.id === 'f1');
+    const desktopPhoto = desktopSampleItems.find(item => item.id === 'f2');
 
     const documentsChildren = documentsFolder.children ?? [];
     const picturesChildren = picturesFolder.children ?? [];
 
     const nextDocumentsChildren =
-        desktopPdf && !documentsChildren.some((child) => child.id === 'f1')
+        desktopPdf && !documentsChildren.some(child => child.id === 'f1')
             ? [...documentsChildren, desktopPdf]
             : documentsChildren;
 
     const nextPicturesChildren =
-        desktopPhoto && !picturesChildren.some((child) => child.id === 'f2')
+        desktopPhoto && !picturesChildren.some(child => child.id === 'f2')
             ? [...picturesChildren, desktopPhoto]
             : picturesChildren;
 
@@ -242,16 +235,14 @@ const ensureDesktopShortcuts = (files: FileSystemItem[]): FileSystemItem[] | nul
         !idsMatch(desktopChildren, nextDesktopChildren);
 
     const documentsNeedsUpdate =
-        (documentsExisting === undefined && desktopPdf !== undefined) ||
-        nextDocumentsChildren !== documentsChildren;
+        (documentsExisting === undefined && desktopPdf !== undefined) || nextDocumentsChildren !== documentsChildren;
 
     const picturesNeedsUpdate =
-        (picturesExisting === undefined && desktopPhoto !== undefined) ||
-        nextPicturesChildren !== picturesChildren;
+        (picturesExisting === undefined && desktopPhoto !== undefined) || nextPicturesChildren !== picturesChildren;
 
     if (!desktopNeedsUpdate && !documentsNeedsUpdate && !picturesNeedsUpdate) return null;
 
-    const updatedRootChildren = rootChildren.map((child) => {
+    const updatedRootChildren = rootChildren.map(child => {
         if (child.id === 'desktop') return nextDesktopFolder;
         if (child.id === 'documents') return nextDocumentsFolder;
         if (child.id === 'pictures') return nextPicturesFolder;
@@ -310,7 +301,7 @@ export const saveFiles = async (files: FileSystemItem[]): Promise<void> => {
         const clearRequest = store.clear();
         clearRequest.onerror = () => reject(clearRequest.error);
         clearRequest.onsuccess = () => {
-            files.forEach((file) => {
+            files.forEach(file => {
                 store.put(file);
             });
 
@@ -350,12 +341,8 @@ export const deleteFile = async (id: string): Promise<void> => {
     dispatchSyncEvent(STORE_FILES, id);
 };
 
-const addFileToFolder = (
-    files: FileSystemItem[],
-    folderId: string,
-    newFile: FileSystemItem
-): FileSystemItem[] => {
-    return files.map((file) => {
+const addFileToFolder = (files: FileSystemItem[], folderId: string, newFile: FileSystemItem): FileSystemItem[] => {
+    return files.map(file => {
         if (file.id === folderId && file.children) {
             return {
                 ...file,
@@ -372,10 +359,7 @@ const addFileToFolder = (
     });
 };
 
-export const saveFileToFolder = async (
-    file: FileSystemItem,
-    folderId: string = 'documents'
-): Promise<void> => {
+export const saveFileToFolder = async (file: FileSystemItem, folderId: string = 'documents'): Promise<void> => {
     const files = await getFiles();
     const existingFile = findFileById(files, file.id);
 
@@ -435,7 +419,7 @@ export const getAllSettings = async (): Promise<Record<string, unknown>> => {
         request.onsuccess = () => {
             const records = request.result as SettingRecord[];
             const settings: Record<string, unknown> = {};
-            records.forEach((record) => {
+            records.forEach(record => {
                 settings[record.key] = record.value;
             });
             resolve(settings);
@@ -468,7 +452,7 @@ export const saveWindowStates = async (states: WindowStateRecord[]): Promise<voi
         const clearRequest = store.clear();
         clearRequest.onerror = () => reject(clearRequest.error);
         clearRequest.onsuccess = () => {
-            states.forEach((state) => {
+            states.forEach(state => {
                 store.put(state);
             });
 
@@ -481,10 +465,7 @@ export const saveWindowStates = async (states: WindowStateRecord[]): Promise<voi
     });
 };
 
-export const saveWindowState = async (
-    appId: string,
-    state: Partial<WindowState>
-): Promise<void> => {
+export const saveWindowState = async (appId: string, state: Partial<WindowState>): Promise<void> => {
     const db = await getDB();
 
     return new Promise((resolve, reject) => {
@@ -508,11 +489,7 @@ export const STORE_NAMES = {
 } as const;
 
 // Find parent folder ID of an item
-const findParentFolderId = (
-    files: FileSystemItem[],
-    targetId: string,
-    _parentId: string = 'root'
-): string | null => {
+const findParentFolderId = (files: FileSystemItem[], targetId: string, _parentId: string = 'root'): string | null => {
     for (const file of files) {
         if (file.children) {
             if (file.children.some(child => child.id === targetId)) {

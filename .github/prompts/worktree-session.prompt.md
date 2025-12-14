@@ -42,8 +42,8 @@ klondike status
 
 ### Work Freely
 
-🔒 **Isolation**: You're on a dedicated branch in a separate directory  
-✅ **Safe commits**: Nothing affects main until explicitly merged  
+🔒 **Isolation**: You're on a dedicated branch in a separate directory
+✅ **Safe commits**: Nothing affects main until explicitly merged
 
 - **Commit often** - Even incomplete work. It's YOUR branch.
 - **Experiment** - Try risky refactors. The main project is safe.
@@ -74,8 +74,8 @@ git add -A && git commit -m "feat(F00X): <summary>
 
 ## Session Rules
 
-❌ **Do NOT** push to remote without explicit permission  
-❌ **Do NOT** modify the main project directory directly  
+❌ **Do NOT** push to remote without explicit permission
+❌ **Do NOT** modify the main project directory directly
 ❌ **Do NOT** wait for human confirmation - you are in non-interactive mode
 
 ---

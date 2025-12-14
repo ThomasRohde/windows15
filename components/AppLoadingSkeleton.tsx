@@ -1,7 +1,7 @@
 /**
  * Loading skeleton for lazy-loaded app content
  */
-import React from "react";
+import React from 'react';
 
 interface AppLoadingSkeletonProps {
     /** Optional app title for context */
@@ -12,9 +12,7 @@ interface AppLoadingSkeletonProps {
  * Displays a loading skeleton while an app component is being loaded.
  * Used as the Suspense fallback for React.lazy components.
  */
-export const AppLoadingSkeleton: React.FC<AppLoadingSkeletonProps> = ({
-    title,
-}) => {
+export const AppLoadingSkeleton: React.FC<AppLoadingSkeletonProps> = ({ title }) => {
     return (
         <div className="flex flex-col items-center justify-center h-full w-full p-6 space-y-4">
             {/* Spinning loader */}
@@ -23,15 +21,13 @@ export const AppLoadingSkeleton: React.FC<AppLoadingSkeletonProps> = ({
             </div>
 
             {/* Loading text */}
-            <div className="text-white/60 text-sm font-medium">
-                {title ? `Loading ${title}...` : "Loading..."}
-            </div>
+            <div className="text-white/60 text-sm font-medium">{title ? `Loading ${title}...` : 'Loading...'}</div>
 
             {/* Skeleton content preview */}
             <div className="w-full max-w-md space-y-3 opacity-30">
                 {/* Simulated toolbar */}
                 <div className="h-8 bg-white/10 rounded animate-pulse" />
-                
+
                 {/* Simulated content lines */}
                 <div className="space-y-2">
                     <div className="h-4 bg-white/10 rounded w-3/4 animate-pulse" />

@@ -1,6 +1,6 @@
 ---
 name: init-and-build
-description: "Initialize project infrastructure AND start implementing features in one session"
+description: 'Initialize project infrastructure AND start implementing features in one session'
 ---
 
 # Goal
@@ -12,11 +12,13 @@ Set up the **initializer agent infrastructure** for a new project, then immediat
 Based on [Anthropic's research on long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents), projects benefit from structured artifacts. This prompt creates them AND starts building.
 
 **Use this when:**
+
 - Building a small-to-medium project in extended sessions
 - You want continuous progress without manual handoffs
 - The project scope is well-defined upfront
 
 **Use `/init-project` instead when:**
+
 - Setting up infrastructure for a large project
 - You want explicit control over session boundaries
 - Multiple people/agents will work on the project
@@ -26,15 +28,18 @@ Based on [Anthropic's research on long-running agents](https://www.anthropic.com
 ### Phase 1: Scaffolding (same as /init-project)
 
 #### 1.1 Gather Project Information
+
 - Confirm project type and name from user input
 - Ask clarifying questions about:
-  - Primary language/framework
-  - Key features to implement (at least 5-10)
-  - Testing approach (unit, integration, e2e)
-  - Deployment target (if known)
+    - Primary language/framework
+    - Key features to implement (at least 5-10)
+    - Testing approach (unit, integration, e2e)
+    - Deployment target (if known)
 
 #### 1.2 Create Feature Registry (`features.json`)
+
 Generate a comprehensive feature list with **at least 20 features** covering:
+
 - Core functionality
 - Error handling
 - User experience
@@ -44,39 +49,39 @@ Generate a comprehensive feature list with **at least 20 features** covering:
 
 ```json
 {
-  "projectName": "<name>",
-  "version": "0.1.0",
-  "features": [
-    {
-      "id": "F001",
-      "category": "core|ui|api|testing|infrastructure",
-      "priority": 1,
-      "description": "Short description of the feature",
-      "acceptanceCriteria": [
-        "Specific testable criterion 1",
-        "Specific testable criterion 2"
-      ],
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null
+    "projectName": "<name>",
+    "version": "0.1.0",
+    "features": [
+        {
+            "id": "F001",
+            "category": "core|ui|api|testing|infrastructure",
+            "priority": 1,
+            "description": "Short description of the feature",
+            "acceptanceCriteria": ["Specific testable criterion 1", "Specific testable criterion 2"],
+            "passes": false,
+            "verifiedAt": null,
+            "verifiedBy": null
+        }
+    ],
+    "metadata": {
+        "createdAt": "<timestamp>",
+        "lastUpdated": "<timestamp>",
+        "totalFeatures": 0,
+        "passingFeatures": 0
     }
-  ],
-  "metadata": {
-    "createdAt": "<timestamp>",
-    "lastUpdated": "<timestamp>",
-    "totalFeatures": 0,
-    "passingFeatures": 0
-  }
 }
 ```
 
 #### 1.3 Create Progress File (`agent-progress.md`)
+
 Initialize with Session 1 entry.
 
 #### 1.4 Create Init Scripts
+
 Create `init.sh` and `init.ps1` for reproducible environment startup. **Ensure the dev server starts in the background** so the script doesn't block the agent.
 
 #### 1.5 Initialize Git & Commit
+
 ```bash
 git init
 git add .
@@ -90,6 +95,7 @@ git commit -m "feat: initialize project with agent harness infrastructure"
 After scaffolding is complete, **immediately transition to coding mode**:
 
 #### 2.1 Start Development Environment
+
 Run the init script to start the dev server.
 
 #### 2.2 Implement Features Incrementally
@@ -105,6 +111,7 @@ Follow these rules from the coding agent workflow:
 #### 2.3 Continue Until Natural Stopping Point
 
 Keep implementing features until:
+
 - User indicates they want to stop
 - A blocker is encountered
 - Significant milestone reached (e.g., MVP complete)
@@ -123,6 +130,7 @@ When stopping (user request or natural break):
 ## Behavioral Guidelines
 
 ### DO:
+
 - ✅ Create comprehensive feature list upfront
 - ✅ Implement features in priority order
 - ✅ Commit frequently with good messages
@@ -131,6 +139,7 @@ When stopping (user request or natural break):
 - ✅ Offer progress updates periodically
 
 ### DON'T:
+
 - ❌ Try to implement all features at once (one-shotting)
 - ❌ Skip testing to move faster
 - ❌ Mark features passing without verification
@@ -140,6 +149,7 @@ When stopping (user request or natural break):
 ## Output Format
 
 ### After Phase 1 (Scaffolding):
+
 ```
 ## 🏗️ Project Scaffolded
 
@@ -159,7 +169,9 @@ Transitioning to implementation...
 ```
 
 ### During Phase 2 (Building):
+
 After each feature:
+
 ```
 ## ✅ F001: [Feature Name]
 
@@ -173,6 +185,7 @@ After each feature:
 ```
 
 ### At Session End:
+
 ```
 ## 📋 Session Summary
 

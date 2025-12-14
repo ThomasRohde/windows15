@@ -1,6 +1,6 @@
 ---
 name: progress-report
-description: "Generate a comprehensive progress report on project status"
+description: 'Generate a comprehensive progress report on project status'
 ---
 
 # Goal
@@ -27,11 +27,13 @@ git log --oneline --since="1 month ago" | wc -l
 ### 3. Calculate Metrics
 
 **Completion Metrics:**
+
 - Overall completion: verified / total features
 - Completion by category
 - Completion by priority level
 
 **Health Metrics:**
+
 - Stale in-progress features (not worked on recently)
 - Blocked features
 - Features without evidence
@@ -58,20 +60,20 @@ git log --oneline --since="1 month ago" | wc -l
 
 ### By Status
 
-| Status | Count | Percentage |
-|--------|-------|------------|
-| ✅ Verified | X | XX% |
-| 🔄 In-Progress | Y | YY% |
-| 🚫 Blocked | B | BB% |
-| ⏳ Not Started | Z | ZZ% |
+| Status         | Count | Percentage |
+| -------------- | ----- | ---------- |
+| ✅ Verified    | X     | XX%        |
+| 🔄 In-Progress | Y     | YY%        |
+| 🚫 Blocked     | B     | BB%        |
+| ⏳ Not Started | Z     | ZZ%        |
 
 ### By Priority
 
 | Priority | Total | Complete | Remaining |
-|----------|-------|----------|-----------|
-| 🔴 P1 | X | Y | Z |
-| 🟠 P2 | X | Y | Z |
-| 🟡 P3 | X | Y | Z |
+| -------- | ----- | -------- | --------- |
+| 🔴 P1    | X     | Y        | Z         |
+| 🟠 P2    | X     | Y        | Z         |
+| 🟡 P3    | X     | Y        | Z         |
 
 ---
 
@@ -79,9 +81,9 @@ git log --oneline --since="1 month ago" | wc -l
 
 ### Blocked Features
 
-| ID | Description | Blocked By |
-|----|-------------|------------|
-| F0XX | <description> | <reason> |
+| ID   | Description   | Blocked By |
+| ---- | ------------- | ---------- |
+| F0XX | <description> | <reason>   |
 
 ---
 

@@ -22,10 +22,14 @@ export const Calculator = () => {
 
     const compute = (left: number, right: number, op: Exclude<Operator, null>) => {
         switch (op) {
-            case '+': return left + right;
-            case '-': return left - right;
-            case '*': return left * right;
-            case '/': return right === 0 ? NaN : left / right;
+            case '+':
+                return left + right;
+            case '-':
+                return left - right;
+            case '*':
+                return left * right;
+            case '/':
+                return right === 0 ? NaN : left / right;
         }
     };
 
@@ -133,12 +137,9 @@ export const Calculator = () => {
                 else if (v === '%') percent();
                 else if (op) {
                     const mapped: Exclude<Operator, null> =
-                        v === '×' ? '*' :
-                        v === '÷' ? '/' :
-                        (v as Exclude<Operator, null>);
+                        v === '×' ? '*' : v === '÷' ? '/' : (v as Exclude<Operator, null>);
                     handleOperator(mapped);
-                }
-                else inputDigit(v);
+                } else inputDigit(v);
             }}
             className={`${wide ? 'col-span-2' : ''} h-14 rounded-lg text-xl font-medium transition-all active:scale-95 flex items-center justify-center
                 ${op ? 'bg-orange-500 text-white hover:bg-orange-400' : 'bg-white/10 text-white hover:bg-white/20'}

@@ -90,10 +90,7 @@ const resolveInput = (raw: string): { url: string; modeSuggestion?: ViewMode } |
         return { url: `https://duckduckgo.com/?q=${encodeURIComponent(trimmed)}`, modeSuggestion: 'reader' };
     }
 
-    const isLocal =
-        trimmed.startsWith('localhost') ||
-        looksLikeIpAddress(trimmed) ||
-        trimmed.endsWith('.local');
+    const isLocal = trimmed.startsWith('localhost') || looksLikeIpAddress(trimmed) || trimmed.endsWith('.local');
 
     const protocol = isLocal ? 'http://' : 'https://';
     return { url: `${protocol}${trimmed}` };
@@ -116,7 +113,10 @@ export const Browser = () => {
     const [isEmbedBlocked, setIsEmbedBlocked] = useState(false);
     const [notice, setNotice] = useState<string | null>(null);
 
-    const { value: bookmarksRaw } = useDexieLiveQuery(() => db.bookmarks.orderBy('updatedAt').reverse().toArray(), [db]);
+    const { value: bookmarksRaw } = useDexieLiveQuery(
+        () => db.bookmarks.orderBy('updatedAt').reverse().toArray(),
+        [db]
+    );
     const bookmarks = Array.isArray(bookmarksRaw) ? bookmarksRaw : [];
     const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
     const [bookmarkDraft, setBookmarkDraft] = useState<BookmarkDraft | null>(null);
@@ -350,13 +350,27 @@ export const Browser = () => {
             {/* Browser Toolbar */}
             <div className="h-12 bg-gray-100 border-b border-gray-200 flex items-center px-2 gap-2">
                 <div className="flex gap-1">
-                    <button disabled={!canGoBack} onClick={goBack} className="p-1.5 rounded-full hover:bg-gray-200 disabled:opacity-30 text-gray-700" title="Back">
+                    <button
+                        disabled={!canGoBack}
+                        onClick={goBack}
+                        className="p-1.5 rounded-full hover:bg-gray-200 disabled:opacity-30 text-gray-700"
+                        title="Back"
+                    >
                         <span className="material-symbols-outlined text-lg">arrow_back</span>
                     </button>
-                    <button disabled={!canGoForward} onClick={goForward} className="p-1.5 rounded-full hover:bg-gray-200 disabled:opacity-30 text-gray-700" title="Forward">
+                    <button
+                        disabled={!canGoForward}
+                        onClick={goForward}
+                        className="p-1.5 rounded-full hover:bg-gray-200 disabled:opacity-30 text-gray-700"
+                        title="Forward"
+                    >
                         <span className="material-symbols-outlined text-lg">arrow_forward</span>
                     </button>
-                    <button onClick={refresh} className="p-1.5 rounded-full hover:bg-gray-200 text-gray-700" title="Refresh">
+                    <button
+                        onClick={refresh}
+                        className="p-1.5 rounded-full hover:bg-gray-200 text-gray-700"
+                        title="Refresh"
+                    >
                         <span className="material-symbols-outlined text-lg">refresh</span>
                     </button>
                 </div>
@@ -365,7 +379,7 @@ export const Browser = () => {
                     <input
                         className="w-full h-8 bg-white border border-gray-300 rounded-full px-4 text-sm text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                         value={state.input}
-                        onChange={(e) => setState(prev => ({ ...prev, input: e.target.value }))}
+                        onChange={e => setState(prev => ({ ...prev, input: e.target.value }))}
                         placeholder="Search or type URL"
                         spellCheck={false}
                     />
@@ -396,26 +410,30 @@ export const Browser = () => {
                     >
                         <span className="material-symbols-outlined text-lg">bookmarks</span>
                     </button>
-                    <button onClick={openAddBookmark} className="p-1.5 rounded-full hover:bg-gray-200 text-gray-700" title="Add bookmark">
+                    <button
+                        onClick={openAddBookmark}
+                        className="p-1.5 rounded-full hover:bg-gray-200 text-gray-700"
+                        title="Add bookmark"
+                    >
                         <span className="material-symbols-outlined text-lg">bookmark_add</span>
                     </button>
                 </div>
 
-                <button onClick={openExternal} className="p-1.5 rounded-full hover:bg-gray-200 text-gray-700" title="Open in new tab">
+                <button
+                    onClick={openExternal}
+                    className="p-1.5 rounded-full hover:bg-gray-200 text-gray-700"
+                    title="Open in new tab"
+                >
                     <span className="material-symbols-outlined text-lg">open_in_new</span>
                 </button>
             </div>
 
             {state.error && (
-                <div className="px-3 py-2 text-xs bg-red-50 text-red-700 border-b border-red-200">
-                    {state.error}
-                </div>
+                <div className="px-3 py-2 text-xs bg-red-50 text-red-700 border-b border-red-200">{state.error}</div>
             )}
 
             {notice && (
-                <div className="px-3 py-2 text-xs bg-amber-50 text-amber-800 border-b border-amber-200">
-                    {notice}
-                </div>
+                <div className="px-3 py-2 text-xs bg-amber-50 text-amber-800 border-b border-amber-200">{notice}</div>
             )}
 
             {/* Browser Content */}
@@ -465,15 +483,21 @@ export const Browser = () => {
                                                         className="flex-1 text-left px-2 py-2 min-w-0"
                                                         title={bookmark.url}
                                                     >
-                                                        <div className="text-sm text-gray-900 truncate">{bookmark.title || bookmark.url}</div>
-                                                        <div className="text-[11px] text-gray-500 truncate">{bookmark.url}</div>
+                                                        <div className="text-sm text-gray-900 truncate">
+                                                            {bookmark.title || bookmark.url}
+                                                        </div>
+                                                        <div className="text-[11px] text-gray-500 truncate">
+                                                            {bookmark.url}
+                                                        </div>
                                                     </button>
                                                     <button
                                                         onClick={() => deleteBookmark(bookmark.id)}
                                                         className="h-8 w-8 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-red-600 flex items-center justify-center"
                                                         title="Delete"
                                                     >
-                                                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                                                        <span className="material-symbols-outlined text-[18px]">
+                                                            delete
+                                                        </span>
                                                     </button>
                                                 </div>
                                             </div>
@@ -490,9 +514,14 @@ export const Browser = () => {
                         <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
                             <div className="max-w-sm">
                                 <div className="text-lg font-semibold text-gray-900">Reader view unavailable</div>
-                                <div className="mt-1 text-sm text-gray-600">Reader view only supports http(s) URLs.</div>
+                                <div className="mt-1 text-sm text-gray-600">
+                                    Reader view only supports http(s) URLs.
+                                </div>
                                 <div className="mt-4 flex items-center justify-center gap-2">
-                                    <button onClick={() => setMode('live')} className="px-3 py-2 rounded-lg bg-gray-900 text-white text-sm hover:bg-gray-800">
+                                    <button
+                                        onClick={() => setMode('live')}
+                                        className="px-3 py-2 rounded-lg bg-gray-900 text-white text-sm hover:bg-gray-800"
+                                    >
                                         Switch to Live view
                                     </button>
                                 </div>
@@ -506,7 +535,11 @@ export const Browser = () => {
                                 src={frameSrc}
                                 className="w-full h-full border-none"
                                 title="Browser"
-                                sandbox={viewMode === 'live' ? 'allow-scripts allow-same-origin allow-forms allow-popups' : 'allow-same-origin'}
+                                sandbox={
+                                    viewMode === 'live'
+                                        ? 'allow-scripts allow-same-origin allow-forms allow-popups'
+                                        : 'allow-same-origin'
+                                }
                                 onLoad={handleFrameLoad}
                                 onError={handleFrameError}
                             />
@@ -514,15 +547,24 @@ export const Browser = () => {
                             {viewMode === 'live' && isEmbedBlocked && (
                                 <div className="absolute inset-0 flex items-center justify-center p-6 bg-white">
                                     <div className="max-w-md text-center">
-                                        <div className="text-lg font-semibold text-gray-900">This site refused to load here</div>
+                                        <div className="text-lg font-semibold text-gray-900">
+                                            This site refused to load here
+                                        </div>
                                         <div className="mt-1 text-sm text-gray-600">
-                                            Many sites block being embedded in iframes. Switch to Reader view or open the page in a new tab.
+                                            Many sites block being embedded in iframes. Switch to Reader view or open
+                                            the page in a new tab.
                                         </div>
                                         <div className="mt-4 flex items-center justify-center gap-2">
-                                            <button onClick={() => setMode('reader')} className="px-3 py-2 rounded-lg bg-gray-900 text-white text-sm hover:bg-gray-800">
+                                            <button
+                                                onClick={() => setMode('reader')}
+                                                className="px-3 py-2 rounded-lg bg-gray-900 text-white text-sm hover:bg-gray-800"
+                                            >
                                                 Reader view
                                             </button>
-                                            <button onClick={openExternal} className="px-3 py-2 rounded-lg bg-gray-100 text-gray-900 text-sm hover:bg-gray-200">
+                                            <button
+                                                onClick={openExternal}
+                                                className="px-3 py-2 rounded-lg bg-gray-100 text-gray-900 text-sm hover:bg-gray-200"
+                                            >
                                                 Open in new tab
                                             </button>
                                         </div>
@@ -532,7 +574,9 @@ export const Browser = () => {
 
                             {isLoading && (
                                 <div className="absolute top-2 right-2 px-2 py-1 rounded-full bg-black/60 text-white text-[10px] flex items-center gap-1">
-                                    <span className="material-symbols-outlined text-xs animate-spin">progress_activity</span>
+                                    <span className="material-symbols-outlined text-xs animate-spin">
+                                        progress_activity
+                                    </span>
                                     Loading
                                 </div>
                             )}
@@ -559,7 +603,9 @@ export const Browser = () => {
                                 <span className="text-xs text-gray-500">Title</span>
                                 <input
                                     value={bookmarkDraft.title}
-                                    onChange={e => setBookmarkDraft(prev => (prev ? { ...prev, title: e.target.value } : prev))}
+                                    onChange={e =>
+                                        setBookmarkDraft(prev => (prev ? { ...prev, title: e.target.value } : prev))
+                                    }
                                     className="h-9 px-3 rounded-lg border border-gray-300 text-sm text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                     autoFocus
                                 />
@@ -568,7 +614,9 @@ export const Browser = () => {
                                 <span className="text-xs text-gray-500">Folder</span>
                                 <input
                                     value={bookmarkDraft.folder}
-                                    onChange={e => setBookmarkDraft(prev => (prev ? { ...prev, folder: e.target.value } : prev))}
+                                    onChange={e =>
+                                        setBookmarkDraft(prev => (prev ? { ...prev, folder: e.target.value } : prev))
+                                    }
                                     className="h-9 px-3 rounded-lg border border-gray-300 text-sm text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                     placeholder="Bookmarks"
                                 />
@@ -577,7 +625,9 @@ export const Browser = () => {
                                 <span className="text-xs text-gray-500">URL</span>
                                 <input
                                     value={bookmarkDraft.url}
-                                    onChange={e => setBookmarkDraft(prev => (prev ? { ...prev, url: e.target.value } : prev))}
+                                    onChange={e =>
+                                        setBookmarkDraft(prev => (prev ? { ...prev, url: e.target.value } : prev))
+                                    }
                                     className="h-9 px-3 rounded-lg border border-gray-300 text-sm text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                 />
                             </label>

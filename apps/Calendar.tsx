@@ -94,7 +94,11 @@ const buildMonthGrid = (month: Date) => {
     for (let i = 0; i < 42; i++) {
         const dayOffset = i - firstWeekday;
         const inMonth = dayOffset >= 0 && dayOffset < daysInMonth;
-        const dayNumber = inMonth ? dayOffset + 1 : dayOffset < 0 ? daysInPrevMonth + dayOffset + 1 : dayOffset - daysInMonth + 1;
+        const dayNumber = inMonth
+            ? dayOffset + 1
+            : dayOffset < 0
+              ? daysInPrevMonth + dayOffset + 1
+              : dayOffset - daysInMonth + 1;
         const cellDate = new Date(year, monthIndex, dayNumber);
         cells.push({ date: cellDate, inMonth, ymd: toYmd(cellDate) });
     }
@@ -236,9 +240,10 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
 
         // Update storage directly - useDexieLiveQuery will trigger UI update
         const idx = events.findIndex(event => event.id === normalized.id);
-        const updatedEvents = idx === -1
-            ? [...events, normalized].sort((a, b) => eventStartDate(a).getTime() - eventStartDate(b).getTime())
-            : events.map(event => (event.id === normalized.id ? normalized : event));
+        const updatedEvents =
+            idx === -1
+                ? [...events, normalized].sort((a, b) => eventStartDate(a).getTime() - eventStartDate(b).getTime())
+                : events.map(event => (event.id === normalized.id ? normalized : event));
 
         await storageService.set(STORAGE_KEYS.calendarEvents, updatedEvents);
         setSelectedDate(normalized.date);
@@ -288,7 +293,12 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                     onClick={() => openNewEvent()}
                     className="px-3 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center gap-2"
                 >
-                    <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>add</span>
+                    <span
+                        className="material-symbols-outlined text-[18px]"
+                        style={{ fontVariationSettings: "'FILL' 1" }}
+                    >
+                        add
+                    </span>
                     New event
                 </button>
             </div>
@@ -323,10 +333,16 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                                     `}
                                 >
                                     <div className="flex items-center justify-between">
-                                        <span className={`text-xs font-semibold ${isToday ? 'text-primary' : cell.inMonth ? 'text-white/80' : 'text-white/30'}`}>
+                                        <span
+                                            className={`text-xs font-semibold ${isToday ? 'text-primary' : cell.inMonth ? 'text-white/80' : 'text-white/30'}`}
+                                        >
                                             {cell.date.getDate()}
                                         </span>
-                                        {isToday && <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary">Today</span>}
+                                        {isToday && (
+                                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary">
+                                                Today
+                                            </span>
+                                        )}
                                     </div>
 
                                     {dayEvents.length > 0 && (
@@ -341,7 +357,9 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                                                 </div>
                                             ))}
                                             {dayEvents.length > 2 && (
-                                                <div className="text-[10px] text-white/40 px-1">+{dayEvents.length - 2} more</div>
+                                                <div className="text-[10px] text-white/40 px-1">
+                                                    +{dayEvents.length - 2} more
+                                                </div>
                                             )}
                                         </div>
                                     )}
@@ -377,13 +395,17 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                                     >
                                         <div className="flex items-center justify-between gap-3">
                                             <div className="min-w-0">
-                                                <div className="text-sm font-medium text-white/90 truncate">{event.title}</div>
+                                                <div className="text-sm font-medium text-white/90 truncate">
+                                                    {event.title}
+                                                </div>
                                                 <div className="mt-0.5 text-[11px] text-white/50">
                                                     {event.allDay ? 'All day' : `${event.startTime} – ${event.endTime}`}
                                                     {event.location ? ` · ${event.location}` : ''}
                                                 </div>
                                             </div>
-                                            <span className="material-symbols-outlined text-white/40 text-[18px]">chevron_right</span>
+                                            <span className="material-symbols-outlined text-white/40 text-[18px]">
+                                                chevron_right
+                                            </span>
                                         </div>
                                     </button>
                                 ))}
@@ -398,7 +420,9 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                 <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-black/60">
                     <div className="w-full max-w-xl glass-panel rounded-xl overflow-hidden shadow-2xl">
                         <div className="h-12 px-4 flex items-center justify-between border-b border-white/10 bg-black/20">
-                            <div className="text-sm font-medium text-white/90">{draft.id ? 'Edit event' : 'New event'}</div>
+                            <div className="text-sm font-medium text-white/90">
+                                {draft.id ? 'Edit event' : 'New event'}
+                            </div>
                             <button
                                 onClick={closeDraft}
                                 className="w-8 h-8 rounded-lg hover:bg-white/10 text-white/70 flex items-center justify-center"
@@ -431,7 +455,9 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                                     <input
                                         type="date"
                                         value={draft.date}
-                                        onChange={e => setDraft(prev => (prev ? { ...prev, date: e.target.value } : prev))}
+                                        onChange={e =>
+                                            setDraft(prev => (prev ? { ...prev, date: e.target.value } : prev))
+                                        }
                                         className="h-9 px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
                                     />
                                 </label>
@@ -440,7 +466,9 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                                     <input
                                         type="checkbox"
                                         checked={draft.allDay}
-                                        onChange={e => setDraft(prev => (prev ? { ...prev, allDay: e.target.checked } : prev))}
+                                        onChange={e =>
+                                            setDraft(prev => (prev ? { ...prev, allDay: e.target.checked } : prev))
+                                        }
                                         className="rounded border-white/20 bg-black/30"
                                     />
                                     <span className="text-sm text-white/80">All day</span>
@@ -454,7 +482,9 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                                         <input
                                             type="time"
                                             value={draft.startTime}
-                                            onChange={e => setDraft(prev => (prev ? { ...prev, startTime: e.target.value } : prev))}
+                                            onChange={e =>
+                                                setDraft(prev => (prev ? { ...prev, startTime: e.target.value } : prev))
+                                            }
                                             className="h-9 px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
                                         />
                                     </label>
@@ -463,7 +493,9 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                                         <input
                                             type="time"
                                             value={draft.endTime}
-                                            onChange={e => setDraft(prev => (prev ? { ...prev, endTime: e.target.value } : prev))}
+                                            onChange={e =>
+                                                setDraft(prev => (prev ? { ...prev, endTime: e.target.value } : prev))
+                                            }
                                             className="h-9 px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
                                         />
                                     </label>
@@ -474,7 +506,9 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                                 <span className="text-xs text-white/60">Location</span>
                                 <input
                                     value={draft.location}
-                                    onChange={e => setDraft(prev => (prev ? { ...prev, location: e.target.value } : prev))}
+                                    onChange={e =>
+                                        setDraft(prev => (prev ? { ...prev, location: e.target.value } : prev))
+                                    }
                                     className="h-9 px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
                                     placeholder="Where?"
                                 />

@@ -11,35 +11,35 @@ interface UnitOption {
 
 const units: Record<Category, UnitOption[]> = {
     length: [
-        { label: 'Meters', value: 'm', toBase: (v) => v, fromBase: (v) => v },
-        { label: 'Kilometers', value: 'km', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
-        { label: 'Centimeters', value: 'cm', toBase: (v) => v / 100, fromBase: (v) => v * 100 },
-        { label: 'Millimeters', value: 'mm', toBase: (v) => v / 1000, fromBase: (v) => v * 1000 },
-        { label: 'Miles', value: 'mi', toBase: (v) => v * 1609.344, fromBase: (v) => v / 1609.344 },
-        { label: 'Feet', value: 'ft', toBase: (v) => v * 0.3048, fromBase: (v) => v / 0.3048 },
-        { label: 'Inches', value: 'in', toBase: (v) => v * 0.0254, fromBase: (v) => v / 0.0254 },
-        { label: 'Yards', value: 'yd', toBase: (v) => v * 0.9144, fromBase: (v) => v / 0.9144 },
+        { label: 'Meters', value: 'm', toBase: v => v, fromBase: v => v },
+        { label: 'Kilometers', value: 'km', toBase: v => v * 1000, fromBase: v => v / 1000 },
+        { label: 'Centimeters', value: 'cm', toBase: v => v / 100, fromBase: v => v * 100 },
+        { label: 'Millimeters', value: 'mm', toBase: v => v / 1000, fromBase: v => v * 1000 },
+        { label: 'Miles', value: 'mi', toBase: v => v * 1609.344, fromBase: v => v / 1609.344 },
+        { label: 'Feet', value: 'ft', toBase: v => v * 0.3048, fromBase: v => v / 0.3048 },
+        { label: 'Inches', value: 'in', toBase: v => v * 0.0254, fromBase: v => v / 0.0254 },
+        { label: 'Yards', value: 'yd', toBase: v => v * 0.9144, fromBase: v => v / 0.9144 },
     ],
     weight: [
-        { label: 'Kilograms', value: 'kg', toBase: (v) => v, fromBase: (v) => v },
-        { label: 'Grams', value: 'g', toBase: (v) => v / 1000, fromBase: (v) => v * 1000 },
-        { label: 'Milligrams', value: 'mg', toBase: (v) => v / 1000000, fromBase: (v) => v * 1000000 },
-        { label: 'Pounds', value: 'lb', toBase: (v) => v * 0.453592, fromBase: (v) => v / 0.453592 },
-        { label: 'Ounces', value: 'oz', toBase: (v) => v * 0.0283495, fromBase: (v) => v / 0.0283495 },
-        { label: 'Tonnes', value: 't', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+        { label: 'Kilograms', value: 'kg', toBase: v => v, fromBase: v => v },
+        { label: 'Grams', value: 'g', toBase: v => v / 1000, fromBase: v => v * 1000 },
+        { label: 'Milligrams', value: 'mg', toBase: v => v / 1000000, fromBase: v => v * 1000000 },
+        { label: 'Pounds', value: 'lb', toBase: v => v * 0.453592, fromBase: v => v / 0.453592 },
+        { label: 'Ounces', value: 'oz', toBase: v => v * 0.0283495, fromBase: v => v / 0.0283495 },
+        { label: 'Tonnes', value: 't', toBase: v => v * 1000, fromBase: v => v / 1000 },
     ],
     temperature: [
-        { label: 'Celsius', value: '°C', toBase: (v) => v, fromBase: (v) => v },
-        { label: 'Fahrenheit', value: '°F', toBase: (v) => (v - 32) * 5/9, fromBase: (v) => v * 9/5 + 32 },
-        { label: 'Kelvin', value: 'K', toBase: (v) => v - 273.15, fromBase: (v) => v + 273.15 },
+        { label: 'Celsius', value: '°C', toBase: v => v, fromBase: v => v },
+        { label: 'Fahrenheit', value: '°F', toBase: v => ((v - 32) * 5) / 9, fromBase: v => (v * 9) / 5 + 32 },
+        { label: 'Kelvin', value: 'K', toBase: v => v - 273.15, fromBase: v => v + 273.15 },
     ],
     data: [
-        { label: 'Bytes', value: 'B', toBase: (v) => v, fromBase: (v) => v },
-        { label: 'Kilobytes', value: 'KB', toBase: (v) => v * 1024, fromBase: (v) => v / 1024 },
-        { label: 'Megabytes', value: 'MB', toBase: (v) => v * 1048576, fromBase: (v) => v / 1048576 },
-        { label: 'Gigabytes', value: 'GB', toBase: (v) => v * 1073741824, fromBase: (v) => v / 1073741824 },
-        { label: 'Terabytes', value: 'TB', toBase: (v) => v * 1099511627776, fromBase: (v) => v / 1099511627776 },
-        { label: 'Bits', value: 'bit', toBase: (v) => v / 8, fromBase: (v) => v * 8 },
+        { label: 'Bytes', value: 'B', toBase: v => v, fromBase: v => v },
+        { label: 'Kilobytes', value: 'KB', toBase: v => v * 1024, fromBase: v => v / 1024 },
+        { label: 'Megabytes', value: 'MB', toBase: v => v * 1048576, fromBase: v => v / 1048576 },
+        { label: 'Gigabytes', value: 'GB', toBase: v => v * 1073741824, fromBase: v => v / 1073741824 },
+        { label: 'Terabytes', value: 'TB', toBase: v => v * 1099511627776, fromBase: v => v / 1099511627776 },
+        { label: 'Bits', value: 'bit', toBase: v => v / 8, fromBase: v => v * 8 },
     ],
 };
 
@@ -83,10 +83,10 @@ export const UnitConverter = () => {
         const baseValue = fromUnitData.toBase(value);
         const convertedValue = toUnitData.fromBase(baseValue);
 
-        const formatted = Number.isInteger(convertedValue) 
+        const formatted = Number.isInteger(convertedValue)
             ? convertedValue.toString()
             : convertedValue.toPrecision(10).replace(/\.?0+$/, '');
-        
+
         setResult(formatted);
     }, [inputValue, fromUnit, toUnit, currentUnits]);
 
@@ -99,7 +99,7 @@ export const UnitConverter = () => {
     return (
         <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
             <div className="flex gap-2 justify-center flex-wrap">
-                {(Object.keys(units) as Category[]).map((cat) => (
+                {(Object.keys(units) as Category[]).map(cat => (
                     <button
                         key={cat}
                         onClick={() => setCategory(cat)}
@@ -117,13 +117,13 @@ export const UnitConverter = () => {
                         <input
                             type="number"
                             value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
+                            onChange={e => setInputValue(e.target.value)}
                             className="flex-1 bg-white/10 text-white text-xl p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                             placeholder="Enter value"
                         />
                         <select
                             value={fromUnit}
-                            onChange={(e) => setFromUnit(parseInt(e.target.value))}
+                            onChange={e => setFromUnit(parseInt(e.target.value))}
                             className="bg-white/10 text-white p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer"
                         >
                             {currentUnits.map((unit, index) => (
@@ -152,7 +152,7 @@ export const UnitConverter = () => {
                         </div>
                         <select
                             value={toUnit}
-                            onChange={(e) => setToUnit(parseInt(e.target.value))}
+                            onChange={e => setToUnit(parseInt(e.target.value))}
                             className="bg-white/10 text-white p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer"
                         >
                             {currentUnits.map((unit, index) => (

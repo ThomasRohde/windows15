@@ -1,6 +1,6 @@
 ---
 name: recover-from-failure
-description: "Diagnose and recover from a broken project state"
+description: 'Diagnose and recover from a broken project state'
 ---
 
 # Goal
@@ -12,6 +12,7 @@ Diagnose why the project is broken and **recover to a clean, working state** bef
 ### 1. Document Current Symptoms
 
 Before making any changes:
+
 - What error messages are you seeing?
 - When did the project last work?
 - What was the last change made?
@@ -35,6 +36,7 @@ git tag -l
 ### 3. Diagnostic Checklist
 
 **Environment Issues:**
+
 ```bash
 # Check dependencies are installed
 # npm install / pip install -r requirements.txt / etc.
@@ -44,6 +46,7 @@ git tag -l
 ```
 
 **Build/Compile Issues:**
+
 ```bash
 # Clear build caches
 # rm -rf node_modules/.cache / __pycache__ / build / etc.
@@ -52,6 +55,7 @@ git tag -l
 ```
 
 **Runtime Issues:**
+
 ```bash
 # Check if processes are already running on target port
 # lsof -i :3000 / netstat -ano | findstr :3000
@@ -61,16 +65,19 @@ git tag -l
 
 **Option A: Quick Fix**
 If the issue is minor and clearly understood:
+
 1. Fix the specific issue
 2. Verify fix works
 3. Commit with clear message
 
 **Option B: Partial Revert**
+
 ```bash
 git revert <commit-hash>
 ```
 
 **Option C: Full Reset**
+
 ```bash
 git stash
 git reset --hard <last-good-commit>
@@ -89,6 +96,7 @@ git reset --hard <last-good-commit>
 ### 6. Document the Incident
 
 Update progress file with:
+
 - Problem symptoms
 - Root cause
 - Recovery steps taken
@@ -103,21 +111,25 @@ Update progress file with:
 **Time to Recovery**: <duration>
 
 ### Diagnosis
+
 **Symptoms**: <what was broken>
 **Root Cause**: <explanation>
 **Last Working Commit**: <hash>
 
 ### Recovery Actions
-| Step | Action | Result |
-|------|--------|--------|
-| 1 | <action> | ✅/❌ |
+
+| Step | Action   | Result |
+| ---- | -------- | ------ |
+| 1    | <action> | ✅/❌  |
 
 ### Verification
+
 - [x] Dependencies installed
 - [x] Build succeeds
 - [x] Tests pass
 - [x] Dev server starts
 
 ### Prevention Measures
+
 - <recommendation>
 ```

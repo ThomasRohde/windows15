@@ -16,6 +16,7 @@ klondike feature list
 ### 2. Plan New Features
 
 For each feature you need to add, prepare:
+
 - **Description**: Clear, concise feature name
 - **Category**: Logical grouping (e.g., "auth", "ui", "api")
 - **Priority**: 1 (critical) to 5 (nice-to-have)
@@ -37,15 +38,18 @@ klondike feature add "User can reset password via email" \
 ### 4. Feature Writing Guidelines
 
 **Good Description:**
+
 - Starts with user action: "User can...", "System shows...", "Admin manages..."
 - Specific and bounded: "User can filter products by price range" NOT "Search functionality"
 
 **Good Acceptance Criteria:**
+
 - Testable: Can answer "did this pass?" with yes/no
 - Specific: Include numbers, formats, edge cases
 - Independent: Each criterion tests one thing
 
 **Good Notes:**
+
 - Implementation approach
 - Known edge cases
 - Dependencies on other features/systems

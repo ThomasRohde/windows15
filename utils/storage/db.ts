@@ -1,6 +1,6 @@
-import { Dexie, type Table } from "dexie";
-import dexieCloud from "dexie-cloud-addon";
-import { getCloudDatabaseUrl } from "./cloudConfig";
+import { Dexie, type Table } from 'dexie';
+import dexieCloud from 'dexie-cloud-addon';
+import { getCloudDatabaseUrl } from './cloudConfig';
 
 export type KvRecord = {
     key: string;
@@ -53,27 +53,27 @@ export class Windows15DexieDB extends Dexie {
     desktopIcons!: Table<DesktopIconRecord, string>;
 
     constructor() {
-        super("windows15", { addons: [dexieCloud] });
+        super('windows15', { addons: [dexieCloud] });
 
         this.version(1).stores({
-            kv: "key, updatedAt",
-            notes: "@id, updatedAt, createdAt",
-            bookmarks: "@id, folder, updatedAt, createdAt",
+            kv: 'key, updatedAt',
+            notes: '@id, updatedAt, createdAt',
+            bookmarks: '@id, folder, updatedAt, createdAt',
         });
 
         this.version(2).stores({
-            kv: "key, updatedAt",
-            notes: "@id, updatedAt, createdAt",
-            bookmarks: "@id, folder, updatedAt, createdAt",
-            todos: "@id, completed, updatedAt, createdAt",
+            kv: 'key, updatedAt',
+            notes: '@id, updatedAt, createdAt',
+            bookmarks: '@id, folder, updatedAt, createdAt',
+            todos: '@id, completed, updatedAt, createdAt',
         });
 
         this.version(3).stores({
-            kv: "key, updatedAt",
-            notes: "@id, updatedAt, createdAt",
-            bookmarks: "@id, folder, updatedAt, createdAt",
-            todos: "@id, completed, updatedAt, createdAt",
-            desktopIcons: "@id, order, updatedAt, createdAt",
+            kv: 'key, updatedAt',
+            notes: '@id, updatedAt, createdAt',
+            bookmarks: '@id, folder, updatedAt, createdAt',
+            todos: '@id, completed, updatedAt, createdAt',
+            desktopIcons: '@id, order, updatedAt, createdAt',
         });
 
         const databaseUrl = getCloudDatabaseUrl();

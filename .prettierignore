@@ -1,0 +1,11 @@
+# Ignore build outputs
+dist/
+dev-dist/
+node_modules/
+
+# Ignore generated files
+package-lock.json
+*.lock
+
+# Ignore config files that have specific formatting
+.klondike/

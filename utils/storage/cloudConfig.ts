@@ -30,7 +30,9 @@ export const setCloudDatabaseUrl = (databaseUrl: string | null) => {
     }
 };
 
-export const validateCloudDatabaseUrl = (databaseUrl: string): { ok: true; url: string } | { ok: false; error: string } => {
+export const validateCloudDatabaseUrl = (
+    databaseUrl: string
+): { ok: true; url: string } | { ok: false; error: string } => {
     const trimmed = databaseUrl.trim();
     if (!trimmed) return { ok: false, error: 'Paste your Dexie Cloud database URL.' };
     let parsed: URL;
@@ -44,4 +46,3 @@ export const validateCloudDatabaseUrl = (databaseUrl: string): { ok: true; url: 
     }
     return { ok: true, url: parsed.toString() };
 };
-

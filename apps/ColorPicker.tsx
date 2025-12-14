@@ -23,12 +23,18 @@ export const ColorPicker = () => {
         return {
             r: Math.round(f(0) * 255),
             g: Math.round(f(8) * 255),
-            b: Math.round(f(4) * 255)
+            b: Math.round(f(4) * 255),
         };
     }, []);
 
     const rgbToHex = useCallback((r: number, g: number, b: number) => {
-        return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+        return (
+            '#' +
+            [r, g, b]
+                .map(x => x.toString(16).padStart(2, '0'))
+                .join('')
+                .toUpperCase()
+        );
     }, []);
 
     const rgb = hslToRgb(hue, saturation, lightness);
@@ -56,16 +62,19 @@ export const ColorPicker = () => {
         const r = parseInt(savedHex.slice(1, 3), 16);
         const g = parseInt(savedHex.slice(3, 5), 16);
         const b = parseInt(savedHex.slice(5, 7), 16);
-        
+
         const max = Math.max(r, g, b) / 255;
         const min = Math.min(r, g, b) / 255;
-        let h = 0, s = 0;
+        let h = 0,
+            s = 0;
         const l = (max + min) / 2;
 
         if (max !== min) {
             const d = max - min;
             s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-            const rNorm = r / 255, gNorm = g / 255, bNorm = b / 255;
+            const rNorm = r / 255,
+                gNorm = g / 255,
+                bNorm = b / 255;
             if (max === rNorm) h = ((gNorm - bNorm) / d + (gNorm < bNorm ? 6 : 0)) * 60;
             else if (max === gNorm) h = ((bNorm - rNorm) / d + 2) * 60;
             else h = ((rNorm - gNorm) / d + 4) * 60;
@@ -93,10 +102,16 @@ export const ColorPicker = () => {
         </div>
     );
 
-    const Slider = ({ label, value, max, onChange, gradient }: { 
-        label: string; 
-        value: number; 
-        max: number; 
+    const Slider = ({
+        label,
+        value,
+        max,
+        onChange,
+        gradient,
+    }: {
+        label: string;
+        value: number;
+        max: number;
         onChange: (v: number) => void;
         gradient: string;
     }) => (
@@ -111,7 +126,7 @@ export const ColorPicker = () => {
                     min="0"
                     max={max}
                     value={value}
-                    onChange={(e) => onChange(Number(e.target.value))}
+                    onChange={e => onChange(Number(e.target.value))}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
                 <div
@@ -178,7 +193,10 @@ export const ColorPicker = () => {
                                 onClick={() => loadColor(color.hex)}
                             >
                                 <button
-                                    onClick={(e) => { e.stopPropagation(); removeColor(color.id); }}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        removeColor(color.id);
+                                    }}
                                     className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                                 >
                                     ×

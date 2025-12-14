@@ -5,16 +5,12 @@
 /**
  * Make all properties of T optional recursively
  */
-export type DeepPartial<T> = T extends object
-    ? { [P in keyof T]?: DeepPartial<T[P]> }
-    : T;
+export type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T;
 
 /**
  * Make all properties of T readonly recursively
  */
-export type DeepReadonly<T> = T extends object
-    ? { readonly [P in keyof T]: DeepReadonly<T[P]> }
-    : T;
+export type DeepReadonly<T> = T extends object ? { readonly [P in keyof T]: DeepReadonly<T[P]> } : T;
 
 /**
  * Make T nullable (T | null)
@@ -44,8 +40,7 @@ export type RequireKeys<T, K extends keyof T> = T & Required<Pick<T, K>>;
 /**
  * Make specific keys of T optional
  */
-export type OptionalKeys<T, K extends keyof T> = Omit<T, K> &
-    Partial<Pick<T, K>>;
+export type OptionalKeys<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 /**
  * Exclude null and undefined from T
@@ -69,10 +64,7 @@ export type OptionalKeysOf<T> = {
 /**
  * Create a type that ensures at least one property is defined
  */
-export type AtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
-    T,
-    Exclude<keyof T, Keys>
-> &
+export type AtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
     {
         [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
     }[Keys];
@@ -85,8 +77,11 @@ export type Distribute<T> = T extends unknown ? T : never;
 /**
  * Get the return type of an async function
  */
-export type AsyncReturnType<T extends (...args: unknown[]) => Promise<unknown>> =
-    T extends (...args: unknown[]) => Promise<infer R> ? R : never;
+export type AsyncReturnType<T extends (...args: unknown[]) => Promise<unknown>> = T extends (
+    ...args: unknown[]
+) => Promise<infer R>
+    ? R
+    : never;
 
 /**
  * Create a branded/opaque type for type-safe IDs

@@ -1,10 +1,10 @@
 /**
  * Error Boundary component for graceful error handling
- * 
+ *
  * Wraps child components and catches JavaScript errors anywhere in the
  * child component tree, logs errors, and displays a fallback UI.
  */
-import React, { Component, ErrorInfo, ReactNode } from "react";
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface ErrorBoundaryProps {
     /** Child components to wrap */
@@ -43,8 +43,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
     componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
         // Log error to console with stack trace
-        console.error("ErrorBoundary caught an error:", error);
-        console.error("Component stack:", errorInfo.componentStack);
+        console.error('ErrorBoundary caught an error:', error);
+        console.error('Component stack:', errorInfo.componentStack);
 
         this.setState({ errorInfo });
 
@@ -75,12 +75,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
                     {/* Error title */}
                     <h2 className="text-white text-lg font-semibold mb-2">
-                        {title ? `${title} encountered an error` : "Something went wrong"}
+                        {title ? `${title} encountered an error` : 'Something went wrong'}
                     </h2>
 
                     {/* Error message */}
                     <p className="text-white/70 text-sm text-center mb-4 max-w-md">
-                        {error?.message || "An unexpected error occurred"}
+                        {error?.message || 'An unexpected error occurred'}
                     </p>
 
                     {/* Reload button */}
@@ -93,7 +93,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                     </button>
 
                     {/* Error details (collapsible) */}
-                    {process.env.NODE_ENV === "development" && error?.stack && (
+                    {process.env.NODE_ENV === 'development' && error?.stack && (
                         <details className="mt-4 w-full max-w-lg">
                             <summary className="text-white/50 text-xs cursor-pointer hover:text-white/70">
                                 Show error details

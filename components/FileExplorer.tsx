@@ -116,7 +116,7 @@ export const FileExplorer = () => {
                 if (item.id === parentPath[0]) {
                     return {
                         ...item,
-                        children: [...(item.children || []), newItem]
+                        children: [...(item.children || []), newItem],
                     };
                 }
                 return item;
@@ -127,7 +127,7 @@ export const FileExplorer = () => {
             if (item.id === parentPath[0]) {
                 return {
                     ...item,
-                    children: addChildToFolder(item.children || [], parentPath.slice(1), newItem)
+                    children: addChildToFolder(item.children || [], parentPath.slice(1), newItem),
                 };
             }
             return item;
@@ -140,7 +140,7 @@ export const FileExplorer = () => {
             .filter(item => item.id !== itemId)
             .map(item => ({
                 ...item,
-                children: item.children ? removeItemFromTree(item.children, itemId) : undefined
+                children: item.children ? removeItemFromTree(item.children, itemId) : undefined,
             }));
     };
 
@@ -151,7 +151,7 @@ export const FileExplorer = () => {
             id: `folder-${Date.now()}`,
             name: newFolderName.trim(),
             type: 'folder',
-            children: []
+            children: [],
         };
 
         const updatedFiles = addChildToFolder(files, currentPath, newFolder);
@@ -165,7 +165,17 @@ export const FileExplorer = () => {
         setContextMenu(null);
     };
 
-    const QuickAccessItem = ({ icon, color, label, path }: { icon: string; color: string; label: string; path?: string }) => (
+    const QuickAccessItem = ({
+        icon,
+        color,
+        label,
+        path,
+    }: {
+        icon: string;
+        color: string;
+        label: string;
+        path?: string;
+    }) => (
         <button
             type="button"
             onClick={() => {
@@ -175,7 +185,7 @@ export const FileExplorer = () => {
                     setCurrentPath(['root']);
                 }
             }}
-            onPointerDown={(e) => e.stopPropagation()}
+            onPointerDown={e => e.stopPropagation()}
             className="flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer"
         >
             <span className={`material-symbols-outlined text-[20px] ${color}`}>{icon}</span>
@@ -195,7 +205,7 @@ export const FileExplorer = () => {
     }
 
     return (
-        <div className="flex h-full w-full bg-transparent" onContextMenu={(e) => handleContextMenu(e)}>
+        <div className="flex h-full w-full bg-transparent" onContextMenu={e => handleContextMenu(e)}>
             {/* Sidebar */}
             <div className="w-48 hidden md:flex flex-col gap-1 p-3 border-r border-white/5 bg-black/10 relative z-10">
                 <div className="text-xs font-bold text-white/40 uppercase px-3 py-2">Favorites</div>
@@ -210,7 +220,11 @@ export const FileExplorer = () => {
                 {/* Toolbar */}
                 <div className="h-12 border-b border-white/5 flex items-center px-4 gap-4">
                     <div className="flex gap-2 text-white/50">
-                        <button onClick={navigateUp} disabled={currentPath.length <= 1} className="hover:text-white disabled:opacity-30">
+                        <button
+                            onClick={navigateUp}
+                            disabled={currentPath.length <= 1}
+                            className="hover:text-white disabled:opacity-30"
+                        >
                             <span className="material-symbols-outlined">arrow_upward</span>
                         </button>
                     </div>
@@ -219,11 +233,15 @@ export const FileExplorer = () => {
                         {currentPath.map((p, i) => (
                             <React.Fragment key={i}>
                                 <span className="hover:bg-white/10 px-1 rounded cursor-pointer">
-                                    {p === 'root' ? 'This PC' : 
-                                     p === 'desktop' ? 'Desktop' : 
-                                     p.charAt(0).toUpperCase() + p.slice(1)}
+                                    {p === 'root'
+                                        ? 'This PC'
+                                        : p === 'desktop'
+                                          ? 'Desktop'
+                                          : p.charAt(0).toUpperCase() + p.slice(1)}
                                 </span>
-                                {i < currentPath.length - 1 && <span className="material-symbols-outlined text-xs mx-1">chevron_right</span>}
+                                {i < currentPath.length - 1 && (
+                                    <span className="material-symbols-outlined text-xs mx-1">chevron_right</span>
+                                )}
                             </React.Fragment>
                         ))}
                     </div>
@@ -243,8 +261,8 @@ export const FileExplorer = () => {
                         <input
                             type="text"
                             value={newFolderName}
-                            onChange={(e) => setNewFolderName(e.target.value)}
-                            onKeyDown={(e) => {
+                            onChange={e => setNewFolderName(e.target.value)}
+                            onKeyDown={e => {
                                 if (e.key === 'Enter') createNewFolder();
                                 if (e.key === 'Escape') {
                                     setShowNewFolderInput(false);
@@ -276,33 +294,54 @@ export const FileExplorer = () => {
                 {/* File Grid */}
                 <div className="flex-1 overflow-y-auto p-4">
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-4">
-                        {currentFolder?.children?.filter(item => item.id !== 'recycleBin').map(item => (
-                            <div 
-                                key={item.id}
-                                onDoubleClick={() => navigateTo(item.id)}
-                                onContextMenu={(e) => handleContextMenu(e, item)}
-                                className="group flex flex-col items-center gap-2 p-2 rounded hover:bg-white/10 cursor-pointer transition-colors"
-                            >
-                                {item.type === 'shortcut' ? (
-                                    <span className={`material-symbols-outlined text-5xl drop-shadow-lg ${item.colorClass || 'text-blue-400'}`}>
-                                        {item.icon || 'link'}
+                        {currentFolder?.children
+                            ?.filter(item => item.id !== 'recycleBin')
+                            .map(item => (
+                                <div
+                                    key={item.id}
+                                    onDoubleClick={() => navigateTo(item.id)}
+                                    onContextMenu={e => handleContextMenu(e, item)}
+                                    className="group flex flex-col items-center gap-2 p-2 rounded hover:bg-white/10 cursor-pointer transition-colors"
+                                >
+                                    {item.type === 'shortcut' ? (
+                                        <span
+                                            className={`material-symbols-outlined text-5xl drop-shadow-lg ${item.colorClass || 'text-blue-400'}`}
+                                        >
+                                            {item.icon || 'link'}
+                                        </span>
+                                    ) : item.type === 'folder' ? (
+                                        <span className="material-symbols-outlined text-5xl text-yellow-400 drop-shadow-lg">
+                                            folder
+                                        </span>
+                                    ) : item.type === 'image' && item.src ? (
+                                        <div
+                                            className="w-16 h-12 bg-cover bg-center rounded border border-white/20"
+                                            style={{ backgroundImage: `url(${item.src})` }}
+                                        ></div>
+                                    ) : (
+                                        <span
+                                            className={`material-symbols-outlined text-5xl drop-shadow-lg
+                                        ${
+                                            item.type === 'document'
+                                                ? 'text-blue-400'
+                                                : item.type === 'audio'
+                                                  ? 'text-purple-400'
+                                                  : 'text-gray-400'
+                                        }
+                                    `}
+                                        >
+                                            {item.type === 'document'
+                                                ? 'description'
+                                                : item.type === 'audio'
+                                                  ? 'music_note'
+                                                  : 'draft'}
+                                        </span>
+                                    )}
+                                    <span className="text-xs text-white/80 text-center font-medium truncate w-full px-1">
+                                        {item.name}
                                     </span>
-                                ) : item.type === 'folder' ? (
-                                    <span className="material-symbols-outlined text-5xl text-yellow-400 drop-shadow-lg">folder</span>
-                                ) : item.type === 'image' && item.src ? (
-                                    <div className="w-16 h-12 bg-cover bg-center rounded border border-white/20" style={{ backgroundImage: `url(${item.src})` }}></div>
-                                ) : (
-                                    <span className={`material-symbols-outlined text-5xl drop-shadow-lg
-                                        ${item.type === 'document' ? 'text-blue-400' : 
-                                          item.type === 'audio' ? 'text-purple-400' : 'text-gray-400'}
-                                    `}>
-                                        {item.type === 'document' ? 'description' : 
-                                         item.type === 'audio' ? 'music_note' : 'draft'}
-                                    </span>
-                                )}
-                                <span className="text-xs text-white/80 text-center font-medium truncate w-full px-1">{item.name}</span>
-                            </div>
-                        ))}
+                                </div>
+                            ))}
                         {(!currentFolder?.children || currentFolder.children.length === 0) && (
                             <div className="col-span-full text-center text-white/30 text-sm mt-10">Folder is empty</div>
                         )}
@@ -311,60 +350,61 @@ export const FileExplorer = () => {
             </div>
 
             {/* Context Menu - rendered via portal to escape overflow:hidden */}
-            {contextMenu && createPortal(
-                <div
-                    className="fixed bg-gray-900/95 backdrop-blur border border-white/10 rounded-lg shadow-xl py-1 min-w-[160px] z-[9999]"
-                    style={{ left: contextMenu.x, top: contextMenu.y }}
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    {contextMenu.item ? (
-                        <>
-                            <button
-                                onClick={() => {
-                                    if (contextMenu.item) navigateTo(contextMenu.item.id);
-                                    setContextMenu(null);
-                                }}
-                                className="w-full px-4 py-2 text-sm text-white/80 hover:bg-white/10 flex items-center gap-2 text-left"
-                            >
-                                <span className="material-symbols-outlined text-lg">open_in_new</span>
-                                Open
-                            </button>
-                            <div className="border-t border-white/10 my-1"></div>
-                            <button
-                                onClick={() => contextMenu.item && deleteItem(contextMenu.item)}
-                                className="w-full px-4 py-2 text-sm text-red-400 hover:bg-white/10 flex items-center gap-2 text-left"
-                            >
-                                <span className="material-symbols-outlined text-lg">delete</span>
-                                Delete
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <button
-                                onClick={() => {
-                                    setShowNewFolderInput(true);
-                                    setContextMenu(null);
-                                }}
-                                className="w-full px-4 py-2 text-sm text-white/80 hover:bg-white/10 flex items-center gap-2 text-left"
-                            >
-                                <span className="material-symbols-outlined text-lg">create_new_folder</span>
-                                New Folder
-                            </button>
-                            <button
-                                onClick={() => {
-                                    loadFiles();
-                                    setContextMenu(null);
-                                }}
-                                className="w-full px-4 py-2 text-sm text-white/80 hover:bg-white/10 flex items-center gap-2 text-left"
-                            >
-                                <span className="material-symbols-outlined text-lg">refresh</span>
-                                Refresh
-                            </button>
-                        </>
-                    )}
-                </div>,
-                document.body
-            )}
+            {contextMenu &&
+                createPortal(
+                    <div
+                        className="fixed bg-gray-900/95 backdrop-blur border border-white/10 rounded-lg shadow-xl py-1 min-w-[160px] z-[9999]"
+                        style={{ left: contextMenu.x, top: contextMenu.y }}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        {contextMenu.item ? (
+                            <>
+                                <button
+                                    onClick={() => {
+                                        if (contextMenu.item) navigateTo(contextMenu.item.id);
+                                        setContextMenu(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-sm text-white/80 hover:bg-white/10 flex items-center gap-2 text-left"
+                                >
+                                    <span className="material-symbols-outlined text-lg">open_in_new</span>
+                                    Open
+                                </button>
+                                <div className="border-t border-white/10 my-1"></div>
+                                <button
+                                    onClick={() => contextMenu.item && deleteItem(contextMenu.item)}
+                                    className="w-full px-4 py-2 text-sm text-red-400 hover:bg-white/10 flex items-center gap-2 text-left"
+                                >
+                                    <span className="material-symbols-outlined text-lg">delete</span>
+                                    Delete
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <button
+                                    onClick={() => {
+                                        setShowNewFolderInput(true);
+                                        setContextMenu(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-sm text-white/80 hover:bg-white/10 flex items-center gap-2 text-left"
+                                >
+                                    <span className="material-symbols-outlined text-lg">create_new_folder</span>
+                                    New Folder
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        loadFiles();
+                                        setContextMenu(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-sm text-white/80 hover:bg-white/10 flex items-center gap-2 text-left"
+                                >
+                                    <span className="material-symbols-outlined text-lg">refresh</span>
+                                    Refresh
+                                </button>
+                            </>
+                        )}
+                    </div>,
+                    document.body
+                )}
         </div>
     );
 };

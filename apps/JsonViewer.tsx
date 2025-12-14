@@ -17,11 +17,16 @@ const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level }) => {
 
     const getColor = (type: string): string => {
         switch (type) {
-            case 'string': return 'text-green-400';
-            case 'number': return 'text-orange-400';
-            case 'boolean': return 'text-blue-400';
-            case 'null': return 'text-gray-500';
-            default: return 'text-white';
+            case 'string':
+                return 'text-green-400';
+            case 'number':
+                return 'text-orange-400';
+            case 'boolean':
+                return 'text-blue-400';
+            case 'null':
+                return 'text-gray-500';
+            default:
+                return 'text-white';
         }
     };
 
@@ -32,13 +37,9 @@ const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level }) => {
     if (!isExpandable) {
         return (
             <div style={{ paddingLeft: indent }} className="flex gap-1">
-                {keyName !== undefined && (
-                    <span className="text-purple-400">"{keyName}"</span>
-                )}
+                {keyName !== undefined && <span className="text-purple-400">"{keyName}"</span>}
                 {keyName !== undefined && <span className="text-white">: </span>}
-                <span className={getColor(type)}>
-                    {type === 'string' ? `"${data}"` : String(data)}
-                </span>
+                <span className={getColor(type)}>{type === 'string' ? `"${data}"` : String(data)}</span>
             </div>
         );
     }
@@ -48,15 +49,13 @@ const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level }) => {
 
     return (
         <div>
-            <div 
-                style={{ paddingLeft: indent }} 
+            <div
+                style={{ paddingLeft: indent }}
                 className="flex gap-1 cursor-pointer hover:bg-white/5"
                 onClick={() => setCollapsed(!collapsed)}
             >
                 <span className="text-gray-500 w-4">{collapsed ? '▶' : '▼'}</span>
-                {keyName !== undefined && (
-                    <span className="text-purple-400">"{keyName}"</span>
-                )}
+                {keyName !== undefined && <span className="text-purple-400">"{keyName}"</span>}
                 {keyName !== undefined && <span className="text-white">: </span>}
                 <span className="text-white">{bracket[0]}</span>
                 {collapsed && (
@@ -69,14 +68,16 @@ const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level }) => {
             {!collapsed && (
                 <>
                     {entries.map(([entryKey, value]: [any, any], idx: number) => (
-                        <JsonNode 
-                            key={idx} 
-                            data={value} 
+                        <JsonNode
+                            key={idx}
+                            data={value}
                             keyName={type === 'object' ? entryKey : undefined}
                             level={level + 1}
                         />
                     ))}
-                    <div style={{ paddingLeft: indent }} className="text-white">{bracket[1]}</div>
+                    <div style={{ paddingLeft: indent }} className="text-white">
+                        {bracket[1]}
+                    </div>
                 </>
             )}
         </div>
@@ -162,19 +163,19 @@ export const JsonViewer = () => {
                     </button>
                 </div>
             </div>
-            
+
             <div className="flex-1 flex min-h-0">
                 <div className="w-1/2 flex flex-col border-r border-white/10">
                     <div className="px-3 py-2 text-xs text-gray-400 bg-black/20">Input JSON</div>
                     <textarea
                         className="flex-1 bg-transparent resize-none border-none p-3 focus:outline-none font-mono text-sm text-white/90"
                         value={input}
-                        onChange={(e) => setInput(e.target.value)}
+                        onChange={e => setInput(e.target.value)}
                         placeholder='{"key": "value"}'
                         spellCheck={false}
                     />
                 </div>
-                
+
                 <div className="w-1/2 flex flex-col min-h-0">
                     <div className="px-3 py-2 text-xs text-gray-400 bg-black/20">Output</div>
                     <div className="flex-1 overflow-auto p-3 font-mono text-sm">
@@ -184,15 +185,15 @@ export const JsonViewer = () => {
                                 <div className="text-xs">{error}</div>
                             </div>
                         )}
-                        {parsedJson !== null && !error && (
-                            view === 'tree' ? (
+                        {parsedJson !== null &&
+                            !error &&
+                            (view === 'tree' ? (
                                 <JsonNode data={parsedJson} level={0} />
                             ) : (
                                 <pre className="text-green-400 whitespace-pre-wrap">
                                     {JSON.stringify(parsedJson, null, 2)}
                                 </pre>
-                            )
-                        )}
+                            ))}
                     </div>
                 </div>
             </div>

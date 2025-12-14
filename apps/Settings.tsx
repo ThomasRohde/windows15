@@ -5,7 +5,9 @@ import { SyncSettings } from './settings/SyncSettings';
 
 export const Settings = () => {
     const { activeWallpaper, setWallpaper } = useOS();
-    const [activeSection, setActiveSection] = useState<'personalization' | 'sync' | 'network' | 'apps'>('personalization');
+    const [activeSection, setActiveSection] = useState<'personalization' | 'sync' | 'network' | 'apps'>(
+        'personalization'
+    );
 
     return (
         <div className="h-full bg-background-dark text-white flex">
@@ -18,7 +20,11 @@ export const Settings = () => {
                         onClick={() => setActiveSection('personalization')}
                         className={`p-2 rounded flex items-center gap-3 text-left ${activeSection === 'personalization' ? 'bg-white/10' : 'hover:bg-white/5 text-white/70'}`}
                     >
-                        <span className={`material-symbols-outlined ${activeSection === 'personalization' ? 'text-primary' : ''}`}>wallpaper</span>
+                        <span
+                            className={`material-symbols-outlined ${activeSection === 'personalization' ? 'text-primary' : ''}`}
+                        >
+                            wallpaper
+                        </span>
                         <span className="text-sm font-medium">Personalization</span>
                     </button>
 
@@ -27,7 +33,9 @@ export const Settings = () => {
                         onClick={() => setActiveSection('sync')}
                         className={`p-2 rounded flex items-center gap-3 text-left ${activeSection === 'sync' ? 'bg-white/10' : 'hover:bg-white/5 text-white/70'}`}
                     >
-                        <span className={`material-symbols-outlined ${activeSection === 'sync' ? 'text-primary' : ''}`}>sync</span>
+                        <span className={`material-symbols-outlined ${activeSection === 'sync' ? 'text-primary' : ''}`}>
+                            sync
+                        </span>
                         <span className="text-sm font-medium">Sync</span>
                     </button>
 
@@ -36,7 +44,11 @@ export const Settings = () => {
                         onClick={() => setActiveSection('network')}
                         className={`p-2 rounded flex items-center gap-3 text-left ${activeSection === 'network' ? 'bg-white/10' : 'hover:bg-white/5 text-white/70'}`}
                     >
-                        <span className={`material-symbols-outlined ${activeSection === 'network' ? 'text-primary' : ''}`}>wifi</span>
+                        <span
+                            className={`material-symbols-outlined ${activeSection === 'network' ? 'text-primary' : ''}`}
+                        >
+                            wifi
+                        </span>
                         <span className="text-sm font-medium">Network</span>
                     </button>
 
@@ -45,7 +57,9 @@ export const Settings = () => {
                         onClick={() => setActiveSection('apps')}
                         className={`p-2 rounded flex items-center gap-3 text-left ${activeSection === 'apps' ? 'bg-white/10' : 'hover:bg-white/5 text-white/70'}`}
                     >
-                        <span className={`material-symbols-outlined ${activeSection === 'apps' ? 'text-primary' : ''}`}>apps</span>
+                        <span className={`material-symbols-outlined ${activeSection === 'apps' ? 'text-primary' : ''}`}>
+                            apps
+                        </span>
                         <span className="text-sm font-medium">Apps</span>
                     </button>
                 </div>
@@ -59,7 +73,11 @@ export const Settings = () => {
                         <section className="mb-8">
                             <h3 className="text-lg font-medium mb-4">Background</h3>
                             <div className="aspect-video w-full max-w-2xl rounded-xl overflow-hidden mb-6 shadow-2xl ring-1 ring-white/10">
-                                <img src={activeWallpaper} className="w-full h-full object-cover" alt="Current Wallpaper" />
+                                <img
+                                    src={activeWallpaper}
+                                    className="w-full h-full object-cover"
+                                    alt="Current Wallpaper"
+                                />
                             </div>
 
                             <h4 className="text-sm text-white/60 mb-3">Choose your background</h4>

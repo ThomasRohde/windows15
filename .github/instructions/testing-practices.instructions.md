@@ -1,6 +1,6 @@
 ---
-description: "Testing practices for end-to-end feature verification"
-applyTo: "**/*.test.*,**/*.spec.*,**/test/**,**/tests/**,**/__tests__/**"
+description: 'Testing practices for end-to-end feature verification'
+applyTo: '**/*.test.*,**/*.spec.*,**/test/**,**/tests/**,**/__tests__/**'
 ---
 
 # Testing for Long-Running Agents
@@ -32,20 +32,21 @@ All layers matter, but **E2E tests are required for feature verification**.
 ### Required Steps
 
 1. **Start the actual application**
-   ```bash
-   ./init.sh  # or platform-specific init
-   ```
+
+    ```bash
+    ./init.sh  # or platform-specific init
+    ```
 
 2. **Test each acceptance criterion**
-   - Navigate/interact as a real user would
-   - Use actual UI, CLI, or API endpoints
-   - Not mocks, not simulations
+    - Navigate/interact as a real user would
+    - Use actual UI, CLI, or API endpoints
+    - Not mocks, not simulations
 
 3. **Document the test**
-   - What you tested
-   - How you tested it
-   - What you observed
-   - Any edge cases checked
+    - What you tested
+    - How you tested it
+    - What you observed
+    - Any edge cases checked
 
 4. **Only then update features.json**
 
@@ -70,10 +71,10 @@ npm run dev
 ```javascript
 // Using Playwright or similar
 test('user can add a todo', async ({ page }) => {
-  await page.goto('/');
-  await page.fill('[data-testid="todo-input"]', 'Buy groceries');
-  await page.press('[data-testid="todo-input"]', 'Enter');
-  await expect(page.locator('.todo-item')).toContainText('Buy groceries');
+    await page.goto('/');
+    await page.fill('[data-testid="todo-input"]', 'Buy groceries');
+    await page.press('[data-testid="todo-input"]', 'Enter');
+    await expect(page.locator('.todo-item')).toContainText('Buy groceries');
 });
 ```
 

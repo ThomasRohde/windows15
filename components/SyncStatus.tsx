@@ -46,24 +46,24 @@ export const SyncStatus = () => {
     const [showErrorTooltip, setShowErrorTooltip] = useState(false);
 
     useEffect(() => {
-        const userSub = db.cloud.currentUser.subscribe({ 
-            next: (newUser) => {
-                debugSync.sync('Current user changed', { 
-                    isLoggedIn: newUser?.isLoggedIn, 
-                    email: newUser?.email 
+        const userSub = db.cloud.currentUser.subscribe({
+            next: newUser => {
+                debugSync.sync('Current user changed', {
+                    isLoggedIn: newUser?.isLoggedIn,
+                    email: newUser?.email,
                 });
                 setUser(newUser);
-            }
+            },
         });
-        const syncSub = db.cloud.syncState.subscribe({ 
-            next: (newState) => {
-                debugSync.sync('Sync state changed', { 
-                    status: newState?.status, 
+        const syncSub = db.cloud.syncState.subscribe({
+            next: newState => {
+                debugSync.sync('Sync state changed', {
+                    status: newState?.status,
                     phase: newState?.phase,
-                    error: newState?.error?.message 
+                    error: newState?.error?.message,
                 });
                 setSyncState(newState);
-            }
+            },
         });
         return () => {
             userSub.unsubscribe();
@@ -140,31 +140,22 @@ export const SyncStatus = () => {
                 onMouseLeave={() => setShowErrorTooltip(false)}
                 disabled={!isLoggedIn || isSyncing || !isOnline}
                 title={!hasError ? tooltipText : undefined}
-                className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-colors ${isLoggedIn && isOnline && !isSyncing
-                        ? 'hover:bg-white/10 cursor-pointer'
-                        : 'cursor-default'
-                    }`}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-colors ${
+                    isLoggedIn && isOnline && !isSyncing ? 'hover:bg-white/10 cursor-pointer' : 'cursor-default'
+                }`}
             >
-                <span className={`material-symbols-outlined text-[18px] ${statusColor}`}>
-                    {statusIcon}
-                </span>
-                <span className="text-xs text-white/70 hidden sm:inline">
-                    {statusText}
-                </span>
+                <span className={`material-symbols-outlined text-[18px] ${statusColor}`}>{statusIcon}</span>
+                <span className="text-xs text-white/70 hidden sm:inline">{statusText}</span>
             </button>
-            
+
             {/* Error tooltip */}
             {hasError && showErrorTooltip && (
                 <div className="absolute bottom-full right-0 mb-2 w-64 p-3 glass-panel rounded-lg shadow-xl ring-1 ring-white/10 z-50 animate-pop-in">
                     <div className="flex items-start gap-2">
-                        <span className="material-symbols-outlined text-red-400 text-lg flex-shrink-0">
-                            warning
-                        </span>
+                        <span className="material-symbols-outlined text-red-400 text-lg flex-shrink-0">warning</span>
                         <div className="flex-1">
                             <p className="text-white text-sm font-medium mb-1">Sync Error</p>
-                            <p className="text-white/70 text-xs leading-relaxed">
-                                {tooltipText}
-                            </p>
+                            <p className="text-white/70 text-xs leading-relaxed">{tooltipText}</p>
                         </div>
                     </div>
                 </div>

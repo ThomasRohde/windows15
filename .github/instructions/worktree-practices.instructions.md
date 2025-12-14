@@ -1,6 +1,6 @@
 ---
-description: "Best practices for working in isolated git worktree sessions"
-applyTo: "**/klondike-worktrees/**"
+description: 'Best practices for working in isolated git worktree sessions'
+applyTo: '**/klondike-worktrees/**'
 ---
 
 # Git Worktree Session Practices
@@ -76,7 +76,7 @@ Before ending a worktree session, always run tests:
 # Python projects
 uv run pytest tests/ -v
 
-# Node.js projects  
+# Node.js projects
 CI=true npm test
 ```
 
@@ -180,10 +180,10 @@ git log main..HEAD
 
 ## Benefits of Worktree Sessions
 
-| Aspect | Normal Session | Worktree Session |
-|--------|---------------|------------------|
-| Commit risk | Affects main branch | Isolated branch |
-| Rollback | Need git revert | Just delete worktree |
-| Experimentation | Risky | Safe |
-| Parallel work | Hard | Easy - multiple worktrees |
-| Code review | Changes immediate | Can review before merge |
+| Aspect          | Normal Session      | Worktree Session          |
+| --------------- | ------------------- | ------------------------- |
+| Commit risk     | Affects main branch | Isolated branch           |
+| Rollback        | Need git revert     | Just delete worktree      |
+| Experimentation | Risky               | Safe                      |
+| Parallel work   | Hard                | Easy - multiple worktrees |
+| Code review     | Changes immediate   | Can review before merge   |

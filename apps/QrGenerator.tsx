@@ -18,8 +18,10 @@ export const QrGenerator = () => {
 
     const createQRMatrix = (data: string): boolean[][] => {
         const size = Math.max(21, Math.min(41, 21 + Math.floor(data.length / 10) * 4));
-        const matrix: boolean[][] = Array(size).fill(null).map(() => Array(size).fill(false));
-        
+        const matrix: boolean[][] = Array(size)
+            .fill(null)
+            .map(() => Array(size).fill(false));
+
         const addFinderPattern = (startX: number, startY: number) => {
             for (let y = 0; y < 7; y++) {
                 for (let x = 0; x < 7; x++) {
@@ -53,8 +55,8 @@ export const QrGenerator = () => {
             for (let x = 9; x < size - 9; x++) {
                 const row = matrix[y];
                 if (!row || row[x]) continue;
-                const seed = (hash + x * 31 + y * 17) & 0xFFFFFFFF;
-                row[x] = ((seed * 1103515245 + 12345) & 0x7FFFFFFF) % 3 !== 0;
+                const seed = (hash + x * 31 + y * 17) & 0xffffffff;
+                row[x] = ((seed * 1103515245 + 12345) & 0x7fffffff) % 3 !== 0;
             }
         }
 
@@ -110,7 +112,7 @@ export const QrGenerator = () => {
                 <label className="text-white/70 text-sm">Enter text or URL</label>
                 <textarea
                     value={text}
-                    onChange={(e) => setText(e.target.value)}
+                    onChange={e => setText(e.target.value)}
                     placeholder="https://example.com or any text..."
                     className="w-full bg-black/30 text-white px-4 py-3 rounded-lg border border-white/10 focus:outline-none focus:border-blue-500 resize-none h-24"
                 />
@@ -130,9 +132,7 @@ export const QrGenerator = () => {
                             <canvas ref={canvasRef} className="block" />
                         </div>
                         <div className="mt-4 text-center">
-                            <p className="text-white/50 text-sm mb-3 max-w-[200px] truncate">
-                                {qrData}
-                            </p>
+                            <p className="text-white/50 text-sm mb-3 max-w-[200px] truncate">{qrData}</p>
                             <button
                                 onClick={downloadQR}
                                 className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-400 transition-colors text-sm"

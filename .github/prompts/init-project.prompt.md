@@ -1,6 +1,6 @@
 ---
 name: init-project
-description: "Initialize a new project with long-running agent harness infrastructure"
+description: 'Initialize a new project with long-running agent harness infrastructure'
 ---
 
 # Goal
@@ -10,6 +10,7 @@ Set up the **Klondike Spec agent infrastructure** for a new project, using the `
 ## Context
 
 Based on [Anthropic's research on long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents), projects benefit from:
+
 - A structured feature list that prevents premature completion
 - A progress file for agent-to-agent handoffs
 - An init script for reproducible environment startup
@@ -18,12 +19,13 @@ Based on [Anthropic's research on long-running agents](https://www.anthropic.com
 ## Instructions
 
 ### 1. Gather Project Information
+
 - Confirm project type and name from user input
 - Ask clarifying questions about:
-  - Primary language/framework
-  - Key features to implement (at least 5-10)
-  - Testing approach (unit, integration, e2e)
-  - Deployment target (if known)
+    - Primary language/framework
+    - Key features to implement (at least 5-10)
+    - Testing approach (unit, integration, e2e)
+    - Deployment target (if known)
 
 ### 2. Create Feature Registry with Klondike CLI
 
@@ -34,6 +36,7 @@ klondike init <project-name>
 ```
 
 This creates the `.klondike/` directory with:
+
 - `features.json` - Feature registry
 - `agent-progress.json` - Session tracking data
 - `config.yaml` - Project configuration
@@ -52,6 +55,7 @@ klondike feature add "Short description" \
 > A weaker agent will implement these features—give them the context they need to succeed.
 
 Generate **at least 20 features** covering:
+
 - Core functionality
 - Error handling
 - User experience
@@ -71,6 +75,7 @@ klondike feature list  # Lists all features
 The klondike CLI automatically generates `agent-progress.md` at project root from the data in `.klondike/agent-progress.json`. This markdown file is regenerated whenever you run klondike commands.
 
 The progress file includes:
+
 - Project status overview
 - Session history
 - Quick reference for current priority features
@@ -87,6 +92,7 @@ klondike progress  # Displays and regenerates agent-progress.md
 Create init scripts that start the dev server **in the background** so the agent doesn't stall waiting for the server process.
 
 **For Unix (`init.sh`)**:
+
 ```bash
 #!/bin/bash
 set -e
@@ -128,6 +134,7 @@ exit 1
 ```
 
 **For Windows (`init.ps1`)**:
+
 ```powershell
 $ErrorActionPreference = "Stop"
 
@@ -171,6 +178,7 @@ exit 1
 ```
 
 **Key points:**
+
 - Server runs in background (`&` in bash, `Start-Job` in PowerShell)
 - Output redirected to log file for later debugging
 - PID saved for cleanup
@@ -193,23 +201,25 @@ git commit -m "feat: initialize project with Klondike Spec infrastructure
 ### 6. Create VS Code Settings
 
 Ensure `.vscode/settings.json` includes:
+
 ```json
 {
-  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
-  "chat.promptFiles": true
+    "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+    "chat.promptFiles": true
 }
 ```
 
 ## Output Format
 
 Provide:
+
 1. **Summary** of created files (in `.klondike/` directory)
 2. **Feature count** breakdown by category (use `klondike feature list`)
 3. **Next steps** for the first coding agent session
 4. **Commands** to verify setup:
-   - `klondike status` - Project overview
-   - `klondike validate` - Artifact integrity check
-   - `klondike feature list` - All features
+    - `klondike status` - Project overview
+    - `klondike validate` - Artifact integrity check
+    - `klondike feature list` - All features
 
 ## IMPORTANT: Scope Boundary
 

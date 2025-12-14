@@ -17,17 +17,17 @@ export const Timer = () => {
         const token = ++runTokenRef.current;
         const intervalId = setInterval(() => {
             if (runTokenRef.current !== token) return;
-                setTime(prev => {
-                    if (mode === 'countdown') {
-                        if (prev <= 0) {
-                            setIsRunning(false);
-                            return 0;
-                        }
-                        return prev - 10;
+            setTime(prev => {
+                if (mode === 'countdown') {
+                    if (prev <= 0) {
+                        setIsRunning(false);
+                        return 0;
                     }
-                    return prev + 10;
-                });
-            }, 10);
+                    return prev - 10;
+                }
+                return prev + 10;
+            });
+        }, 10);
 
         intervalIdsRef.current.add(intervalId);
         return () => {
@@ -47,7 +47,7 @@ export const Timer = () => {
         const minutes = Math.floor((ms % 3600000) / 60000);
         const seconds = Math.floor((ms % 60000) / 1000);
         const centiseconds = Math.floor((ms % 1000) / 10);
-        
+
         if (hours > 0) {
             return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`;
         }
@@ -85,15 +85,23 @@ export const Timer = () => {
         setMode(newMode);
     };
 
-    const Btn = ({ label, onClick, variant = 'default' }: { label: string; onClick: () => void; variant?: 'default' | 'primary' | 'danger' }) => (
+    const Btn = ({
+        label,
+        onClick,
+        variant = 'default',
+    }: {
+        label: string;
+        onClick: () => void;
+        variant?: 'default' | 'primary' | 'danger';
+    }) => (
         <button
             type="button"
-            onPointerDown={(e) => e.stopPropagation()}
-            onPointerUp={(e) => {
+            onPointerDown={e => e.stopPropagation()}
+            onPointerUp={e => {
                 e.stopPropagation();
                 onClick();
             }}
-            onClick={(e) => {
+            onClick={e => {
                 e.stopPropagation();
                 if (e.detail === 0) onClick();
             }}
@@ -126,7 +134,7 @@ export const Timer = () => {
 
             <div className="flex-1 bg-black/20 rounded-xl p-4 flex flex-col items-center justify-center">
                 <span className="text-5xl font-light text-white font-mono">{formatTime(time)}</span>
-                
+
                 {mode === 'countdown' && !isRunning && time === 0 && (
                     <div className="flex gap-2 mt-4 items-center">
                         <input
@@ -134,7 +142,12 @@ export const Timer = () => {
                             min="0"
                             max="23"
                             value={countdownInput.hours}
-                            onChange={(e) => setCountdownInput(prev => ({ ...prev, hours: Math.max(0, parseInt(e.target.value) || 0) }))}
+                            onChange={e =>
+                                setCountdownInput(prev => ({
+                                    ...prev,
+                                    hours: Math.max(0, parseInt(e.target.value) || 0),
+                                }))
+                            }
                             className="w-16 bg-white/10 text-white text-center rounded-lg p-2"
                             placeholder="HH"
                         />
@@ -144,7 +157,12 @@ export const Timer = () => {
                             min="0"
                             max="59"
                             value={countdownInput.minutes}
-                            onChange={(e) => setCountdownInput(prev => ({ ...prev, minutes: Math.max(0, Math.min(59, parseInt(e.target.value) || 0)) }))}
+                            onChange={e =>
+                                setCountdownInput(prev => ({
+                                    ...prev,
+                                    minutes: Math.max(0, Math.min(59, parseInt(e.target.value) || 0)),
+                                }))
+                            }
                             className="w-16 bg-white/10 text-white text-center rounded-lg p-2"
                             placeholder="MM"
                         />
@@ -154,7 +172,12 @@ export const Timer = () => {
                             min="0"
                             max="59"
                             value={countdownInput.seconds}
-                            onChange={(e) => setCountdownInput(prev => ({ ...prev, seconds: Math.max(0, Math.min(59, parseInt(e.target.value) || 0)) }))}
+                            onChange={e =>
+                                setCountdownInput(prev => ({
+                                    ...prev,
+                                    seconds: Math.max(0, Math.min(59, parseInt(e.target.value) || 0)),
+                                }))
+                            }
                             className="w-16 bg-white/10 text-white text-center rounded-lg p-2"
                             placeholder="SS"
                         />

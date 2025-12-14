@@ -58,7 +58,9 @@ export const Terminal = () => {
                 addOutput('  hostname - Display computer name');
                 break;
             case 'date':
-                addOutput(`The current date is: ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`);
+                addOutput(
+                    `The current date is: ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`
+                );
                 break;
             case 'time':
                 addOutput(`The current time is: ${new Date().toLocaleTimeString()}`);
@@ -135,21 +137,17 @@ export const Terminal = () => {
     };
 
     return (
-        <div 
-            className="h-full bg-black flex flex-col font-mono text-sm"
-            onClick={() => inputRef.current?.focus()}
-        >
-            <div 
-                ref={outputRef}
-                className="flex-1 overflow-y-auto p-3 select-text"
-            >
+        <div className="h-full bg-black flex flex-col font-mono text-sm" onClick={() => inputRef.current?.focus()}>
+            <div ref={outputRef} className="flex-1 overflow-y-auto p-3 select-text">
                 {output.map(line => (
-                    <div 
-                        key={line.id} 
+                    <div
+                        key={line.id}
                         className={`whitespace-pre-wrap ${
-                            line.type === 'command' ? 'text-cyan-300' : 
-                            line.type === 'error' ? 'text-red-400' : 
-                            'text-green-400'
+                            line.type === 'command'
+                                ? 'text-cyan-300'
+                                : line.type === 'error'
+                                  ? 'text-red-400'
+                                  : 'text-green-400'
                         }`}
                     >
                         {line.text || '\u00A0'}
@@ -162,7 +160,7 @@ export const Terminal = () => {
                     ref={inputRef}
                     type="text"
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={e => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     className="flex-1 bg-transparent text-green-400 outline-none ml-1 caret-green-400"
                     autoFocus

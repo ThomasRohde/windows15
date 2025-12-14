@@ -69,13 +69,13 @@ export const SystemInfo = () => {
                     </h2>
                     <div className="bg-black/20 rounded-xl p-4">
                         <p className="text-sm text-white/80 leading-relaxed">
-                            Windows 15 is a simulated operating system built with React and Tailwind CSS. 
-                            This project demonstrates modern web technologies creating a desktop-like experience 
-                            in the browser.
+                            Windows 15 is a simulated operating system built with React and Tailwind CSS. This project
+                            demonstrates modern web technologies creating a desktop-like experience in the browser.
                         </p>
                         <div className="mt-4 pt-4 border-t border-white/10">
                             <p className="text-xs text-white/40">
-                                © 2024 Windows15 Simulation. This is a demo project and is not affiliated with Microsoft Corporation.
+                                © 2024 Windows15 Simulation. This is a demo project and is not affiliated with Microsoft
+                                Corporation.
                             </p>
                         </div>
                     </div>

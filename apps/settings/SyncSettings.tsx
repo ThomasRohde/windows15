@@ -242,18 +242,21 @@ export const SyncSettings = () => {
     const connectionBadge = isReconnecting
         ? { label: 'Reconnecting...', className: 'bg-yellow-500/15 text-yellow-200 animate-pulse' }
         : !isCloudConfigured
-            ? { label: 'Local-only', className: 'bg-white/10 text-white/80' }
-            : syncState.status === 'error' || syncState.phase === 'error'
-                ? { label: 'Error', className: 'bg-red-500/15 text-red-200' }
-                : syncState.status === 'offline' || !isOnline
-                    ? { label: 'Offline', className: 'bg-amber-500/15 text-amber-200' }
-                    : { label: 'Cloud configured', className: 'bg-blue-500/15 text-blue-200' };
+          ? { label: 'Local-only', className: 'bg-white/10 text-white/80' }
+          : syncState.status === 'error' || syncState.phase === 'error'
+            ? { label: 'Error', className: 'bg-red-500/15 text-red-200' }
+            : syncState.status === 'offline' || !isOnline
+              ? { label: 'Offline', className: 'bg-amber-500/15 text-amber-200' }
+              : { label: 'Cloud configured', className: 'bg-blue-500/15 text-blue-200' };
 
     const loginBadge = !isCloudConfigured
         ? null
         : isLoggedIn
-            ? { label: user?.email ? `Logged in: ${user.email}` : 'Logged in', className: 'bg-emerald-500/15 text-emerald-200' }
-            : { label: 'Login required', className: 'bg-white/10 text-white/70' };
+          ? {
+                label: user?.email ? `Logged in: ${user.email}` : 'Logged in',
+                className: 'bg-emerald-500/15 text-emerald-200',
+            }
+          : { label: 'Login required', className: 'bg-white/10 text-white/70' };
 
     const primaryOrigin = origin || '(unknown)';
     const prodOriginNeeded = PROD_ORIGIN !== origin;
@@ -274,8 +277,14 @@ export const SyncSettings = () => {
                     </p>
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                    <span className={`px-2.5 py-1 rounded-full text-xs ${connectionBadge.className}`}>{connectionBadge.label}</span>
-                    {loginBadge && <span className={`px-2.5 py-1 rounded-full text-xs ${loginBadge.className}`}>{loginBadge.label}</span>}
+                    <span className={`px-2.5 py-1 rounded-full text-xs ${connectionBadge.className}`}>
+                        {connectionBadge.label}
+                    </span>
+                    {loginBadge && (
+                        <span className={`px-2.5 py-1 rounded-full text-xs ${loginBadge.className}`}>
+                            {loginBadge.label}
+                        </span>
+                    )}
                 </div>
             </div>
 
@@ -283,7 +292,9 @@ export const SyncSettings = () => {
                 <div className="flex items-center justify-between gap-3">
                     <div>
                         <div className="text-sm font-medium text-white/90">App origin</div>
-                        <div className="mt-1 text-xs text-white/60">This exact origin must be whitelisted in your Dexie Cloud DB.</div>
+                        <div className="mt-1 text-xs text-white/60">
+                            This exact origin must be whitelisted in your Dexie Cloud DB.
+                        </div>
                     </div>
                     <button
                         onClick={copyOrigin}
@@ -306,7 +317,9 @@ export const SyncSettings = () => {
                 <div className="flex items-center justify-between">
                     <div>
                         <div className="text-sm font-medium text-white/90">Dexie Cloud database URL</div>
-                        <div className="mt-1 text-xs text-white/60">Paste the databaseUrl from your local dexie-cloud.json.</div>
+                        <div className="mt-1 text-xs text-white/60">
+                            Paste the databaseUrl from your local dexie-cloud.json.
+                        </div>
                     </div>
                     <button
                         onClick={() => setWizardOpen(prev => !prev)}
@@ -417,7 +430,8 @@ export const SyncSettings = () => {
                                 <CopyableCommand command="npx dexie-cloud create" />
                             </div>
                             <div className="mt-1 text-xs text-white/50">
-                                This creates <span className="font-mono">dexie-cloud.json</span> and <span className="font-mono">dexie-cloud.key</span> locally.
+                                This creates <span className="font-mono">dexie-cloud.json</span> and{' '}
+                                <span className="font-mono">dexie-cloud.key</span> locally.
                             </div>
                         </div>
 
@@ -435,7 +449,8 @@ export const SyncSettings = () => {
                         <div>
                             <div className="font-medium text-white/80">Step 3: Paste databaseUrl into this screen</div>
                             <div className="mt-1 text-xs text-white/50">
-                                Open <span className="font-mono">dexie-cloud.json</span> and copy <span className="font-mono">databaseUrl</span>.
+                                Open <span className="font-mono">dexie-cloud.json</span> and copy{' '}
+                                <span className="font-mono">databaseUrl</span>.
                             </div>
                         </div>
                     </div>

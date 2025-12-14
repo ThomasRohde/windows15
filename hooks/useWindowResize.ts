@@ -26,18 +26,9 @@
  * });
  * ```
  */
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect } from 'react';
 
-export type ResizeDirection =
-    | "n"
-    | "s"
-    | "e"
-    | "w"
-    | "ne"
-    | "nw"
-    | "se"
-    | "sw"
-    | null;
+export type ResizeDirection = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | null;
 
 export interface Size {
     width: number;
@@ -80,10 +71,7 @@ export interface UseWindowResizeResult {
     /** Set position directly */
     setPosition: (position: Position) => void;
     /** Start resize handler - attach to resize handle's onPointerDown */
-    handleResizeStart: (
-        e: React.PointerEvent,
-        direction: ResizeDirection
-    ) => void;
+    handleResizeStart: (e: React.PointerEvent, direction: ResizeDirection) => void;
     /** Move handler - attach to resize handle's onPointerMove */
     handleResizeMove: (e: React.PointerEvent) => void;
     /** End handler - attach to resize handle's onPointerUp and onPointerCancel */
@@ -208,45 +196,33 @@ export function useWindowResize({
             let newY = resizeStartRef.current.posY;
 
             // East edge
-            if (resizeDir.includes("e")) {
-                newWidth = Math.max(
-                    minWidth,
-                    resizeStartRef.current.width + deltaX
-                );
+            if (resizeDir.includes('e')) {
+                newWidth = Math.max(minWidth, resizeStartRef.current.width + deltaX);
             }
             // West edge
-            if (resizeDir.includes("w")) {
+            if (resizeDir.includes('w')) {
                 const proposedWidth = resizeStartRef.current.width - deltaX;
                 if (proposedWidth >= minWidth) {
                     newWidth = proposedWidth;
                     newX = resizeStartRef.current.posX + deltaX;
                 } else {
                     newWidth = minWidth;
-                    newX =
-                        resizeStartRef.current.posX +
-                        resizeStartRef.current.width -
-                        minWidth;
+                    newX = resizeStartRef.current.posX + resizeStartRef.current.width - minWidth;
                 }
             }
             // South edge
-            if (resizeDir.includes("s")) {
-                newHeight = Math.max(
-                    minHeight,
-                    resizeStartRef.current.height + deltaY
-                );
+            if (resizeDir.includes('s')) {
+                newHeight = Math.max(minHeight, resizeStartRef.current.height + deltaY);
             }
             // North edge
-            if (resizeDir.includes("n")) {
+            if (resizeDir.includes('n')) {
                 const proposedHeight = resizeStartRef.current.height - deltaY;
                 if (proposedHeight >= minHeight) {
                     newHeight = proposedHeight;
                     newY = resizeStartRef.current.posY + deltaY;
                 } else {
                     newHeight = minHeight;
-                    newY =
-                        resizeStartRef.current.posY +
-                        resizeStartRef.current.height -
-                        minHeight;
+                    newY = resizeStartRef.current.posY + resizeStartRef.current.height - minHeight;
                 }
             }
 
@@ -260,11 +236,7 @@ export function useWindowResize({
     const handleResizeEnd = useCallback(
         (e: React.PointerEvent) => {
             if (!isResizing) return;
-            if (
-                pointerIdRef.current !== null &&
-                pointerIdRef.current !== e.pointerId
-            )
-                return;
+            if (pointerIdRef.current !== null && pointerIdRef.current !== e.pointerId) return;
 
             pointerIdRef.current = null;
             setIsResizing(false);

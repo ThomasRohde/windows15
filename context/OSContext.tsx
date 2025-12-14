@@ -1,6 +1,6 @@
 /**
  * OSContext - Composition wrapper that provides unified access to all OS contexts
- * 
+ *
  * This context maintains backward compatibility by re-exporting all the
  * functionality from the split contexts through a single useOS hook.
  */
@@ -77,11 +77,7 @@ const OSContextBridge: React.FC<{ children: ReactNode }> = ({ children }) => {
         closeStartMenu: startMenu.closeStartMenu,
     };
 
-    return (
-        <OSContext.Provider value={value}>
-            {children}
-        </OSContext.Provider>
-    );
+    return <OSContext.Provider value={value}>{children}</OSContext.Provider>;
 };
 
 /**
@@ -93,9 +89,7 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
             <StartMenuProvider>
                 <WallpaperProvider>
                     <WindowProvider>
-                        <OSContextBridge>
-                            {children}
-                        </OSContextBridge>
+                        <OSContextBridge>{children}</OSContextBridge>
                     </WindowProvider>
                 </WallpaperProvider>
             </StartMenuProvider>

@@ -84,10 +84,7 @@ const NotesPanel = () => {
         const q = search.trim().toLowerCase();
         if (!q) return notes;
         return notes.filter(note => {
-            return (
-                note.title.toLowerCase().includes(q) ||
-                note.content.toLowerCase().includes(q)
-            );
+            return note.title.toLowerCase().includes(q) || note.content.toLowerCase().includes(q);
         });
     }, [notes, search]);
 
@@ -132,12 +129,14 @@ const NotesPanel = () => {
                                 >
                                     <div className="flex items-center justify-between gap-2">
                                         <div className="min-w-0">
-                                            <div className="text-sm text-white/90 truncate">{note.title || 'Untitled'}</div>
+                                            <div className="text-sm text-white/90 truncate">
+                                                {note.title || 'Untitled'}
+                                            </div>
                                             <div className="text-[11px] text-white/50 truncate">{subtitle}</div>
                                         </div>
                                         <button
                                             type="button"
-                                            onClick={(e) => {
+                                            onClick={e => {
                                                 e.stopPropagation();
                                                 deleteNote(note.id);
                                             }}
@@ -159,7 +158,9 @@ const NotesPanel = () => {
                     <div className="flex-1 flex items-center justify-center text-center p-8">
                         <div className="max-w-sm">
                             <div className="text-lg font-semibold text-white">No note selected</div>
-                            <div className="mt-1 text-sm text-white/60">Create a note to start syncing across devices.</div>
+                            <div className="mt-1 text-sm text-white/60">
+                                Create a note to start syncing across devices.
+                            </div>
                             <button
                                 onClick={createNote}
                                 className="mt-4 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-sm text-white font-medium"
@@ -199,7 +200,8 @@ const NotesPanel = () => {
 export const Notepad = (props: NotepadProps) => {
     const initialContent = props.initialContent ?? '';
     const openedFromFile =
-        Boolean(props.initialFileId || props.initialFileName) || Object.prototype.hasOwnProperty.call(props, 'initialContent');
+        Boolean(props.initialFileId || props.initialFileName) ||
+        Object.prototype.hasOwnProperty.call(props, 'initialContent');
 
     const [view, setView] = useState<NotepadView>(openedFromFile ? 'files' : 'notes');
 
@@ -320,10 +322,10 @@ export const Notepad = (props: NotepadProps) => {
 
     const handleSaveAsConfirm = async () => {
         if (!saveFileName.trim()) return;
-        
+
         const fileName = saveFileName.endsWith('.txt') ? saveFileName : `${saveFileName}.txt`;
         const fileId = `notepad-${Date.now()}`;
-        
+
         const file: FileSystemItem = {
             id: fileId,
             name: fileName,
@@ -331,7 +333,7 @@ export const Notepad = (props: NotepadProps) => {
             content: content,
             date: new Date().toISOString().split('T')[0],
         };
-        
+
         await saveFileToFolder(file, 'documents');
         setCurrentFileId(fileId);
         setCurrentFileName(fileName);
@@ -385,7 +387,7 @@ export const Notepad = (props: NotepadProps) => {
                 <>
                     {/* Menu Bar */}
                     <div ref={menuRef} className="flex text-xs px-2 py-1 bg-[#2d2d2d] gap-4 select-none relative">
-                        {['File', 'Edit', 'View', 'Help'].map((menu) => (
+                        {['File', 'Edit', 'View', 'Help'].map(menu => (
                             <div key={menu} className="relative">
                                 <span
                                     className={`hover:text-white cursor-pointer px-2 py-0.5 rounded ${activeMenu === menu ? 'bg-[#3d3d3d] text-white' : ''}`}
@@ -412,13 +414,13 @@ export const Notepad = (props: NotepadProps) => {
                     </div>
 
                     {/* Text Area */}
-                    <textarea 
+                    <textarea
                         className="flex-1 bg-transparent resize-none border-none p-4 focus:outline-none font-mono text-sm leading-relaxed text-white/90 selection:bg-blue-500/40"
                         value={content}
                         onChange={handleContentChange}
-                        onSelect={(e) => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
-                        onKeyUp={(e) => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
-                        onClick={(e) => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
+                        onSelect={e => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
+                        onKeyUp={e => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
+                        onClick={e => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
                         spellCheck={false}
                         placeholder="Start typing..."
                     />
@@ -430,7 +432,9 @@ export const Notepad = (props: NotepadProps) => {
                             {hasUnsavedChanges && <span className="text-yellow-400">●</span>}
                         </span>
                         <span className="flex gap-4">
-                            <span>Ln {cursorInfo.line}, Col {cursorInfo.column}</span>
+                            <span>
+                                Ln {cursorInfo.line}, Col {cursorInfo.column}
+                            </span>
                             <span>UTF-8</span>
                             <span>Windows (CRLF)</span>
                         </span>
@@ -453,13 +457,15 @@ export const Notepad = (props: NotepadProps) => {
                                     {files.length === 0 ? (
                                         <p className="text-white/60 text-sm">No documents found</p>
                                     ) : (
-                                        files.map((file) => (
+                                        files.map(file => (
                                             <div
                                                 key={file.id}
                                                 className="px-3 py-2 hover:bg-[#3d3d3d] cursor-pointer rounded flex items-center gap-2"
                                                 onClick={() => handleOpenFile(file)}
                                             >
-                                                <span className="material-symbols-outlined text-sm text-blue-400">description</span>
+                                                <span className="material-symbols-outlined text-sm text-blue-400">
+                                                    description
+                                                </span>
                                                 <span className="text-white text-sm">{file.name}</span>
                                             </div>
                                         ))
@@ -485,11 +491,11 @@ export const Notepad = (props: NotepadProps) => {
                                 <input
                                     type="text"
                                     value={saveFileName}
-                                    onChange={(e) => setSaveFileName(e.target.value)}
+                                    onChange={e => setSaveFileName(e.target.value)}
                                     placeholder="Enter file name"
                                     className="w-full bg-[#1e1e1e] border border-[#3d3d3d] rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 mb-4"
                                     autoFocus
-                                    onKeyDown={(e) => {
+                                    onKeyDown={e => {
                                         if (e.key === 'Enter') handleSaveAsConfirm();
                                     }}
                                 />

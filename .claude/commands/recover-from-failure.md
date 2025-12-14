@@ -24,17 +24,18 @@ git diff --stat
 
 **Common issues:**
 
-| Symptom | Likely Cause | Fix Path |
-|---------|--------------|----------|
-| Failing tests | Code regression | Revert or fix |
-| Build errors | Missing deps, syntax | Check recent changes |
-| Artifact corruption | Manual edits | Restore from git |
-| Merge conflicts | Concurrent work | Resolve conflicts |
-| Missing files | Incomplete commit | Check stash/history |
+| Symptom             | Likely Cause         | Fix Path             |
+| ------------------- | -------------------- | -------------------- |
+| Failing tests       | Code regression      | Revert or fix        |
+| Build errors        | Missing deps, syntax | Check recent changes |
+| Artifact corruption | Manual edits         | Restore from git     |
+| Merge conflicts     | Concurrent work      | Resolve conflicts    |
+| Missing files       | Incomplete commit    | Check stash/history  |
 
 ### 3. Recovery Strategies
 
 **For failing tests:**
+
 ```bash
 # Find when tests last passed
 git log --oneline | head -20
@@ -43,6 +44,7 @@ git bisect run npm test  # or pytest, etc.
 ```
 
 **For broken artifacts:**
+
 ```bash
 # Restore klondike artifacts from last commit
 git checkout HEAD -- .klondike/
@@ -50,6 +52,7 @@ klondike validate
 ```
 
 **For messy git state:**
+
 ```bash
 # Stash current work
 git stash push -m "WIP: recovery"
@@ -92,5 +95,5 @@ klondike session end \
 
 1. **Commit early, commit often** - Small commits are easier to bisect
 2. **Always run tests before commit** - Catch issues immediately
-3. **Don't manually edit .klondike/*.json** - Use CLI commands
+3. **Don't manually edit .klondike/\*.json** - Use CLI commands
 4. **Keep branches short-lived** - Merge frequently to avoid drift

@@ -32,20 +32,20 @@ export const Clock = () => {
     };
 
     const formatTime = (date: Date) => {
-        return date.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit', 
+        return date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
             second: '2-digit',
-            hour12: true 
+            hour12: true,
         });
     };
 
     const formatDate = (date: Date) => {
-        return date.toLocaleDateString('en-US', { 
+        return date.toLocaleDateString('en-US', {
             weekday: 'long',
             year: 'numeric',
             month: 'long',
-            day: 'numeric'
+            day: 'numeric',
         });
     };
 
@@ -128,7 +128,7 @@ export const Clock = () => {
                 <div className="text-white/60 text-lg mb-2">
                     {selectedTz?.name ?? 'Unknown'} {selectedTz?.offset && `(${selectedTz.offset})`}
                 </div>
-                
+
                 {viewMode === 'digital' ? (
                     <>
                         <span className="text-5xl font-light text-white font-mono">{formatTime(selectedTime)}</span>

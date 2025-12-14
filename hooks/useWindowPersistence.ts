@@ -1,6 +1,6 @@
 /**
  * Window Persistence Hook
- * 
+ *
  * Handles saving and loading window states from storage.
  */
 import { useRef, useEffect, useState } from 'react';
@@ -17,7 +17,11 @@ export interface UseWindowPersistenceResult {
     savedWindowStates: WindowStateRecord[];
     openAppIds: string[];
     persistWindowStates: (appIds: string[], states: WindowStateRecord[]) => void;
-    updateSavedState: (appId: string, position: { x: number; y: number }, size: { width: number; height: number }) => void;
+    updateSavedState: (
+        appId: string,
+        position: { x: number; y: number },
+        size: { width: number; height: number }
+    ) => void;
     getSavedState: (appId: string) => WindowStateRecord | undefined;
 }
 
@@ -64,13 +68,13 @@ export const useWindowPersistence = (): UseWindowPersistenceResult => {
     ) => {
         const newRecord: WindowStateRecord = { appId, state: { position, size } };
         const existingIndex = savedWindowStatesRef.current.findIndex(s => s.appId === appId);
-        
+
         if (existingIndex >= 0) {
             savedWindowStatesRef.current[existingIndex] = newRecord;
         } else {
             savedWindowStatesRef.current.push(newRecord);
         }
-        
+
         storageService.set(KV_KEYS.windowStates, savedWindowStatesRef.current).catch(() => undefined);
     };
 

@@ -7,8 +7,10 @@ interface BeforeInstallPromptEvent extends Event {
 
 // Check if app is already installed as PWA
 const isStandalone = () => {
-    return window.matchMedia('(display-mode: standalone)').matches ||
-           (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+    return (
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as unknown as { standalone?: boolean }).standalone === true
+    );
 };
 
 export const InstallButton = () => {
@@ -55,16 +57,16 @@ export const InstallButton = () => {
 
         // Show the install prompt
         await deferredPrompt.prompt();
-        
+
         // Wait for the user to respond to the prompt
         const choiceResult = await deferredPrompt.userChoice;
-        
+
         if (choiceResult.outcome === 'accepted') {
             console.log('User accepted the install prompt');
         } else {
             console.log('User dismissed the install prompt');
         }
-        
+
         // Clear the deferredPrompt
         setDeferredPrompt(null);
         setIsInstallable(false);
@@ -80,7 +82,7 @@ export const InstallButton = () => {
 
     // Don't show anything if already installed as PWA
     if (isAlreadyInstalled) return null;
-    
+
     // Show if installable OR if onboarding is open
     if (!isInstallable && !showOnboarding) return null;
 
@@ -95,9 +97,7 @@ export const InstallButton = () => {
                                 <span className="material-symbols-outlined text-blue-400 text-2xl">download</span>
                             </div>
                             <div className="flex-1">
-                                <h3 className="text-white font-semibold text-sm mb-1">
-                                    Install Windows 15
-                                </h3>
+                                <h3 className="text-white font-semibold text-sm mb-1">Install Windows 15</h3>
                                 <p className="text-white/70 text-xs mb-3">
                                     Install this app for a native desktop experience and offline access.
                                 </p>
@@ -148,7 +148,8 @@ export const InstallButton = () => {
                                     Bring Your Own Cloud
                                 </h3>
                                 <p className="text-white/70 text-sm leading-relaxed">
-                                    Windows 15 uses Dexie Cloud for sync. You'll need to set up your own Dexie Cloud database URL in Settings → Sync. This gives you full control over your data.
+                                    Windows 15 uses Dexie Cloud for sync. You'll need to set up your own Dexie Cloud
+                                    database URL in Settings → Sync. This gives you full control over your data.
                                 </p>
                             </div>
 
@@ -158,7 +159,8 @@ export const InstallButton = () => {
                                     Works Offline
                                 </h3>
                                 <p className="text-white/70 text-sm leading-relaxed">
-                                    All your data is stored locally. Even without internet, you can use notes, bookmarks, todos, and all apps. Changes sync automatically when you're back online.
+                                    All your data is stored locally. Even without internet, you can use notes,
+                                    bookmarks, todos, and all apps. Changes sync automatically when you're back online.
                                 </p>
                             </div>
 
@@ -168,14 +170,13 @@ export const InstallButton = () => {
                                     Multi-Device Sync
                                 </h3>
                                 <p className="text-white/70 text-sm leading-relaxed">
-                                    Once connected to Dexie Cloud, your data syncs across all devices in real-time. Open the same app on different devices and see changes instantly.
+                                    Once connected to Dexie Cloud, your data syncs across all devices in real-time. Open
+                                    the same app on different devices and see changes instantly.
                                 </p>
                             </div>
 
                             <div className="pt-4 border-t border-white/10">
-                                <p className="text-white/60 text-xs mb-3">
-                                    Ready to get started?
-                                </p>
+                                <p className="text-white/60 text-xs mb-3">Ready to get started?</p>
                                 <div className="flex gap-2">
                                     {isInstallable && (
                                         <button

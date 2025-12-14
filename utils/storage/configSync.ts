@@ -5,16 +5,16 @@
  * to propagate Dexie Cloud configuration changes across tabs.
  */
 
-import { debugSync } from "../debugLogger";
+import { debugSync } from '../debugLogger';
 
 export type ConfigChangeMessage = {
-    type: "config-change";
+    type: 'config-change';
     databaseUrl: string | null;
     updatedAt: number;
 };
 
-const CHANNEL_NAME = "windows15-config";
-const STORAGE_EVENT_KEY = "windows15.dexieCloud.databaseUrl";
+const CHANNEL_NAME = 'windows15-config';
+const STORAGE_EVENT_KEY = 'windows15.dexieCloud.databaseUrl';
 
 class ConfigSyncManager {
     private channel: BroadcastChannel | null = null;
@@ -26,34 +26,34 @@ class ConfigSyncManager {
     }
 
     private initializeChannel() {
-        if (typeof BroadcastChannel !== "undefined") {
+        if (typeof BroadcastChannel !== 'undefined') {
             try {
                 this.channel = new BroadcastChannel(CHANNEL_NAME);
-                debugSync.config("BroadcastChannel initialized");
-                this.channel.onmessage = (event) => {
-                    if (event.data?.type === "config-change") {
-                        debugSync.config("Received config change via BroadcastChannel", event.data);
+                debugSync.config('BroadcastChannel initialized');
+                this.channel.onmessage = event => {
+                    if (event.data?.type === 'config-change') {
+                        debugSync.config('Received config change via BroadcastChannel', event.data);
                         this.notifyListeners(event.data);
                     }
                 };
             } catch (error) {
-                debugSync.error("BroadcastChannel not available", error);
+                debugSync.error('BroadcastChannel not available', error);
             }
         }
     }
 
     private setupStorageListener() {
-        if (typeof window === "undefined") return;
+        if (typeof window === 'undefined') return;
 
-        debugSync.config("Storage listener initialized");
-        window.addEventListener("storage", (event) => {
+        debugSync.config('Storage listener initialized');
+        window.addEventListener('storage', event => {
             if (event.key === STORAGE_EVENT_KEY) {
                 // Storage event fires in OTHER tabs when localStorage changes
-                debugSync.config("Received config change via storage event", {
+                debugSync.config('Received config change via storage event', {
                     newValue: event.newValue,
                 });
                 this.notifyListeners({
-                    type: "config-change",
+                    type: 'config-change',
                     databaseUrl: event.newValue,
                     updatedAt: Date.now(),
                 });
@@ -62,11 +62,11 @@ class ConfigSyncManager {
     }
 
     private notifyListeners(message: ConfigChangeMessage) {
-        this.listeners.forEach((listener) => {
+        this.listeners.forEach(listener => {
             try {
                 listener(message);
             } catch (error) {
-                console.error("Error in config sync listener:", error);
+                console.error('Error in config sync listener:', error);
             }
         });
     }
@@ -76,7 +76,7 @@ class ConfigSyncManager {
      */
     broadcast(databaseUrl: string | null) {
         const message: ConfigChangeMessage = {
-            type: "config-change",
+            type: 'config-change',
             databaseUrl,
             updatedAt: Date.now(),
         };
@@ -86,7 +86,7 @@ class ConfigSyncManager {
             try {
                 this.channel.postMessage(message);
             } catch (error) {
-                console.warn("Failed to broadcast via BroadcastChannel:", error);
+                console.warn('Failed to broadcast via BroadcastChannel:', error);
             }
         }
 

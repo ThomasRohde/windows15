@@ -8,7 +8,7 @@ export interface StorageService {
     subscribe<T>(key: string, handler: (value: T | undefined) => void): () => void;
 }
 
-const safeJsonParse = <T,>(valueJson: string): T | undefined => {
+const safeJsonParse = <T>(valueJson: string): T | undefined => {
     try {
         return JSON.parse(valueJson) as T;
     } catch {
@@ -48,4 +48,3 @@ export class DexieStorageService implements StorageService {
 }
 
 export const storageService: StorageService = new DexieStorageService();
-

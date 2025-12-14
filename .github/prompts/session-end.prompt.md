@@ -1,6 +1,6 @@
 ---
 name: session-end
-description: "End a coding session with proper documentation and clean state"
+description: 'End a coding session with proper documentation and clean state'
 ---
 
 # Goal
@@ -36,11 +36,12 @@ npm run lint
 
 ```markdown
 #### Pre-Commit Verification
-| Command | Exit Code | Notes |
-|---------|-----------|-------|
-| <build command> | 0 | ✅ |
-| <test command> | 0 | ✅ N tests passed |
-| <lint command> | 0 | ✅ |
+
+| Command         | Exit Code | Notes             |
+| --------------- | --------- | ----------------- |
+| <build command> | 0         | ✅                |
+| <test command>  | 0         | ✅ N tests passed |
+| <lint command>  | 0         | ✅                |
 ```
 
 ### 2. Commit Outstanding Work
@@ -89,21 +90,25 @@ git status  # Should show "nothing to commit, working tree clean"
 **Commits Made**: <count>
 
 ### Pre-Commit Verification
-| Command | Exit Code | Notes |
-|---------|-----------|-------|
-| <command> | 0 | ✅ |
+
+| Command   | Exit Code | Notes |
+| --------- | --------- | ----- |
+| <command> | 0         | ✅    |
 
 ### Accomplishments
-| Feature | Status | Evidence |
-|---------|--------|----------|
-| F00X | ✅ verified | [screenshot](test-results/F00X.png) |
-| F00Y | 🔄 in-progress | 80% done |
+
+| Feature | Status         | Evidence                            |
+| ------- | -------------- | ----------------------------------- |
+| F00X    | ✅ verified    | [screenshot](test-results/F00X.png) |
+| F00Y    | 🔄 in-progress | 80% done                            |
 
 ### State Verification
+
 - [x] All changes committed
 - [x] Pre-commit checks passed
 - [x] Progress file updated
 
 ### Handoff to Next Session
+
 > <2-3 sentence summary of where things stand and what to do next>
 ```

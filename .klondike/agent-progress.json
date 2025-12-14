@@ -178,11 +178,6 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F045",
-        "description": "Memoize expensive component renders with React.memo",
-        "status": "in-progress"
-      },
-      {
         "id": "F046",
         "description": "Add JSDoc documentation to all public APIs",
         "status": "not-started"
@@ -190,6 +185,11 @@
       {
         "id": "F047",
         "description": "Create constants file for magic strings and numbers",
+        "status": "not-started"
+      },
+      {
+        "id": "F048",
+        "description": "Add loading skeletons for async content",
         "status": "not-started"
       }
     ]

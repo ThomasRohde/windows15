@@ -1,0 +1,12 @@
+{
+    "games": [
+        {
+            "id": "demo-pong",
+            "title": "Demo Pong",
+            "description": "A simple pong demo for WASM-4",
+            "file": "pong.wasm",
+            "author": "Windows 15",
+            "tags": ["demo", "classic", "pong"]
+        }
+    ]
+}

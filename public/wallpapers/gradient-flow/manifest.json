@@ -1,0 +1,17 @@
+{
+    "id": "gradient-flow",
+    "name": "Gradient Flow",
+    "version": "1.0.0",
+    "type": "shader",
+    "author": "Windows 15",
+    "description": "A smooth animated gradient wallpaper",
+    "preview": "preview.png",
+    "entry": "shader.wgsl",
+    "entryWebGL": "shader.glsl",
+    "tags": ["gradient", "animated", "minimal"],
+    "config": {
+        "fpsCap": 30,
+        "quality": "medium",
+        "uniforms": {}
+    }
+}

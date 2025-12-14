@@ -1,0 +1,17 @@
+{
+    "id": "particle-field",
+    "name": "Particle Field",
+    "version": "1.0.0",
+    "type": "shader",
+    "author": "Windows 15",
+    "description": "Floating particles with depth effect",
+    "preview": "preview.png",
+    "entry": "shader.wgsl",
+    "entryWebGL": "shader.glsl",
+    "tags": ["particles", "space", "animated"],
+    "config": {
+        "fpsCap": 30,
+        "quality": "medium",
+        "uniforms": {}
+    }
+}

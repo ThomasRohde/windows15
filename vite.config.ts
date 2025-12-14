@@ -27,7 +27,19 @@ export default defineConfig({
         react(),
         VitePWA({
             registerType: 'prompt',
-            includeAssets: ['favicon.ico', 'robots.txt', 'icons/*.png'],
+            includeAssets: [
+                'favicon.ico',
+                'robots.txt',
+                'icons/*.png',
+                // Built-in wallpaper packs (F101)
+                'wallpapers/**/*.json',
+                'wallpapers/**/*.wgsl',
+                'wallpapers/**/*.glsl',
+                'wallpapers/**/*.png',
+                // Demo carts for Arcade (F101)
+                'demo-carts/**/*.json',
+                'demo-carts/**/*.wasm',
+            ],
             // Enable service worker in development mode for testing PWA install
             devOptions: {
                 enabled: true,
@@ -71,8 +83,44 @@ export default defineConfig({
                 ],
             },
             workbox: {
-                globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+                globPatterns: [
+                    '**/*.{js,css,html,ico,png,svg,woff2}',
+                    // Include wallpaper shader files (F101)
+                    'wallpapers/**/*.{json,wgsl,glsl,png}',
+                    // Include demo carts (F101)
+                    'demo-carts/**/*.{json,wasm}',
+                ],
                 runtimeCaching: [
+                    // Cache wallpaper assets for offline use (F101)
+                    {
+                        urlPattern: /\/wallpapers\/.*/i,
+                        handler: 'CacheFirst',
+                        options: {
+                            cacheName: 'wallpaper-packs-cache',
+                            expiration: {
+                                maxEntries: 50,
+                                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                            },
+                            cacheableResponse: {
+                                statuses: [0, 200],
+                            },
+                        },
+                    },
+                    // Cache demo carts for offline use (F101)
+                    {
+                        urlPattern: /\/demo-carts\/.*/i,
+                        handler: 'CacheFirst',
+                        options: {
+                            cacheName: 'demo-carts-cache',
+                            expiration: {
+                                maxEntries: 20,
+                                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                            },
+                            cacheableResponse: {
+                                statuses: [0, 200],
+                            },
+                        },
+                    },
                     {
                         urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
                         handler: 'CacheFirst',

@@ -338,11 +338,6 @@
       {
         "id": "F101",
         "description": "Service Worker caches built-in wallpaper packs and demo carts for offline",
-        "status": "not-started"
-      },
-      {
-        "id": "F098",
-        "description": "Arcade save/load system with multiple slots per game",
         "status": "in-progress"
       },
       {

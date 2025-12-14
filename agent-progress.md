@@ -30,8 +30,7 @@ klondike feature list  # List all features
 
 | ID   | Description                                                               | Status         |
 | ---- | ------------------------------------------------------------------------- | -------------- |
-| F101 | Service Worker caches built-in wallpaper packs and demo carts for offline | ⏳ Not started |
-| F098 | Arcade save/load system with multiple slots per game                      | 🔄 In progress |
+| F101 | Service Worker caches built-in wallpaper packs and demo carts for offline | 🔄 In progress |
 | F102 | Wallpaper rendering in Web Worker with OffscreenCanvas                    | ⏳ Not started |
 
 ---

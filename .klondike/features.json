@@ -2609,11 +2609,15 @@
         "UI shows save slot timestamp and metadata"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T19:35:45.625365",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Added exportState/importState to Wasm4Runtime",
+        "save modal UI with 3 slots per game",
+        "saveGame/loadGame callbacks storing to IndexedDB  table"
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T18:22:16.358302",
       "notes": "Implementation: Use WASM-4 save state hooks if available. Store in arcadeSaves table with gameId and slot. Edge cases: Corrupted save data, slot overflow. Dependencies: F096 (Arcade app). Context: Milestone 4 - game progress persistence. Gotchas: WASM-4 may only support in-game saves; check runtime docs. If full state not feasible, label as in-game save only."
@@ -2686,13 +2690,13 @@
         "Cache updates on new version deploy"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T19:35:57.666859",
       "notes": "Implementation: Extend existing Workbox config to include wallpaper packs and demo-carts folders. Use precache manifest. Edge cases: Large pack updates, partial cache. Dependencies: F088 (Wallpaper Studio), F096 (Arcade). Context: Offline-first UX per PRD. Gotchas: Don't cache user-imported content in SW; that stays in IndexedDB."
     },
     {
@@ -2887,8 +2891,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T18:22:11.797639",
+    "lastUpdated": "2025-12-14T19:35:45.625377",
     "totalFeatures": 108,
-    "passingFeatures": 105
+    "passingFeatures": 106
   }
 }

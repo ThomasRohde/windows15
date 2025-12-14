@@ -10,7 +10,7 @@
  * @example
  * ```tsx
  * import { WINDOW } from '../utils/constants';
- * 
+ *
  * const {
  *   isResizing,
  *   size,

@@ -332,45 +332,45 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                                         <button
                                             key={cell.ymd}
                                             onClick={() => setSelectedDate(cell.ymd)}
-                                    className={`rounded-xl border transition-colors text-left p-2 min-h-[84px] flex flex-col gap-1
+                                            className={`rounded-xl border transition-colors text-left p-2 min-h-[84px] flex flex-col gap-1
                                         ${cell.inMonth ? 'bg-black/10 border-white/10 hover:bg-white/5' : 'bg-black/5 border-white/5 text-white/30 hover:bg-white/5'}
                                         ${isSelected ? 'ring-2 ring-primary/60 border-primary/30' : ''}
                                     `}
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <span
-                                            className={`text-xs font-semibold ${isToday ? 'text-primary' : cell.inMonth ? 'text-white/80' : 'text-white/30'}`}
                                         >
-                                            {cell.date.getDate()}
-                                        </span>
-                                        {isToday && (
-                                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary">
-                                                Today
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {dayEvents.length > 0 && (
-                                        <div className="mt-auto flex flex-col gap-1">
-                                            {dayEvents.slice(0, 2).map(event => (
-                                                <div
-                                                    key={event.id}
-                                                    className="text-[10px] px-2 py-1 rounded bg-white/10 text-white/80 truncate"
-                                                    title={event.title}
+                                            <div className="flex items-center justify-between">
+                                                <span
+                                                    className={`text-xs font-semibold ${isToday ? 'text-primary' : cell.inMonth ? 'text-white/80' : 'text-white/30'}`}
                                                 >
-                                                    {event.allDay ? 'All day' : event.startTime} · {event.title}
-                                                </div>
-                                            ))}
-                                            {dayEvents.length > 2 && (
-                                                <div className="text-[10px] text-white/40 px-1">
-                                                    +{dayEvents.length - 2} more
+                                                    {cell.date.getDate()}
+                                                </span>
+                                                {isToday && (
+                                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary">
+                                                        Today
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {dayEvents.length > 0 && (
+                                                <div className="mt-auto flex flex-col gap-1">
+                                                    {dayEvents.slice(0, 2).map(event => (
+                                                        <div
+                                                            key={event.id}
+                                                            className="text-[10px] px-2 py-1 rounded bg-white/10 text-white/80 truncate"
+                                                            title={event.title}
+                                                        >
+                                                            {event.allDay ? 'All day' : event.startTime} · {event.title}
+                                                        </div>
+                                                    ))}
+                                                    {dayEvents.length > 2 && (
+                                                        <div className="text-[10px] text-white/40 px-1">
+                                                            +{dayEvents.length - 2} more
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
-                                        </div>
-                                    )}
-                                </button>
-                            );
-                        })}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </>
                     )}

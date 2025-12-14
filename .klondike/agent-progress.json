@@ -178,14 +178,9 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F049",
-        "description": "Refactor Notepad.tsx into smaller sub-components",
-        "status": "in-progress"
-      },
-      {
         "id": "F052",
         "description": "Add centralized event bus for cross-component communication",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F055",

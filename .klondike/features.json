@@ -1285,11 +1285,17 @@
         "Components in apps/notepad/ directory"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T06:19:32.476835",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Notepad split into apps/notepad-components/ with NotesList",
+        "NoteEditor",
+        "NotesPanel",
+        "FilesPanel. Main Notepad.tsx now 75 lines (under 150 target). All 41 tests pass",
+        "build succeeds."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T06:15:26.194314",
       "notes": "Implementation: Create apps/notepad/ directory. Extract NotesPanel.tsx NoteEditor.tsx NotesList.tsx FilesPanel.tsx. Pass props or use context for shared state. Edge cases: Preserve autosave debounce logic. Dependencies: None. Context: Notepad.tsx is 517 lines - too large for maintainability. Gotchas: Keep db access in parent, pass data down to avoid duplicate queries."
@@ -1366,13 +1372,13 @@
         "Replace prop drilling for global events"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T06:19:52.260044",
       "notes": "Implementation: Create EventBus with on() off() emit() methods. Use TypeScript mapped types for event name to payload mapping. Create useEventBus hook that auto-unsubscribes on unmount. Edge cases: Prevent memory leaks with proper cleanup. Dependencies: None. Context: Some cross-component communication requires prop drilling through OSContext. Gotchas: Don't overuse - most state should still be in React state/context."
     },
     {
@@ -1530,8 +1536,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T06:15:06.846742",
+    "lastUpdated": "2025-12-14T06:19:32.476849",
     "totalFeatures": 58,
-    "passingFeatures": 55
+    "passingFeatures": 56
   }
 }

@@ -30,8 +30,7 @@ klondike feature list  # List all features
 
 | ID   | Description                                                 | Status         |
 | ---- | ----------------------------------------------------------- | -------------- |
-| F049 | Refactor Notepad.tsx into smaller sub-components            | 🔄 In progress |
-| F052 | Add centralized event bus for cross-component communication | ⏳ Not started |
+| F052 | Add centralized event bus for cross-component communication | 🔄 In progress |
 | F055 | Add Storybook for component development and documentation   | ⏳ Not started |
 
 ---

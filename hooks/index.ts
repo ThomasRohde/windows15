@@ -3,6 +3,7 @@
  */
 
 export { useDebounce } from './useDebounce';
+export { useAppEvent, useAppEmit, useEventBus } from './useEventBus';
 export { useHotkey, useHotkeys, getShortcutLabel } from './useHotkeys';
 export type { UseHotkeysOptions } from './useHotkeys';
 export { useLocalStorage } from './useLocalStorage';

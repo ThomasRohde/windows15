@@ -113,6 +113,13 @@ export default [
                 WebGLVertexArrayObject: 'readonly',
                 WebGLUniformLocation: 'readonly',
                 WebGLShader: 'readonly',
+                // WebAssembly globals
+                WebAssembly: 'readonly',
+                // Canvas globals
+                CanvasRenderingContext2D: 'readonly',
+                ImageData: 'readonly',
+                // Audio globals
+                AudioContext: 'readonly',
             },
         },
         plugins: {

@@ -236,6 +236,15 @@ export const APP_REGISTRY: AppConfig[] = [
         defaultWidth: 1000,
         defaultHeight: 680,
     },
+    {
+        id: 'arcade',
+        title: 'Arcade',
+        icon: 'sports_esports',
+        color: 'bg-purple-600',
+        component: React.lazy(() => import('./arcade').then(m => ({ default: m.Arcade }))),
+        defaultWidth: 600,
+        defaultHeight: 700,
+    },
 ];
 
 /**

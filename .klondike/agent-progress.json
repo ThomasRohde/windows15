@@ -336,18 +336,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F089",
-        "description": "WebGPU shader wallpaper runtime with WGSL support",
+        "id": "F096",
+        "description": "Arcade app with game library and WASM-4 runtime integration",
         "status": "in-progress"
       },
       {
-        "id": "F090",
-        "description": "WebGL2 fallback shader runtime for browsers without WebGPU",
+        "id": "F101",
+        "description": "Service Worker caches built-in wallpaper packs and demo carts for offline",
         "status": "not-started"
       },
       {
-        "id": "F096",
-        "description": "Arcade app with game library and WASM-4 runtime integration",
+        "id": "F104",
+        "description": "Arcade panic button stops hung or misbehaving carts",
         "status": "not-started"
       }
     ]

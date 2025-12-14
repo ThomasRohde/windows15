@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                 | Status         |
-| ---- | ----------------------------------------------------------- | -------------- |
-| F089 | WebGPU shader wallpaper runtime with WGSL support           | 🔄 In progress |
-| F090 | WebGL2 fallback shader runtime for browsers without WebGPU  | ⏳ Not started |
-| F096 | Arcade app with game library and WASM-4 runtime integration | ⏳ Not started |
+| ID   | Description                                                               | Status         |
+| ---- | ------------------------------------------------------------------------- | -------------- |
+| F096 | Arcade app with game library and WASM-4 runtime integration               | 🔄 In progress |
+| F101 | Service Worker caches built-in wallpaper packs and demo carts for offline | ⏳ Not started |
+| F104 | Arcade panic button stops hung or misbehaving carts                       | ⏳ Not started |
 
 ---
 

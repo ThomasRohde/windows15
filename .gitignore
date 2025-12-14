@@ -43,3 +43,6 @@ coverage/
 # Playwright
 playwright-report/
 test-results/
+
+# Bundle analysis
+stats.html

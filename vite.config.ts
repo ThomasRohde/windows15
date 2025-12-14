@@ -3,6 +3,7 @@ import path from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 const normalizeBasePath = (raw?: string) => {
     if (!raw) return '/';
@@ -103,7 +104,15 @@ export default defineConfig({
                 ],
             },
         }),
-    ],
+        // Bundle analysis - generates stats.html when ANALYZE=true
+        process.env.ANALYZE === 'true' &&
+            visualizer({
+                filename: 'stats.html',
+                open: true,
+                gzipSize: true,
+                brotliSize: true,
+            }),
+    ].filter(Boolean),
     resolve: {
         alias: {
             '@': path.resolve(__dirname, '.'),

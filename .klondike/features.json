@@ -1456,13 +1456,13 @@
         "Target bundle size under 500KB gzipped"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T06:03:31.020683",
       "notes": "Implementation: npm install -D rollup-plugin-visualizer. Add to vite.config.ts plugins. Run npm run build to generate stats.html. Check for large deps that could be replaced. Edge cases: Dexie is required - can't remove. Dependencies: None. Context: Large bundles hurt load time especially on mobile. Gotchas: Source maps inflate reported size - check gzipped size."
     },
     {
@@ -1503,11 +1503,14 @@
         "Dexie Cloud URL loaded from env var"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T06:03:17.427203",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        ".env.example created with VITE_DEXIE_CLOUD_URL and BASE_PATH vars documented. types/env.d.ts added with ImportMetaEnv interface. cloudConfig.ts updated to use import.meta.env.VITE_DEXIE_CLOUD_URL as fallback. .env files added to .gitignore. All tests pass",
+        "build succeeds."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T06:01:26.537049",
       "notes": "Implementation: Create .env.example with VITE_DEXIE_CLOUD_URL. Update cloudConfig.ts to use import.meta.env.VITE_DEXIE_CLOUD_URL. Add env.d.ts with ImportMetaEnv interface. Edge cases: Fallback for missing vars. Dependencies: None. Context: Hardcoded config should be externalized. Gotchas: Only VITE_ prefixed vars exposed to client - security feature."
@@ -1515,8 +1518,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T06:01:07.326716",
+    "lastUpdated": "2025-12-14T06:03:17.427215",
     "totalFeatures": 58,
-    "passingFeatures": 51
+    "passingFeatures": 52
   }
 }

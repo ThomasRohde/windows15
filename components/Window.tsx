@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useOS } from '../context/OSContext';
 import { WindowState } from '../types';
 import { AppLoadingSkeleton } from './AppLoadingSkeleton';
+import { ErrorBoundary } from './ErrorBoundary';
 
 interface WindowProps {
     window: WindowState;
@@ -309,9 +310,11 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
 
                 {/* Content */}
                 <div className="flex-1 overflow-auto relative z-40 bg-black/20">
-                    <Suspense fallback={<AppLoadingSkeleton title={window.title} />}>
-                        {window.component}
-                    </Suspense>
+                    <ErrorBoundary title={window.title}>
+                        <Suspense fallback={<AppLoadingSkeleton title={window.title} />}>
+                            {window.component}
+                        </Suspense>
+                    </ErrorBoundary>
                 </div>
             </div>
 

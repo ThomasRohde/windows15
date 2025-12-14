@@ -4,6 +4,7 @@
 
 export { AppLoadingSkeleton } from "./AppLoadingSkeleton";
 export { DesktopIcon } from "./DesktopIcon";
+export { ErrorBoundary } from "./ErrorBoundary";
 export { FileExplorer } from "./FileExplorer";
 export { InstallButton } from "./InstallButton";
 export { PWAUpdatePrompt } from "./PWAUpdatePrompt";

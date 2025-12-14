@@ -967,11 +967,16 @@
         "Apps load on-demand when opened"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T04:50:42.405997",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "All 23 apps use React.lazy() in registry.ts. Suspense with AppLoadingSkeleton in Window.tsx. Build shows individual chunks: Calculator 2.37KB",
+        "TodoList 2.49KB",
+        "Browser 14KB",
+        "etc. Apps load on-demand when windows opened. Main bundle ~567KB contains shared deps."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T04:49:39.638399",
       "notes": "Implementation: Wrap each app import in React.lazy(). Add Suspense in Window.tsx with AppLoadingSkeleton. Measure bundle with 'npm run build -- --report'. Edge cases: Handle lazy load failures with ErrorBoundary. Dependencies: F033 (app registry). Context: All 22 apps load upfront increasing initial bundle. Gotchas: Vite handles code splitting automatically with dynamic imports."
@@ -989,13 +994,13 @@
         "Errors logged to console with stack trace"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T04:50:49.672899",
       "notes": "Implementation: Create components/ErrorBoundary.tsx as class component (required for getDerivedStateFromError). Wrap app.component in Window.tsx. Show friendly error UI with 'Reload App' button. Edge cases: Handle async errors with window.onerror. Dependencies: None. Context: Uncaught errors crash entire OS currently. Gotchas: ErrorBoundary must be class component, not functional."
     },
     {
@@ -1430,8 +1435,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T04:49:09.771528",
+    "lastUpdated": "2025-12-14T04:50:42.406008",
     "totalFeatures": 58,
-    "passingFeatures": 37
+    "passingFeatures": 38
   }
 }

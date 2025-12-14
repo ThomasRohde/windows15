@@ -114,11 +114,11 @@ export default defineConfig({
         environment: 'jsdom',
         setupFiles: ['./tests/setup.ts'],
         include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-        exclude: ['node_modules', 'dist', 'dev-dist'],
+        exclude: ['node_modules', 'dist', 'dev-dist', 'e2e'],
         coverage: {
             provider: 'v8',
             reporter: ['text', 'json', 'html'],
-            exclude: ['node_modules/', 'dist/', 'dev-dist/', 'tests/', '**/*.d.ts', '**/*.config.*', '**/index.ts'],
+            exclude: ['node_modules/', 'dist/', 'dev-dist/', 'tests/', 'e2e/', '**/*.d.ts', '**/*.config.*', '**/index.ts'],
         },
     },
 });

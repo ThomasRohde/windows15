@@ -55,6 +55,7 @@ export const DesktopIcon: React.FC<DraggableDesktopIconProps> = ({
 
     return (
         <button
+            data-desktop-icon={appId || id}
             aria-label={`${label} - double-click to open`}
             aria-grabbed={isDragging}
             onDoubleClick={handleClick}

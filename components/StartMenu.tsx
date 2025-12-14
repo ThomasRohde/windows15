@@ -29,7 +29,9 @@ export const StartMenu = () => {
             {/* Search */}
             <div className="p-6 pb-2">
                 <div className="bg-black/20 h-10 rounded-lg flex items-center px-4 gap-3 border border-white/5">
-                    <span className="material-symbols-outlined text-white/50" aria-hidden="true">search</span>
+                    <span className="material-symbols-outlined text-white/50" aria-hidden="true">
+                        search
+                    </span>
                     <input
                         ref={searchInputRef}
                         aria-label="Search apps"
@@ -96,13 +98,18 @@ export const StartMenu = () => {
                     aria-label="User profile: John Doe"
                     className="flex items-center gap-3 hover:bg-white/10 p-2 rounded-lg cursor-pointer transition-colors"
                 >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold" aria-hidden="true">
+                    <div
+                        className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold"
+                        aria-hidden="true"
+                    >
                         JD
                     </div>
                     <span className="text-sm font-medium text-white/90">John Doe</span>
                 </button>
                 <button aria-label="Power options" className="p-2 hover:bg-white/10 rounded-full text-white/80">
-                    <span className="material-symbols-outlined" aria-hidden="true">power_settings_new</span>
+                    <span className="material-symbols-outlined" aria-hidden="true">
+                        power_settings_new
+                    </span>
                 </button>
             </div>
         </div>

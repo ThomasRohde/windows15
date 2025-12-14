@@ -95,7 +95,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
         }
         try {
             e.currentTarget.setPointerCapture(e.pointerId);
-        } catch { }
+        } catch {}
         e.preventDefault();
     };
 
@@ -132,7 +132,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
 
         try {
             e.currentTarget.releasePointerCapture(e.pointerId);
-        } catch { }
+        } catch {}
     };
 
     const handleResizeStart = (e: React.PointerEvent, direction: ResizeDirection) => {
@@ -156,7 +156,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
 
         try {
             (e.target as HTMLElement).setPointerCapture(e.pointerId);
-        } catch { }
+        } catch {}
     };
 
     const handleResizeMove = (e: React.PointerEvent) => {
@@ -231,7 +231,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
 
         try {
             (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-        } catch { }
+        } catch {}
     };
 
     if (window.isMinimized) return null;
@@ -239,21 +239,21 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
     const MAXIMIZED_BOTTOM_GAP_PX = 96;
     const outerStyle: React.CSSProperties = window.isMaximized
         ? {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: `calc(100vh - ${MAXIMIZED_BOTTOM_GAP_PX}px)`,
-            transform: 'none',
-        }
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: `calc(100vh - ${MAXIMIZED_BOTTOM_GAP_PX}px)`,
+              transform: 'none',
+          }
         : {
-            top: 0,
-            left: 0,
-            width: size.width,
-            height: size.height,
-            transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
-            willChange: isDragging || isResizing ? 'transform, width, height' : undefined,
-        };
+              top: 0,
+              left: 0,
+              width: size.width,
+              height: size.height,
+              transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
+              willChange: isDragging || isResizing ? 'transform, width, height' : undefined,
+          };
 
     const chromeStyle: React.CSSProperties | undefined = (() => {
         if (!window.isMaximized && !isDragging && !isResizing) return undefined;
@@ -296,12 +296,21 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                     onDoubleClick={() => toggleMaximizeWindow(window.id)}
                 >
                     <div className="flex items-center gap-3 min-w-0 flex-shrink">
-                        <span className="material-symbols-outlined text-white/70 text-[18px] flex-shrink-0" aria-hidden="true">
+                        <span
+                            className="material-symbols-outlined text-white/70 text-[18px] flex-shrink-0"
+                            aria-hidden="true"
+                        >
                             {window.icon}
                         </span>
-                        <span id={titleId} className="text-sm font-medium text-white/80 truncate">{window.title}</span>
+                        <span id={titleId} className="text-sm font-medium text-white/80 truncate">
+                            {window.title}
+                        </span>
                     </div>
-                    <div className="flex items-center gap-1 flex-shrink-0 ml-2" role="group" aria-label="Window controls">
+                    <div
+                        className="flex items-center gap-1 flex-shrink-0 ml-2"
+                        role="group"
+                        aria-label="Window controls"
+                    >
                         <button
                             aria-label="Minimize window"
                             onPointerDown={e => e.stopPropagation()}
@@ -311,7 +320,9 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                             }}
                             className="w-8 h-8 flex items-center justify-center rounded hover:bg-white/10 text-white/70 transition-colors"
                         >
-                            <span className="material-symbols-outlined text-[18px]" aria-hidden="true">minimize</span>
+                            <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
+                                minimize
+                            </span>
                         </button>
                         <button
                             aria-label={window.isMaximized ? 'Restore window' : 'Maximize window'}
@@ -335,7 +346,9 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
                             }}
                             className="w-8 h-8 flex items-center justify-center rounded hover:bg-red-500 text-white/70 hover:text-white transition-colors"
                         >
-                            <span className="material-symbols-outlined text-[18px]" aria-hidden="true">close</span>
+                            <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
+                                close
+                            </span>
                         </button>
                     </div>
                 </div>

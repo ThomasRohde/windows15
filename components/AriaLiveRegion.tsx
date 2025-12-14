@@ -10,7 +10,7 @@ export const useAriaLive = () => {
     const context = useContext(AriaLiveContext);
     if (!context) {
         // Return a no-op if not in provider (for testing)
-        return { announce: () => { } };
+        return { announce: () => {} };
     }
     return context;
 };
@@ -54,20 +54,10 @@ export const AriaLiveProvider: React.FC<AriaLiveProviderProps> = ({ children }) 
         <AriaLiveContext.Provider value={{ announce }}>
             {children}
             {/* Screen reader announcement regions */}
-            <div
-                role="status"
-                aria-live="polite"
-                aria-atomic="true"
-                className="sr-only"
-            >
+            <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
                 {politeMessage}
             </div>
-            <div
-                role="alert"
-                aria-live="assertive"
-                aria-atomic="true"
-                className="sr-only"
-            >
+            <div role="alert" aria-live="assertive" aria-atomic="true" className="sr-only">
                 {assertiveMessage}
             </div>
         </AriaLiveContext.Provider>

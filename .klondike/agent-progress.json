@@ -178,14 +178,9 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F052",
-        "description": "Add centralized event bus for cross-component communication",
-        "status": "in-progress"
-      },
-      {
         "id": "F055",
         "description": "Add Storybook for component development and documentation",
-        "status": "not-started"
+        "status": "in-progress"
       }
     ]
   }

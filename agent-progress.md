@@ -28,10 +28,9 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                 | Status         |
-| ---- | ----------------------------------------------------------- | -------------- |
-| F052 | Add centralized event bus for cross-component communication | 🔄 In progress |
-| F055 | Add Storybook for component development and documentation   | ⏳ Not started |
+| ID   | Description                                               | Status         |
+| ---- | --------------------------------------------------------- | -------------- |
+| F055 | Add Storybook for component development and documentation | 🔄 In progress |
 
 ---
 

@@ -1372,11 +1372,16 @@
         "Replace prop drilling for global events"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T06:21:28.621191",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "EventBus class created in utils/eventBus.ts with typed on/off/emit/once/clear methods. useAppEvent",
+        "useAppEmit",
+        "useEventBus hooks created. All 41 tests pass",
+        "build succeeds."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T06:19:52.260044",
       "notes": "Implementation: Create EventBus with on() off() emit() methods. Use TypeScript mapped types for event name to payload mapping. Create useEventBus hook that auto-unsubscribes on unmount. Edge cases: Prevent memory leaks with proper cleanup. Dependencies: None. Context: Some cross-component communication requires prop drilling through OSContext. Gotchas: Don't overuse - most state should still be in React state/context."
@@ -1449,13 +1454,13 @@
         "Chromatic or static deploy for story hosting"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T06:21:49.261528",
       "notes": "Implementation: npx storybook@latest init. Create stories in __stories__ directories. Document component props with argTypes. Edge cases: Components using context need decorator wrappers. Dependencies: None. Context: Storybook enables isolated component development. Gotchas: Vite builder is faster than webpack - use @storybook/react-vite."
     },
     {
@@ -1536,8 +1541,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T06:19:32.476849",
+    "lastUpdated": "2025-12-14T06:21:28.621203",
     "totalFeatures": 58,
-    "passingFeatures": 56
+    "passingFeatures": 57
   }
 }

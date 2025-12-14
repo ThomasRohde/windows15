@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                         | Status         |
-| ---- | ------------------------------------------------------------------- | -------------- |
-| F088 | Wallpaper Studio app with gallery view and built-in wallpaper packs | 🔄 In progress |
-| F089 | WebGPU shader wallpaper runtime with WGSL support                   | ⏳ Not started |
-| F090 | WebGL2 fallback shader runtime for browsers without WebGPU          | ⏳ Not started |
+| ID   | Description                                                            | Status         |
+| ---- | ---------------------------------------------------------------------- | -------------- |
+| F089 | WebGPU shader wallpaper runtime with WGSL support                      | ⏳ Not started |
+| F090 | WebGL2 fallback shader runtime for browsers without WebGPU             | ⏳ Not started |
+| F091 | Wallpaper settings panel with FPS cap, quality, and intensity controls | 🔄 In progress |
 
 ---
 

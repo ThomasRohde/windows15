@@ -1,5 +1,5 @@
 /**
- * Wallpaper Studio App (F088)
+ * Wallpaper Studio App (F088, F091)
  *
  * Gallery-style app for browsing and selecting wallpapers.
  * Features:
@@ -7,10 +7,11 @@
  * - Category/tag filtering
  * - Set as wallpaper action
  * - Built-in wallpaper packs
+ * - Settings panel with FPS cap, quality, intensity controls (F091)
  */
-import React, { useState, useMemo, useCallback } from 'react';
-import { useWallpaper } from '../context';
-import { WallpaperManifest } from '../types/wallpaper';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { useWallpaper, useDb } from '../context';
+import { WallpaperManifest, WallpaperSettings, DEFAULT_WALLPAPER_SETTINGS } from '../types/wallpaper';
 
 /**
  * Built-in wallpaper packs
@@ -110,9 +111,57 @@ const ALL_TAGS = Array.from(new Set(BUILT_IN_WALLPAPERS.flatMap(w => w.tags ?? [
 
 export const WallpaperStudio: React.FC = () => {
     const { setWallpaper, activeWallpaper } = useWallpaper();
+    const db = useDb();
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
     const [selectedWallpaper, setSelectedWallpaper] = useState<WallpaperManifest | null>(null);
     const [isApplying, setIsApplying] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
+    const [wallpaperSettings, setWallpaperSettings] = useState<WallpaperSettings>(DEFAULT_WALLPAPER_SETTINGS);
+
+    // Load wallpaper settings from database
+    useEffect(() => {
+        const loadSettings = async () => {
+            if (!db) return;
+            try {
+                const record = await db.kv.get('wallpaperSettings');
+                if (record) {
+                    const saved = JSON.parse(record.valueJson) as Partial<WallpaperSettings>;
+                    setWallpaperSettings(prev => ({ ...prev, ...saved }));
+                }
+            } catch (error) {
+                console.error('[WallpaperStudio] Failed to load settings:', error);
+            }
+        };
+        void loadSettings();
+    }, [db]);
+
+    // Save settings to database
+    const saveSettings = useCallback(
+        async (newSettings: WallpaperSettings) => {
+            if (!db) return;
+            try {
+                await db.kv.put({
+                    key: 'wallpaperSettings',
+                    valueJson: JSON.stringify(newSettings),
+                });
+            } catch (error) {
+                console.error('[WallpaperStudio] Failed to save settings:', error);
+            }
+        },
+        [db]
+    );
+
+    // Update a specific setting
+    const updateSetting = useCallback(
+        <K extends keyof WallpaperSettings>(key: K, value: WallpaperSettings[K]) => {
+            setWallpaperSettings(prev => {
+                const newSettings = { ...prev, [key]: value };
+                void saveSettings(newSettings);
+                return newSettings;
+            });
+        },
+        [saveSettings]
+    );
 
     // Filter wallpapers by tag
     const filteredWallpapers = useMemo(() => {
@@ -191,35 +240,188 @@ export const WallpaperStudio: React.FC = () => {
                     ))}
                 </nav>
 
+                {/* Settings button */}
+                <div className="p-2 border-t border-white/10">
+                    <button
+                        type="button"
+                        onClick={() => setShowSettings(!showSettings)}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                            showSettings
+                                ? 'bg-primary/20 text-primary'
+                                : 'text-white/70 hover:bg-white/5 hover:text-white'
+                        }`}
+                    >
+                        <span className="material-symbols-outlined text-base align-middle mr-2">tune</span>
+                        Settings
+                    </button>
+                </div>
+
                 {/* Stats */}
                 <div className="p-4 border-t border-white/10 text-xs text-white/40">
                     {filteredWallpapers.length} wallpapers
                 </div>
             </div>
 
-            {/* Main content - Gallery */}
+            {/* Main content - Gallery or Settings */}
             <div className="flex-1 flex flex-col overflow-hidden">
-                {/* Gallery header */}
-                <div className="p-4 border-b border-white/10 flex items-center justify-between">
-                    <h3 className="text-white font-medium capitalize">{selectedTag ?? 'All Wallpapers'}</h3>
-                    <span className="text-white/40 text-sm">Click to preview, double-click to apply</span>
-                </div>
+                {showSettings ? (
+                    /* Settings Panel (F091) */
+                    <div className="flex-1 overflow-y-auto p-6">
+                        <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+                            <span className="material-symbols-outlined">tune</span>
+                            Wallpaper Settings
+                        </h3>
 
-                {/* Gallery grid */}
-                <div className="flex-1 overflow-y-auto p-4">
-                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                        {filteredWallpapers.map(wallpaper => (
-                            <WallpaperCard
-                                key={wallpaper.id}
-                                wallpaper={wallpaper}
-                                isSelected={selectedWallpaper?.id === wallpaper.id}
-                                isActive={isActive(wallpaper)}
-                                onClick={() => setSelectedWallpaper(wallpaper)}
-                                onDoubleClick={() => handleApplyWallpaper(wallpaper)}
-                            />
-                        ))}
+                        <div className="space-y-6 max-w-md">
+                            {/* FPS Cap */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-white/80">FPS Cap</label>
+                                <p className="text-xs text-white/40 mb-2">
+                                    Lower FPS reduces CPU/GPU usage for live wallpapers
+                                </p>
+                                <div className="flex gap-2">
+                                    {([15, 30, 60] as const).map(fps => (
+                                        <button
+                                            key={fps}
+                                            type="button"
+                                            onClick={() => updateSetting('fpsCap', fps)}
+                                            className={`flex-1 py-2 rounded-lg font-medium text-sm transition-colors ${
+                                                wallpaperSettings.fpsCap === fps
+                                                    ? 'bg-primary text-white'
+                                                    : 'bg-white/10 text-white/70 hover:bg-white/20'
+                                            }`}
+                                        >
+                                            {fps} FPS
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Quality */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-white/80">Quality</label>
+                                <p className="text-xs text-white/40 mb-2">Higher quality uses more GPU resources</p>
+                                <div className="flex gap-2">
+                                    {(['low', 'med', 'high'] as const).map(quality => (
+                                        <button
+                                            key={quality}
+                                            type="button"
+                                            onClick={() => updateSetting('quality', quality)}
+                                            className={`flex-1 py-2 rounded-lg font-medium text-sm capitalize transition-colors ${
+                                                wallpaperSettings.quality === quality
+                                                    ? 'bg-primary text-white'
+                                                    : 'bg-white/10 text-white/70 hover:bg-white/20'
+                                            }`}
+                                        >
+                                            {quality === 'med' ? 'Medium' : quality}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Intensity */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-white/80">
+                                    Intensity: {Math.round(wallpaperSettings.intensity * 100)}%
+                                </label>
+                                <p className="text-xs text-white/40 mb-2">
+                                    Controls brightness/effect intensity for live wallpapers
+                                </p>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value={Math.round(wallpaperSettings.intensity * 100)}
+                                    onChange={e => updateSetting('intensity', parseInt(e.target.value) / 100)}
+                                    className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
+                                />
+                                <div className="flex justify-between text-xs text-white/40">
+                                    <span>Subtle</span>
+                                    <span>Vibrant</span>
+                                </div>
+                            </div>
+
+                            {/* Audio Reactive */}
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <label className="block text-sm font-medium text-white/80">
+                                            Audio Reactive
+                                        </label>
+                                        <p className="text-xs text-white/40">Wallpaper responds to microphone input</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => updateSetting('audioReactive', !wallpaperSettings.audioReactive)}
+                                        className={`w-12 h-6 rounded-full transition-colors ${
+                                            wallpaperSettings.audioReactive ? 'bg-primary' : 'bg-white/20'
+                                        }`}
+                                    >
+                                        <div
+                                            className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${
+                                                wallpaperSettings.audioReactive ? 'translate-x-6' : 'translate-x-0.5'
+                                            }`}
+                                        />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Mic Sensitivity (only when audio reactive) */}
+                            {wallpaperSettings.audioReactive && (
+                                <div className="space-y-2 pl-4 border-l-2 border-primary/30">
+                                    <label className="block text-sm font-medium text-white/80">
+                                        Mic Sensitivity: {Math.round(wallpaperSettings.micSensitivity * 100)}%
+                                    </label>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        value={Math.round(wallpaperSettings.micSensitivity * 100)}
+                                        onChange={e => updateSetting('micSensitivity', parseInt(e.target.value) / 100)}
+                                        className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
+                                    />
+                                </div>
+                            )}
+
+                            {/* Info */}
+                            <div className="mt-8 p-4 bg-white/5 rounded-lg">
+                                <div className="flex items-start gap-3">
+                                    <span className="material-symbols-outlined text-primary">info</span>
+                                    <div className="text-sm text-white/60">
+                                        <p className="mb-2">
+                                            These settings apply to live wallpapers (shaders and scenes).
+                                        </p>
+                                        <p>Static image wallpapers are not affected by performance settings.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    <>
+                        {/* Gallery header */}
+                        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+                            <h3 className="text-white font-medium capitalize">{selectedTag ?? 'All Wallpapers'}</h3>
+                            <span className="text-white/40 text-sm">Click to preview, double-click to apply</span>
+                        </div>
+
+                        {/* Gallery grid */}
+                        <div className="flex-1 overflow-y-auto p-4">
+                            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                {filteredWallpapers.map(wallpaper => (
+                                    <WallpaperCard
+                                        key={wallpaper.id}
+                                        wallpaper={wallpaper}
+                                        isSelected={selectedWallpaper?.id === wallpaper.id}
+                                        isActive={isActive(wallpaper)}
+                                        onClick={() => setSelectedWallpaper(wallpaper)}
+                                        onDoubleClick={() => handleApplyWallpaper(wallpaper)}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Preview panel (when wallpaper selected) */}

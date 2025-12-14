@@ -304,11 +304,6 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F088",
-        "description": "Wallpaper Studio app with gallery view and built-in wallpaper packs",
-        "status": "in-progress"
-      },
-      {
         "id": "F089",
         "description": "WebGPU shader wallpaper runtime with WGSL support",
         "status": "not-started"
@@ -317,6 +312,11 @@
         "id": "F090",
         "description": "WebGL2 fallback shader runtime for browsers without WebGPU",
         "status": "not-started"
+      },
+      {
+        "id": "F091",
+        "description": "Wallpaper settings panel with FPS cap, quality, and intensity controls",
+        "status": "in-progress"
       }
     ]
   }

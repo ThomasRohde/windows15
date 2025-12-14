@@ -1192,11 +1192,16 @@
         "TypeDoc generates API documentation"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T06:15:06.846730",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "JSDoc added to types.ts",
+        "context files",
+        "hooks",
+        "utils. TypeDoc installed with 'docs' script. API docs generate successfully at docs/api/"
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T06:10:37.934108",
       "notes": "Implementation: Add /** */ comments above exports. Include @example for hooks. Consider adding TypeDoc: npm install -D typedoc. Add 'docs': 'typedoc' to scripts. Edge cases: Private helpers don't need JSDoc. Dependencies: None. Context: Good docs make codebase accessible to new contributors. Gotchas: Keep docs in sync with implementation - stale docs worse than none."
@@ -1280,13 +1285,13 @@
         "Components in apps/notepad/ directory"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T06:15:26.194314",
       "notes": "Implementation: Create apps/notepad/ directory. Extract NotesPanel.tsx NoteEditor.tsx NotesList.tsx FilesPanel.tsx. Pass props or use context for shared state. Edge cases: Preserve autosave debounce logic. Dependencies: None. Context: Notepad.tsx is 517 lines - too large for maintainability. Gotchas: Keep db access in parent, pass data down to avoid duplicate queries."
     },
     {
@@ -1525,8 +1530,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T06:10:18.386264",
+    "lastUpdated": "2025-12-14T06:15:06.846742",
     "totalFeatures": 58,
-    "passingFeatures": 54
+    "passingFeatures": 55
   }
 }

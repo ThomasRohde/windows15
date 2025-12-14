@@ -1,0 +1,104 @@
+import React from 'react';
+import { SkeletonList } from '../../components/LoadingSkeleton';
+import { NoteRecord } from './types';
+
+interface NotesListProps {
+    notes: NoteRecord[];
+    isLoading: boolean;
+    selectedId: string | null;
+    search: string;
+    onSelectNote: (id: string) => void;
+    onDeleteNote: (id: string) => void;
+    onCreateNote: () => void;
+    onSearchChange: (value: string) => void;
+}
+
+/**
+ * NotesList - Sidebar list of notes with search and actions
+ */
+export const NotesList: React.FC<NotesListProps> = ({
+    notes,
+    isLoading,
+    selectedId,
+    search,
+    onSelectNote,
+    onDeleteNote,
+    onCreateNote,
+    onSearchChange,
+}) => {
+    const filteredNotes = React.useMemo(() => {
+        const q = search.trim().toLowerCase();
+        if (!q) return notes;
+        return notes.filter(note => {
+            return note.title.toLowerCase().includes(q) || note.content.toLowerCase().includes(q);
+        });
+    }, [notes, search]);
+
+    return (
+        <div className="w-72 border-r border-white/10 bg-black/20 flex flex-col">
+            {/* Header */}
+            <div className="h-12 px-3 flex items-center justify-between border-b border-white/10">
+                <div className="text-sm font-medium text-white/90 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px] text-blue-300">note_stack</span>
+                    Notes
+                </div>
+                <button
+                    onClick={onCreateNote}
+                    className="h-8 w-8 rounded-lg hover:bg-white/10 text-white/70 flex items-center justify-center"
+                    title="New note"
+                >
+                    <span className="material-symbols-outlined text-[18px]">add</span>
+                </button>
+            </div>
+
+            {/* Search */}
+            <div className="p-3 border-b border-white/10">
+                <input
+                    value={search}
+                    onChange={e => onSearchChange(e.target.value)}
+                    placeholder="Search notes..."
+                    className="w-full h-9 px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
+                />
+            </div>
+
+            {/* Notes List */}
+            <div className="flex-1 overflow-auto">
+                {isLoading ? (
+                    <SkeletonList count={6} withSubtext />
+                ) : filteredNotes.length === 0 ? (
+                    <div className="p-4 text-sm text-white/50">No notes yet.</div>
+                ) : (
+                    filteredNotes.map(note => {
+                        const isActive = note.id === selectedId;
+                        const subtitle = note.content.trim().split('\n').find(Boolean) ?? '';
+                        return (
+                            <button
+                                key={note.id}
+                                onClick={() => onSelectNote(note.id)}
+                                className={`w-full px-3 py-2 text-left border-b border-white/5 hover:bg-white/5 ${isActive ? 'bg-white/10' : ''}`}
+                            >
+                                <div className="flex items-center justify-between gap-2">
+                                    <div className="min-w-0">
+                                        <div className="text-sm text-white/90 truncate">{note.title || 'Untitled'}</div>
+                                        <div className="text-[11px] text-white/50 truncate">{subtitle}</div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={e => {
+                                            e.stopPropagation();
+                                            onDeleteNote(note.id);
+                                        }}
+                                        className="h-8 w-8 rounded-lg hover:bg-white/10 text-white/50 hover:text-red-300 flex items-center justify-center"
+                                        title="Delete"
+                                    >
+                                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                                    </button>
+                                </div>
+                            </button>
+                        );
+                    })
+                )}
+            </div>
+        </div>
+    );
+};

@@ -178,18 +178,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F046",
-        "description": "Add JSDoc documentation to all public APIs",
-        "status": "in-progress"
-      },
-      {
         "id": "F049",
         "description": "Refactor Notepad.tsx into smaller sub-components",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F052",
         "description": "Add centralized event bus for cross-component communication",
+        "status": "not-started"
+      },
+      {
+        "id": "F055",
+        "description": "Add Storybook for component development and documentation",
         "status": "not-started"
       }
     ]

@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import {
     AriaLiveProvider,
     DesktopIcon,
@@ -14,9 +14,19 @@ import { OSProvider, useOS, DbProvider, useDb } from './context';
 import { useDexieLiveQuery } from './utils/storage/react';
 import { DesktopIconRecord } from './utils/storage/db';
 import { APP_REGISTRY } from './apps';
+import { useHotkeys } from './hooks';
 
 const Desktop = () => {
-    const { windows, registerApp, activeWallpaper, isStartMenuOpen, closeStartMenu } = useOS();
+    const {
+        windows,
+        openWindow,
+        closeWindow,
+        minimizeWindow,
+        registerApp,
+        activeWallpaper,
+        isStartMenuOpen,
+        closeStartMenu,
+    } = useOS();
     const db = useDb();
 
     // Load desktop icons reactively
@@ -151,6 +161,27 @@ const Desktop = () => {
             });
         });
     }, []);
+
+    // Global keyboard shortcuts
+    // Find the focused (topmost) window for window shortcuts
+    const focusedWindow = useMemo(() => {
+        const nonMinimized = windows.filter(w => !w.isMinimized);
+        if (nonMinimized.length === 0) return null;
+        return nonMinimized.reduce((top, w) => (w.zIndex > top.zIndex ? w : top));
+    }, [windows]);
+
+    useHotkeys({
+        // App launcher shortcuts
+        'ctrl+shift+e': () => openWindow('explorer'),
+        'ctrl+shift+t': () => openWindow('terminal'),
+        'ctrl+shift+n': () => openWindow('notepad'),
+        'ctrl+shift+c': () => openWindow('calculator'),
+        'ctrl+shift+s': () => openWindow('settings'),
+        // Window control shortcuts
+        'ctrl+w': () => focusedWindow && closeWindow(focusedWindow.id),
+        'alt+f4': () => focusedWindow && closeWindow(focusedWindow.id),
+        'ctrl+m': () => focusedWindow && minimizeWindow(focusedWindow.id),
+    });
 
     return (
         <div

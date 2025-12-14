@@ -3,6 +3,8 @@
  */
 
 export { useDebounce } from './useDebounce';
+export { useHotkey, useHotkeys, getShortcutLabel } from './useHotkeys';
+export type { UseHotkeysOptions } from './useHotkeys';
 export { useLocalStorage } from './useLocalStorage';
 export { useWindowDrag } from './useWindowDrag';
 export type { Position, UseWindowDragOptions, UseWindowDragResult } from './useWindowDrag';

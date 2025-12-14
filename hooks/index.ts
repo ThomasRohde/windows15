@@ -17,3 +17,5 @@ export type {
     UseWindowResizeOptions,
     UseWindowResizeResult,
 } from "./useWindowResize";
+export { useWindowPersistence } from "./useWindowPersistence";
+export type { UseWindowPersistenceResult } from "./useWindowPersistence";

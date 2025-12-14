@@ -150,18 +150,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F036",
-        "description": "Add comprehensive TypeScript strict mode and type improvements",
-        "status": "in-progress"
-      },
-      {
         "id": "F037",
         "description": "Split OSContext into smaller focused contexts",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F038",
         "description": "Add React.lazy code splitting for all app components",
+        "status": "not-started"
+      },
+      {
+        "id": "F039",
+        "description": "Add React Error Boundaries for graceful error handling",
         "status": "not-started"
       }
     ]

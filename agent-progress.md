@@ -24,9 +24,9 @@ klondike feature list  # List all features
 ### Current Priority Features
 | ID | Description | Status |
 |----|-------------|--------|
-| F036 | Add comprehensive TypeScript strict mode and type improvements | 🔄 In progress |
-| F037 | Split OSContext into smaller focused contexts | ⏳ Not started |
+| F037 | Split OSContext into smaller focused contexts | 🔄 In progress |
 | F038 | Add React.lazy code splitting for all app components | ⏳ Not started |
+| F039 | Add React Error Boundaries for graceful error handling | ⏳ Not started |
 
 ---
 

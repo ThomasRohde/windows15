@@ -1,323 +1,111 @@
-import React, { createContext, useContext, useRef, useState, useEffect, ReactNode } from 'react';
-import { WindowState, AppConfig } from '../types';
-import { WALLPAPERS } from '../utils/constants';
-import { getSetting, getWindowStates, WindowStateRecord } from '../utils/fileSystem';
-import { storageService } from '../utils/storage';
+/**
+ * OSContext - Composition wrapper that provides unified access to all OS contexts
+ * 
+ * This context maintains backward compatibility by re-exporting all the
+ * functionality from the split contexts through a single useOS hook.
+ */
+import React, { createContext, useContext, ReactNode } from 'react';
+import { AppConfig } from '../types';
+import { AppRegistryProvider, useAppRegistry } from './AppRegistryContext';
+import { WallpaperProvider, useWallpaper } from './WallpaperContext';
+import { StartMenuProvider, useStartMenu } from './StartMenuContext';
+import { WindowProvider, useWindowManager } from './WindowContext';
 
-const KV_KEYS = {
-    wallpaper: 'windows15.os.wallpaper',
-    openWindows: 'windows15.os.openWindows',
-    windowStates: 'windows15.os.windowStates',
-} as const;
-
+/**
+ * Combined interface for backward compatibility
+ */
 interface OSContextType {
-    windows: WindowState[];
-    openWindow: (appId: string, contentProps?: any) => void;
-    closeWindow: (id: string) => void;
-    minimizeWindow: (id: string) => void;
-    toggleMaximizeWindow: (id: string) => void;
-    focusWindow: (id: string) => void;
-    resizeWindow: (id: string, size: { width: number; height: number }, position?: { x: number; y: number }) => void;
-    updateWindowPosition: (id: string, position: { x: number; y: number }) => void;
-    registerApp: (config: AppConfig) => void;
-    apps: AppConfig[];
-    activeWallpaper: string;
-    setWallpaper: (url: string) => void;
-    isStartMenuOpen: boolean;
-    toggleStartMenu: () => void;
-    closeStartMenu: () => void;
+    // Window management
+    windows: ReturnType<typeof useWindowManager>['windows'];
+    openWindow: ReturnType<typeof useWindowManager>['openWindow'];
+    closeWindow: ReturnType<typeof useWindowManager>['closeWindow'];
+    minimizeWindow: ReturnType<typeof useWindowManager>['minimizeWindow'];
+    toggleMaximizeWindow: ReturnType<typeof useWindowManager>['toggleMaximizeWindow'];
+    focusWindow: ReturnType<typeof useWindowManager>['focusWindow'];
+    resizeWindow: ReturnType<typeof useWindowManager>['resizeWindow'];
+    updateWindowPosition: ReturnType<typeof useWindowManager>['updateWindowPosition'];
+    // App registry
+    registerApp: ReturnType<typeof useAppRegistry>['registerApp'];
+    apps: ReturnType<typeof useAppRegistry>['apps'];
+    // Wallpaper
+    activeWallpaper: ReturnType<typeof useWallpaper>['activeWallpaper'];
+    setWallpaper: ReturnType<typeof useWallpaper>['setWallpaper'];
+    // Start menu
+    isStartMenuOpen: ReturnType<typeof useStartMenu>['isStartMenuOpen'];
+    toggleStartMenu: ReturnType<typeof useStartMenu>['toggleStartMenu'];
+    closeStartMenu: ReturnType<typeof useStartMenu>['closeStartMenu'];
 }
 
 const OSContext = createContext<OSContextType | undefined>(undefined);
 
+/**
+ * Hook to access all OS functionality (backward compatible)
+ */
 export const useOS = () => {
     const context = useContext(OSContext);
     if (!context) throw new Error('useOS must be used within an OSProvider');
     return context;
 };
 
-export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [windows, setWindows] = useState<WindowState[]>([]);
-    const [apps, setApps] = useState<AppConfig[]>([]);
-    const [activeWallpaper, setActiveWallpaper] = useState(WALLPAPERS[0]?.url ?? '');
-    const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
-    const [isInitialized, setIsInitialized] = useState(false);
-    const nextZIndexRef = useRef(100);
-    const savedWindowStatesRef = useRef<WindowStateRecord[]>([]);
-    const openAppIdsRef = useRef<string[]>([]);
-    const sessionRestoredRef = useRef(false);
+/**
+ * Internal component that combines all contexts into OSContext
+ */
+const OSContextBridge: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const windowManager = useWindowManager();
+    const appRegistry = useAppRegistry();
+    const wallpaper = useWallpaper();
+    const startMenu = useStartMenu();
 
-    const getNextZIndex = () => nextZIndexRef.current++;
-
-    useEffect(() => {
-        const initialize = async () => {
-            try {
-                const [savedWallpaper, savedStates, savedOpenApps] = await Promise.all([
-                    storageService.get<string>(KV_KEYS.wallpaper),
-                    storageService.get<WindowStateRecord[]>(KV_KEYS.windowStates),
-                    storageService.get<string[]>(KV_KEYS.openWindows),
-                ]);
-
-                if (savedWallpaper) {
-                    setActiveWallpaper(savedWallpaper);
-                } else {
-                    const legacyWallpaper = await getSetting<string>('wallpaper');
-                    if (legacyWallpaper) {
-                        setActiveWallpaper(legacyWallpaper);
-                        storageService.set(KV_KEYS.wallpaper, legacyWallpaper).catch(() => undefined);
-                    }
-                }
-
-                if (Array.isArray(savedStates)) {
-                    savedWindowStatesRef.current = savedStates;
-                } else {
-                    const legacyStates = await getWindowStates();
-                    if (legacyStates.length > 0) {
-                        savedWindowStatesRef.current = legacyStates;
-                        storageService.set(KV_KEYS.windowStates, legacyStates).catch(() => undefined);
-                    }
-                }
-
-                if (Array.isArray(savedOpenApps) && savedOpenApps.length > 0) {
-                    openAppIdsRef.current = savedOpenApps;
-                } else {
-                    const legacyOpenApps = await getSetting<string[]>('openWindows');
-                    if (legacyOpenApps && legacyOpenApps.length > 0) {
-                        openAppIdsRef.current = legacyOpenApps;
-                        storageService.set(KV_KEYS.openWindows, legacyOpenApps).catch(() => undefined);
-                    }
-                }
-            } catch (error) {
-                console.error('Failed to initialize from Dexie:', error);
-            } finally {
-                setIsInitialized(true);
-            }
-        };
-        
-        initialize();
-    }, []);
-
-    const persistWindowStates = (windowsToSave: WindowState[]) => {
-        const states: WindowStateRecord[] = windowsToSave.map(w => ({
-            appId: w.appId,
-            state: {
-                position: w.position,
-                size: w.size
-            }
-        }));
-        
-        const existingAppIds = new Set(states.map(s => s.appId));
-        savedWindowStatesRef.current.forEach(saved => {
-            if (!existingAppIds.has(saved.appId)) {
-                states.push(saved);
-            }
-        });
-        
-        savedWindowStatesRef.current = states;
-        storageService.set(KV_KEYS.windowStates, states).catch(() => undefined);
-
-        const openAppIds = windowsToSave.map(w => w.appId);
-        storageService.set(KV_KEYS.openWindows, openAppIds).catch(() => undefined);
-    };
-    
-    useEffect(() => {
-        if (sessionRestoredRef.current) return;
-        if (!isInitialized) return;
-        if (apps.length === 0) return;
-        if (openAppIdsRef.current.length === 0) return;
-        
-        sessionRestoredRef.current = true;
-        
-        const appsToRestore = openAppIdsRef.current.filter(appId => 
-            apps.find(a => a.id === appId)
-        );
-        
-        appsToRestore.forEach((appId, index) => {
-            setTimeout(() => {
-                const app = apps.find(a => a.id === appId);
-                if (!app) return;
-                
-                const savedState = savedWindowStatesRef.current.find(s => s.appId === appId);
-                const savedPosition = savedState?.state?.position;
-                const savedSize = savedState?.state?.size;
-                
-                setWindows(prev => {
-                    if (prev.find(w => w.appId === appId)) return prev;
-                    
-                    const nextZIndex = getNextZIndex();
-                    const newWindow: WindowState = {
-                        id: globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 11),
-                        appId: app.id,
-                        title: app.title,
-                        icon: app.icon,
-                        component: <app.component />,
-                        isOpen: true,
-                        isMinimized: false,
-                        isMaximized: false,
-                        zIndex: nextZIndex,
-                        position: savedPosition || { x: 50 + index * 20, y: 50 + index * 20 },
-                        size: savedSize || { width: app.defaultWidth || 800, height: app.defaultHeight || 600 }
-                    };
-                    return [...prev, newWindow];
-                });
-            }, index * 50);
-        });
-    }, [apps, isInitialized]);
-
-    const registerApp = (config: AppConfig) => {
-        setApps(prev => {
-            if (prev.find(a => a.id === config.id)) return prev;
-            return [...prev, config];
-        });
-    };
-
-    const openWindow = (appId: string, contentProps?: any) => {
-        const app = apps.find(a => a.id === appId);
-        if (!app) return;
-
-        setWindows(prevWindows => {
-            const existing = prevWindows.find(w => w.appId === appId);
-            if (existing) {
-                const nextZIndex = getNextZIndex();
-                return prevWindows.map(w => {
-                    if (w.id !== existing.id) return w;
-                    return {
-                        ...w,
-                        isMinimized: false,
-                        zIndex: nextZIndex,
-                        ...(contentProps !== undefined ? { component: <app.component {...contentProps} /> } : {}),
-                    };
-                });
-            }
-
-            const nextZIndex = getNextZIndex();
-            const offset = prevWindows.length * 20;
-            
-            const savedState = savedWindowStatesRef.current.find(s => s.appId === appId);
-            const savedPosition = savedState?.state?.position;
-            const savedSize = savedState?.state?.size;
-            
-            const newWindow: WindowState = {
-                id: globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 11),
-                appId: app.id,
-                title: app.title,
-                icon: app.icon,
-                component: <app.component {...contentProps} />,
-                isOpen: true,
-                isMinimized: false,
-                isMaximized: false,
-                zIndex: nextZIndex,
-                position: savedPosition || { x: 50 + offset, y: 50 + offset },
-                size: savedSize || { width: app.defaultWidth || 800, height: app.defaultHeight || 600 }
-            };
-
-            const newWindows = [...prevWindows, newWindow];
-            persistWindowStates(newWindows);
-            return newWindows;
-        });
-        setIsStartMenuOpen(false);
-    };
-
-    const closeWindow = (id: string) => {
-        setWindows(prev => {
-            const windowToClose = prev.find(w => w.id === id);
-            if (windowToClose) {
-                const existingIndex = savedWindowStatesRef.current.findIndex(
-                    s => s.appId === windowToClose.appId
-                );
-                const newRecord: WindowStateRecord = {
-                    appId: windowToClose.appId,
-                    state: {
-                        position: windowToClose.position,
-                        size: windowToClose.size
-                    }
-                };
-                
-                if (existingIndex >= 0) {
-                    savedWindowStatesRef.current[existingIndex] = newRecord;
-                } else {
-                    savedWindowStatesRef.current.push(newRecord);
-                }
-                
-                storageService.set(KV_KEYS.windowStates, savedWindowStatesRef.current).catch(() => undefined);
-            }
-            const remaining = prev.filter(w => w.id !== id);
-            persistWindowStates(remaining);
-            return remaining;
-        });
-    };
-
-    const minimizeWindow = (id: string) => {
-        setWindows(prev => prev.map(w => w.id === id ? { ...w, isMinimized: !w.isMinimized } : w));
-    };
-
-    const toggleMaximizeWindow = (id: string) => {
-        const nextZIndex = getNextZIndex();
-        setWindows(prev => {
-            const updated = prev.map(w => w.id === id ? { ...w, isMaximized: !w.isMaximized, zIndex: nextZIndex } : w);
-            persistWindowStates(updated);
-            return updated;
-        });
-    };
-
-    const focusWindow = (id: string) => {
-        const nextZIndex = getNextZIndex();
-        setWindows(prev => prev.map(w => w.id === id ? { ...w, zIndex: nextZIndex } : w));
-    };
-
-    const resizeWindow = (id: string, size: { width: number; height: number }, position?: { x: number; y: number }) => {
-        setWindows(prev => {
-            const updated = prev.map(w => {
-                if (w.id !== id) return w;
-                return {
-                    ...w,
-                    size,
-                    ...(position ? { position } : {})
-                };
-            });
-            persistWindowStates(updated);
-            return updated;
-        });
-    };
-
-    const updateWindowPosition = (id: string, position: { x: number; y: number }) => {
-        setWindows(prev => {
-            const updated = prev.map(w => {
-                if (w.id !== id) return w;
-                return { ...w, position };
-            });
-            persistWindowStates(updated);
-            return updated;
-        });
-    };
-
-    const toggleStartMenu = () => setIsStartMenuOpen(prev => !prev);
-    const closeStartMenu = () => setIsStartMenuOpen(false);
-    
-    const setWallpaper = (url: string) => {
-        setActiveWallpaper(url);
-        storageService.set(KV_KEYS.wallpaper, url).catch(() => undefined);
+    const value: OSContextType = {
+        // Window management
+        windows: windowManager.windows,
+        openWindow: windowManager.openWindow,
+        closeWindow: windowManager.closeWindow,
+        minimizeWindow: windowManager.minimizeWindow,
+        toggleMaximizeWindow: windowManager.toggleMaximizeWindow,
+        focusWindow: windowManager.focusWindow,
+        resizeWindow: windowManager.resizeWindow,
+        updateWindowPosition: windowManager.updateWindowPosition,
+        // App registry
+        registerApp: appRegistry.registerApp,
+        apps: appRegistry.apps,
+        // Wallpaper
+        activeWallpaper: wallpaper.activeWallpaper,
+        setWallpaper: wallpaper.setWallpaper,
+        // Start menu
+        isStartMenuOpen: startMenu.isStartMenuOpen,
+        toggleStartMenu: startMenu.toggleStartMenu,
+        closeStartMenu: startMenu.closeStartMenu,
     };
 
     return (
-        <OSContext.Provider value={{
-            windows,
-            openWindow,
-            closeWindow,
-            minimizeWindow,
-            toggleMaximizeWindow,
-            focusWindow,
-            resizeWindow,
-            updateWindowPosition,
-            registerApp,
-            apps,
-            activeWallpaper,
-            setWallpaper,
-            isStartMenuOpen,
-            toggleStartMenu,
-            closeStartMenu
-        }}>
+        <OSContext.Provider value={value}>
             {children}
         </OSContext.Provider>
     );
 };
+
+/**
+ * Main OS provider that composes all context providers
+ */
+export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    return (
+        <AppRegistryProvider>
+            <StartMenuProvider>
+                <WallpaperProvider>
+                    <WindowProvider>
+                        <OSContextBridge>
+                            {children}
+                        </OSContextBridge>
+                    </WindowProvider>
+                </WallpaperProvider>
+            </StartMenuProvider>
+        </AppRegistryProvider>
+    );
+};
+
+// Re-export individual hooks for direct access
+export { useAppRegistry } from './AppRegistryContext';
+export { useWallpaper } from './WallpaperContext';
+export { useStartMenu } from './StartMenuContext';
+export { useWindowManager } from './WindowContext';

@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useMemo } from 'react';
+import React, { useEffect, useCallback, useMemo, useState } from 'react';
 import {
     AriaLiveProvider,
     DesktopIcon,
@@ -9,6 +9,7 @@ import {
     PWAUpdatePrompt,
     ReconnectingToast,
     NotificationToast,
+    OverviewMode,
     InstallButton,
     Screensaver,
     WallpaperHost,
@@ -26,6 +27,7 @@ const Desktop = () => {
         openWindow,
         closeWindow,
         minimizeWindow,
+        focusWindow,
         registerApp,
         activeWallpaper,
         isStartMenuOpen,
@@ -33,6 +35,9 @@ const Desktop = () => {
     } = useOS();
     const { is3DMode, settings: windowSpaceSettings, toggle3DMode } = useWindowSpace();
     const db = useDb();
+
+    // Overview mode state (F095)
+    const [isOverviewOpen, setIsOverviewOpen] = useState(false);
 
     // Calculate max z-index for 3D depth calculations
     const maxZIndex = useMemo(() => {
@@ -181,6 +186,24 @@ const Desktop = () => {
         return nonMinimized.reduce((top, w) => (w.zIndex > top.zIndex ? w : top));
     }, [windows]);
 
+    // Overview mode handlers (F095)
+    const openOverview = useCallback(() => {
+        setIsOverviewOpen(true);
+        closeStartMenu();
+    }, [closeStartMenu]);
+
+    const closeOverview = useCallback(() => {
+        setIsOverviewOpen(false);
+    }, []);
+
+    const handleOverviewSelect = useCallback(
+        (windowId: string) => {
+            focusWindow(windowId);
+            setIsOverviewOpen(false);
+        },
+        [focusWindow]
+    );
+
     useHotkeys({
         // App launcher shortcuts
         'ctrl+shift+e': () => openWindow('explorer'),
@@ -202,6 +225,9 @@ const Desktop = () => {
                 duration: 2000,
             });
         },
+        // Overview mode (F095)
+        'ctrl+tab': () => openOverview(),
+        'alt+space': () => openOverview(),
     });
 
     // CSS perspective for 3D mode
@@ -261,6 +287,7 @@ const Desktop = () => {
             <PWAUpdatePrompt />
             <ReconnectingToast />
             <NotificationToast />
+            <OverviewMode isOpen={isOverviewOpen} onClose={closeOverview} onSelectWindow={handleOverviewSelect} />
             <InstallButton />
             <Screensaver />
         </div>

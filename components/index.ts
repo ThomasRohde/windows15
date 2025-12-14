@@ -20,6 +20,7 @@ export {
     DelayedSkeleton,
 } from './LoadingSkeleton';
 export { NotificationToast } from './NotificationToast';
+export { OverviewMode } from './OverviewMode';
 export { PWAUpdatePrompt } from './PWAUpdatePrompt';
 export { ReconnectingToast } from './ReconnectingToast';
 export { Screensaver } from './Screensaver';

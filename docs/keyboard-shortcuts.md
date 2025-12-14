@@ -24,6 +24,8 @@ These shortcuts work anywhere in the application (except when typing in text inp
 | `Alt+F4`     | Close focused window        |
 | `Ctrl+M`     | Minimize focused window     |
 | `Ctrl+Alt+3` | Toggle 3D Window Space mode |
+| `Ctrl+Tab`   | Open Overview mode          |
+| `Alt+Space`  | Open Overview mode          |
 
 ## Developer API
 

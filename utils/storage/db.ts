@@ -67,6 +67,20 @@ export type ScreensaverSettingsRecord = {
     updatedAt: number;
 };
 
+export type TerminalSessionRecord = {
+    id?: number;
+    output: string; // JSON stringified array of OutputLine objects
+    createdAt: number;
+    updatedAt: number;
+};
+
+export type TerminalAliasRecord = {
+    name: string; // Alias name (e.g., 'll')
+    command: string; // Expanded command (e.g., 'ls -la')
+    createdAt: number;
+    updatedAt: number;
+};
+
 export class Windows15DexieDB extends Dexie {
     kv!: Table<KvRecord, string>;
     notes!: Table<NoteRecord, string>;
@@ -75,6 +89,8 @@ export class Windows15DexieDB extends Dexie {
     desktopIcons!: Table<DesktopIconRecord, string>;
     $terminalHistory!: Table<TerminalHistoryRecord, number>;
     $screensaverSettings!: Table<ScreensaverSettingsRecord, string>;
+    $terminalSessions!: Table<TerminalSessionRecord, number>;
+    $terminalAliases!: Table<TerminalAliasRecord, string>;
 
     constructor() {
         super('windows15', { addons: [dexieCloud] });
@@ -164,6 +180,29 @@ export class Windows15DexieDB extends Dexie {
             desktopIcons: '@id, order, updatedAt, createdAt',
             $terminalHistory: '++id, executedAt',
             $screensaverSettings: 'id, updatedAt, createdAt',
+        });
+
+        this.version(7).stores({
+            kv: 'key, updatedAt',
+            notes: '@id, updatedAt, createdAt',
+            bookmarks: '@id, folder, updatedAt, createdAt',
+            todos: '@id, completed, priority, dueDate, sortOrder, updatedAt, createdAt',
+            desktopIcons: '@id, order, updatedAt, createdAt',
+            $terminalHistory: '++id, executedAt',
+            $screensaverSettings: 'id, updatedAt, createdAt',
+            $terminalSessions: '++id, updatedAt, createdAt',
+        });
+
+        this.version(8).stores({
+            kv: 'key, updatedAt',
+            notes: '@id, updatedAt, createdAt',
+            bookmarks: '@id, folder, updatedAt, createdAt',
+            todos: '@id, completed, priority, dueDate, sortOrder, updatedAt, createdAt',
+            desktopIcons: '@id, order, updatedAt, createdAt',
+            $terminalHistory: '++id, executedAt',
+            $screensaverSettings: 'id, updatedAt, createdAt',
+            $terminalSessions: '++id, updatedAt, createdAt',
+            $terminalAliases: 'name, updatedAt, createdAt',
         });
 
         const databaseUrl = getCloudDatabaseUrl();

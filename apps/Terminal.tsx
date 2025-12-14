@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocalization } from '../context';
 import { useDb } from '../context/DbContext';
+import { useOS } from '../context/OSContext';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getFiles, saveFileToFolder } from '../utils/fileSystem';
 import type { FileSystemItem } from '../types';
@@ -19,6 +20,35 @@ interface OutputLine {
 }
 
 const MAX_HISTORY = 500;
+
+// Available terminal commands for tab completion
+const AVAILABLE_COMMANDS = [
+    'help',
+    'date',
+    'time',
+    'echo',
+    'clear',
+    'cls',
+    'whoami',
+    'ls',
+    'dir',
+    'pwd',
+    'cd',
+    'mkdir',
+    'touch',
+    'cat',
+    'export',
+    'alias',
+    'unalias',
+    'notepad',
+    'calc',
+    'calculator',
+    'browser',
+    'calendar',
+    'start',
+    'ver',
+    'hostname',
+];
 
 // Helper to find a folder by path
 const findFolderByPath = (files: FileSystemItem[], path: string[]): FileSystemItem | null => {
@@ -65,6 +95,7 @@ const parsePath = (currentPath: string[], input: string): string[] => {
 export const Terminal = () => {
     const { formatDateLong, formatTimeLong } = useLocalization();
     const db = useDb();
+    const { openWindow, apps } = useOS();
     const [input, setInput] = useState('');
     const [output, setOutput] = useState<OutputLine[]>([
         { id: 0, type: 'output', text: 'Windows15 Command Prompt [Version 15.0.28500.1000]' },
@@ -74,9 +105,83 @@ export const Terminal = () => {
     const [historyIndex, setHistoryIndex] = useState(-1);
     const [currentPath, setCurrentPath] = useState<string[]>(['Users', 'Guest']);
     const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
+    const [suggestions, setSuggestions] = useState<string[]>([]);
+    const [suggestionIndex, setSuggestionIndex] = useState(-1);
+    const [sessionId, setSessionId] = useState<number | null>(null);
+    const [isSessionLoaded, setIsSessionLoaded] = useState(false);
     const outputRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const idCounter = useRef(3);
+    const saveTimerRef = useRef<number | null>(null);
+
+    // Load most recent session on mount
+    useEffect(() => {
+        const loadSession = async () => {
+            if (!db || isSessionLoaded) return;
+
+            try {
+                const sessions = await db.$terminalSessions.orderBy('updatedAt').reverse().limit(1).toArray();
+                if (sessions.length > 0 && sessions[0]) {
+                    const session = sessions[0];
+                    const parsedOutput = JSON.parse(session.output) as OutputLine[];
+                    setOutput(parsedOutput);
+                    setSessionId(session.id ?? null);
+                    // Update idCounter to continue from the highest ID
+                    const maxId = Math.max(...parsedOutput.map(line => line.id), 2);
+                    idCounter.current = maxId + 1;
+                } else {
+                    // Create a new session
+                    const now = Date.now();
+                    const id = await db.$terminalSessions.add({
+                        output: JSON.stringify(output),
+                        createdAt: now,
+                        updatedAt: now,
+                    });
+                    setSessionId(id);
+                }
+            } catch (error) {
+                console.error('Failed to load terminal session:', error);
+            }
+
+            setIsSessionLoaded(true);
+        };
+
+        void loadSession();
+    }, [db, isSessionLoaded, output]);
+
+    // Save session periodically and on unmount
+    useEffect(() => {
+        if (!db || !sessionId || !isSessionLoaded) return;
+
+        const saveSession = async () => {
+            try {
+                await db.$terminalSessions.update(sessionId, {
+                    output: JSON.stringify(output),
+                    updatedAt: Date.now(),
+                });
+            } catch (error) {
+                console.error('Failed to save terminal session:', error);
+            }
+        };
+
+        // Clear any existing timer
+        if (saveTimerRef.current) {
+            clearTimeout(saveTimerRef.current);
+        }
+
+        // Schedule save after 2 seconds of inactivity
+        saveTimerRef.current = window.setTimeout(() => {
+            void saveSession();
+        }, 2000);
+
+        // Save on unmount
+        return () => {
+            if (saveTimerRef.current) {
+                clearTimeout(saveTimerRef.current);
+            }
+            void saveSession();
+        };
+    }, [db, sessionId, output, isSessionLoaded]);
 
     // Load command history from IndexedDB
     const commandHistory = useLiveQuery(
@@ -87,6 +192,17 @@ export const Terminal = () => {
         },
         [db],
         []
+    );
+
+    // Load aliases from IndexedDB
+    const aliases = useLiveQuery(
+        async () => {
+            if (!db) return {};
+            const aliasRecords = await db.$terminalAliases.toArray();
+            return Object.fromEntries(aliasRecords.map(a => [a.name, a.command]));
+        },
+        [db],
+        {}
     );
 
     useEffect(() => {
@@ -177,11 +293,39 @@ export const Terminal = () => {
         return `C:\\${currentPath.join('\\')}`;
     }, [currentPath]);
 
+    const getCommandSuggestions = useCallback((input: string): string[] => {
+        const trimmed = input.trim().toLowerCase();
+        if (!trimmed) return AVAILABLE_COMMANDS;
+        return AVAILABLE_COMMANDS.filter(cmd => cmd.startsWith(trimmed));
+    }, []);
+
+    const exportSession = useCallback(() => {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const filename = `terminal-session-${timestamp}.txt`;
+        const content = output.map(line => line.text).join('\n');
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, [output]);
+
     const executeCommand = async (cmd: string) => {
         const trimmed = cmd.trim();
         if (!trimmed) return;
 
         addOutput(`${getCurrentPrompt()}>${trimmed}`, 'command');
+
+        // Expand aliases
+        let expandedCmd = trimmed;
+        const firstWord = trimmed.split(' ')[0]?.toLowerCase();
+        if (firstWord && aliases && typeof aliases === 'object' && firstWord in aliases) {
+            const aliasValue = aliases[firstWord as keyof typeof aliases];
+            const restOfCommand = trimmed.substring(firstWord.length).trim();
+            expandedCmd = restOfCommand ? `${aliasValue} ${restOfCommand}` : aliasValue;
+        }
 
         // Save command to database with FIFO eviction
         if (db) {
@@ -209,7 +353,7 @@ export const Terminal = () => {
 
         setHistoryIndex(-1);
 
-        const parts = trimmed.split(' ');
+        const parts = expandedCmd.split(' ');
         const command = (parts[0] ?? '').toLowerCase();
         const args = parts.slice(1).join(' ');
 
@@ -230,6 +374,14 @@ export const Terminal = () => {
                 addOutput('  mkdir    - Create a new directory');
                 addOutput('  touch    - Create a new file');
                 addOutput('  cat      - Display file contents');
+                addOutput('  export   - Export terminal session to file');
+                addOutput('  alias    - Define or list command aliases');
+                addOutput('  unalias  - Remove a command alias');
+                addOutput('  notepad  - Open Notepad app (optionally with filename)');
+                addOutput('  calc     - Open Calculator app');
+                addOutput('  browser  - Open Browser app (optionally with URL)');
+                addOutput('  calendar - Open Calendar app');
+                addOutput('  start    - Launch any Windows15 app by ID');
                 addOutput('  ver      - Display OS version');
                 addOutput('  hostname - Display computer name');
                 break;
@@ -490,6 +642,133 @@ export const Terminal = () => {
             case 'hostname':
                 addOutput('DESKTOP-WIN15');
                 break;
+            case 'export':
+                exportSession();
+                addOutput('Terminal session exported successfully.');
+                break;
+            case 'alias': {
+                if (!db) {
+                    addOutput('Database not available.', 'error');
+                    break;
+                }
+
+                if (!args) {
+                    // List all aliases
+                    if (aliases && Object.keys(aliases).length > 0) {
+                        addOutput('Defined aliases:');
+                        Object.entries(aliases).forEach(([name, cmd]) => {
+                            addOutput(`  ${name}='${cmd}'`);
+                        });
+                    } else {
+                        addOutput('No aliases defined.');
+                    }
+                    break;
+                }
+
+                // Define a new alias: alias name='command'
+                const match = args.match(/^(\w+)=(.+)$/);
+                if (!match) {
+                    addOutput('Usage: alias name=command', 'error');
+                    break;
+                }
+
+                const [, aliasName, aliasCmd] = match;
+                if (!aliasName || !aliasCmd) {
+                    addOutput('Usage: alias name=command', 'error');
+                    break;
+                }
+
+                // Remove quotes if present
+                const cleanCmd = aliasCmd.replace(/^['"]|['"]$/g, '');
+
+                try {
+                    const now = Date.now();
+                    await db.$terminalAliases.put({
+                        name: aliasName.toLowerCase(),
+                        command: cleanCmd,
+                        createdAt: now,
+                        updatedAt: now,
+                    });
+                    addOutput(`Alias created: ${aliasName}='${cleanCmd}'`);
+                } catch {
+                    addOutput('Failed to create alias.', 'error');
+                }
+                break;
+            }
+            case 'unalias': {
+                if (!db) {
+                    addOutput('Database not available.', 'error');
+                    break;
+                }
+
+                if (!args) {
+                    addOutput('Usage: unalias <name>', 'error');
+                    break;
+                }
+
+                const aliasName = args.trim().toLowerCase();
+                try {
+                    await db.$terminalAliases.delete(aliasName);
+                    addOutput(`Alias removed: ${aliasName}`);
+                } catch {
+                    addOutput('Failed to remove alias.', 'error');
+                }
+                break;
+            }
+            case 'notepad': {
+                const filename = args.trim();
+                if (filename) {
+                    // TODO: Pass filename to Notepad app
+                    openWindow('notepad', { filename });
+                    addOutput(`Opening Notepad with file: ${filename}`);
+                } else {
+                    openWindow('notepad');
+                    addOutput('Opening Notepad...');
+                }
+                break;
+            }
+            case 'calc':
+            case 'calculator':
+                openWindow('calculator');
+                addOutput('Opening Calculator...');
+                break;
+            case 'browser': {
+                const url = args.trim();
+                if (url) {
+                    // TODO: Pass URL to Browser app
+                    openWindow('browser', { url });
+                    addOutput(`Opening Browser with URL: ${url}`);
+                } else {
+                    openWindow('browser');
+                    addOutput('Opening Browser...');
+                }
+                break;
+            }
+            case 'calendar':
+                openWindow('calendar');
+                addOutput('Opening Calendar...');
+                break;
+            case 'start': {
+                if (!args) {
+                    addOutput('Usage: start <app-id>', 'error');
+                    addOutput('Available apps:');
+                    apps.forEach(app => {
+                        addOutput(`  ${app.id.padEnd(15)} - ${app.title}`);
+                    });
+                    break;
+                }
+
+                const appId = args.trim().toLowerCase();
+                const app = apps.find(a => a.id === appId);
+                if (!app) {
+                    addOutput(`App not found: ${appId}`, 'error');
+                    break;
+                }
+
+                openWindow(appId);
+                addOutput(`Opening ${app.title}...`);
+                break;
+            }
             default:
                 addOutput(`'${command}' is not recognized as an internal or external command,`, 'error');
                 addOutput('operable program or batch file.', 'error');
@@ -498,6 +777,40 @@ export const Terminal = () => {
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
+        // Tab: Trigger command completion
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const matches = getCommandSuggestions(input);
+
+            if (matches.length === 0) {
+                // No matches
+                return;
+            } else if (matches.length === 1) {
+                // Single match - auto-complete
+                setInput(matches[0] + ' ');
+                setSuggestions([]);
+                setSuggestionIndex(-1);
+            } else if (suggestions.length > 0 && suggestionIndex >= 0) {
+                // Cycle through suggestions
+                const nextIndex = (suggestionIndex + 1) % suggestions.length;
+                setSuggestionIndex(nextIndex);
+                setInput(suggestions[nextIndex] + ' ');
+            } else {
+                // Multiple matches - show suggestions
+                setSuggestions(matches);
+                setSuggestionIndex(0);
+                setInput(matches[0] + ' ');
+            }
+            return;
+        }
+
+        // Escape: Clear suggestions
+        if (e.key === 'Escape') {
+            setSuggestions([]);
+            setSuggestionIndex(-1);
+            return;
+        }
+
         // Ctrl+C: Copy selection or do nothing (don't interrupt)
         if (e.ctrlKey && e.key === 'c') {
             const selection = getSelectedText();
@@ -525,8 +838,13 @@ export const Terminal = () => {
         if (e.key === 'Enter') {
             void executeCommand(input);
             setInput('');
+            setSuggestions([]);
+            setSuggestionIndex(-1);
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
+            // Clear suggestions when navigating history
+            setSuggestions([]);
+            setSuggestionIndex(-1);
             if (commandHistory && commandHistory.length > 0) {
                 const newIndex = historyIndex === -1 ? commandHistory.length - 1 : Math.max(0, historyIndex - 1);
                 setHistoryIndex(newIndex);
@@ -534,6 +852,9 @@ export const Terminal = () => {
             }
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
+            // Clear suggestions when navigating history
+            setSuggestions([]);
+            setSuggestionIndex(-1);
             if (commandHistory && historyIndex !== -1) {
                 const newIndex = historyIndex + 1;
                 if (newIndex >= commandHistory.length) {
@@ -545,6 +866,13 @@ export const Terminal = () => {
                 }
             }
         }
+    };
+
+    const handleInputChange = (value: string) => {
+        setInput(value);
+        // Clear suggestions when user types
+        setSuggestions([]);
+        setSuggestionIndex(-1);
     };
 
     return (
@@ -569,18 +897,38 @@ export const Terminal = () => {
                     </div>
                 ))}
             </div>
-            <div className="flex items-center p-3 pt-0">
+            <div className="relative flex items-center p-3 pt-0">
                 <span className="text-cyan-300">{getCurrentPrompt()}&gt;</span>
                 <input
                     ref={inputRef}
                     type="text"
                     value={input}
-                    onChange={e => setInput(e.target.value)}
+                    onChange={e => handleInputChange(e.target.value)}
                     onKeyDown={handleKeyDown}
                     className="flex-1 bg-transparent text-green-400 outline-none ml-1 caret-green-400"
                     autoFocus
                     spellCheck={false}
                 />
+                {/* Tab completion suggestions */}
+                {suggestions.length > 0 && (
+                    <div className="absolute bottom-full left-0 mb-1 bg-gray-800 border border-gray-600 rounded shadow-lg py-1 z-50 min-w-[200px]">
+                        <div className="px-3 py-1 text-xs text-gray-400 border-b border-gray-600">
+                            Press Tab to cycle ({suggestions.length} matches)
+                        </div>
+                        {suggestions.map((suggestion, idx) => (
+                            <div
+                                key={suggestion}
+                                className={`px-3 py-1 ${
+                                    idx === suggestionIndex
+                                        ? 'bg-blue-600 text-white'
+                                        : 'text-gray-300 hover:bg-gray-700'
+                                }`}
+                            >
+                                {suggestion}
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Context Menu */}
@@ -621,6 +969,16 @@ export const Terminal = () => {
                         Select All
                     </button>
                     <div className="border-t border-gray-600 my-1"></div>
+                    <button
+                        className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2"
+                        onClick={() => {
+                            exportSession();
+                            setContextMenu(null);
+                        }}
+                    >
+                        <span className="material-symbols-outlined text-sm">download</span>
+                        Export Session
+                    </button>
                     <button
                         className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2"
                         onClick={handleClearTerminal}

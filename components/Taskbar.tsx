@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
 import { useOS } from '../context/OSContext';
 import { SyncStatus } from './SyncStatus';
+
+// Pinned apps configuration - static list
+const PINNED_APPS = ['explorer', 'browser', 'mail', 'calendar', 'notepad', 'calculator', 'settings'] as const;
 
 export const Taskbar = () => {
     const { toggleStartMenu, isStartMenuOpen, apps, openWindow, windows, minimizeWindow } = useOS();
@@ -15,8 +18,19 @@ export const Taskbar = () => {
     const formatDate = (date: Date) =>
         date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
 
-    // Filter pinned apps from registry
-    const pinnedApps = ['explorer', 'browser', 'mail', 'calendar', 'notepad', 'calculator', 'settings'];
+    // Memoize click handlers to prevent TaskbarIcon re-renders
+    const openWindowHandlers = useMemo(() => {
+        const handlers: Record<string, () => void> = {};
+        PINNED_APPS.forEach(id => {
+            handlers[id] = () => openWindow(id);
+        });
+        return handlers;
+    }, [openWindow]);
+
+    // Memoize minimize all handler
+    const handleMinimizeAll = useCallback(() => {
+        windows.forEach(w => minimizeWindow(w.id));
+    }, [windows, minimizeWindow]);
 
     return (
         <div data-taskbar className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
@@ -40,7 +54,7 @@ export const Taskbar = () => {
                 {/* App Icons (Pinned + Open) */}
                 <div className="flex gap-1 md:gap-2">
                     {/* Render Pinned Apps */}
-                    {pinnedApps.map(id => {
+                    {PINNED_APPS.map(id => {
                         const app = apps.find(a => a.id === id);
                         if (!app) return null;
                         const isOpen = windows.some(w => w.appId === id && !w.isMinimized);
@@ -53,7 +67,7 @@ export const Taskbar = () => {
                                 colorClass={app.color.replace('bg-', 'text-')}
                                 active={isOpen}
                                 running={isRunning}
-                                onClick={() => openWindow(id)}
+                                onClick={openWindowHandlers[id]}
                                 filled={true}
                             />
                         );
@@ -80,7 +94,7 @@ export const Taskbar = () => {
                     </div>
                     <button
                         className="w-1 h-8 border-l border-white/20 ml-2 hover:bg-white/20"
-                        onClick={() => windows.forEach(w => minimizeWindow(w.id))}
+                        onClick={handleMinimizeAll}
                     ></button>
                 </div>
             </div>
@@ -97,14 +111,18 @@ interface TaskbarIconProps {
     filled?: boolean;
 }
 
-const TaskbarIcon: React.FC<TaskbarIconProps> = ({
+/**
+ * Individual taskbar icon button.
+ * Memoized to prevent re-renders when other taskbar items change.
+ */
+const TaskbarIcon: React.FC<TaskbarIconProps> = memo(function TaskbarIcon({
     icon,
     active,
     running,
     onClick,
     colorClass = 'text-white',
     filled,
-}) => {
+}) {
     return (
         <button
             onClick={onClick}
@@ -124,4 +142,4 @@ const TaskbarIcon: React.FC<TaskbarIconProps> = ({
             )}
         </button>
     );
-};
+});

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { DesktopIconProps } from '../types';
 import { useOS } from '../context/OSContext';
 
@@ -8,7 +8,11 @@ interface DraggableDesktopIconProps extends DesktopIconProps {
     onPositionChange?: (id: string, position: { x: number; y: number }) => void;
 }
 
-export const DesktopIcon: React.FC<DraggableDesktopIconProps> = ({
+/**
+ * Desktop icon component with drag support.
+ * Memoized to prevent re-renders when other icons or windows change.
+ */
+export const DesktopIcon: React.FC<DraggableDesktopIconProps> = memo(function DesktopIcon({
     id,
     label,
     icon,
@@ -17,7 +21,7 @@ export const DesktopIcon: React.FC<DraggableDesktopIconProps> = ({
     onClick,
     position,
     onPositionChange,
-}) => {
+}) {
     const { openWindow } = useOS();
     const [isDragging, setIsDragging] = useState(false);
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -79,4 +83,4 @@ export const DesktopIcon: React.FC<DraggableDesktopIconProps> = ({
             <span className="text-xs font-medium text-center text-white/90 drop-shadow-md shadow-black">{label}</span>
         </button>
     );
-};
+});

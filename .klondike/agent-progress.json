@@ -180,7 +180,7 @@
       {
         "id": "F045",
         "description": "Memoize expensive component renders with React.memo",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F046",

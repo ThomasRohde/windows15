@@ -1166,13 +1166,13 @@
         "React DevTools shows reduced re-renders"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T05:41:13.790889",
       "notes": "Implementation: Wrap components with React.memo(). Add custom areEqual for Window (compare id isMaximized isMinimized zIndex). Use useCallback for event handlers passed as props. Edge cases: Don't memoize components that always re-render anyway. Dependencies: None. Context: Desktop re-renders all icons on any state change. Gotchas: Profile with React DevTools first to identify actual bottlenecks."
     },
     {

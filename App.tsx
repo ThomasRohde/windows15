@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import {
     AriaLiveProvider,
     DesktopIcon,
@@ -129,10 +129,13 @@ const Desktop = () => {
         });
     }, [db]);
 
-    // Handle icon position changes
-    const handleIconPositionChange = async (id: string, position: { x: number; y: number }) => {
-        await db.desktopIcons.update(id, { position, updatedAt: Date.now() });
-    };
+    // Handle icon position changes - memoized for DesktopIcon optimization
+    const handleIconPositionChange = useCallback(
+        async (id: string, position: { x: number; y: number }) => {
+            await db.desktopIcons.update(id, { position, updatedAt: Date.now() });
+        },
+        [db]
+    );
 
     // Register all applications from registry on boot
     useEffect(() => {

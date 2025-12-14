@@ -118,7 +118,16 @@ export default defineConfig({
         coverage: {
             provider: 'v8',
             reporter: ['text', 'json', 'html'],
-            exclude: ['node_modules/', 'dist/', 'dev-dist/', 'tests/', 'e2e/', '**/*.d.ts', '**/*.config.*', '**/index.ts'],
+            exclude: [
+                'node_modules/',
+                'dist/',
+                'dev-dist/',
+                'tests/',
+                'e2e/',
+                '**/*.d.ts',
+                '**/*.config.*',
+                '**/index.ts',
+            ],
         },
     },
 });

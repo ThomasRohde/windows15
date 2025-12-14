@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense, memo } from 'react';
 import { useOS } from '../context/OSContext';
 import { WindowState } from '../types';
 import { AppLoadingSkeleton } from './AppLoadingSkeleton';
@@ -13,7 +13,34 @@ type ResizeDirection = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | null;
 const MIN_WIDTH = 200;
 const MIN_HEIGHT = 150;
 
-export const Window: React.FC<WindowProps> = ({ window }) => {
+/**
+ * Custom comparison function for Window memoization.
+ * Only re-renders when window properties that affect rendering change.
+ */
+const areWindowPropsEqual = (prevProps: WindowProps, nextProps: WindowProps): boolean => {
+    const prev = prevProps.window;
+    const next = nextProps.window;
+
+    return (
+        prev.id === next.id &&
+        prev.isMaximized === next.isMaximized &&
+        prev.isMinimized === next.isMinimized &&
+        prev.zIndex === next.zIndex &&
+        prev.title === next.title &&
+        prev.icon === next.icon &&
+        prev.position.x === next.position.x &&
+        prev.position.y === next.position.y &&
+        prev.size.width === next.size.width &&
+        prev.size.height === next.size.height &&
+        prev.component === next.component
+    );
+};
+
+/**
+ * Window component with dragging, resizing, and window controls.
+ * Memoized with custom comparator to prevent unnecessary re-renders.
+ */
+export const Window: React.FC<WindowProps> = memo(function Window({ window }) {
     const { closeWindow, minimizeWindow, toggleMaximizeWindow, focusWindow, resizeWindow, updateWindowPosition } =
         useOS();
     const [isDragging, setIsDragging] = useState(false);
@@ -435,4 +462,4 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
             )}
         </div>
     );
-};
+}, areWindowPropsEqual);

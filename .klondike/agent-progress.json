@@ -341,13 +341,13 @@
         "status": "not-started"
       },
       {
-        "id": "F092",
-        "description": "Audio reactive wallpaper mode with microphone input analysis",
+        "id": "F098",
+        "description": "Arcade save/load system with multiple slots per game",
         "status": "in-progress"
       },
       {
-        "id": "F098",
-        "description": "Arcade save/load system with multiple slots per game",
+        "id": "F102",
+        "description": "Wallpaper rendering in Web Worker with OffscreenCanvas",
         "status": "not-started"
       }
     ]

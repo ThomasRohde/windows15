@@ -457,6 +457,45 @@ export class Wasm4Runtime {
     }
 
     /**
+     * Export current game state as a Blob (F098)
+     * This exports the entire WASM memory for save states.
+     */
+    exportState(): Blob | null {
+        if (!this.memory) return null;
+
+        // Export the entire memory buffer
+        const memoryData = new Uint8Array(this.memory.buffer);
+        return new Blob([memoryData], { type: 'application/octet-stream' });
+    }
+
+    /**
+     * Import a saved game state (F098)
+     * This restores the entire WASM memory from a save state.
+     */
+    async importState(stateBlob: Blob): Promise<boolean> {
+        if (!this.memory) return false;
+
+        try {
+            const arrayBuffer = await stateBlob.arrayBuffer();
+            const savedData = new Uint8Array(arrayBuffer);
+            const memoryData = new Uint8Array(this.memory.buffer);
+
+            // Validate size matches
+            if (savedData.length !== memoryData.length) {
+                console.error('[Wasm4Runtime] Save state size mismatch');
+                return false;
+            }
+
+            // Restore memory
+            memoryData.set(savedData);
+            return true;
+        } catch (error) {
+            console.error('[Wasm4Runtime] Failed to import state:', error);
+            return false;
+        }
+    }
+
+    /**
      * Dispose runtime resources
      */
     dispose(): void {

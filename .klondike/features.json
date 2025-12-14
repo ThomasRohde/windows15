@@ -2442,11 +2442,14 @@
         "Graceful fallback if mic permission denied"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T18:22:11.797627",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "AudioAnalyzer provides smoothed bass/mid/treble bands via Web Audio API",
+        "integrated into WallpaperHost with microphone indicator and graceful permission handling"
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T18:19:11.693055",
       "notes": "Implementation: Create platform/audio/AudioAnalyzer.ts. Use Web Audio API + getUserMedia. Smooth bands with exponential moving average. Edge cases: Mic permission denied mid-session, device change. Dependencies: F089/F090 (shader runtimes), F091 (settings). Context: Milestone 2 optional - visceral wow factor. Gotchas: micSensitivity setting should scale analyzer gain; show permission prompt UX."
@@ -2606,13 +2609,13 @@
         "UI shows save slot timestamp and metadata"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T18:22:16.358302",
       "notes": "Implementation: Use WASM-4 save state hooks if available. Store in arcadeSaves table with gameId and slot. Edge cases: Corrupted save data, slot overflow. Dependencies: F096 (Arcade app). Context: Milestone 4 - game progress persistence. Gotchas: WASM-4 may only support in-game saves; check runtime docs. If full state not feasible, label as in-game save only."
     },
     {
@@ -2884,8 +2887,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T18:18:54.037401",
+    "lastUpdated": "2025-12-14T18:22:11.797639",
     "totalFeatures": 108,
-    "passingFeatures": 104
+    "passingFeatures": 105
   }
 }

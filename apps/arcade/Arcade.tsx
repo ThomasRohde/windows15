@@ -1,5 +1,5 @@
 /**
- * Arcade App (F096, F097, F099, F100, F104)
+ * Arcade App (F096, F097, F098, F099, F100, F104)
  *
  * Fantasy console game library with WASM-4 runtime.
  *
@@ -7,13 +7,14 @@
  * - Game library view with installed cartridges
  * - WASM-4 runtime for running .wasm games
  * - Import custom cartridges
+ * - Save/load game state with multiple slots (F098)
  * - Keyboard and gamepad support
  * - Fullscreen mode with integer scaling
  * - Panic button for hung games
  */
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useDb } from '../../context/DbContext';
-import type { ArcadeGameRecord } from '../../utils/storage/db';
+import type { ArcadeGameRecord, ArcadeSaveRecord } from '../../utils/storage/db';
 import { useLiveQuery } from 'dexie-react-hooks';
 import {
     Wasm4Runtime,
@@ -39,6 +40,20 @@ type ViewMode = 'library' | 'player';
 const DEMO_CART_ID = '__demo_cart__';
 
 /**
+ * Number of save slots per game
+ */
+const SAVE_SLOT_COUNT = 3;
+
+/**
+ * Save slot info for UI display
+ */
+interface SaveSlotInfo {
+    slot: number;
+    timestamp: number | null;
+    isEmpty: boolean;
+}
+
+/**
  * Arcade App Component
  */
 export const Arcade: React.FC = () => {
@@ -53,12 +68,44 @@ export const Arcade: React.FC = () => {
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [scale, setScale] = useState(3);
     const [isImporting, setIsImporting] = useState(false);
+    const [showSaveModal, setShowSaveModal] = useState(false);
+    const [saveSlots, setSaveSlots] = useState<SaveSlotInfo[]>([]);
+    const [isSaving, setIsSaving] = useState(false);
 
     // Load games from database
     const games = useLiveQuery(async () => {
         if (!db) return [];
         return db.$arcadeGames.orderBy('lastPlayedAt').reverse().toArray();
     }, [db]);
+
+    // Load save slots for current game
+    const loadSaveSlots = useCallback(async () => {
+        if (!db || !selectedGame) return;
+
+        try {
+            const saves = await db.$arcadeSaves.where('gameId').equals(selectedGame.id).toArray();
+
+            const slots: SaveSlotInfo[] = [];
+            for (let i = 1; i <= SAVE_SLOT_COUNT; i++) {
+                const save = saves.find(s => s.slot === i);
+                slots.push({
+                    slot: i,
+                    timestamp: save?.updatedAt ?? null,
+                    isEmpty: !save,
+                });
+            }
+            setSaveSlots(slots);
+        } catch (error) {
+            console.error('[Arcade] Failed to load save slots:', error);
+        }
+    }, [db, selectedGame]);
+
+    // Load save slots when game changes
+    useEffect(() => {
+        if (selectedGame) {
+            void loadSaveSlots();
+        }
+    }, [selectedGame, loadSaveSlots]);
 
     // Initialize runtime when entering player mode
     useEffect(() => {
@@ -208,6 +255,96 @@ export const Arcade: React.FC = () => {
         setSelectedGame(null);
         setRuntimeState(null);
     }, []);
+
+    /**
+     * Save game state to a slot (F098)
+     */
+    const saveGame = useCallback(
+        async (slot: number) => {
+            if (!db || !selectedGame || !runtimeRef.current) return;
+
+            setIsSaving(true);
+            try {
+                const stateBlob = runtimeRef.current.exportState();
+                if (!stateBlob) {
+                    throw new Error('Failed to export game state');
+                }
+
+                const now = Date.now();
+                const meta = JSON.stringify({
+                    savedAt: now,
+                    frameCount: runtimeState?.frameCount ?? 0,
+                });
+
+                // Check if save exists
+                const existing = await db.$arcadeSaves
+                    .where(['gameId', 'slot'])
+                    .equals([selectedGame.id, slot])
+                    .first();
+
+                if (existing && existing.id !== undefined) {
+                    // Update existing save
+                    await db.$arcadeSaves.update(existing.id, {
+                        dataBlob: stateBlob,
+                        meta,
+                        updatedAt: now,
+                    });
+                } else {
+                    // Create new save
+                    const saveRecord: ArcadeSaveRecord = {
+                        gameId: selectedGame.id,
+                        slot,
+                        dataBlob: stateBlob,
+                        meta,
+                        createdAt: now,
+                        updatedAt: now,
+                    };
+                    await db.$arcadeSaves.add(saveRecord);
+                }
+
+                // Reload save slots
+                await loadSaveSlots();
+                console.log(`[Arcade] Saved to slot ${slot}`);
+            } catch (error) {
+                console.error('[Arcade] Save failed:', error);
+                alert(`Save failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            } finally {
+                setIsSaving(false);
+                setShowSaveModal(false);
+            }
+        },
+        [db, selectedGame, runtimeState, loadSaveSlots]
+    );
+
+    /**
+     * Load game state from a slot (F098)
+     */
+    const loadGame = useCallback(
+        async (slot: number) => {
+            if (!db || !selectedGame || !runtimeRef.current) return;
+
+            try {
+                const save = await db.$arcadeSaves.where(['gameId', 'slot']).equals([selectedGame.id, slot]).first();
+
+                if (!save) {
+                    alert('No save in this slot');
+                    return;
+                }
+
+                const success = await runtimeRef.current.importState(save.dataBlob);
+                if (!success) {
+                    throw new Error('Failed to restore game state');
+                }
+
+                console.log(`[Arcade] Loaded from slot ${slot}`);
+                setShowSaveModal(false);
+            } catch (error) {
+                console.error('[Arcade] Load failed:', error);
+                alert(`Load failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            }
+        },
+        [db, selectedGame]
+    );
 
     /**
      * Import a cartridge file (F097)
@@ -436,6 +573,74 @@ export const Arcade: React.FC = () => {
                         >
                             <span className="material-icons text-sm">emergency</span>
                         </button>
+
+                        {/* Save/Load (F098) */}
+                        <div className="h-6 border-l border-gray-600 mx-1" />
+                        <button
+                            onClick={() => setShowSaveModal(true)}
+                            className="p-2 bg-blue-700 hover:bg-blue-600 rounded text-white"
+                            title="Save/Load"
+                            disabled={isSaving}
+                        >
+                            <span className="material-icons text-sm">save</span>
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Save/Load Modal (F098) */}
+            {showSaveModal && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+                    <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-xl font-bold text-white">Save / Load</h2>
+                            <button onClick={() => setShowSaveModal(false)} className="p-1 hover:bg-gray-700 rounded">
+                                <span className="material-icons text-gray-400">close</span>
+                            </button>
+                        </div>
+
+                        <div className="space-y-3">
+                            {Array.from({ length: SAVE_SLOT_COUNT }, (_, i) => i + 1).map(slot => {
+                                const slotInfo = saveSlots.find(s => s.slot === slot);
+                                return (
+                                    <div
+                                        key={slot}
+                                        className="flex items-center justify-between p-3 bg-gray-700 rounded-lg"
+                                    >
+                                        <div className="flex-1">
+                                            <p className="text-white font-medium">Slot {slot}</p>
+                                            {slotInfo && slotInfo.timestamp ? (
+                                                <p className="text-gray-400 text-sm">
+                                                    {new Date(slotInfo.timestamp).toLocaleString()}
+                                                </p>
+                                            ) : (
+                                                <p className="text-gray-500 text-sm italic">Empty</p>
+                                            )}
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => saveGame(slot)}
+                                                disabled={isSaving}
+                                                className="px-3 py-1 bg-green-600 hover:bg-green-500 rounded text-white text-sm disabled:opacity-50"
+                                            >
+                                                {isSaving ? '...' : 'Save'}
+                                            </button>
+                                            <button
+                                                onClick={() => loadGame(slot)}
+                                                disabled={!slotInfo}
+                                                className="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded text-white text-sm disabled:opacity-50"
+                                            >
+                                                Load
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <p className="mt-4 text-gray-400 text-sm text-center">
+                            Save states are stored locally per game
+                        </p>
                     </div>
                 </div>
             )}

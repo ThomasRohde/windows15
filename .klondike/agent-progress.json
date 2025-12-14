@@ -208,18 +208,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F059",
-        "description": "Add error handling and validation to TodoList app",
-        "status": "in-progress"
-      },
-      {
         "id": "F060",
         "description": "Add todo edit functionality to TodoList app",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F061",
         "description": "Add bulk operations to TodoList app",
+        "status": "not-started"
+      },
+      {
+        "id": "F062",
+        "description": "Add todo persistence and sync verification tests",
         "status": "not-started"
       }
     ]

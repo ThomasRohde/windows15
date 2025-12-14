@@ -16,6 +16,8 @@ export const TodoList = () => {
     const [filter, setFilter] = useState<Filter>('all');
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [editText, setEditText] = useState('');
 
     const addTodo = async () => {
         const trimmedInput = input.trim();
@@ -83,6 +85,44 @@ export const TodoList = () => {
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to delete task');
             console.error('Error deleting todo:', err);
+        }
+    };
+
+    const startEdit = (id: string, currentText: string) => {
+        setEditingId(id);
+        setEditText(currentText);
+        setError(null);
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        setEditText('');
+    };
+
+    const saveEdit = async (id: string) => {
+        const trimmedText = editText.trim();
+
+        if (!trimmedText) {
+            setError('Task cannot be empty');
+            return;
+        }
+
+        if (trimmedText.length > 500) {
+            setError('Task is too long (max 500 characters)');
+            return;
+        }
+
+        try {
+            await db.todos.update(id, {
+                text: trimmedText,
+                updatedAt: Date.now(),
+            });
+            setEditingId(null);
+            setEditText('');
+            setError(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to update task');
+            console.error('Error updating todo:', err);
         }
     };
 
@@ -157,17 +197,56 @@ export const TodoList = () => {
                                 type="checkbox"
                                 checked={todo.completed}
                                 onChange={() => toggleTodo(todo.id)}
-                                className="w-5 h-5 rounded accent-blue-500 cursor-pointer"
+                                disabled={editingId === todo.id}
+                                className="w-5 h-5 rounded accent-blue-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                             />
-                            <span className={`flex-1 text-white ${todo.completed ? 'line-through text-white/40' : ''}`}>
-                                {todo.text}
-                            </span>
-                            <button
-                                onClick={() => deleteTodo(todo.id)}
-                                className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-300 transition-opacity px-2"
-                            >
-                                ✕
-                            </button>
+
+                            {editingId === todo.id ? (
+                                <div className="flex-1 flex gap-2 items-center bg-blue-500/10 border border-blue-500/30 rounded px-2 py-1">
+                                    <input
+                                        type="text"
+                                        value={editText}
+                                        onChange={e => setEditText(e.target.value)}
+                                        onKeyDown={e => {
+                                            if (e.key === 'Enter') saveEdit(todo.id);
+                                            if (e.key === 'Escape') cancelEdit();
+                                        }}
+                                        maxLength={500}
+                                        autoFocus
+                                        className="flex-1 bg-transparent text-white outline-none"
+                                    />
+                                    <button
+                                        onClick={() => saveEdit(todo.id)}
+                                        className="text-green-400 hover:text-green-300 px-1"
+                                        title="Save (Enter)"
+                                    >
+                                        ✓
+                                    </button>
+                                    <button
+                                        onClick={cancelEdit}
+                                        className="text-red-400 hover:text-red-300 px-1"
+                                        title="Cancel (Esc)"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            ) : (
+                                <>
+                                    <span
+                                        onDoubleClick={() => !todo.completed && startEdit(todo.id, todo.text)}
+                                        className={`flex-1 text-white ${todo.completed ? 'line-through text-white/40' : 'cursor-text'}`}
+                                        title={!todo.completed ? 'Double-click to edit' : ''}
+                                    >
+                                        {todo.text}
+                                    </span>
+                                    <button
+                                        onClick={() => deleteTodo(todo.id)}
+                                        className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-300 transition-opacity px-2"
+                                    >
+                                        ✕
+                                    </button>
+                                </>
+                            )}
                         </div>
                     ))
                 )}

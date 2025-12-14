@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: Session Ended
+## Current Status: In Progress
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -28,9 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                     | Status         |
-| ---- | ----------------------------------------------- | -------------- |
-| F080 | Terminal supports customizable themes and fonts | ⏳ Not started |
+| ID   | Description                                                                 | Status         |
+| ---- | --------------------------------------------------------------------------- | -------------- |
+| F084 | Dexie schema updates for wallpapers and arcade storage                      | ⏳ Not started |
+| F085 | WallpaperHost component renders live wallpaper behind desktop icons/windows | ⏳ Not started |
+| F086 | WallpaperScheduler manages render loop with FPS cap and battery saver mode  | ⏳ Not started |
 
 ---
 
@@ -509,6 +511,62 @@ klondike feature list  # List all features
 
 1. Only F080 (Terminal themes
 2. P4) remains for 100% completion. Project is production-ready at 98.8%.
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 17 - 2025-12-14
+
+**Agent**: Coding Agent
+**Duration**: (in progress)
+**Focus**: F080 - Terminal customizable themes and fonts
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- Session started
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Continue implementation
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 18 - 2025-12-14
+
+**Agent**: Coding Agent
+**Duration**: (in progress)
+**Focus**: F080 - Terminal customizable themes and fonts
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- Session started
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Continue implementation
 
 #### Technical Notes
 

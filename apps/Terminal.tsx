@@ -3,6 +3,8 @@ import { useLocalization } from '../context';
 import { useDb } from '../context/DbContext';
 import { useOS } from '../context/OSContext';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { useTerminalPreferences } from '../hooks';
+import { TERMINAL_THEMES } from '../types/terminal';
 import { getFiles, saveFileToFolder } from '../utils/fileSystem';
 import type { FileSystemItem } from '../types';
 import { generateUuid } from '../utils/uuid';
@@ -48,6 +50,9 @@ const AVAILABLE_COMMANDS = [
     'start',
     'ver',
     'hostname',
+    'theme',
+    'fontsize',
+    'font',
 ];
 
 // Helper to find a folder by path
@@ -100,6 +105,8 @@ export const Terminal = () => {
     const { formatDateLong, formatTimeLong } = useLocalization();
     const db = useDb();
     const { openWindow, apps } = useOS();
+    const { preferences, currentTheme, setTheme, setFontSize, setFontFamily, availableThemes, availableFonts } =
+        useTerminalPreferences();
     const [input, setInput] = useState('');
     const [output, setOutput] = useState<OutputLine[]>([
         { id: 0, type: 'output', text: 'Windows15 Command Prompt [Version 15.0.28500.1000]' },
@@ -381,6 +388,9 @@ export const Terminal = () => {
                 addOutput('  export   - Export terminal session to file');
                 addOutput('  alias    - Define or list command aliases');
                 addOutput('  unalias  - Remove a command alias');
+                addOutput('  theme    - Change terminal color scheme');
+                addOutput('  fontsize - Change terminal font size (10-18)');
+                addOutput('  font     - Change terminal font family');
                 addOutput('  notepad  - Open Notepad app (optionally with filename)');
                 addOutput('  calc     - Open Calculator app');
                 addOutput('  browser  - Open Browser app (optionally with URL)');
@@ -646,6 +656,91 @@ export const Terminal = () => {
             case 'hostname':
                 addOutput('DESKTOP-WIN15');
                 break;
+            case 'theme': {
+                const themeArg = args.trim().toLowerCase();
+                if (!themeArg) {
+                    // Show current theme and list available themes
+                    addOutput(`Current theme: ${preferences.theme}`);
+                    addOutput('');
+                    addOutput('Available themes:');
+                    availableThemes.forEach(theme => {
+                        const marker = theme.name === preferences.theme ? ' (active)' : '';
+                        addOutput(`  ${theme.name.padEnd(12)} - ${theme.displayName}${marker}`);
+                    });
+                    addOutput('');
+                    addOutput('Usage: theme <name>');
+                    break;
+                }
+
+                // Try to set the theme
+                if (TERMINAL_THEMES[themeArg]) {
+                    void setTheme(themeArg).then(success => {
+                        if (success) {
+                            addOutput(`Theme changed to: ${themeArg}`);
+                        } else {
+                            addOutput('Failed to save theme preference.', 'error');
+                        }
+                    });
+                } else {
+                    addOutput(`Unknown theme: ${themeArg}`, 'error');
+                    addOutput('Use "theme" to see available themes.');
+                }
+                break;
+            }
+            case 'fontsize': {
+                const sizeArg = args.trim();
+                if (!sizeArg) {
+                    addOutput(`Current font size: ${preferences.fontSize}px`);
+                    addOutput('Usage: fontsize <10-18>');
+                    break;
+                }
+
+                const size = parseInt(sizeArg, 10);
+                if (isNaN(size) || size < 10 || size > 18) {
+                    addOutput('Font size must be between 10 and 18.', 'error');
+                    break;
+                }
+
+                void setFontSize(size).then(success => {
+                    if (success) {
+                        addOutput(`Font size changed to: ${size}px`);
+                    } else {
+                        addOutput('Failed to save font size preference.', 'error');
+                    }
+                });
+                break;
+            }
+            case 'font': {
+                const fontArg = args.trim();
+                if (!fontArg) {
+                    addOutput(`Current font: ${preferences.fontFamily}`);
+                    addOutput('');
+                    addOutput('Available fonts:');
+                    availableFonts.forEach(font => {
+                        const marker = font === preferences.fontFamily ? ' (active)' : '';
+                        addOutput(`  ${font}${marker}`);
+                    });
+                    addOutput('');
+                    addOutput('Usage: font <name>');
+                    break;
+                }
+
+                // Find matching font (case-insensitive)
+                const matchedFont = availableFonts.find(f => f.toLowerCase() === fontArg.toLowerCase());
+                if (matchedFont) {
+                    void setFontFamily(matchedFont).then(success => {
+                        if (success) {
+                            addOutput(`Font changed to: ${matchedFont}`);
+                        } else {
+                            addOutput('Failed to save font preference.', 'error');
+                        }
+                    });
+                } else {
+                    addOutput(`Unknown font: ${fontArg}`, 'error');
+                    addOutput('Use "font" to see available fonts.');
+                }
+                break;
+            }
             case 'export':
                 exportSession();
                 addOutput('Terminal session exported successfully.');
@@ -881,7 +976,12 @@ export const Terminal = () => {
 
     return (
         <div
-            className="h-full bg-black flex flex-col font-mono text-sm relative"
+            className="h-full flex flex-col text-sm relative"
+            style={{
+                backgroundColor: currentTheme.backgroundColor,
+                fontFamily: preferences.fontFamily,
+                fontSize: `${preferences.fontSize}px`,
+            }}
             onClick={() => inputRef.current?.focus()}
             onContextMenu={handleContextMenu}
         >
@@ -889,27 +989,35 @@ export const Terminal = () => {
                 {output.map(line => (
                     <div
                         key={line.id}
-                        className={`whitespace-pre-wrap ${
-                            line.type === 'command'
-                                ? 'text-cyan-300'
-                                : line.type === 'error'
-                                  ? 'text-red-400'
-                                  : 'text-green-400'
-                        }`}
+                        className="whitespace-pre-wrap"
+                        style={{
+                            color:
+                                line.type === 'command'
+                                    ? currentTheme.commandColor
+                                    : line.type === 'error'
+                                      ? currentTheme.errorColor
+                                      : currentTheme.textColor,
+                        }}
                     >
                         {line.text || '\u00A0'}
                     </div>
                 ))}
             </div>
             <div className="relative flex items-center p-3 pt-0">
-                <span className="text-cyan-300">{getCurrentPrompt()}&gt;</span>
+                <span style={{ color: currentTheme.promptColor }}>{getCurrentPrompt()}&gt;</span>
                 <input
                     ref={inputRef}
                     type="text"
                     value={input}
                     onChange={e => handleInputChange(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="flex-1 bg-transparent text-green-400 outline-none ml-1 caret-green-400"
+                    className="flex-1 bg-transparent outline-none ml-1"
+                    style={{
+                        color: currentTheme.textColor,
+                        caretColor: currentTheme.textColor,
+                        fontFamily: preferences.fontFamily,
+                        fontSize: `${preferences.fontSize}px`,
+                    }}
                     autoFocus
                     spellCheck={false}
                 />
@@ -972,6 +1080,99 @@ export const Terminal = () => {
                         <span className="material-symbols-outlined text-sm">select_all</span>
                         Select All
                     </button>
+                    <div className="border-t border-gray-600 my-1"></div>
+                    {/* Theme submenu */}
+                    <div className="relative group">
+                        <button className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2 justify-between">
+                            <span className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm">palette</span>
+                                Theme
+                            </span>
+                            <span className="material-symbols-outlined text-sm">chevron_right</span>
+                        </button>
+                        <div className="absolute left-full top-0 ml-0 bg-gray-800 border border-gray-600 rounded shadow-lg py-1 hidden group-hover:block min-w-[160px]">
+                            {availableThemes.map(theme => (
+                                <button
+                                    key={theme.name}
+                                    className={`w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2 ${
+                                        preferences.theme === theme.name ? 'bg-gray-700' : ''
+                                    }`}
+                                    onClick={() => {
+                                        void setTheme(theme.name);
+                                        setContextMenu(null);
+                                    }}
+                                >
+                                    <span
+                                        className="w-3 h-3 rounded-full border border-gray-500"
+                                        style={{ backgroundColor: theme.textColor }}
+                                    />
+                                    {theme.displayName.split(' ')[0]}
+                                    {preferences.theme === theme.name && (
+                                        <span className="material-symbols-outlined text-sm ml-auto">check</span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    {/* Font Size submenu */}
+                    <div className="relative group">
+                        <button className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2 justify-between">
+                            <span className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm">format_size</span>
+                                Font Size ({preferences.fontSize}px)
+                            </span>
+                            <span className="material-symbols-outlined text-sm">chevron_right</span>
+                        </button>
+                        <div className="absolute left-full top-0 ml-0 bg-gray-800 border border-gray-600 rounded shadow-lg py-1 hidden group-hover:block min-w-[100px]">
+                            {[10, 12, 14, 16, 18].map(size => (
+                                <button
+                                    key={size}
+                                    className={`w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2 ${
+                                        preferences.fontSize === size ? 'bg-gray-700' : ''
+                                    }`}
+                                    onClick={() => {
+                                        void setFontSize(size);
+                                        setContextMenu(null);
+                                    }}
+                                >
+                                    {size}px
+                                    {preferences.fontSize === size && (
+                                        <span className="material-symbols-outlined text-sm ml-auto">check</span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    {/* Font Family submenu */}
+                    <div className="relative group">
+                        <button className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2 justify-between">
+                            <span className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm">text_fields</span>
+                                Font
+                            </span>
+                            <span className="material-symbols-outlined text-sm">chevron_right</span>
+                        </button>
+                        <div className="absolute left-full top-0 ml-0 bg-gray-800 border border-gray-600 rounded shadow-lg py-1 hidden group-hover:block min-w-[140px]">
+                            {availableFonts.map(font => (
+                                <button
+                                    key={font}
+                                    className={`w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2 ${
+                                        preferences.fontFamily === font ? 'bg-gray-700' : ''
+                                    }`}
+                                    style={{ fontFamily: font }}
+                                    onClick={() => {
+                                        void setFontFamily(font);
+                                        setContextMenu(null);
+                                    }}
+                                >
+                                    {font}
+                                    {preferences.fontFamily === font && (
+                                        <span className="material-symbols-outlined text-sm ml-auto">check</span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                     <div className="border-t border-gray-600 my-1"></div>
                     <button
                         className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2"

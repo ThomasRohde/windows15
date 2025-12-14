@@ -1,7 +1,7 @@
 {
   "projectName": "windows15",
   "startedAt": "2025-12-13T14:37:01.733884",
-  "currentStatus": "Session Ended",
+  "currentStatus": "In Progress",
   "sessions": [
     {
       "sessionNumber": 1,
@@ -264,6 +264,34 @@
         "P4) remains for 100% completion. Project is production-ready at 98.8%."
       ],
       "technicalNotes": []
+    },
+    {
+      "sessionNumber": 17,
+      "date": "2025-12-14",
+      "agent": "Coding Agent",
+      "duration": "(in progress)",
+      "focus": "F080 - Terminal customizable themes and fonts",
+      "completed": [],
+      "inProgress": [
+        "Session started"
+      ],
+      "blockers": [],
+      "nextSteps": [],
+      "technicalNotes": []
+    },
+    {
+      "sessionNumber": 18,
+      "date": "2025-12-14",
+      "agent": "Coding Agent",
+      "duration": "(in progress)",
+      "focus": "F080 - Terminal customizable themes and fonts",
+      "completed": [],
+      "inProgress": [
+        "Session started"
+      ],
+      "blockers": [],
+      "nextSteps": [],
+      "technicalNotes": []
     }
   ],
   "quickReference": {
@@ -276,8 +304,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F080",
-        "description": "Terminal supports customizable themes and fonts",
+        "id": "F084",
+        "description": "Dexie schema updates for wallpapers and arcade storage",
+        "status": "not-started"
+      },
+      {
+        "id": "F085",
+        "description": "WallpaperHost component renders live wallpaper behind desktop icons/windows",
+        "status": "not-started"
+      },
+      {
+        "id": "F086",
+        "description": "WallpaperScheduler manages render loop with FPS cap and battery saver mode",
         "status": "not-started"
       }
     ]

@@ -257,18 +257,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F076",
-        "description": "Terminal command history persists across sessions",
-        "status": "in-progress"
-      },
-      {
         "id": "F079",
         "description": "Terminal supports filesystem navigation commands",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F082",
         "description": "Terminal supports copy/paste and text selection",
+        "status": "not-started"
+      },
+      {
+        "id": "F074",
+        "description": "User can enable and configure animated screensaver",
         "status": "not-started"
       }
     ]

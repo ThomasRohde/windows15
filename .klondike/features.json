@@ -1939,11 +1939,15 @@
         "History syncs across tabs via Dexie"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T11:11:21.785161",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Added terminalHistory table to db.ts",
+        "implemented save/load with FIFO eviction in Terminal.tsx",
+        "arrow key navigation works with persisted history. Build passes. Manual browser testing confirms persistence across sessions."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T11:04:51.125370",
       "notes": "Add terminalHistory table to db.ts with schema: id (auto), command (string), executedAt (timestamp). Use useLiveQuery to load history on mount. Implement FIFO eviction in addToHistory(). Consider deduplicating consecutive identical commands. Wire up existing arrow key handlers to use persisted history."
@@ -2009,13 +2013,13 @@
         "Filesystem state persists in IndexedDB"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T11:11:27.540152",
       "notes": "Extend existing FileExplorer virtual filesystem to Terminal. Share fileSystem table between apps. Implement path parsing and normalization. Support relative paths (../folder) and absolute paths (C:/Users). Update prompt to show current directory. Consider: cat command to view file contents, rm to delete."
     },
     {
@@ -2117,8 +2121,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T11:02:30.948684",
+    "lastUpdated": "2025-12-14T11:11:21.785173",
     "totalFeatures": 83,
-    "passingFeatures": 73
+    "passingFeatures": 74
   }
 }

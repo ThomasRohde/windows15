@@ -1,7 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocalization } from '../context';
 import { useDb } from '../context/DbContext';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { getFiles, saveFileToFolder } from '../utils/fileSystem';
+import type { FileSystemItem } from '../types';
+import { generateUuid } from '../utils/uuid';
 
 interface OutputLine {
     id: number;
@@ -10,6 +13,48 @@ interface OutputLine {
 }
 
 const MAX_HISTORY = 500;
+
+// Helper to find a folder by path
+const findFolderByPath = (files: FileSystemItem[], path: string[]): FileSystemItem | null => {
+    if (path.length === 0) return null;
+
+    let current: FileSystemItem[] = files;
+    let folder: FileSystemItem | null = null;
+
+    for (const segment of path) {
+        const found = current.find(item => item.name.toLowerCase() === segment.toLowerCase() && item.type === 'folder');
+        if (!found) return null;
+        folder = found;
+        current = found.children || [];
+    }
+
+    return folder;
+};
+
+// Helper to parse path (supports both absolute and relative)
+const parsePath = (currentPath: string[], input: string): string[] => {
+    if (!input || input === '.') return currentPath;
+
+    // Absolute path (starts with C:\ or /)
+    if (input.startsWith('C:\\') || input.startsWith('C:/') || input.startsWith('/')) {
+        const cleaned = input.replace(/^(C:\\|C:\/|\/)/, '').replace(/\\/g, '/');
+        return cleaned ? cleaned.split('/').filter(Boolean) : [];
+    }
+
+    // Relative path
+    const segments = input.replace(/\\/g, '/').split('/').filter(Boolean);
+    const result = [...currentPath];
+
+    for (const segment of segments) {
+        if (segment === '..') {
+            result.pop();
+        } else if (segment !== '.') {
+            result.push(segment);
+        }
+    }
+
+    return result;
+};
 
 export const Terminal = () => {
     const { formatDateLong, formatTimeLong } = useLocalization();
@@ -21,6 +66,7 @@ export const Terminal = () => {
         { id: 2, type: 'output', text: '' },
     ]);
     const [historyIndex, setHistoryIndex] = useState(-1);
+    const [currentPath, setCurrentPath] = useState<string[]>(['Users', 'Guest']);
     const outputRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const idCounter = useRef(3);
@@ -46,11 +92,15 @@ export const Terminal = () => {
         setOutput(prev => [...prev, { id: idCounter.current++, type, text }]);
     };
 
+    const getCurrentPrompt = useCallback(() => {
+        return `C:\\${currentPath.join('\\')}`;
+    }, [currentPath]);
+
     const executeCommand = async (cmd: string) => {
         const trimmed = cmd.trim();
         if (!trimmed) return;
 
-        addOutput(`C:\\Users\\Guest>${trimmed}`, 'command');
+        addOutput(`${getCurrentPrompt()}>${trimmed}`, 'command');
 
         // Save command to database with FIFO eviction
         if (db) {
@@ -68,7 +118,8 @@ export const Terminal = () => {
                         .orderBy('executedAt')
                         .limit(count - MAX_HISTORY)
                         .toArray();
-                    await db.terminalHistory.bulkDelete(oldest.map(h => h.id!));
+                    const oldestIds = oldest.map(h => h.id).filter((id): id is number => id !== undefined);
+                    await db.terminalHistory.bulkDelete(oldestIds);
                 }
             } catch (error) {
                 console.error('Failed to save terminal history:', error);
@@ -94,6 +145,10 @@ export const Terminal = () => {
                 addOutput('  ls       - List directory contents');
                 addOutput('  dir      - List directory contents');
                 addOutput('  pwd      - Print working directory');
+                addOutput('  cd       - Change directory');
+                addOutput('  mkdir    - Create a new directory');
+                addOutput('  touch    - Create a new file');
+                addOutput('  cat      - Display file contents');
                 addOutput('  ver      - Display OS version');
                 addOutput('  hostname - Display computer name');
                 break;
@@ -114,26 +169,239 @@ export const Terminal = () => {
                 addOutput('WINDOWS15\\Guest');
                 break;
             case 'ls':
-            case 'dir':
-                addOutput(' Volume in drive C has no label.');
-                addOutput(' Volume Serial Number is WIN15-2024');
-                addOutput('');
-                addOutput(' Directory of C:\\Users\\Guest');
-                addOutput('');
-                addOutput('12/13/2024  10:30 AM    <DIR>          .');
-                addOutput('12/13/2024  10:30 AM    <DIR>          ..');
-                addOutput('12/13/2024  09:15 AM    <DIR>          Desktop');
-                addOutput('12/13/2024  08:00 AM    <DIR>          Documents');
-                addOutput('12/13/2024  07:45 AM    <DIR>          Downloads');
-                addOutput('12/13/2024  06:30 AM    <DIR>          Pictures');
-                addOutput('12/13/2024  05:00 AM    <DIR>          Music');
-                addOutput('               0 File(s)              0 bytes');
-                addOutput('               7 Dir(s)   256,000,000 bytes free');
+            case 'dir': {
+                try {
+                    const files = await getFiles();
+                    const targetPath = args ? parsePath(currentPath, args) : currentPath;
+                    const folder =
+                        targetPath.length === 0
+                            ? files.find(f => f.id === 'root')
+                            : findFolderByPath(files, targetPath);
+
+                    if (!folder || folder.type !== 'folder') {
+                        addOutput('The system cannot find the path specified.', 'error');
+                        break;
+                    }
+
+                    addOutput(' Volume in drive C has no label.');
+                    addOutput(' Volume Serial Number is WIN15-2024');
+                    addOutput('');
+                    addOutput(` Directory of ${getCurrentPrompt()}`);
+                    addOutput('');
+                    addOutput(`${formatDateLong(new Date())}  ${formatTimeLong(new Date())}    <DIR>          .`);
+                    if (currentPath.length > 0) {
+                        addOutput(`${formatDateLong(new Date())}  ${formatTimeLong(new Date())}    <DIR>          ..`);
+                    }
+
+                    const children = folder.children || [];
+                    let fileCount = 0;
+                    let dirCount = 0;
+
+                    children.forEach(item => {
+                        const date = formatDateLong(new Date());
+                        const time = formatTimeLong(new Date());
+                        if (item.type === 'folder') {
+                            addOutput(`${date}  ${time}    <DIR>          ${item.name}`);
+                            dirCount++;
+                        } else {
+                            const size = item.size || '0 bytes';
+                            addOutput(`${date}  ${time}    ${size.padStart(14)}  ${item.name}`);
+                            fileCount++;
+                        }
+                    });
+
+                    addOutput(`               ${fileCount} File(s)`);
+                    addOutput(`               ${dirCount + 2} Dir(s)   256,000,000 bytes free`);
+                } catch {
+                    addOutput('Error accessing filesystem', 'error');
+                }
                 break;
+            }
             case 'pwd':
-            case 'cd':
-                addOutput('C:\\Users\\Guest');
+                addOutput(getCurrentPrompt());
                 break;
+            case 'cd': {
+                if (!args) {
+                    addOutput(getCurrentPrompt());
+                    break;
+                }
+
+                try {
+                    const files = await getFiles();
+                    const newPath = parsePath(currentPath, args);
+
+                    // Check if path exists and is a folder
+                    if (newPath.length === 0) {
+                        // Root directory
+                        setCurrentPath([]);
+                        break;
+                    }
+
+                    const folder = findFolderByPath(files, newPath);
+                    if (!folder || folder.type !== 'folder') {
+                        addOutput('The system cannot find the path specified.', 'error');
+                        break;
+                    }
+
+                    setCurrentPath(newPath);
+                } catch {
+                    addOutput('Error accessing filesystem', 'error');
+                }
+                break;
+            }
+            case 'mkdir': {
+                if (!args) {
+                    addOutput('The syntax of the command is incorrect.', 'error');
+                    break;
+                }
+
+                try {
+                    const files = await getFiles();
+                    const newPath = parsePath(currentPath, args);
+                    const folderName = newPath[newPath.length - 1];
+                    const parentPath = newPath.slice(0, -1);
+
+                    if (!folderName) {
+                        addOutput('The syntax of the command is incorrect.', 'error');
+                        break;
+                    }
+
+                    // Find parent folder
+                    const parentFolder =
+                        parentPath.length === 0
+                            ? files.find(f => f.id === 'root')
+                            : findFolderByPath(files, parentPath);
+
+                    if (!parentFolder || parentFolder.type !== 'folder') {
+                        addOutput('The system cannot find the path specified.', 'error');
+                        break;
+                    }
+
+                    // Check if folder already exists
+                    const existingChild = parentFolder.children?.find(
+                        c => c.name.toLowerCase() === folderName.toLowerCase()
+                    );
+                    if (existingChild) {
+                        addOutput('A subdirectory or file already exists with that name.', 'error');
+                        break;
+                    }
+
+                    // Create new folder
+                    const newFolder: FileSystemItem = {
+                        id: generateUuid(),
+                        name: folderName,
+                        type: 'folder',
+                        children: [],
+                    };
+
+                    await saveFileToFolder(newFolder, parentFolder.id);
+                    addOutput(`Directory created: ${folderName}`);
+                } catch {
+                    addOutput('Error creating directory', 'error');
+                }
+                break;
+            }
+            case 'touch': {
+                if (!args) {
+                    addOutput('The syntax of the command is incorrect.', 'error');
+                    break;
+                }
+
+                try {
+                    const files = await getFiles();
+                    const newPath = parsePath(currentPath, args);
+                    const fileName = newPath[newPath.length - 1];
+                    const parentPath = newPath.slice(0, -1);
+
+                    if (!fileName) {
+                        addOutput('The syntax of the command is incorrect.', 'error');
+                        break;
+                    }
+
+                    // Find parent folder
+                    const parentFolder =
+                        parentPath.length === 0
+                            ? files.find(f => f.id === 'root')
+                            : findFolderByPath(files, parentPath);
+
+                    if (!parentFolder || parentFolder.type !== 'folder') {
+                        addOutput('The system cannot find the path specified.', 'error');
+                        break;
+                    }
+
+                    // Check if file already exists
+                    const existingChild = parentFolder.children?.find(
+                        c => c.name.toLowerCase() === fileName.toLowerCase()
+                    );
+                    if (existingChild) {
+                        addOutput('A file or directory already exists with that name.', 'error');
+                        break;
+                    }
+
+                    // Create new file
+                    const newFile: FileSystemItem = {
+                        id: generateUuid(),
+                        name: fileName,
+                        type: 'document',
+                        content: '',
+                        size: '0 bytes',
+                        date: new Date().toISOString(),
+                    };
+
+                    await saveFileToFolder(newFile, parentFolder.id);
+                    addOutput(`File created: ${fileName}`);
+                } catch {
+                    addOutput('Error creating file', 'error');
+                }
+                break;
+            }
+            case 'cat': {
+                if (!args) {
+                    addOutput('The syntax of the command is incorrect.', 'error');
+                    break;
+                }
+
+                try {
+                    const files = await getFiles();
+                    const targetPath = parsePath(currentPath, args);
+                    const fileName = targetPath[targetPath.length - 1];
+                    const parentPath = targetPath.slice(0, -1);
+
+                    if (!fileName) {
+                        addOutput('The system cannot find the file specified.', 'error');
+                        break;
+                    }
+
+                    // Find parent folder
+                    const parentFolder =
+                        parentPath.length === 0
+                            ? files.find(f => f.id === 'root')
+                            : findFolderByPath(files, parentPath);
+
+                    if (!parentFolder || parentFolder.type !== 'folder') {
+                        addOutput('The system cannot find the path specified.', 'error');
+                        break;
+                    }
+
+                    // Find file
+                    const file = parentFolder.children?.find(c => c.name.toLowerCase() === fileName.toLowerCase());
+                    if (!file) {
+                        addOutput('The system cannot find the file specified.', 'error');
+                        break;
+                    }
+
+                    if (file.type === 'folder') {
+                        addOutput('Access is denied.', 'error');
+                        break;
+                    }
+
+                    // Display file content
+                    addOutput(file.content || '');
+                } catch {
+                    addOutput('Error reading file', 'error');
+                }
+                break;
+            }
             case 'ver':
                 addOutput('');
                 addOutput('Windows15 [Version 15.0.28500.1000]');
@@ -193,7 +461,7 @@ export const Terminal = () => {
                 ))}
             </div>
             <div className="flex items-center p-3 pt-0">
-                <span className="text-cyan-300">C:\Users\Guest&gt;</span>
+                <span className="text-cyan-300">{getCurrentPrompt()}&gt;</span>
                 <input
                     ref={inputRef}
                     type="text"

@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                       | Status         |
-| ---- | ------------------------------------------------- | -------------- |
-| F076 | Terminal command history persists across sessions | 🔄 In progress |
-| F079 | Terminal supports filesystem navigation commands  | ⏳ Not started |
-| F082 | Terminal supports copy/paste and text selection   | ⏳ Not started |
+| ID   | Description                                        | Status         |
+| ---- | -------------------------------------------------- | -------------- |
+| F079 | Terminal supports filesystem navigation commands   | 🔄 In progress |
+| F082 | Terminal supports copy/paste and text selection    | ⏳ Not started |
+| F074 | User can enable and configure animated screensaver | ⏳ Not started |
 
 ---
 

@@ -831,11 +831,17 @@
         "registerApp calls reduced to single loop"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-13T17:04:35.573136",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Build passes",
+        "apps/registry.ts created with typed AppConfig and 23 lazy-loaded app entries",
+        "App.tsx uses single loop over APP_REGISTRY",
+        "Window.tsx has Suspense boundary for lazy components",
+        "code splitting visible in build output"
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-13T17:02:20.066790",
       "notes": "Implementation: Create apps/registry.ts exporting APP_REGISTRY array of AppConfig objects. Use React.lazy() for code splitting. Map over registry in useEffect. Edge cases: Preserve existing defaultWidth/defaultHeight. Dependencies: None. Context: App.tsx has 23 inline registerApp calls making it 181 lines. Gotchas: Ensure lazy components wrapped in Suspense."
@@ -854,13 +860,13 @@
         "Import paths simplified throughout codebase"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T04:28:17.235205",
       "notes": "Implementation: Create index.ts in each directory with named exports. Use 'export { X } from ./X' pattern. Edge cases: Avoid circular dependencies by checking import order. Dependencies: None. Context: Clean imports like 'import { Notepad, Browser } from ./apps' instead of individual files. Gotchas: May need to reorder exports if circular deps detected."
     },
     {
@@ -1406,8 +1412,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-13T16:56:10.608602",
+    "lastUpdated": "2025-12-13T17:04:35.573147",
     "totalFeatures": 58,
-    "passingFeatures": 32
+    "passingFeatures": 33
   }
 }

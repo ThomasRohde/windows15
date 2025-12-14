@@ -1,17 +1,18 @@
 import React, { useEffect } from 'react';
-import { DesktopIcon } from './components/DesktopIcon';
-import { Widgets } from './components/Widgets';
-import { Taskbar } from './components/Taskbar';
-import { Window } from './components/Window';
-import { StartMenu } from './components/StartMenu';
-import { PWAUpdatePrompt } from './components/PWAUpdatePrompt';
-import { ReconnectingToast } from './components/ReconnectingToast';
-import { InstallButton } from './components/InstallButton';
-import { OSProvider, useOS } from './context/OSContext';
-import { DbProvider, useDb } from './context/DbContext';
+import {
+    DesktopIcon,
+    Widgets,
+    Taskbar,
+    Window,
+    StartMenu,
+    PWAUpdatePrompt,
+    ReconnectingToast,
+    InstallButton,
+} from './components';
+import { OSProvider, useOS, DbProvider, useDb } from './context';
 import { useDexieLiveQuery } from './utils/storage/react';
 import { DesktopIconRecord } from './utils/storage/db';
-import { APP_REGISTRY } from './apps/registry';
+import { APP_REGISTRY } from './apps';
 
 const Desktop = () => {
     const { windows, registerApp, activeWallpaper, isStartMenuOpen, closeStartMenu } = useOS();

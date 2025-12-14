@@ -150,18 +150,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F033",
-        "description": "Extract app registry from App.tsx to dedicated config module",
-        "status": "in-progress"
-      },
-      {
         "id": "F034",
         "description": "Add barrel exports (index.ts) for all module directories",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F035",
         "description": "Extract custom hooks from components into hooks/ directory",
+        "status": "not-started"
+      },
+      {
+        "id": "F036",
+        "description": "Add comprehensive TypeScript strict mode and type improvements",
         "status": "not-started"
       }
     ]

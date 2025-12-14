@@ -4,7 +4,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { StartMenu } from '../../components/StartMenu';
+import { StartMenu } from '@/components/StartMenu';
 
 // Mock useOS hook
 const mockOpenWindow = vi.fn();

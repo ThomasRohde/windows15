@@ -1248,11 +1248,20 @@
         "Smooth transition from skeleton to content"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T05:56:54.613842",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Created LoadingSkeleton.tsx with SkeletonList",
+        "SkeletonCalendar",
+        "SkeletonFileSidebar",
+        "SkeletonFileGrid variants. Notes list",
+        "File Explorer",
+        "and Calendar now show skeletons while loading. DelayedSkeleton component prevents flash. All 41 unit tests pass",
+        "7 E2E tests pass",
+        "build succeeds."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T05:51:31.299133",
       "notes": "Implementation: Create components/LoadingSkeleton.tsx with pulse animation. Use Tailwind animate-pulse. Add loading states from useLiveQuery to show skeleton. Edge cases: Short loads should not flash skeleton - use delay. Dependencies: None. Context: Apps show blank while Dexie queries load. Gotchas: Add minimum display time (200ms) to prevent skeleton flash."
@@ -1326,13 +1335,13 @@
         "No relative imports with more than 2 levels"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T05:57:26.713800",
       "notes": "Implementation: Add paths to tsconfig.json compilerOptions. Add resolve.alias to vite.config.ts. Find/replace '../..' imports. Edge cases: Some tools may need additional config (Jest etc). Dependencies: None. Context: Deep relative imports like '../../../utils' are error-prone. Gotchas: IDE may need restart to pick up path aliases."
     },
     {
@@ -1500,8 +1509,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T05:51:22.962804",
+    "lastUpdated": "2025-12-14T05:56:54.613865",
     "totalFeatures": 58,
-    "passingFeatures": 48
+    "passingFeatures": 49
   }
 }

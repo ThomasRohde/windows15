@@ -4,8 +4,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Window } from '../../components/Window';
-import { WindowState } from '../../types';
+import { Window } from '@/components/Window';
+import { WindowState } from '@/types';
 
 // Mock the useOS hook
 const mockCloseWindow = vi.fn();

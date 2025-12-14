@@ -7,4 +7,4 @@ export * from './react';
 export * from './configSync';
 
 // Re-export DbProvider and hooks for convenience
-export { DbProvider, useDb, useDbContext } from '../../context/DbContext';
+export { DbProvider, useDb, useDbContext } from '@/context/DbContext';

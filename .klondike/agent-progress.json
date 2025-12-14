@@ -183,14 +183,14 @@
         "status": "not-started"
       },
       {
-        "id": "F048",
-        "description": "Add loading skeletons for async content",
-        "status": "in-progress"
-      },
-      {
         "id": "F049",
         "description": "Refactor Notepad.tsx into smaller sub-components",
         "status": "not-started"
+      },
+      {
+        "id": "F051",
+        "description": "Add path aliases for cleaner imports",
+        "status": "in-progress"
       }
     ]
   }

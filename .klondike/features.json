@@ -2693,11 +2693,16 @@
         "Shortcut documented in keyboard shortcuts help"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T17:17:32.997654",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Keyboard shortcut Ctrl+Alt+3 toggles 3D mode globally",
+        "visual notification toast appears showing mode change",
+        "documented in docs/keyboard-shortcuts.md",
+        "using existing useHotkeys system"
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T17:15:01.922612",
       "notes": "Implementation: Add to existing useHotkeys system (F053). Toggle ui.windowSpaceMode setting. Edge cases: Conflict with other shortcuts, input focus in text fields. Dependencies: F087 (3D toggle), F053 (hotkeys). Context: Quick access per PRD UX section. Gotchas: Don't trigger while typing in apps."
@@ -2786,13 +2791,13 @@
         "Default value provides subtle but noticeable depth"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T17:17:46.477456",
       "notes": "Implementation: Add to WindowSpaceMode.ts. Multiply base depth step by intensity. Map to CSS custom property. Edge cases: Intensity 0 should match flat mode. Dependencies: F087 (3D toggle). Context: Power user customization. Gotchas: Test extremes (0 and 1) to ensure reasonable visuals."
     },
     {
@@ -2821,8 +2826,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T16:54:29.448817",
+    "lastUpdated": "2025-12-14T17:17:32.997668",
     "totalFeatures": 108,
-    "passingFeatures": 90
+    "passingFeatures": 91
   }
 }

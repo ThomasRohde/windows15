@@ -4,11 +4,12 @@ import { WALLPAPERS } from '../utils/constants';
 import { SyncSettings } from './settings/SyncSettings';
 import { LocalizationSettings } from './settings/LocalizationSettings';
 import { ScreensaverSettings } from './settings/ScreensaverSettings';
+import { WindowSpaceSettings } from './settings/WindowSpaceSettings';
 
 export const Settings = () => {
     const { activeWallpaper, setWallpaper } = useOS();
     const [activeSection, setActiveSection] = useState<
-        'personalization' | 'localization' | 'sync' | 'network' | 'apps' | 'screensaver'
+        'personalization' | 'localization' | 'sync' | 'network' | 'apps' | 'screensaver' | '3dmode'
     >('personalization');
 
     return (
@@ -90,6 +91,19 @@ export const Settings = () => {
                         </span>
                         <span className="text-sm font-medium">Screensaver</span>
                     </button>
+
+                    <button
+                        type="button"
+                        onClick={() => setActiveSection('3dmode')}
+                        className={`p-2 rounded flex items-center gap-3 text-left ${activeSection === '3dmode' ? 'bg-white/10' : 'hover:bg-white/5 text-white/70'}`}
+                    >
+                        <span
+                            className={`material-symbols-outlined ${activeSection === '3dmode' ? 'text-primary' : ''}`}
+                        >
+                            view_in_ar
+                        </span>
+                        <span className="text-sm font-medium">3D Window Space</span>
+                    </button>
                 </div>
             </div>
 
@@ -143,6 +157,8 @@ export const Settings = () => {
                 )}
 
                 {activeSection === 'screensaver' && <ScreensaverSettings />}
+
+                {activeSection === '3dmode' && <WindowSpaceSettings />}
             </div>
         </div>
     );

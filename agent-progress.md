@@ -25,8 +25,8 @@ klondike feature list  # List all features
 | ID | Description | Status |
 |----|-------------|--------|
 | F046 | Add JSDoc documentation to all public APIs | ⏳ Not started |
-| F047 | Create constants file for magic strings and numbers | 🔄 In progress |
-| F048 | Add loading skeletons for async content | ⏳ Not started |
+| F048 | Add loading skeletons for async content | 🔄 In progress |
+| F049 | Refactor Notepad.tsx into smaller sub-components | ⏳ Not started |
 
 ---
 

@@ -183,13 +183,13 @@
         "status": "not-started"
       },
       {
-        "id": "F047",
-        "description": "Create constants file for magic strings and numbers",
+        "id": "F048",
+        "description": "Add loading skeletons for async content",
         "status": "in-progress"
       },
       {
-        "id": "F048",
-        "description": "Add loading skeletons for async content",
+        "id": "F049",
+        "description": "Refactor Notepad.tsx into smaller sub-components",
         "status": "not-started"
       }
     ]

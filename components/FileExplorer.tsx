@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { getFiles, saveFiles, subscribeToFileSystem, STORE_NAMES, moveToRecycleBin } from '../utils/fileSystem';
 import { FileSystemItem } from '../types';
 import { useOS } from '../context/OSContext';
+import { SkeletonFileSidebar, SkeletonFileGrid } from './LoadingSkeleton';
 
 export const FileExplorer = () => {
     const [currentPath, setCurrentPath] = useState<string[]>(['root']);
@@ -195,10 +196,14 @@ export const FileExplorer = () => {
 
     if (loading) {
         return (
-            <div className="flex h-full w-full items-center justify-center bg-transparent">
-                <div className="text-white/60 flex items-center gap-2">
-                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                    Loading files...
+            <div className="flex h-full w-full bg-transparent">
+                {/* Skeleton Sidebar */}
+                <div className="w-48 hidden md:flex flex-col border-r border-white/5 bg-black/10">
+                    <SkeletonFileSidebar count={5} />
+                </div>
+                {/* Skeleton Content */}
+                <div className="flex-1">
+                    <SkeletonFileGrid count={12} />
                 </div>
             </div>
         );

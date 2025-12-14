@@ -1215,11 +1215,21 @@
         "All magic values replaced with named constants"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T05:51:22.962790",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Constants centralized in utils/constants.ts. Z_INDEX",
+        "WINDOW",
+        "ANIMATION",
+        "INTERVALS",
+        "UI constants created. Window.tsx",
+        "WindowContext.tsx",
+        "useWindowResize.ts updated to use constants. All 41 unit tests pass",
+        "all 7 E2E tests pass",
+        "build succeeds."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T05:46:20.885157",
       "notes": "Implementation: Audit codebase for hardcoded numbers (100 for zIndex, 350ms delays, etc). Add to constants.ts with descriptive names. Use as const for literal types. Edge cases: Some values are truly one-off and don't need constants. Dependencies: None. Context: Magic values scattered throughout make updates error-prone. Gotchas: Don't over-constantize - 0 and 1 are fine inline."
@@ -1238,13 +1248,13 @@
         "Smooth transition from skeleton to content"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T05:51:31.299133",
       "notes": "Implementation: Create components/LoadingSkeleton.tsx with pulse animation. Use Tailwind animate-pulse. Add loading states from useLiveQuery to show skeleton. Edge cases: Short loads should not flash skeleton - use delay. Dependencies: None. Context: Apps show blank while Dexie queries load. Gotchas: Add minimum display time (200ms) to prevent skeleton flash."
     },
     {
@@ -1490,8 +1500,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T05:46:11.715861",
+    "lastUpdated": "2025-12-14T05:51:22.962804",
     "totalFeatures": 58,
-    "passingFeatures": 47
+    "passingFeatures": 48
   }
 }

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { useDb, useDexieLiveQuery } from '../utils/storage';
 import { getFiles, saveFileToFolder } from '../utils/fileSystem';
 import { FileSystemItem } from '../types';
+import { SkeletonList } from '../components/LoadingSkeleton';
 
 interface NotepadProps {
     initialContent?: string;
@@ -20,7 +21,7 @@ const createId = () => globalThis.crypto?.randomUUID?.() ?? Math.random().toStri
 
 const NotesPanel = () => {
     const db = useDb();
-    const { value: notesRaw } = useDexieLiveQuery(() => db.notes.orderBy('updatedAt').reverse().toArray(), [db]);
+    const { value: notesRaw, isLoading } = useDexieLiveQuery(() => db.notes.orderBy('updatedAt').reverse().toArray(), [db]);
     const notes = Array.isArray(notesRaw) ? notesRaw : [];
 
     const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -115,7 +116,9 @@ const NotesPanel = () => {
                 </div>
 
                 <div className="flex-1 overflow-auto">
-                    {filteredNotes.length === 0 ? (
+                    {isLoading ? (
+                        <SkeletonList count={6} withSubtext />
+                    ) : filteredNotes.length === 0 ? (
                         <div className="p-4 text-sm text-white/50">No notes yet.</div>
                     ) : (
                         filteredNotes.map(note => {

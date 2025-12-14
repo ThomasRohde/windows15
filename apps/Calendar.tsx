@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { STORAGE_KEYS, storageService, useDexieLiveQuery } from '../utils/storage';
+import { SkeletonCalendar } from '../components/LoadingSkeleton';
 
 type CalendarEvent = {
     id: string;
@@ -307,26 +308,30 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
             <div className="flex-1 min-h-0 flex">
                 {/* Month Grid */}
                 <div className="flex-1 min-w-0 p-4">
-                    <div className="grid grid-cols-7 gap-2 text-xs text-white/50 px-1">
-                        <span className="text-center">Sun</span>
-                        <span className="text-center">Mon</span>
-                        <span className="text-center">Tue</span>
-                        <span className="text-center">Wed</span>
-                        <span className="text-center">Thu</span>
-                        <span className="text-center">Fri</span>
-                        <span className="text-center">Sat</span>
-                    </div>
+                    {isLoadingEvents ? (
+                        <SkeletonCalendar />
+                    ) : (
+                        <>
+                            <div className="grid grid-cols-7 gap-2 text-xs text-white/50 px-1">
+                                <span className="text-center">Sun</span>
+                                <span className="text-center">Mon</span>
+                                <span className="text-center">Tue</span>
+                                <span className="text-center">Wed</span>
+                                <span className="text-center">Thu</span>
+                                <span className="text-center">Fri</span>
+                                <span className="text-center">Sat</span>
+                            </div>
 
-                    <div className="mt-2 grid grid-cols-7 gap-2 auto-rows-fr h-[calc(100%-26px)]">
-                        {monthGrid.map(cell => {
-                            const isToday = cell.ymd === todayYmd;
-                            const isSelected = cell.ymd === selectedDate;
-                            const dayEvents = eventsByDate[cell.ymd] ?? [];
+                            <div className="mt-2 grid grid-cols-7 gap-2 auto-rows-fr h-[calc(100%-26px)]">
+                                {monthGrid.map(cell => {
+                                    const isToday = cell.ymd === todayYmd;
+                                    const isSelected = cell.ymd === selectedDate;
+                                    const dayEvents = eventsByDate[cell.ymd] ?? [];
 
-                            return (
-                                <button
-                                    key={cell.ymd}
-                                    onClick={() => setSelectedDate(cell.ymd)}
+                                    return (
+                                        <button
+                                            key={cell.ymd}
+                                            onClick={() => setSelectedDate(cell.ymd)}
                                     className={`rounded-xl border transition-colors text-left p-2 min-h-[84px] flex flex-col gap-1
                                         ${cell.inMonth ? 'bg-black/10 border-white/10 hover:bg-white/5' : 'bg-black/5 border-white/5 text-white/30 hover:bg-white/5'}
                                         ${isSelected ? 'ring-2 ring-primary/60 border-primary/30' : ''}
@@ -366,7 +371,9 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                                 </button>
                             );
                         })}
-                    </div>
+                            </div>
+                        </>
+                    )}
                 </div>
 
                 {/* Agenda */}

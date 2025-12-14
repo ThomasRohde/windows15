@@ -39,7 +39,7 @@ export default defineConfig({
                 description: 'A modern Windows desktop experience in the browser',
                 theme_color: '#137fec',
                 background_color: '#101922',
-                display: 'standalone',
+                display: 'fullscreen',
                 orientation: 'any',
                 start_url: basePath,
                 scope: basePath,

@@ -31,3 +31,6 @@ dexie-cloud.key
 # Dev server files (from init scripts)
 .dev-server.log
 .dev-server.pid
+
+# Test coverage
+coverage/

@@ -17,7 +17,6 @@
         },
         "allowImportingTsExtensions": true,
         "noEmit": true,
-
         /* Strict Type-Checking Options */
         "strict": true,
         "noUncheckedIndexedAccess": true,

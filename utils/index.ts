@@ -17,3 +17,6 @@ export * from './fileSystem';
 
 // Storage (re-export from storage/index.ts)
 export * from './storage';
+
+// UUID generation
+export { generateUuid, createId } from './uuid';

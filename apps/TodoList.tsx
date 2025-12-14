@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { useDb, useDexieLiveQuery } from '../utils/storage';
+import { generateUuid } from '../utils/uuid';
 
 type Filter = 'all' | 'active' | 'completed';
-
-const createId = () => globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 11);
 
 export const TodoList = () => {
     const db = useDb();
@@ -20,7 +19,7 @@ export const TodoList = () => {
         if (input.trim()) {
             const now = Date.now();
             await db.todos.add({
-                id: createId(),
+                id: generateUuid(),
                 text: input.trim(),
                 completed: false,
                 createdAt: now,

@@ -1541,12 +1541,297 @@
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T06:01:26.537049",
       "notes": "Implementation: Create .env.example with VITE_DEXIE_CLOUD_URL. Update cloudConfig.ts to use import.meta.env.VITE_DEXIE_CLOUD_URL. Add env.d.ts with ImportMetaEnv interface. Edge cases: Fallback for missing vars. Dependencies: None. Context: Hardcoded config should be externalized. Gotchas: Only VITE_ prefixed vars exposed to client - security feature."
+    },
+    {
+      "id": "F059",
+      "category": "apps",
+      "priority": 1,
+      "description": "Add error handling and validation to TodoList app",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Duplicate rapid submissions prevented"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Currently no error handling in addTodo/toggleTodo/deleteTodo. Add try-catch around db operations. Use toast notifications or inline error display. Add debounce or disable-while-submitting pattern for add button."
+    },
+    {
+      "id": "F060",
+      "category": "apps",
+      "priority": 2,
+      "description": "Add todo edit functionality to TodoList app",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Edit mode shows clear visual distinction"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Currently users must delete and re-add to edit. Add inline editing with contenteditable or controlled input. Handle keyboard events for save/cancel. Update updatedAt timestamp on edit."
+    },
+    {
+      "id": "F061",
+      "category": "apps",
+      "priority": 2,
+      "description": "Add bulk operations to TodoList app",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Confirmation dialog before destructive bulk operations"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Use db.todos.bulkDelete() for efficient batch removal. Add toggle-all checkbox at top. Consider undo functionality for bulk deletes. Track operation in progress to prevent double-clicks."
+    },
+    {
+      "id": "F062",
+      "category": "testing",
+      "priority": 2,
+      "description": "Add todo persistence and sync verification tests",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Test verifies filter functionality works correctly"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Use Vitest with fake-indexeddb for mocking. Test CRUD operations, filter states, and reactive live query updates. Consider E2E test with Playwright for full persistence verification."
+    },
+    {
+      "id": "F063",
+      "category": "apps",
+      "priority": 1,
+      "description": "Improve UUID generation reliability in TodoList",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "IDs are guaranteed unique across Dexie Cloud sync"
+      ],
+      "estimatedEffort": null,
+      "status": "in-progress",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": "2025-12-14T07:06:07.245633",
+      "notes": "Current fallback to Math.random() is non-cryptographic. Replace with: crypto.randomUUID?.() || crypto.getRandomValues(new Uint8Array(16)) converted to hex string. Critical for Dexie Cloud where ID collisions would cause sync issues."
+    },
+    {
+      "id": "F064",
+      "category": "apps",
+      "priority": 3,
+      "description": "Add todo due dates and priority levels",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Visual indicator for overdue todos"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Extend TodoRecord type with dueDate?: number and priority?: 'low'|'medium'|'high'. Add date picker component. Use color coding for priorities (green/yellow/red). Filter/sort by these new fields. Requires Dexie schema version bump."
+    },
+    {
+      "id": "F065",
+      "category": "apps",
+      "priority": 3,
+      "description": "Add todo search and text filtering",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Works in combination with status filters"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Add search input above or integrated with filter tabs. Use case-insensitive string matching. Debounce search input for performance. Consider using Dexie's .filter() or client-side filtering for simplicity."
+    },
+    {
+      "id": "F066",
+      "category": "apps",
+      "priority": 4,
+      "description": "Add drag-to-reorder functionality for todos",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Smooth animations during drag"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Add sortOrder field to TodoRecord (requires schema version bump). Use react-beautiful-dnd, dnd-kit, or native HTML5 drag-drop. Update sortOrder values after reorder. Consider only allowing reorder in 'all' view to avoid confusion."
+    },
+    {
+      "id": "F067",
+      "category": "ui",
+      "priority": 3,
+      "description": "Add simulated CPU/Memory metrics with realistic fluctuation patterns to System Status widget",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "High usage triggers warning colors (yellow/red)"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Use setInterval with useState. Generate random values with slight variance from previous value for realism. Consider using requestAnimationFrame for smoother animations. CPU should fluctuate 15-45% normally, spike occasionally to 60-80%."
+    },
+    {
+      "id": "F068",
+      "category": "ui",
+      "priority": 3,
+      "description": "Add browser Performance API metrics to System Status widget",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Display DOM node count"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Use window.performance.memory (Chrome only) for heap info. Use PerformanceObserver for real metrics. Fallback to simulated values for unsupported browsers. Consider showing: heapUsed/heapTotal, domNodes, resourceCount."
+    },
+    {
+      "id": "F069",
+      "category": "ui",
+      "priority": 3,
+      "description": "Add network status indicator to System Status widget",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Shows effective bandwidth estimate"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Use navigator.onLine and online/offline events. Use Navigator.connection API for connection info (experimental, Chrome only). Add visual indicator: green dot for online, red for offline. Show 'Offline Mode' when disconnected."
+    },
+    {
+      "id": "F070",
+      "category": "ui",
+      "priority": 3,
+      "description": "Add battery status indicator to System Status widget",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Shows estimated time remaining"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Use Navigator.getBattery() API. Show battery icon that fills based on level. Add charging bolt icon when plugged in. Display 'Charging' or time remaining. Graceful fallback if API unavailable (show 'N/A' or hide section)."
+    },
+    {
+      "id": "F071",
+      "category": "ui",
+      "priority": 3,
+      "description": "Add storage usage indicator to System Status widget",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Color-coded warning when near quota"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Use navigator.storage.estimate() for StorageManager API. Shows used/quota in MB/GB. Add progress bar like CPU/memory. Yellow warning at 75%%, red at 90%%. This is actual real data from the browser!"
+    },
+    {
+      "id": "F072",
+      "category": "ui",
+      "priority": 3,
+      "description": "Add expandable detail view to System Status widget",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Includes mini performance graph/sparkline"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Add expand/collapse animation. Track 'uptime' as time since page load. Show FPS estimate using requestAnimationFrame timing. Consider adding a small sparkline chart showing CPU history (last 30 data points). Use CSS transitions for smooth expand."
+    },
+    {
+      "id": "F073",
+      "category": "ui",
+      "priority": 2,
+      "description": "Add process list simulation to System Status widget",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Click process to focus that window"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Integrate with OSContext to get list of open windows. Assign each window a simulated CPU/memory value. Sum of process values should roughly equal total shown. Clicking a process focuses that window. Style like Windows Task Manager compact view."
     }
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T06:26:54.819324",
-    "totalFeatures": 58,
+    "lastUpdated": "2025-12-14T07:04:13.000888",
+    "totalFeatures": 73,
     "passingFeatures": 58
   }
 }

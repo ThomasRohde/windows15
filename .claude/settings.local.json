@@ -18,7 +18,9 @@
             "Bash(Get-Location)",
             "Bash(Get-ChildItem -Force)",
             "Bash(Select-Object Mode, Name)",
-            "Bash(./init.sh)"
+            "Bash(./init.sh)",
+            "Bash(CI=true npm test:*)",
+            "Bash(npx vitest:*)"
         ]
     }
 }

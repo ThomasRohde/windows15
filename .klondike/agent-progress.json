@@ -178,11 +178,6 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F044",
-        "description": "Add Playwright E2E testing infrastructure",
-        "status": "in-progress"
-      },
-      {
         "id": "F045",
         "description": "Memoize expensive component renders with React.memo",
         "status": "not-started"
@@ -190,6 +185,11 @@
       {
         "id": "F046",
         "description": "Add JSDoc documentation to all public APIs",
+        "status": "not-started"
+      },
+      {
+        "id": "F047",
+        "description": "Create constants file for magic strings and numbers",
         "status": "not-started"
       }
     ]

@@ -227,6 +227,15 @@ export const APP_REGISTRY: AppConfig[] = [
         defaultWidth: 700,
         defaultHeight: 500,
     },
+    {
+        id: 'wallpaperstudio',
+        title: 'Wallpaper Studio',
+        icon: 'wallpaper',
+        color: 'bg-gradient-to-r from-purple-500 to-pink-500',
+        component: React.lazy(() => import('./WallpaperStudio').then(m => ({ default: m.WallpaperStudio }))),
+        defaultWidth: 1000,
+        defaultHeight: 680,
+    },
 ];
 
 /**

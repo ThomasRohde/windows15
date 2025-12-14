@@ -2285,11 +2285,20 @@
         "Toggle is instantaneous without page reload"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T16:48:59.756390",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "WindowSpaceContext created with 3D mode toggle",
+        "Quick Settings toggle added to Widgets panel",
+        "keyboard shortcut Ctrl+Alt+3 implemented",
+        "CSS perspective applied to window layer",
+        "windows get Z offset based on focus order (focused=z0",
+        "others scaled back)",
+        "shadows increase with depth. Respects reduced motion preference. Build passes",
+        "54 tests pass."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T16:42:19.886660",
       "notes": "Implementation: Add WindowSpaceMode.ts in platform/desktop/window-space/. Apply CSS transform: translateZ() and scale() based on window z-order. Store ui.windowSpaceMode in settings. Edge cases: Window focus changes during drag, rapid toggle. Dependencies: F084 (settings storage), existing Window.tsx. Context: Milestone 1 foundation for 3D Window Space. Gotchas: Don't break existing drag/resize - transforms are visual only. Test with reduced motion preference."
@@ -2309,13 +2318,13 @@
         "Preview shows live animation before applying"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T16:49:17.666728",
       "notes": "Implementation: Create apps/wallpaper-studio/ with WallpaperStudioApp.tsx. Store built-in packs in packs/ subfolder. Use wallpaper.json manifest format from PRD. Edge cases: Missing preview images, corrupted manifests. Dependencies: F085 (WallpaperHost), F086 (Scheduler). Context: Milestone 2 - user-facing wallpaper management. Gotchas: Gallery should lazy-load previews to avoid memory issues with many wallpapers."
     },
     {
@@ -2792,8 +2801,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T16:42:09.617460",
+    "lastUpdated": "2025-12-14T16:48:59.756402",
     "totalFeatures": 108,
-    "passingFeatures": 86
+    "passingFeatures": 87
   }
 }

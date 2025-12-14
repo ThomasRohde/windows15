@@ -304,18 +304,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F087",
-        "description": "Basic 3D toggle applies CSS transforms to windows with depth and perspective",
-        "status": "in-progress"
-      },
-      {
         "id": "F088",
         "description": "Wallpaper Studio app with gallery view and built-in wallpaper packs",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F089",
         "description": "WebGPU shader wallpaper runtime with WGSL support",
+        "status": "not-started"
+      },
+      {
+        "id": "F090",
+        "description": "WebGL2 fallback shader runtime for browsers without WebGPU",
         "status": "not-started"
       }
     ]

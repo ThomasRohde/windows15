@@ -1626,13 +1626,15 @@
         "Test verifies filter functionality works correctly"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T08:24:25.163248",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "tests/apps/TodoList.test.tsx"
+      ],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T08:17:47.366961",
       "notes": "Use Vitest with fake-indexeddb for mocking. Test CRUD operations, filter states, and reactive live query updates. Consider E2E test with Playwright for full persistence verification."
     },
     {
@@ -1712,13 +1714,16 @@
         "Smooth animations during drag"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T08:35:39.739051",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "apps/TodoList.tsx",
+        "utils/storage/db.ts"
+      ],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T08:24:35.946405",
       "notes": "Add sortOrder field to TodoRecord (requires schema version bump). Use react-beautiful-dnd, dnd-kit, or native HTML5 drag-drop. Update sortOrder values after reorder. Consider only allowing reorder in 'all' view to avoid confusion."
     },
     {
@@ -1872,8 +1877,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T08:08:39.028903",
+    "lastUpdated": "2025-12-14T08:35:39.739064",
     "totalFeatures": 73,
-    "passingFeatures": 71
+    "passingFeatures": 73
   }
 }

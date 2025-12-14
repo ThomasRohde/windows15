@@ -31,6 +31,7 @@ export type TodoRecord = {
     completed: boolean;
     priority?: 'low' | 'medium' | 'high';
     dueDate?: number; // Unix timestamp
+    sortOrder?: number;
     createdAt: number;
     updatedAt: number;
 };
@@ -85,6 +86,53 @@ export class Windows15DexieDB extends Dexie {
             todos: '@id, completed, priority, dueDate, updatedAt, createdAt',
             desktopIcons: '@id, order, updatedAt, createdAt',
         });
+
+        this.version(5)
+            .stores({
+                kv: 'key, updatedAt',
+                notes: '@id, updatedAt, createdAt',
+                bookmarks: '@id, folder, updatedAt, createdAt',
+                todos: '@id, completed, priority, dueDate, sortOrder, updatedAt, createdAt',
+                desktopIcons: '@id, order, updatedAt, createdAt',
+            })
+            .upgrade(async tx => {
+                const todosTable = tx.table<TodoRecord, string>('todos');
+                const allTodos = await todosTable.toArray();
+                if (allTodos.length === 0) return;
+
+                // Initialize sortOrder to match the current "smart sort" ordering.
+                const priorityOrder: Record<NonNullable<TodoRecord['priority']>, number> = {
+                    high: 3,
+                    medium: 2,
+                    low: 1,
+                };
+
+                const sorted = [...allTodos].sort((a, b) => {
+                    // Completed items go last
+                    if (a.completed !== b.completed) {
+                        return a.completed ? 1 : -1;
+                    }
+
+                    // Priority order: high > medium > low > none
+                    const aPriority = a.priority ? priorityOrder[a.priority] : 0;
+                    const bPriority = b.priority ? priorityOrder[b.priority] : 0;
+                    if (aPriority !== bPriority) {
+                        return bPriority - aPriority;
+                    }
+
+                    // Due date: earlier dates first
+                    if (a.dueDate !== b.dueDate) {
+                        if (!a.dueDate) return 1;
+                        if (!b.dueDate) return -1;
+                        return a.dueDate - b.dueDate;
+                    }
+
+                    // Created date: newer first
+                    return b.createdAt - a.createdAt;
+                });
+
+                await Promise.all(sorted.map((todo, index) => todosTable.update(todo.id, { sortOrder: index })));
+            });
 
         const databaseUrl = getCloudDatabaseUrl();
         if (databaseUrl) {

@@ -1,9 +1,63 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import {
+    DndContext,
+    KeyboardSensor,
+    PointerSensor,
+    closestCenter,
+    useSensor,
+    useSensors,
+    type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { useDb, useDexieLiveQuery } from '../utils/storage';
 import { generateUuid } from '../utils/uuid';
 
 type Filter = 'all' | 'active' | 'completed';
 type Priority = 'low' | 'medium' | 'high';
+type SortMode = 'smart' | 'manual';
+
+type SortableItemRenderProps = {
+    setNodeRef: (node: HTMLElement | null) => void;
+    style: React.CSSProperties;
+    attributes: Record<string, unknown>;
+    listeners: Record<string, unknown> | undefined;
+    isDragging: boolean;
+};
+
+const SortableItem = ({
+    id,
+    disabled,
+    children,
+}: {
+    id: string;
+    disabled: boolean;
+    children: (props: SortableItemRenderProps) => React.ReactNode;
+}) => {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id,
+        disabled,
+    });
+
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    return children({
+        setNodeRef,
+        style,
+        attributes,
+        listeners,
+        isDragging,
+    });
+};
 
 export const TodoList = () => {
     const db = useDb();
@@ -16,6 +70,7 @@ export const TodoList = () => {
     const [input, setInput] = useState('');
     const [filter, setFilter] = useState<Filter>('all');
     const [searchQuery, setSearchQuery] = useState('');
+    const [sortMode, setSortMode] = useState<SortMode>('smart');
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -50,12 +105,18 @@ export const TodoList = () => {
 
         try {
             const now = Date.now();
+            const minSortOrder = todos.reduce((min, todo) => {
+                const order = typeof todo.sortOrder === 'number' ? todo.sortOrder : todo.createdAt;
+                return Math.min(min, order);
+            }, Number.POSITIVE_INFINITY);
+            const nextSortOrder = Number.isFinite(minSortOrder) ? minSortOrder - 1 : 0;
             await db.todos.add({
                 id: `tds${generateUuid()}`,
                 text: trimmedInput,
                 completed: false,
                 priority: newTodoPriority,
                 dueDate: newTodoDueDate ? new Date(newTodoDueDate).getTime() : undefined,
+                sortOrder: nextSortOrder,
                 createdAt: now,
                 updatedAt: now,
             });
@@ -203,6 +264,14 @@ export const TodoList = () => {
             return true;
         });
 
+        if (sortMode === 'manual') {
+            return filtered.sort((a, b) => {
+                const aOrder = typeof a.sortOrder === 'number' ? a.sortOrder : a.createdAt;
+                const bOrder = typeof b.sortOrder === 'number' ? b.sortOrder : b.createdAt;
+                return aOrder - bOrder;
+            });
+        }
+
         // Sort by: 1) completed status, 2) priority, 3) due date, 4) created date
         return filtered.sort((a, b) => {
             // Completed items go last
@@ -228,10 +297,45 @@ export const TodoList = () => {
             // Created date: newer first
             return b.createdAt - a.createdAt;
         });
-    }, [todos, filter, searchQuery]);
+    }, [todos, filter, searchQuery, sortMode]);
 
     const activeCount = todos.filter(t => !t.completed).length;
     const completedCount = todos.length - activeCount;
+
+    const reorderEnabled = sortMode === 'manual' && filter === 'all' && !searchQuery.trim() && editingId === null;
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    );
+
+    const onDragEnd = async ({ active, over }: DragEndEvent) => {
+        if (!reorderEnabled) return;
+        if (!over) return;
+
+        const activeId = String(active.id);
+        const overId = String(over.id);
+        if (activeId === overId) return;
+
+        const oldIndex = filteredAndSortedTodos.findIndex(todo => todo.id === activeId);
+        const newIndex = filteredAndSortedTodos.findIndex(todo => todo.id === overId);
+        if (oldIndex === -1 || newIndex === -1) return;
+
+        const newOrder = arrayMove(filteredAndSortedTodos, oldIndex, newIndex);
+        const now = Date.now();
+
+        try {
+            await db.transaction('rw', db.todos, async () => {
+                for (let i = 0; i < newOrder.length; i++) {
+                    await db.todos.update(newOrder[i].id, { sortOrder: i, updatedAt: now });
+                }
+            });
+            setError(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to reorder tasks');
+            console.error('Error reordering todos:', err);
+        }
+    };
 
     const getPriorityColor = (priority?: Priority) => {
         if (!priority) return 'bg-white/10 text-white/40';
@@ -409,6 +513,21 @@ export const TodoList = () => {
                             {f}
                         </button>
                     ))}
+                    <button
+                        onClick={() => setSortMode(sortMode === 'smart' ? 'manual' : 'smart')}
+                        className={`px-3 py-1 rounded-lg text-sm transition-colors ${
+                            sortMode === 'manual'
+                                ? 'bg-purple-500/20 text-purple-200 hover:bg-purple-500/30'
+                                : 'bg-white/10 text-white/70 hover:bg-white/20'
+                        }`}
+                        title={
+                            sortMode === 'manual'
+                                ? 'Manual ordering enabled'
+                                : 'Enable manual ordering (drag-to-reorder in All view)'
+                        }
+                    >
+                        {sortMode === 'manual' ? 'Manual Order' : 'Smart Sort'}
+                    </button>
                 </div>
 
                 {todos.length > 0 && (
@@ -454,112 +573,157 @@ export const TodoList = () => {
                               : `No ${filter} tasks`}
                     </div>
                 ) : (
-                    filteredAndSortedTodos.map(todo => (
-                        <div
-                            key={todo.id}
-                            className={`flex items-start gap-3 bg-black/20 p-3 rounded-lg group ${getPriorityBorder(todo.priority)} ${isOverdue(todo.dueDate) && !todo.completed ? 'bg-red-500/10' : ''}`}
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+                        <SortableContext
+                            items={filteredAndSortedTodos.map(todo => todo.id)}
+                            strategy={verticalListSortingStrategy}
                         >
-                            <input
-                                type="checkbox"
-                                checked={todo.completed}
-                                onChange={() => toggleTodo(todo.id)}
-                                disabled={editingId === todo.id}
-                                className="w-5 h-5 mt-0.5 rounded accent-blue-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                            />
-
-                            {editingId === todo.id ? (
-                                <div className="flex-1 space-y-2 bg-blue-500/10 border border-blue-500/30 rounded px-3 py-2">
-                                    <input
-                                        type="text"
-                                        value={editText}
-                                        onChange={e => setEditText(e.target.value)}
-                                        onKeyDown={e => {
-                                            if (e.key === 'Enter') saveEdit(todo.id);
-                                            if (e.key === 'Escape') cancelEdit();
-                                        }}
-                                        maxLength={500}
-                                        autoFocus
-                                        className="w-full bg-transparent text-white outline-none"
-                                    />
-                                    <div className="flex gap-2 flex-wrap items-center">
-                                        <select
-                                            value={editPriority || ''}
-                                            onChange={e => setEditPriority((e.target.value as Priority) || undefined)}
-                                            className="bg-black/30 text-white px-2 py-1 rounded text-xs border border-white/10"
-                                        >
-                                            <option value="">No priority</option>
-                                            <option value="low">Low</option>
-                                            <option value="medium">Medium</option>
-                                            <option value="high">High</option>
-                                        </select>
-                                        <input
-                                            type="date"
-                                            value={editDueDate}
-                                            onChange={e => setEditDueDate(e.target.value)}
-                                            className="bg-black/30 text-white px-2 py-1 rounded text-xs border border-white/10"
-                                        />
-                                        <div className="flex gap-1 ml-auto">
-                                            <button
-                                                onClick={() => saveEdit(todo.id)}
-                                                className="text-green-400 hover:text-green-300 px-2 py-1"
-                                                title="Save (Enter)"
-                                            >
-                                                ✓
-                                            </button>
-                                            <button
-                                                onClick={cancelEdit}
-                                                className="text-red-400 hover:text-red-300 px-2 py-1"
-                                                title="Cancel (Esc)"
-                                            >
-                                                ✕
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="flex-1 min-w-0">
+                            {filteredAndSortedTodos.map(todo => (
+                                <SortableItem key={todo.id} id={todo.id} disabled={!reorderEnabled}>
+                                    {({ setNodeRef, style, attributes, listeners, isDragging }) => (
                                         <div
-                                            onDoubleClick={() =>
-                                                !todo.completed &&
-                                                startEdit(todo.id, todo.text, todo.priority, todo.dueDate)
-                                            }
-                                            className={`text-white ${todo.completed ? 'line-through text-white/40' : 'cursor-text'}`}
-                                            title={!todo.completed ? 'Double-click to edit' : ''}
+                                            ref={setNodeRef}
+                                            style={style}
+                                            className={`flex items-start gap-3 bg-black/20 p-3 rounded-lg group ${getPriorityBorder(todo.priority)} ${
+                                                isOverdue(todo.dueDate) && !todo.completed ? 'bg-red-500/10' : ''
+                                            } ${isDragging ? 'opacity-80' : ''}`}
                                         >
-                                            {todo.text}
-                                        </div>
-                                        <div className="flex gap-2 mt-1 flex-wrap">
-                                            {todo.priority && (
-                                                <span
-                                                    className={`text-xs px-2 py-0.5 rounded border ${getPriorityColor(todo.priority)}`}
-                                                >
-                                                    {todo.priority}
-                                                </span>
-                                            )}
-                                            {todo.dueDate && (
-                                                <span
-                                                    className={`text-xs px-2 py-0.5 rounded ${
-                                                        isOverdue(todo.dueDate) && !todo.completed
-                                                            ? 'bg-red-500/30 text-red-200'
-                                                            : 'bg-white/10 text-white/60'
+                                            {sortMode === 'manual' && (
+                                                <button
+                                                    type="button"
+                                                    {...attributes}
+                                                    {...(reorderEnabled ? (listeners ?? {}) : {})}
+                                                    disabled={!reorderEnabled}
+                                                    className={`mt-0.5 px-1 text-white/40 select-none ${
+                                                        reorderEnabled
+                                                            ? 'cursor-grab active:cursor-grabbing hover:text-white/70'
+                                                            : 'cursor-not-allowed opacity-40'
                                                     }`}
+                                                    title={
+                                                        reorderEnabled
+                                                            ? 'Drag to reorder'
+                                                            : 'Reorder is available in All view with empty search'
+                                                    }
+                                                    aria-label="Reorder task"
                                                 >
-                                                    {formatDueDate(todo.dueDate)}
-                                                </span>
+                                                    ⋮⋮
+                                                </button>
+                                            )}
+
+                                            <input
+                                                type="checkbox"
+                                                checked={todo.completed}
+                                                onChange={() => toggleTodo(todo.id)}
+                                                disabled={editingId === todo.id}
+                                                className="w-5 h-5 mt-0.5 rounded accent-blue-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                            />
+
+                                            {editingId === todo.id ? (
+                                                <div className="flex-1 space-y-2 bg-blue-500/10 border border-blue-500/30 rounded px-3 py-2">
+                                                    <input
+                                                        type="text"
+                                                        value={editText}
+                                                        onChange={e => setEditText(e.target.value)}
+                                                        onKeyDown={e => {
+                                                            if (e.key === 'Enter') saveEdit(todo.id);
+                                                            if (e.key === 'Escape') cancelEdit();
+                                                        }}
+                                                        maxLength={500}
+                                                        autoFocus
+                                                        className="w-full bg-transparent text-white outline-none"
+                                                    />
+                                                    <div className="flex gap-2 flex-wrap items-center">
+                                                        <select
+                                                            value={editPriority || ''}
+                                                            onChange={e =>
+                                                                setEditPriority(
+                                                                    (e.target.value as Priority) || undefined
+                                                                )
+                                                            }
+                                                            className="bg-black/30 text-white px-2 py-1 rounded text-xs border border-white/10"
+                                                        >
+                                                            <option value="">No priority</option>
+                                                            <option value="low">Low</option>
+                                                            <option value="medium">Medium</option>
+                                                            <option value="high">High</option>
+                                                        </select>
+                                                        <input
+                                                            type="date"
+                                                            value={editDueDate}
+                                                            onChange={e => setEditDueDate(e.target.value)}
+                                                            className="bg-black/30 text-white px-2 py-1 rounded text-xs border border-white/10"
+                                                        />
+                                                        <div className="flex gap-1 ml-auto">
+                                                            <button
+                                                                onClick={() => saveEdit(todo.id)}
+                                                                className="text-green-400 hover:text-green-300 px-2 py-1"
+                                                                title="Save (Enter)"
+                                                            >
+                                                                ✓
+                                                            </button>
+                                                            <button
+                                                                onClick={cancelEdit}
+                                                                className="text-red-400 hover:text-red-300 px-2 py-1"
+                                                                title="Cancel (Esc)"
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div
+                                                            onDoubleClick={() =>
+                                                                !todo.completed &&
+                                                                startEdit(
+                                                                    todo.id,
+                                                                    todo.text,
+                                                                    todo.priority,
+                                                                    todo.dueDate
+                                                                )
+                                                            }
+                                                            className={`text-white ${todo.completed ? 'line-through text-white/40' : 'cursor-text'}`}
+                                                            title={!todo.completed ? 'Double-click to edit' : ''}
+                                                        >
+                                                            {todo.text}
+                                                        </div>
+                                                        <div className="flex gap-2 mt-1 flex-wrap">
+                                                            {todo.priority && (
+                                                                <span
+                                                                    className={`text-xs px-2 py-0.5 rounded border ${getPriorityColor(todo.priority)}`}
+                                                                >
+                                                                    {todo.priority}
+                                                                </span>
+                                                            )}
+                                                            {todo.dueDate && (
+                                                                <span
+                                                                    className={`text-xs px-2 py-0.5 rounded ${
+                                                                        isOverdue(todo.dueDate) && !todo.completed
+                                                                            ? 'bg-red-500/30 text-red-200'
+                                                                            : 'bg-white/10 text-white/60'
+                                                                    }`}
+                                                                >
+                                                                    {formatDueDate(todo.dueDate)}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => deleteTodo(todo.id)}
+                                                        className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-300 transition-opacity px-2"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </>
                                             )}
                                         </div>
-                                    </div>
-                                    <button
-                                        onClick={() => deleteTodo(todo.id)}
-                                        className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-300 transition-opacity px-2"
-                                    >
-                                        ✕
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                    ))
+                                    )}
+                                </SortableItem>
+                            ))}
+                        </SortableContext>
+                    </DndContext>
                 )}
             </div>
 

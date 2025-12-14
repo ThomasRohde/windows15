@@ -213,6 +213,24 @@
         "Only 2 features remaining: F062 (todo tests) and F066 (drag-to-reorder todos). Project is 97.3% complete!"
       ],
       "technicalNotes": []
+    },
+    {
+      "sessionNumber": 14,
+      "date": "2025-12-14",
+      "agent": "Coding Agent",
+      "duration": "~session",
+      "focus": "Completed final features: added TodoList persistence/filter tests (Vitest + fake-indexeddb) and drag-to-reorder (dnd-kit) with sortOrder schema migration. Unit tests and build pass; project is now 100%.",
+      "completed": [
+        "F062",
+        "F066"
+      ],
+      "inProgress": [],
+      "blockers": [],
+      "nextSteps": [
+        "Review drag-reorder UX",
+        "commit changes"
+      ],
+      "technicalNotes": []
     }
   ],
   "quickReference": {
@@ -223,17 +241,6 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": [
-      {
-        "id": "F062",
-        "description": "Add todo persistence and sync verification tests",
-        "status": "not-started"
-      },
-      {
-        "id": "F066",
-        "description": "Add drag-to-reorder functionality for todos",
-        "status": "not-started"
-      }
-    ]
+    "priorityFeatures": []
   }
 }

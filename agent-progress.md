@@ -28,10 +28,8 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                      | Status         |
-| ---- | ------------------------------------------------ | -------------- |
-| F062 | Add todo persistence and sync verification tests | ⏳ Not started |
-| F066 | Add drag-to-reorder functionality for todos      | ⏳ Not started |
+| ID  | Description | Status |
+| --- | ----------- | ------ |
 
 ---
 
@@ -419,6 +417,36 @@ klondike feature list  # List all features
 #### Recommended Next Steps
 
 1. Only 2 features remaining: F062 (todo tests) and F066 (drag-to-reorder todos). Project is 97.3% complete!
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 14 - 2025-12-14
+
+**Agent**: Coding Agent
+**Duration**: ~session
+**Focus**: Completed final features: added TodoList persistence/filter tests (Vitest + fake-indexeddb) and drag-to-reorder (dnd-kit) with sortOrder schema migration. Unit tests and build pass; project is now 100%.
+
+#### Completed
+
+- F062
+- F066
+
+#### In Progress
+
+- None
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Review drag-reorder UX
+2. commit changes
 
 #### Technical Notes
 

@@ -1479,11 +1479,13 @@
         "package.json has prepare script"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T06:01:07.326704",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Husky v9 and lint-staged installed. Pre-commit hook at .husky/pre-commit runs npx lint-staged. lint-staged config in package.json runs eslint --fix and prettier --write on JS/TS files. prepare script runs husky. Tested commit - lint-staged ran successfully with 'Running tasks for staged files...' output."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T06:00:01.268999",
       "notes": "Implementation: npx husky-init. npm install -D lint-staged. Add lint-staged config to package.json. Configure pre-commit to run lint-staged. Edge cases: Allow --no-verify escape hatch for emergencies. Dependencies: F040 F041. Context: Pre-commit hooks catch issues before they enter history. Gotchas: Husky v9 has different setup than v8 - check docs."
@@ -1501,20 +1503,20 @@
         "Dexie Cloud URL loaded from env var"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T06:01:26.537049",
       "notes": "Implementation: Create .env.example with VITE_DEXIE_CLOUD_URL. Update cloudConfig.ts to use import.meta.env.VITE_DEXIE_CLOUD_URL. Add env.d.ts with ImportMetaEnv interface. Edge cases: Fallback for missing vars. Dependencies: None. Context: Hardcoded config should be externalized. Gotchas: Only VITE_ prefixed vars exposed to client - security feature."
     }
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T05:59:40.891612",
+    "lastUpdated": "2025-12-14T06:01:07.326716",
     "totalFeatures": 58,
-    "passingFeatures": 50
+    "passingFeatures": 51
   }
 }

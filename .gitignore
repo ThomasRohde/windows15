@@ -28,6 +28,11 @@ dist-ssr
 dexie-cloud.json
 dexie-cloud.key
 
+# Environment variables (local overrides)
+.env
+.env.local
+.env.*.local
+
 # Dev server files (from init scripts)
 .dev-server.log
 .dev-server.pid

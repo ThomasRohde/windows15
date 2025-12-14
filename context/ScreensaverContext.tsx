@@ -52,6 +52,10 @@ export const ScreensaverProvider: React.FC<{ children: ReactNode }> = ({ childre
                     enabled: true,
                     timeout: DEFAULT_TIMEOUT,
                     animation: 'starfield',
+                    animationSpeed: 1,
+                    animationIntensity: 1,
+                    showClock: false,
+                    showDate: false,
                     createdAt: now,
                     updatedAt: now,
                 });

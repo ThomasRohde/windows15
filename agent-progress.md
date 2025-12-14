@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                        | Status         |
-| ---- | -------------------------------------------------- | -------------- |
-| F074 | User can enable and configure animated screensaver | 🔄 In progress |
-| F075 | Screensaver displays smooth animations             | ⏳ Not started |
-| F077 | Terminal supports tab completion for commands      | ⏳ Not started |
+| ID   | Description                                   | Status         |
+| ---- | --------------------------------------------- | -------------- |
+| F075 | Screensaver displays smooth animations        | 🔄 In progress |
+| F077 | Terminal supports tab completion for commands | ⏳ Not started |
+| F078 | Terminal output persists and can be exported  | ⏳ Not started |
 
 ---
 

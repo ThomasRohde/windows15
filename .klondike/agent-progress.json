@@ -275,18 +275,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F074",
-        "description": "User can enable and configure animated screensaver",
-        "status": "in-progress"
-      },
-      {
         "id": "F075",
         "description": "Screensaver displays smooth animations",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F077",
         "description": "Terminal supports tab completion for commands",
+        "status": "not-started"
+      },
+      {
+        "id": "F078",
+        "description": "Terminal output persists and can be exported",
         "status": "not-started"
       }
     ]

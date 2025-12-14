@@ -59,6 +59,10 @@ export type ScreensaverSettingsRecord = {
     enabled: boolean;
     timeout: number; // Idle timeout in milliseconds (default 5 minutes = 300000)
     animation: 'starfield' | 'matrix' | 'bouncing-logo' | 'geometric';
+    animationSpeed: number; // Speed multiplier (0.5 = slow, 1 = normal, 2 = fast)
+    animationIntensity: number; // Intensity level (0.5 = subtle, 1 = normal, 2 = intense)
+    showClock: boolean; // Show clock overlay
+    showDate: boolean; // Show date overlay
     createdAt: number;
     updatedAt: number;
 };

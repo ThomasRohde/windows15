@@ -9,6 +9,8 @@
 
 # Windows 15 Concept
 
+[![CI](https://github.com/ThomasRohde/windows15/actions/workflows/ci.yml/badge.svg)](https://github.com/ThomasRohde/windows15/actions/workflows/ci.yml)
+
 A futuristic Windows-style desktop UI built with React + Vite: glassmorphism, draggable windows, widgets, and a handful of demo apps.
 
 - Live demo (GitHub Pages): `https://thomasrohde.github.io/windows15/`

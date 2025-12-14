@@ -2,6 +2,7 @@
  * Components barrel exports
  */
 
+export { AppLoadingSkeleton } from "./AppLoadingSkeleton";
 export { DesktopIcon } from "./DesktopIcon";
 export { FileExplorer } from "./FileExplorer";
 export { InstallButton } from "./InstallButton";

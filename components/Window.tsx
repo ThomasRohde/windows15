@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useOS } from '../context/OSContext';
 import { WindowState } from '../types';
+import { AppLoadingSkeleton } from './AppLoadingSkeleton';
 
 interface WindowProps {
     window: WindowState;
@@ -308,11 +309,7 @@ export const Window: React.FC<WindowProps> = ({ window }) => {
 
                 {/* Content */}
                 <div className="flex-1 overflow-auto relative z-40 bg-black/20">
-                    <Suspense fallback={
-                        <div className="flex items-center justify-center h-full">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white/50"></div>
-                        </div>
-                    }>
+                    <Suspense fallback={<AppLoadingSkeleton title={window.title} />}>
                         {window.component}
                     </Suspense>
                 </div>

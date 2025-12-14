@@ -18,11 +18,12 @@ These shortcuts work anywhere in the application (except when typing in text inp
 
 ### Window Control
 
-| Shortcut | Action                  |
-| -------- | ----------------------- |
-| `Ctrl+W` | Close focused window    |
-| `Alt+F4` | Close focused window    |
-| `Ctrl+M` | Minimize focused window |
+| Shortcut     | Action                      |
+| ------------ | --------------------------- |
+| `Ctrl+W`     | Close focused window        |
+| `Alt+F4`     | Close focused window        |
+| `Ctrl+M`     | Minimize focused window     |
+| `Ctrl+Alt+3` | Toggle 3D Window Space mode |
 
 ## Developer API
 

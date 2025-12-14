@@ -19,6 +19,7 @@ export {
     SkeletonEmailList,
     DelayedSkeleton,
 } from './LoadingSkeleton';
+export { NotificationToast } from './NotificationToast';
 export { PWAUpdatePrompt } from './PWAUpdatePrompt';
 export { ReconnectingToast } from './ReconnectingToast';
 export { Screensaver } from './Screensaver';

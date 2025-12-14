@@ -2693,13 +2693,13 @@
         "Shortcut documented in keyboard shortcuts help"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T17:15:01.922612",
       "notes": "Implementation: Add to existing useHotkeys system (F053). Toggle ui.windowSpaceMode setting. Edge cases: Conflict with other shortcuts, input focus in text fields. Dependencies: F087 (3D toggle), F053 (hotkeys). Context: Quick access per PRD UX section. Gotchas: Don't trigger while typing in apps."
     },
     {

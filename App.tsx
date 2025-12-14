@@ -8,6 +8,7 @@ import {
     StartMenu,
     PWAUpdatePrompt,
     ReconnectingToast,
+    NotificationToast,
     InstallButton,
     Screensaver,
     WallpaperHost,
@@ -17,6 +18,7 @@ import { useDexieLiveQuery } from './utils/storage/react';
 import { DesktopIconRecord } from './utils/storage/db';
 import { APP_REGISTRY } from './apps';
 import { useHotkeys } from './hooks';
+import { appEventBus } from './utils/eventBus';
 
 const Desktop = () => {
     const {
@@ -190,8 +192,16 @@ const Desktop = () => {
         'ctrl+w': () => focusedWindow && closeWindow(focusedWindow.id),
         'alt+f4': () => focusedWindow && closeWindow(focusedWindow.id),
         'ctrl+m': () => focusedWindow && minimizeWindow(focusedWindow.id),
-        // 3D Window Space toggle (F087)
-        'ctrl+alt+3': () => toggle3DMode(),
+        // 3D Window Space toggle (F103)
+        'ctrl+alt+3': () => {
+            toggle3DMode();
+            const newMode = !is3DMode ? '3D' : 'Flat';
+            appEventBus.emit('notification:show', {
+                message: `Window Space: ${newMode} Mode`,
+                type: 'info',
+                duration: 2000,
+            });
+        },
     });
 
     // CSS perspective for 3D mode
@@ -250,6 +260,7 @@ const Desktop = () => {
             <Taskbar />
             <PWAUpdatePrompt />
             <ReconnectingToast />
+            <NotificationToast />
             <InstallButton />
             <Screensaver />
         </div>

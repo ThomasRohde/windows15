@@ -208,11 +208,6 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F061",
-        "description": "Add bulk operations to TodoList app",
-        "status": "in-progress"
-      },
-      {
         "id": "F062",
         "description": "Add todo persistence and sync verification tests",
         "status": "not-started"
@@ -220,6 +215,11 @@
       {
         "id": "F073",
         "description": "Add process list simulation to System Status widget",
+        "status": "in-progress"
+      },
+      {
+        "id": "F064",
+        "description": "Add todo due dates and priority levels",
         "status": "not-started"
       }
     ]

@@ -45,7 +45,7 @@ const weatherCodeToInfo: Record<number, { icon: string; condition: string }> = {
 };
 
 export const Widgets: React.FC = () => {
-    const { openWindow } = useOS();
+    const { openWindow, windows, setActiveWindow } = useOS();
     const [currentDate, setCurrentDate] = useState(new Date());
     const { value: calendarEventsRaw } = useDexieLiveQuery(
         () => storageService.get<CalendarEvent[]>(STORAGE_KEYS.calendarEvents),
@@ -287,7 +287,9 @@ export const Widgets: React.FC = () => {
                     <span className="material-symbols-outlined text-green-400">memory</span>
                     <span className="text-sm font-medium text-white/90">System Status</span>
                 </div>
-                <div className="space-y-3">
+
+                {/* Overall Stats */}
+                <div className="space-y-3 mb-4">
                     <div className="space-y-1">
                         <div className="flex justify-between text-xs text-white/60">
                             <span>CPU</span>
@@ -307,6 +309,45 @@ export const Widgets: React.FC = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* Process List */}
+                {windows.length > 0 && (
+                    <div className="border-t border-white/10 pt-3">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-[10px] text-white/40 uppercase tracking-wider">Processes</span>
+                            <span className="text-[10px] text-white/40">{windows.length} running</span>
+                        </div>
+                        <div className="space-y-1 max-h-32 overflow-y-auto custom-scrollbar">
+                            {windows
+                                .slice()
+                                .sort((a, b) => b.zIndex - a.zIndex)
+                                .map(window => {
+                                    // Simulate CPU/memory usage (deterministic based on window ID)
+                                    const hashCode = window.id
+                                        .split('')
+                                        .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                                    const cpuUsage = (hashCode % 15) + 2; // 2-16%
+                                    const memUsage = ((hashCode * 13) % 80) + 20; // 20-100 MB
+
+                                    return (
+                                        <button
+                                            key={window.id}
+                                            type="button"
+                                            onClick={() => setActiveWindow(window.id)}
+                                            className="w-full flex items-center justify-between text-xs py-1 px-2 rounded hover:bg-white/10 transition-colors text-left"
+                                            title={`Focus ${window.title}`}
+                                        >
+                                            <span className="text-white/80 truncate flex-1 mr-2">{window.title}</span>
+                                            <div className="flex gap-2 text-[10px] text-white/40 shrink-0">
+                                                <span>{cpuUsage}%</span>
+                                                <span>{memUsage}MB</span>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

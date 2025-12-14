@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                         | Status         |
 | ---- | --------------------------------------------------- | -------------- |
-| F061 | Add bulk operations to TodoList app                 | 🔄 In progress |
 | F062 | Add todo persistence and sync verification tests    | ⏳ Not started |
-| F073 | Add process list simulation to System Status widget | ⏳ Not started |
+| F073 | Add process list simulation to System Status widget | 🔄 In progress |
+| F064 | Add todo due dates and priority levels              | ⏳ Not started |
 
 ---
 

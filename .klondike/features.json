@@ -1602,11 +1602,16 @@
         "Confirmation dialog before destructive bulk operations"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T07:12:51.530162",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Implemented Complete All",
+        "Clear Completed",
+        "and Delete All buttons with modal confirmation dialogs. Uses bulkDelete() for efficiency. Build passes",
+        "committed."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T07:11:14.700328",
       "notes": "Use db.todos.bulkDelete() for efficient batch removal. Add toggle-all checkbox at top. Consider undo functionality for bulk deletes. Track operation in progress to prevent double-clicks."
@@ -1833,20 +1838,20 @@
         "Click process to focus that window"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T07:12:52.318156",
       "notes": "Integrate with OSContext to get list of open windows. Assign each window a simulated CPU/memory value. Sum of process values should roughly equal total shown. Clicking a process focuses that window. Style like Windows Task Manager compact view."
     }
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T07:11:13.963836",
+    "lastUpdated": "2025-12-14T07:12:51.530171",
     "totalFeatures": 73,
-    "passingFeatures": 61
+    "passingFeatures": 62
   }
 }

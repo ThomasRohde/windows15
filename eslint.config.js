@@ -96,6 +96,23 @@ export default [
                 EventListener: 'readonly',
                 BroadcastChannel: 'readonly',
                 __dirname: 'readonly',
+                // WebGPU globals
+                GPUDevice: 'readonly',
+                GPUCanvasContext: 'readonly',
+                GPURenderPipeline: 'readonly',
+                GPUBuffer: 'readonly',
+                GPUBindGroup: 'readonly',
+                GPUTextureFormat: 'readonly',
+                GPUTexture: 'readonly',
+                GPUDeviceLostInfo: 'readonly',
+                GPUBufferUsage: 'readonly',
+                GPUShaderStage: 'readonly',
+                // WebGL2 globals
+                WebGL2RenderingContext: 'readonly',
+                WebGLProgram: 'readonly',
+                WebGLVertexArrayObject: 'readonly',
+                WebGLUniformLocation: 'readonly',
+                WebGLShader: 'readonly',
             },
         },
         plugins: {

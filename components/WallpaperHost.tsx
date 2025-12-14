@@ -1,15 +1,17 @@
 /**
- * WallpaperHost Component (F085)
+ * WallpaperHost Component (F085, F089, F090)
  *
  * Renders live wallpaper behind desktop icons and windows.
  * Manages wallpaper lifecycle and canvas resizing.
  * Uses WallpaperScheduler (F086) for render loop management.
+ * Integrates WebGPU (F089) and WebGL2 fallback (F090) runtimes.
  */
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useDb } from '../context/DbContext';
 import type { WallpaperRuntime, WallpaperSettings, WallpaperManifest } from '../types/wallpaper';
 import { DEFAULT_WALLPAPER_SETTINGS } from '../types/wallpaper';
 import { WallpaperScheduler } from '../utils/WallpaperScheduler';
+import { createShaderRuntime, getPreferredRuntime, type RuntimeType } from '../runtime';
 
 interface WallpaperHostProps {
     /** Fallback image URL when no live wallpaper is active */
@@ -28,6 +30,7 @@ interface WallpaperHostProps {
  * - Disposes prior runtime on wallpaper switch
  * - Uses WallpaperScheduler for FPS-capped render loop
  * - Battery saver mode auto-reduces FPS and resolution
+ * - Auto-selects WebGPU or WebGL2 runtime based on browser support
  */
 export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, batterySaver = false }) => {
     const db = useDb();
@@ -38,6 +41,60 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
     const [activeWallpaper, setActiveWallpaper] = useState<WallpaperManifest | null>(null);
     const [settings, setSettings] = useState<WallpaperSettings>(DEFAULT_WALLPAPER_SETTINGS);
     const [isLiveWallpaperActive, setIsLiveWallpaperActive] = useState(false);
+    const [runtimeType, setRuntimeType] = useState<RuntimeType>('none');
+    const [runtimeError, setRuntimeError] = useState<string | null>(null);
+
+    // Detect available runtime on mount
+    useEffect(() => {
+        setRuntimeType(getPreferredRuntime());
+    }, []);
+
+    // Initialize shader runtime when wallpaper changes
+    const initializeRuntime = useCallback(async () => {
+        if (!canvasRef.current || !activeWallpaper || activeWallpaper.type !== 'shader') {
+            return;
+        }
+
+        // Dispose previous runtime
+        if (runtimeRef.current) {
+            runtimeRef.current.dispose();
+            runtimeRef.current = null;
+        }
+
+        try {
+            setRuntimeError(null);
+
+            // Create runtime with optional shader URLs from manifest
+            const runtime = await createShaderRuntime({
+                wgslUrl: activeWallpaper.entry,
+                glslUrl: activeWallpaper.fallback,
+            });
+
+            if (!runtime) {
+                throw new Error('No compatible shader runtime available');
+            }
+
+            // Initialize with canvas and settings
+            await runtime.init({
+                canvas: canvasRef.current,
+                settings,
+            });
+
+            runtimeRef.current = runtime;
+            console.log(`[WallpaperHost] Shader runtime initialized (${runtimeType})`);
+        } catch (error) {
+            console.error('[WallpaperHost] Failed to initialize shader runtime:', error);
+            setRuntimeError(error instanceof Error ? error.message : 'Unknown error');
+            setIsLiveWallpaperActive(false);
+        }
+    }, [activeWallpaper, settings, runtimeType]);
+
+    // Initialize runtime when shader wallpaper is selected
+    useEffect(() => {
+        if (isLiveWallpaperActive && activeWallpaper?.type === 'shader') {
+            void initializeRuntime();
+        }
+    }, [isLiveWallpaperActive, activeWallpaper, initializeRuntime]);
 
     // Load active wallpaper from settings on mount
     useEffect(() => {
@@ -161,14 +218,19 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
     }, [settings]);
 
     // Render static image fallback or canvas for live wallpaper
-    if (!isLiveWallpaperActive) {
-        // Static image wallpaper (existing behavior)
+    if (!isLiveWallpaperActive || runtimeError) {
+        // Static image wallpaper (existing behavior or fallback on error)
         return (
             <div
                 className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-700 ease-in-out transform scale-105"
                 style={{ backgroundImage: `url('${fallbackImage || ''}')` }}
             >
                 <div className="absolute inset-0 bg-black/10 backdrop-blur-[0px]" />
+                {runtimeError && (
+                    <div className="absolute bottom-4 left-4 bg-red-900/80 text-white text-xs px-2 py-1 rounded">
+                        Shader error: {runtimeError}
+                    </div>
+                )}
             </div>
         );
     }

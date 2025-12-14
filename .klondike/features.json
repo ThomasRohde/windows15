@@ -2351,13 +2351,13 @@
         "Handles WebGPU device loss and recovery gracefully"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T17:35:16.079700",
       "notes": "Implementation: Create runtime/ShaderWallpaperRuntime.ts. Use minimal WebGPU pipeline (Option A from PRD). Standard uniform buffer layout for all shaders. Edge cases: Shader compilation errors, device lost during resize. Dependencies: F085 (WallpaperHost). Context: Primary wallpaper type for WebGPU-capable browsers. Gotchas: Check navigator.gpu availability; gracefully fail to WebGL fallback."
     },
     {

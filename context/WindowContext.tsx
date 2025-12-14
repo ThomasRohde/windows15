@@ -7,6 +7,7 @@ import { getWindowStates, WindowStateRecord } from '../utils/fileSystem';
 import { storageService } from '../utils/storage';
 import { useAppRegistry } from './AppRegistryContext';
 import { useStartMenu } from './StartMenuContext';
+import { Z_INDEX } from '../utils/constants';
 
 const KV_KEYS = {
     openWindows: 'windows15.os.openWindows',
@@ -51,7 +52,7 @@ export const WindowProvider: React.FC<WindowProviderProps> = ({ children }) => {
     const [windows, setWindows] = useState<WindowState[]>([]);
     const [isInitialized, setIsInitialized] = useState(false);
 
-    const nextZIndexRef = useRef(100);
+    const nextZIndexRef = useRef(Z_INDEX.WINDOW_BASE);
     const savedWindowStatesRef = useRef<WindowStateRecord[]>([]);
     const openAppIdsRef = useRef<string[]>([]);
     const sessionRestoredRef = useRef(false);

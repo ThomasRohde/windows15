@@ -1,5 +1,100 @@
 import { FileSystemItem } from '../types';
 
+// ============================================================================
+// Z-Index Layering System
+// ============================================================================
+/**
+ * Z-index constants for layering UI elements.
+ * Higher values appear on top of lower values.
+ */
+export const Z_INDEX = {
+    /** Desktop icons layer */
+    DESKTOP_ICONS: 10,
+    /** Windows layer - starts at this value and increments */
+    WINDOW_BASE: 100,
+    /** Start menu overlay */
+    START_MENU: 40,
+    /** Window title bar (relative within window) */
+    WINDOW_TITLE_BAR: 50,
+    /** Window content area (relative within window) */
+    WINDOW_CONTENT: 40,
+    /** Taskbar - always on top */
+    TASKBAR: 50,
+    /** Modal overlays (dialogs, popups) */
+    MODAL_OVERLAY: 50,
+    /** Resize handles (relative within window) */
+    RESIZE_HANDLES: 60,
+} as const;
+
+// ============================================================================
+// Window Dimensions
+// ============================================================================
+/**
+ * Window size constraints and defaults.
+ */
+export const WINDOW = {
+    /** Minimum window width in pixels */
+    MIN_WIDTH: 200,
+    /** Minimum window height in pixels */
+    MIN_HEIGHT: 150,
+    /** Default window width when not specified */
+    DEFAULT_WIDTH: 600,
+    /** Default window height when not specified */
+    DEFAULT_HEIGHT: 400,
+    /** Gap from bottom of screen when maximized (to show taskbar) */
+    MAXIMIZED_BOTTOM_GAP: 96,
+} as const;
+
+// ============================================================================
+// Animation Durations (in milliseconds)
+// ============================================================================
+/**
+ * Animation timing constants for consistent UI animations.
+ * These map to Tailwind's duration-* classes.
+ */
+export const ANIMATION = {
+    /** Fast transitions (hover states, small changes) - duration-200 */
+    FAST: 200,
+    /** Normal transitions (most UI changes) - duration-300 */
+    NORMAL: 300,
+    /** Slow transitions (background changes, large animations) - duration-700 */
+    SLOW: 700,
+    /** Pop-in animation for windows */
+    POP_IN: 200,
+} as const;
+
+// ============================================================================
+// Timing Intervals
+// ============================================================================
+/**
+ * Interval timings for periodic updates.
+ */
+export const INTERVALS = {
+    /** Clock update interval */
+    CLOCK_UPDATE: 1000,
+    /** Weather/widget data refresh interval (10 minutes) */
+    WIDGET_REFRESH: 600000,
+    /** Debounce delay for search/input */
+    DEBOUNCE_DEFAULT: 300,
+} as const;
+
+// ============================================================================
+// UI Dimensions
+// ============================================================================
+/**
+ * Fixed UI dimensions and spacing.
+ */
+export const UI = {
+    /** Taskbar height in pixels */
+    TASKBAR_HEIGHT: 64,
+    /** Taskbar bottom offset from screen edge */
+    TASKBAR_BOTTOM_OFFSET: 24,
+    /** Desktop icon size */
+    DESKTOP_ICON_SIZE: 96,
+    /** Window resize handle size */
+    RESIZE_HANDLE_SIZE: 8,
+} as const;
+
 export const WALLPAPERS = [
     {
         id: 1,

@@ -3,15 +3,13 @@ import { useOS } from '../context/OSContext';
 import { WindowState } from '../types';
 import { AppLoadingSkeleton } from './AppLoadingSkeleton';
 import { ErrorBoundary } from './ErrorBoundary';
+import { WINDOW } from '../utils/constants';
 
 interface WindowProps {
     window: WindowState;
 }
 
 type ResizeDirection = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | null;
-
-const MIN_WIDTH = 200;
-const MIN_HEIGHT = 150;
 
 /**
  * Custom comparison function for Window memoization.
@@ -199,29 +197,29 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window }) {
         let newY = resizeStartRef.current.posY;
 
         if (resizeDir.includes('e')) {
-            newWidth = Math.max(MIN_WIDTH, resizeStartRef.current.width + deltaX);
+            newWidth = Math.max(WINDOW.MIN_WIDTH, resizeStartRef.current.width + deltaX);
         }
         if (resizeDir.includes('w')) {
             const proposedWidth = resizeStartRef.current.width - deltaX;
-            if (proposedWidth >= MIN_WIDTH) {
+            if (proposedWidth >= WINDOW.MIN_WIDTH) {
                 newWidth = proposedWidth;
                 newX = resizeStartRef.current.posX + deltaX;
             } else {
-                newWidth = MIN_WIDTH;
-                newX = resizeStartRef.current.posX + resizeStartRef.current.width - MIN_WIDTH;
+                newWidth = WINDOW.MIN_WIDTH;
+                newX = resizeStartRef.current.posX + resizeStartRef.current.width - WINDOW.MIN_WIDTH;
             }
         }
         if (resizeDir.includes('s')) {
-            newHeight = Math.max(MIN_HEIGHT, resizeStartRef.current.height + deltaY);
+            newHeight = Math.max(WINDOW.MIN_HEIGHT, resizeStartRef.current.height + deltaY);
         }
         if (resizeDir.includes('n')) {
             const proposedHeight = resizeStartRef.current.height - deltaY;
-            if (proposedHeight >= MIN_HEIGHT) {
+            if (proposedHeight >= WINDOW.MIN_HEIGHT) {
                 newHeight = proposedHeight;
                 newY = resizeStartRef.current.posY + deltaY;
             } else {
-                newHeight = MIN_HEIGHT;
-                newY = resizeStartRef.current.posY + resizeStartRef.current.height - MIN_HEIGHT;
+                newHeight = WINDOW.MIN_HEIGHT;
+                newY = resizeStartRef.current.posY + resizeStartRef.current.height - WINDOW.MIN_HEIGHT;
             }
         }
 
@@ -263,14 +261,13 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window }) {
 
     if (window.isMinimized) return null;
 
-    const MAXIMIZED_BOTTOM_GAP_PX = 96;
     const outerStyle: React.CSSProperties = window.isMaximized
         ? {
               position: 'fixed',
               top: 0,
               left: 0,
               right: 0,
-              height: `calc(100vh - ${MAXIMIZED_BOTTOM_GAP_PX}px)`,
+              height: `calc(100vh - ${WINDOW.MAXIMIZED_BOTTOM_GAP}px)`,
               transform: 'none',
           }
         : {

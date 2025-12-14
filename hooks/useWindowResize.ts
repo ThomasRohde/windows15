@@ -9,6 +9,8 @@
  *
  * @example
  * ```tsx
+ * import { WINDOW } from '../utils/constants';
+ * 
  * const {
  *   isResizing,
  *   size,
@@ -27,6 +29,7 @@
  * ```
  */
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { WINDOW } from '../utils/constants';
 
 export type ResizeDirection = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | null;
 
@@ -78,14 +81,11 @@ export interface UseWindowResizeResult {
     handleResizeEnd: (e: React.PointerEvent) => void;
 }
 
-const DEFAULT_MIN_WIDTH = 200;
-const DEFAULT_MIN_HEIGHT = 150;
-
 export function useWindowResize({
     initialSize,
     initialPosition,
-    minWidth = DEFAULT_MIN_WIDTH,
-    minHeight = DEFAULT_MIN_HEIGHT,
+    minWidth = WINDOW.MIN_WIDTH,
+    minHeight = WINDOW.MIN_HEIGHT,
     disabled = false,
     onResizeEnd,
     windowRef,

@@ -29,6 +29,8 @@ export type TodoRecord = {
     id: string;
     text: string;
     completed: boolean;
+    priority?: 'low' | 'medium' | 'high';
+    dueDate?: number; // Unix timestamp
     createdAt: number;
     updatedAt: number;
 };
@@ -73,6 +75,14 @@ export class Windows15DexieDB extends Dexie {
             notes: '@id, updatedAt, createdAt',
             bookmarks: '@id, folder, updatedAt, createdAt',
             todos: '@id, completed, updatedAt, createdAt',
+            desktopIcons: '@id, order, updatedAt, createdAt',
+        });
+
+        this.version(4).stores({
+            kv: 'key, updatedAt',
+            notes: '@id, updatedAt, createdAt',
+            bookmarks: '@id, folder, updatedAt, createdAt',
+            todos: '@id, completed, priority, dueDate, updatedAt, createdAt',
             desktopIcons: '@id, order, updatedAt, createdAt',
         });
 

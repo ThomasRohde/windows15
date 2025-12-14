@@ -336,18 +336,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F096",
-        "description": "Arcade app with game library and WASM-4 runtime integration",
-        "status": "in-progress"
-      },
-      {
         "id": "F101",
         "description": "Service Worker caches built-in wallpaper packs and demo carts for offline",
         "status": "not-started"
       },
       {
-        "id": "F104",
-        "description": "Arcade panic button stops hung or misbehaving carts",
+        "id": "F092",
+        "description": "Audio reactive wallpaper mode with microphone input analysis",
+        "status": "in-progress"
+      },
+      {
+        "id": "F098",
+        "description": "Arcade save/load system with multiple slots per game",
         "status": "not-started"
       }
     ]

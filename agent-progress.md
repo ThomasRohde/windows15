@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                                               | Status         |
 | ---- | ------------------------------------------------------------------------- | -------------- |
-| F096 | Arcade app with game library and WASM-4 runtime integration               | 🔄 In progress |
 | F101 | Service Worker caches built-in wallpaper packs and demo carts for offline | ⏳ Not started |
-| F104 | Arcade panic button stops hung or misbehaving carts                       | ⏳ Not started |
+| F092 | Audio reactive wallpaper mode with microphone input analysis              | 🔄 In progress |
+| F098 | Arcade save/load system with multiple slots per game                      | ⏳ Not started |
 
 ---
 

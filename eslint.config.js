@@ -120,6 +120,11 @@ export default [
                 ImageData: 'readonly',
                 // Audio globals
                 AudioContext: 'readonly',
+                AnalyserNode: 'readonly',
+                MediaStream: 'readonly',
+                MediaStreamAudioSourceNode: 'readonly',
+                // DOM exception
+                DOMException: 'readonly',
             },
         },
         plugins: {

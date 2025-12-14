@@ -1,10 +1,11 @@
 /**
- * WallpaperHost Component (F085, F089, F090)
+ * WallpaperHost Component (F085, F089, F090, F092)
  *
  * Renders live wallpaper behind desktop icons and windows.
  * Manages wallpaper lifecycle and canvas resizing.
  * Uses WallpaperScheduler (F086) for render loop management.
  * Integrates WebGPU (F089) and WebGL2 fallback (F090) runtimes.
+ * Supports audio-reactive mode with microphone input (F092).
  */
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useDb } from '../context/DbContext';
@@ -12,6 +13,7 @@ import type { WallpaperRuntime, WallpaperSettings, WallpaperManifest } from '../
 import { DEFAULT_WALLPAPER_SETTINGS } from '../types/wallpaper';
 import { WallpaperScheduler } from '../utils/WallpaperScheduler';
 import { createShaderRuntime, getPreferredRuntime, type RuntimeType } from '../runtime';
+import { AudioAnalyzer, type AnalyzerState } from '../utils/audio';
 
 interface WallpaperHostProps {
     /** Fallback image URL when no live wallpaper is active */
@@ -31,23 +33,64 @@ interface WallpaperHostProps {
  * - Uses WallpaperScheduler for FPS-capped render loop
  * - Battery saver mode auto-reduces FPS and resolution
  * - Auto-selects WebGPU or WebGL2 runtime based on browser support
+ * - Audio-reactive mode with microphone input analysis
  */
 export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, batterySaver = false }) => {
     const db = useDb();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const runtimeRef = useRef<WallpaperRuntime | null>(null);
     const schedulerRef = useRef<WallpaperScheduler | null>(null);
+    const audioAnalyzerRef = useRef<AudioAnalyzer | null>(null);
 
     const [activeWallpaper, setActiveWallpaper] = useState<WallpaperManifest | null>(null);
     const [settings, setSettings] = useState<WallpaperSettings>(DEFAULT_WALLPAPER_SETTINGS);
     const [isLiveWallpaperActive, setIsLiveWallpaperActive] = useState(false);
     const [runtimeType, setRuntimeType] = useState<RuntimeType>('none');
     const [runtimeError, setRuntimeError] = useState<string | null>(null);
+    const [audioState, setAudioState] = useState<AnalyzerState>('inactive');
 
     // Detect available runtime on mount
     useEffect(() => {
         setRuntimeType(getPreferredRuntime());
     }, []);
+
+    // Handle audio reactive mode (F092)
+    useEffect(() => {
+        const setupAudioAnalyzer = async () => {
+            if (settings.audioReactive && isLiveWallpaperActive) {
+                // Create and start audio analyzer
+                if (!audioAnalyzerRef.current) {
+                    audioAnalyzerRef.current = new AudioAnalyzer({
+                        sensitivity: settings.micSensitivity,
+                    });
+                    audioAnalyzerRef.current.setOnStateChange(setAudioState);
+                }
+
+                await audioAnalyzerRef.current.start();
+            } else {
+                // Stop and dispose audio analyzer
+                if (audioAnalyzerRef.current) {
+                    audioAnalyzerRef.current.stop();
+                }
+            }
+        };
+
+        void setupAudioAnalyzer();
+
+        return () => {
+            if (audioAnalyzerRef.current) {
+                audioAnalyzerRef.current.dispose();
+                audioAnalyzerRef.current = null;
+            }
+        };
+    }, [settings.audioReactive, settings.micSensitivity, isLiveWallpaperActive]);
+
+    // Update audio analyzer sensitivity when setting changes
+    useEffect(() => {
+        if (audioAnalyzerRef.current) {
+            audioAnalyzerRef.current.setConfig({ sensitivity: settings.micSensitivity });
+        }
+    }, [settings.micSensitivity]);
 
     // Initialize shader runtime when wallpaper changes
     const initializeRuntime = useCallback(async () => {
@@ -184,8 +227,18 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
         const runtime = runtimeRef.current;
 
         if (isLiveWallpaperActive && runtime && scheduler) {
-            // Start scheduler with render callback
+            // Start scheduler with render callback that includes audio data
             scheduler.start((timestamp: number) => {
+                // Pass audio data to runtime if available
+                if (audioAnalyzerRef.current && audioState === 'active' && 'setAudioData' in runtime) {
+                    const runtimeWithAudio = runtime as WallpaperRuntime & {
+                        setAudioData: (frequencies: Float32Array, level: number) => void;
+                    };
+                    runtimeWithAudio.setAudioData(
+                        audioAnalyzerRef.current.getBandsAsArray(),
+                        audioAnalyzerRef.current.getLevel()
+                    );
+                }
                 runtime.render(timestamp);
             });
         }
@@ -195,7 +248,7 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
                 scheduler.stop();
             }
         };
-    }, [isLiveWallpaperActive, activeWallpaper]);
+    }, [isLiveWallpaperActive, activeWallpaper, audioState]);
 
     // Clean up runtime on unmount or wallpaper change
     useEffect(() => {
@@ -237,16 +290,34 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
 
     // Live wallpaper canvas
     return (
-        <canvas
-            ref={canvasRef}
-            className="absolute inset-0 z-0"
-            style={{
-                width: '100%',
-                height: '100%',
-                pointerEvents: 'none',
-            }}
-            aria-hidden="true"
-        />
+        <>
+            <canvas
+                ref={canvasRef}
+                className="absolute inset-0 z-0"
+                style={{
+                    width: '100%',
+                    height: '100%',
+                    pointerEvents: 'none',
+                }}
+                aria-hidden="true"
+            />
+            {/* Microphone indicator (F092) */}
+            {audioState === 'active' && (
+                <div
+                    className="absolute bottom-4 right-4 z-10 flex items-center gap-1 bg-black/50 text-white text-xs px-2 py-1 rounded"
+                    title="Microphone active for audio-reactive wallpaper"
+                >
+                    <span className="material-icons text-red-400 text-sm animate-pulse">mic</span>
+                    <span>Audio</span>
+                </div>
+            )}
+            {audioState === 'denied' && (
+                <div className="absolute bottom-4 right-4 z-10 bg-yellow-900/80 text-white text-xs px-2 py-1 rounded">
+                    <span className="material-icons text-sm mr-1">mic_off</span>
+                    Mic access denied
+                </div>
+            )}
+        </>
     );
 };
 

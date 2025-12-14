@@ -103,7 +103,7 @@ export const Terminal = () => {
         { id: 2, type: 'output', text: '' },
     ]);
     const [historyIndex, setHistoryIndex] = useState(-1);
-    const [currentPath, setCurrentPath] = useState<string[]>(['Users', 'Guest']);
+    const [currentPath, setCurrentPath] = useState<string[]>([]);
     const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [suggestionIndex, setSuggestionIndex] = useState(-1);

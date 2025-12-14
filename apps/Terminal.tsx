@@ -6,6 +6,12 @@ import { getFiles, saveFileToFolder } from '../utils/fileSystem';
 import type { FileSystemItem } from '../types';
 import { generateUuid } from '../utils/uuid';
 
+interface ContextMenu {
+    x: number;
+    y: number;
+    hasSelection: boolean;
+}
+
 interface OutputLine {
     id: number;
     type: 'command' | 'output' | 'error';
@@ -67,6 +73,7 @@ export const Terminal = () => {
     ]);
     const [historyIndex, setHistoryIndex] = useState(-1);
     const [currentPath, setCurrentPath] = useState<string[]>(['Users', 'Guest']);
+    const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
     const outputRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const idCounter = useRef(3);
@@ -87,6 +94,80 @@ export const Terminal = () => {
             outputRef.current.scrollTop = outputRef.current.scrollHeight;
         }
     }, [output]);
+
+    // Close context menu on click anywhere
+    useEffect(() => {
+        const handleClick = () => setContextMenu(null);
+        document.addEventListener('click', handleClick);
+        return () => document.removeEventListener('click', handleClick);
+    }, []);
+
+    const getSelectedText = (): string => {
+        return window.getSelection()?.toString() || '';
+    };
+
+    const copyToClipboard = async (text: string): Promise<void> => {
+        try {
+            await navigator.clipboard.writeText(text);
+        } catch (error) {
+            console.error('Failed to copy to clipboard:', error);
+        }
+    };
+
+    const pasteFromClipboard = async (): Promise<void> => {
+        try {
+            const text = await navigator.clipboard.readText();
+            setInput(prev => prev + text);
+        } catch (error) {
+            console.error('Failed to read from clipboard:', error);
+        }
+    };
+
+    const handleContextMenu = (e: React.MouseEvent) => {
+        e.preventDefault();
+        const selection = getSelectedText();
+        setContextMenu({
+            x: e.clientX,
+            y: e.clientY,
+            hasSelection: selection.length > 0,
+        });
+    };
+
+    const handleCopySelection = async () => {
+        const selection = getSelectedText();
+        if (selection) {
+            await copyToClipboard(selection);
+        }
+        setContextMenu(null);
+    };
+
+    const handleCopyAll = async () => {
+        const allText = output.map(line => line.text).join('\n');
+        await copyToClipboard(allText);
+        setContextMenu(null);
+    };
+
+    const handlePaste = async () => {
+        await pasteFromClipboard();
+        setContextMenu(null);
+        inputRef.current?.focus();
+    };
+
+    const handleSelectAll = () => {
+        if (outputRef.current) {
+            const range = document.createRange();
+            range.selectNodeContents(outputRef.current);
+            const selection = window.getSelection();
+            selection?.removeAllRanges();
+            selection?.addRange(range);
+        }
+        setContextMenu(null);
+    };
+
+    const handleClearTerminal = () => {
+        setOutput([]);
+        setContextMenu(null);
+    };
 
     const addOutput = (text: string, type: 'command' | 'output' | 'error' = 'output') => {
         setOutput(prev => [...prev, { id: idCounter.current++, type, text }]);
@@ -417,6 +498,30 @@ export const Terminal = () => {
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
+        // Ctrl+C: Copy selection or do nothing (don't interrupt)
+        if (e.ctrlKey && e.key === 'c') {
+            const selection = getSelectedText();
+            if (selection) {
+                e.preventDefault();
+                void copyToClipboard(selection);
+            }
+            return;
+        }
+
+        // Ctrl+V: Paste from clipboard
+        if (e.ctrlKey && e.key === 'v') {
+            e.preventDefault();
+            void pasteFromClipboard();
+            return;
+        }
+
+        // Ctrl+Shift+C: Copy all output
+        if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+            e.preventDefault();
+            void handleCopyAll();
+            return;
+        }
+
         if (e.key === 'Enter') {
             void executeCommand(input);
             setInput('');
@@ -443,7 +548,11 @@ export const Terminal = () => {
     };
 
     return (
-        <div className="h-full bg-black flex flex-col font-mono text-sm" onClick={() => inputRef.current?.focus()}>
+        <div
+            className="h-full bg-black flex flex-col font-mono text-sm relative"
+            onClick={() => inputRef.current?.focus()}
+            onContextMenu={handleContextMenu}
+        >
             <div ref={outputRef} className="flex-1 overflow-y-auto p-3 select-text">
                 {output.map(line => (
                     <div
@@ -473,6 +582,54 @@ export const Terminal = () => {
                     spellCheck={false}
                 />
             </div>
+
+            {/* Context Menu */}
+            {contextMenu && (
+                <div
+                    className="absolute bg-gray-800 border border-gray-600 rounded shadow-lg py-1 z-50"
+                    style={{ left: contextMenu.x, top: contextMenu.y }}
+                    onClick={e => e.stopPropagation()}
+                >
+                    {contextMenu.hasSelection && (
+                        <button
+                            className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2"
+                            onClick={handleCopySelection}
+                        >
+                            <span className="material-symbols-outlined text-sm">content_copy</span>
+                            Copy
+                        </button>
+                    )}
+                    <button
+                        className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2"
+                        onClick={handlePaste}
+                    >
+                        <span className="material-symbols-outlined text-sm">content_paste</span>
+                        Paste
+                    </button>
+                    <button
+                        className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2"
+                        onClick={handleCopyAll}
+                    >
+                        <span className="material-symbols-outlined text-sm">select_all</span>
+                        Copy All Output
+                    </button>
+                    <button
+                        className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2"
+                        onClick={handleSelectAll}
+                    >
+                        <span className="material-symbols-outlined text-sm">select_all</span>
+                        Select All
+                    </button>
+                    <div className="border-t border-gray-600 my-1"></div>
+                    <button
+                        className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2"
+                        onClick={handleClearTerminal}
+                    >
+                        <span className="material-symbols-outlined text-sm">clear_all</span>
+                        Clear
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

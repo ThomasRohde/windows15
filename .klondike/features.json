@@ -2013,11 +2013,18 @@
         "Filesystem state persists in IndexedDB"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-14T11:17:29.814369",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Implemented filesystem navigation with cd",
+        "pwd",
+        "ls/dir",
+        "mkdir",
+        "touch",
+        "and cat commands. All commands work with relative/absolute paths. Build passes with no linting errors. Filesystem state persists in IndexedDB and syncs across tabs."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-14T11:11:27.540152",
       "notes": "Extend existing FileExplorer virtual filesystem to Terminal. Share fileSystem table between apps. Implement path parsing and normalization. Support relative paths (../folder) and absolute paths (C:/Users). Update prompt to show current directory. Consider: cat command to view file contents, rm to delete."
@@ -2085,13 +2092,13 @@
         "Selected text visually highlighted"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-14T11:17:40.871630",
       "notes": "Input already supports paste via browser. Add onPaste handler for Ctrl+V. Implement selection tracking on output div. Use document.execCommand or Clipboard API for copy. Context menu: copy selection, paste, clear, select all. Ensure Ctrl+C doesn't conflict with SIGINT behavior (only copy when text selected)."
     },
     {
@@ -2121,8 +2128,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T11:11:21.785173",
+    "lastUpdated": "2025-12-14T11:17:29.814423",
     "totalFeatures": 83,
-    "passingFeatures": 74
+    "passingFeatures": 75
   }
 }

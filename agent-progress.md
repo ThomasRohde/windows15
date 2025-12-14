@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                        | Status         |
 | ---- | -------------------------------------------------- | -------------- |
-| F079 | Terminal supports filesystem navigation commands   | 🔄 In progress |
-| F082 | Terminal supports copy/paste and text selection    | ⏳ Not started |
+| F082 | Terminal supports copy/paste and text selection    | 🔄 In progress |
 | F074 | User can enable and configure animated screensaver | ⏳ Not started |
+| F075 | Screensaver displays smooth animations             | ⏳ Not started |
 
 ---
 

@@ -54,7 +54,11 @@ const AVAILABLE_COMMANDS = [
 const findFolderByPath = (files: FileSystemItem[], path: string[]): FileSystemItem | null => {
     if (path.length === 0) return null;
 
-    let current: FileSystemItem[] = files;
+    // Start from root's children
+    const root = files.find(f => f.id === 'root');
+    if (!root) return null;
+
+    let current: FileSystemItem[] = root.children || [];
     let folder: FileSystemItem | null = null;
 
     for (const segment of path) {

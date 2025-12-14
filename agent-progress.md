@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                               | Status         |
 | ---- | ----------------------------------------- | -------------- |
-| F042 | Add Vitest unit testing infrastructure    | 🔄 In progress |
-| F043 | Add React Testing Library component tests | ⏳ Not started |
+| F043 | Add React Testing Library component tests | 🔄 In progress |
 | F050 | Add GitHub Actions CI/CD pipeline         | ⏳ Not started |
+| F054 | Add accessibility (a11y) improvements     | ⏳ Not started |
 
 ---
 

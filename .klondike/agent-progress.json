@@ -164,18 +164,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F042",
-        "description": "Add Vitest unit testing infrastructure",
-        "status": "in-progress"
-      },
-      {
         "id": "F043",
         "description": "Add React Testing Library component tests",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F050",
         "description": "Add GitHub Actions CI/CD pipeline",
+        "status": "not-started"
+      },
+      {
+        "id": "F054",
+        "description": "Add accessibility (a11y) improvements",
         "status": "not-started"
       }
     ]

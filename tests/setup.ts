@@ -3,7 +3,7 @@
  * This file runs before each test file
  */
 import '@testing-library/jest-dom/vitest';
-import { beforeEach } from 'vitest';
+import { beforeEach, vi } from 'vitest';
 
 // Mock localStorage for tests
 const localStorageMock = (() => {
@@ -29,6 +29,10 @@ const localStorageMock = (() => {
 Object.defineProperty(window, 'localStorage', {
     value: localStorageMock,
 });
+
+// Mock pointer capture methods (not available in jsdom)
+window.Element.prototype.setPointerCapture = vi.fn();
+window.Element.prototype.releasePointerCapture = vi.fn();
 
 // Reset localStorage before each test
 beforeEach(() => {

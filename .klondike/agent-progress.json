@@ -540,18 +540,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F123",
-        "description": "Create Icon component for consistent Material Symbols rendering",
-        "status": "in-progress"
-      },
-      {
         "id": "F124",
         "description": "Migrate apps from raw button elements to existing Button component",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F125",
         "description": "Extract date utility functions from Calendar.tsx to shared utils",
+        "status": "not-started"
+      },
+      {
+        "id": "F126",
+        "description": "Create useSearchFilter hook for consistent search and filter state management",
         "status": "not-started"
       }
     ]

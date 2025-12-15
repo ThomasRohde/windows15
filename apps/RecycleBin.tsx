@@ -11,6 +11,7 @@ import { FileSystemItem } from '../types';
 import { ContextMenu } from '../components/ContextMenu';
 import { useContextMenu, useNotification } from '../hooks';
 import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { Button } from '../components/ui';
 
 export const RecycleBin = () => {
     const [items, setItems] = useState<FileSystemItem[]>([]);
@@ -136,14 +137,16 @@ export const RecycleBin = () => {
                     <span className="text-xs text-white/40">({items.length} items)</span>
                 </div>
                 <div className="flex-1" />
-                <button
+                <Button
                     onClick={handleEmptyRecycleBin}
                     disabled={items.length === 0}
-                    className="flex items-center gap-2 px-3 py-1.5 text-sm text-red-400 hover:bg-red-500/20 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    variant="danger"
+                    size="sm"
+                    icon="delete_forever"
+                    iconPosition="left"
                 >
-                    <span className="material-symbols-outlined text-lg">delete_forever</span>
                     Empty Recycle Bin
-                </button>
+                </Button>
             </div>
 
             {/* Content */}

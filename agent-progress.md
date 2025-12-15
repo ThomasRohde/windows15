@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                        | Status         |
-| ---- | ------------------------------------------------------------------ | -------------- |
-| F123 | Create Icon component for consistent Material Symbols rendering    | 🔄 In progress |
-| F124 | Migrate apps from raw button elements to existing Button component | ⏳ Not started |
-| F125 | Extract date utility functions from Calendar.tsx to shared utils   | ⏳ Not started |
+| ID   | Description                                                                   | Status         |
+| ---- | ----------------------------------------------------------------------------- | -------------- |
+| F124 | Migrate apps from raw button elements to existing Button component            | 🔄 In progress |
+| F125 | Extract date utility functions from Calendar.tsx to shared utils              | ⏳ Not started |
+| F126 | Create useSearchFilter hook for consistent search and filter state management | ⏳ Not started |
 
 ---
 

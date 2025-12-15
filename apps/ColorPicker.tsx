@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useCopyToClipboard, usePersistedState } from '../hooks';
-import { AppContainer, Slider } from '../components/ui';
+import { AppContainer, Slider, Button } from '../components/ui';
 
 interface SavedColor {
     hex: string;
@@ -87,14 +87,14 @@ export const ColorPicker = () => {
                 <div className="text-white/50 text-xs">{label}</div>
                 <div className="text-white font-mono">{value}</div>
             </div>
-            <button
+            <Button
                 onClick={() => copy(value, format)}
-                className={`px-2 py-1 rounded text-xs transition-colors ${
-                    isCopied(format) ? 'bg-green-500 text-white' : 'bg-white/10 text-white/70 hover:bg-white/20'
-                }`}
+                variant={isCopied(format) ? 'primary' : 'secondary'}
+                size="sm"
+                className="!text-xs !px-2 !py-1"
             >
                 {isCopied(format) ? 'Copied!' : 'Copy'}
-            </button>
+            </Button>
         </div>
     );
 
@@ -104,12 +104,9 @@ export const ColorPicker = () => {
                 className="h-32 rounded-xl shadow-inner flex items-center justify-center"
                 style={{ backgroundColor: hex }}
             >
-                <button
-                    onClick={saveColor}
-                    className="bg-black/30 backdrop-blur px-4 py-2 rounded-lg text-white hover:bg-black/40 transition-colors"
-                >
+                <Button onClick={saveColor} variant="ghost" className="bg-black/30 backdrop-blur hover:bg-black/40">
                     Save Color
-                </button>
+                </Button>
             </div>
 
             <div className="bg-black/20 p-4 rounded-lg space-y-4">

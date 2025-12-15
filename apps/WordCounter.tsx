@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { Button } from '../components/ui';
 
 export const WordCounter = () => {
     const [text, setText] = useState('');
@@ -82,9 +83,9 @@ export const WordCounter = () => {
 
             <div className="px-4 py-2 bg-[#2d2d2d] text-xs text-gray-400 flex justify-between">
                 <span>Tip: Paste or type your text above to see real-time statistics</span>
-                <button onClick={() => setText('')} className="text-red-400 hover:text-red-300 transition-colors">
+                <Button onClick={() => setText('')} variant="danger" size="sm">
                     Clear
-                </button>
+                </Button>
             </div>
         </div>
     );

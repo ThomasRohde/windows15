@@ -3335,11 +3335,19 @@
         "At least 20 inline icon spans replaced with Icon component"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-15T17:35:54.474346",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Created Icon component with size variants",
+        "exported from ui/index.ts",
+        "replaced 26 inline icon spans across 5 files (SystemInfo",
+        "Widgets",
+        "StartMenu",
+        "Button",
+        "Weather). All tests pass and build succeeds."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-15T17:32:44.142816",
       "notes": "Implementation: Create components/ui/Icon.tsx with size mapping: xs=text-xs, sm=text-sm, md=text-base (default), lg=text-lg, xl=text-xl. Pattern '<span className=\\"
@@ -3359,13 +3367,13 @@
         "Button component handles all variant needs (primary/secondary/ghost)"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-15T17:35:59.514178",
       "notes": "Implementation: Search for '<button' in apps/ directory, replace with Button from components/ui/Button.tsx. Button already supports variants (primary, secondary, ghost), sizes (sm, md, lg), and disabled states. Edge cases: Some buttons have very custom styling - evaluate case by case whether to extend Button variants or leave as custom. Dependencies: Button component already exists and is well-tested. Context: Inconsistent button styling across apps - some use Button component, others use raw button with inline classes. Gotchas: Calculator has a grid of buttons that may need special handling for keyboard navigation."
     },
     {
@@ -3471,8 +3479,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-15T17:29:31.241954",
+    "lastUpdated": "2025-12-15T17:35:54.474362",
     "totalFeatures": 128,
-    "passingFeatures": 123
+    "passingFeatures": 124
   }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon } from '../components/ui';
+import { Icon, Button } from '../components/ui';
 
 export const SystemInfo = () => {
     const systemSpecs = [
@@ -83,12 +83,12 @@ export const SystemInfo = () => {
                 </section>
 
                 <div className="flex gap-3 flex-wrap">
-                    <button className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm transition-colors">
+                    <Button variant="primary" size="sm">
                         Windows Update
-                    </button>
-                    <button className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors">
+                    </Button>
+                    <Button variant="secondary" size="sm">
                         Change product key
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>

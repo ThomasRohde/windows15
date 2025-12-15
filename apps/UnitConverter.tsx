@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AppContainer, TabSwitcher, Card } from '../components/ui';
+import { AppContainer, TabSwitcher, Card, Button } from '../components/ui';
 
 type Category = 'length' | 'weight' | 'temperature' | 'data';
 
@@ -136,12 +136,7 @@ export const UnitConverter = () => {
                 </div>
 
                 <div className="flex justify-center">
-                    <button
-                        onClick={swapUnits}
-                        className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all active:scale-95"
-                    >
-                        <span className="material-icons text-white">swap_vert</span>
-                    </button>
+                    <Button onClick={swapUnits} variant="ghost" className="!p-3 !rounded-full" icon="swap_vert" />
                 </div>
 
                 <div className="flex flex-col gap-2">

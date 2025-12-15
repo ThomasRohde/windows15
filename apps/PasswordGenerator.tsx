@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useCopyToClipboard, usePersistedState } from '../hooks';
-import { AppContainer, Slider, Checkbox } from '../components/ui';
+import { AppContainer, Slider, Checkbox, Button } from '../components/ui';
 
 interface PasswordSettings {
     length: number;
@@ -78,14 +78,9 @@ export const PasswordGenerator = () => {
                         placeholder="Click Generate"
                         className="flex-1 bg-transparent text-white text-lg font-mono focus:outline-none"
                     />
-                    <button
-                        onClick={handleCopy}
-                        className={`px-3 py-1 rounded text-sm transition-colors ${
-                            copied ? 'bg-green-500 text-white' : 'bg-white/10 text-white/70 hover:bg-white/20'
-                        }`}
-                    >
+                    <Button onClick={handleCopy} variant={copied ? 'primary' : 'secondary'} size="sm">
                         {copied ? 'Copied!' : 'Copy'}
-                    </button>
+                    </Button>
                 </div>
                 {password && password !== 'Select at least one option' && (
                     <div className="mt-3">
@@ -141,12 +136,9 @@ export const PasswordGenerator = () => {
                 </div>
             </div>
 
-            <button
-                onClick={generatePassword}
-                className="bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-400 transition-colors font-medium text-lg"
-            >
+            <Button onClick={generatePassword} variant="primary" size="lg" wide>
                 Generate Password
-            </button>
+            </Button>
         </AppContainer>
     );
 };

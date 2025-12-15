@@ -28,8 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID  | Description | Status |
-| --- | ----------- | ------ |
+| ID   | Description                                                               | Status         |
+| ---- | ------------------------------------------------------------------------- | -------------- |
+| F119 | Create useSeededCollection hook for persisted data with automatic seeding | ⏳ Not started |
+| F120 | Create AppContainer component for standardized app layout wrapper         | ⏳ Not started |
+| F121 | Refactor Timer.tsx to use existing useInterval hook                       | ⏳ Not started |
 
 ---
 

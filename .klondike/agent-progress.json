@@ -506,6 +506,22 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": []
+    "priorityFeatures": [
+      {
+        "id": "F119",
+        "description": "Create useSeededCollection hook for persisted data with automatic seeding",
+        "status": "not-started"
+      },
+      {
+        "id": "F120",
+        "description": "Create AppContainer component for standardized app layout wrapper",
+        "status": "not-started"
+      },
+      {
+        "id": "F121",
+        "description": "Refactor Timer.tsx to use existing useInterval hook",
+        "status": "not-started"
+      }
+    ]
   }
 }

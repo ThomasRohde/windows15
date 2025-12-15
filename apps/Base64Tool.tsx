@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { copyTextToClipboard } from '../utils/clipboard';
 
 export const Base64Tool = () => {
     const [input, setInput] = useState('');
@@ -38,13 +39,13 @@ export const Base64Tool = () => {
     };
 
     const copyToClipboard = async () => {
-        try {
-            await navigator.clipboard.writeText(output);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        } catch {
+        const ok = await copyTextToClipboard(output);
+        if (!ok) {
             setError('Failed to copy to clipboard');
+            return;
         }
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
     };
 
     const swap = () => {

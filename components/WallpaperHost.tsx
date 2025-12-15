@@ -8,10 +8,8 @@
  * Supports audio-reactive mode with microphone input (F092).
  */
 import React, { useRef, useEffect, useState } from 'react';
-import { useDb } from '../context/DbContext';
 import { useWallpaper } from '../context/WallpaperContext';
-import type { WallpaperRuntime, WallpaperSettings } from '../types/wallpaper';
-import { DEFAULT_WALLPAPER_SETTINGS } from '../types/wallpaper';
+import type { WallpaperRuntime } from '../types/wallpaper';
 import { WallpaperScheduler } from '../utils/WallpaperScheduler';
 import { createShaderRuntime, getPreferredRuntime, type RuntimeType } from '../runtime';
 import { AudioAnalyzer, type AnalyzerState } from '../utils/audio';
@@ -37,14 +35,12 @@ interface WallpaperHostProps {
  * - Audio-reactive mode with microphone input analysis
  */
 export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, batterySaver = false }) => {
-    const db = useDb();
-    const { activeManifest, activeWallpaper: activeWallpaperUrl } = useWallpaper();
+    const { activeManifest, activeWallpaper: activeWallpaperUrl, settings } = useWallpaper();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const runtimeRef = useRef<WallpaperRuntime | null>(null);
     const schedulerRef = useRef<WallpaperScheduler | null>(null);
     const audioAnalyzerRef = useRef<AudioAnalyzer | null>(null);
 
-    const [settings, setSettings] = useState<WallpaperSettings>(DEFAULT_WALLPAPER_SETTINGS);
     const [runtimeType, setRuntimeType] = useState<RuntimeType>('none');
     const [runtimeError, setRuntimeError] = useState<string | null>(null);
     const [audioState, setAudioState] = useState<AnalyzerState>('inactive');
@@ -248,25 +244,6 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
             schedulerRef.current.updateConfig({ batterySaver });
         }
     }, [settings, batterySaver]);
-
-    // Load wallpaper settings from database
-    useEffect(() => {
-        const loadSettings = async () => {
-            if (!db) return;
-
-            try {
-                const settingsRecord = await db.kv.get('wallpaperSettings');
-                if (settingsRecord) {
-                    const savedSettings = JSON.parse(settingsRecord.valueJson) as WallpaperSettings;
-                    setSettings({ ...DEFAULT_WALLPAPER_SETTINGS, ...savedSettings });
-                }
-            } catch (error) {
-                console.error('[WallpaperHost] Failed to load settings:', error);
-            }
-        };
-
-        void loadSettings();
-    }, [db]);
 
     // Render static image fallback or canvas for live wallpaper
     if (!isLiveWallpaperActive || runtimeError) {

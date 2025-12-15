@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { copyTextToClipboard } from '../utils/clipboard';
 
 const md5 = (str: string): string => {
     const rotateLeft = (x: number, n: number) => (x << n) | (x >>> (32 - n));
@@ -196,13 +197,10 @@ export const HashGenerator = () => {
     };
 
     const copyToClipboard = async (hash: HashResult) => {
-        try {
-            await navigator.clipboard.writeText(hash.value);
-            setCopied(hash.name);
-            setTimeout(() => setCopied(null), 2000);
-        } catch (e) {
-            console.error('Copy failed:', e);
-        }
+        const ok = await copyTextToClipboard(hash.value);
+        if (!ok) return;
+        setCopied(hash.name);
+        setTimeout(() => setCopied(null), 2000);
     };
 
     const clear = () => {

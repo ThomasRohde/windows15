@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDb, getCloudDatabaseUrl, setCloudDatabaseUrl, validateCloudDatabaseUrl } from '@/utils/storage';
+import { copyTextToClipboard } from '@/utils/clipboard';
 
 const PROD_ORIGIN = 'https://thomasrohde.github.io';
 
@@ -49,39 +50,11 @@ const getUserFriendlyErrorMessage = (error: any): string => {
     return `Sync error: ${errorMsg.substring(0, 100)}`;
 };
 
-const copyToClipboard = async (value: string): Promise<boolean> => {
-    const text = value ?? '';
-    if (!text) return false;
-
-    try {
-        await navigator.clipboard.writeText(text);
-        return true;
-    } catch {
-        // Fall through.
-    }
-
-    try {
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.setAttribute('readonly', 'true');
-        textarea.style.position = 'fixed';
-        textarea.style.left = '-9999px';
-        textarea.style.top = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-        const ok = document.execCommand('copy');
-        textarea.remove();
-        return ok;
-    } catch {
-        return false;
-    }
-};
-
 const CopyableCommand = ({ command }: { command: string }) => {
     const [copied, setCopied] = useState(false);
 
     const doCopy = async () => {
-        const ok = await copyToClipboard(command);
+        const ok = await copyTextToClipboard(command);
         if (!ok) return;
         setCopied(true);
         setTimeout(() => setCopied(false), 1200);
@@ -142,7 +115,7 @@ export const SyncSettings = () => {
     const isLoggedIn = Boolean(user?.isLoggedIn);
 
     const copyOrigin = async () => {
-        const ok = await copyToClipboard(origin);
+        const ok = await copyTextToClipboard(origin);
         if (!ok) return;
         setCopiedOrigin(true);
         setTimeout(() => setCopiedOrigin(false), 1200);

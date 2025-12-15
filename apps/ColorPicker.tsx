@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { copyTextToClipboard } from '../utils/clipboard';
 
 interface SavedColor {
     hex: string;
@@ -43,7 +44,8 @@ export const ColorPicker = () => {
     const rgbString = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
 
     const copyToClipboard = async (value: string, format: string) => {
-        await navigator.clipboard.writeText(value);
+        const ok = await copyTextToClipboard(value);
+        if (!ok) return;
         setCopied(format);
         setTimeout(() => setCopied(null), 1500);
     };

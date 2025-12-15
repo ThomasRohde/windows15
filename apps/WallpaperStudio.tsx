@@ -9,9 +9,9 @@
  * - Built-in wallpaper packs
  * - Settings panel with FPS cap, quality, intensity controls (F091)
  */
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { useWallpaper, useDb } from '../context';
-import { WallpaperManifest, WallpaperSettings, DEFAULT_WALLPAPER_SETTINGS } from '../types/wallpaper';
+import React, { useState, useMemo, useCallback } from 'react';
+import { useWallpaper } from '../context';
+import type { WallpaperManifest, WallpaperSettings } from '../types/wallpaper';
 
 /**
  * Get asset URL with proper base path prefix
@@ -143,58 +143,18 @@ const BUILT_IN_WALLPAPERS: WallpaperManifest[] = [
 const ALL_TAGS = Array.from(new Set(BUILT_IN_WALLPAPERS.flatMap(w => w.tags ?? []))).sort();
 
 export const WallpaperStudio: React.FC = () => {
-    const { setWallpaper, activeWallpaper } = useWallpaper();
-    const db = useDb();
+    const { setWallpaper, activeWallpaper, settings: wallpaperSettings, updateSettings } = useWallpaper();
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
     const [selectedWallpaper, setSelectedWallpaper] = useState<WallpaperManifest | null>(null);
     const [isApplying, setIsApplying] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
-    const [wallpaperSettings, setWallpaperSettings] = useState<WallpaperSettings>(DEFAULT_WALLPAPER_SETTINGS);
-
-    // Load wallpaper settings from database
-    useEffect(() => {
-        const loadSettings = async () => {
-            if (!db) return;
-            try {
-                const record = await db.kv.get('wallpaperSettings');
-                if (record) {
-                    const saved = JSON.parse(record.valueJson) as Partial<WallpaperSettings>;
-                    setWallpaperSettings(prev => ({ ...prev, ...saved }));
-                }
-            } catch (error) {
-                console.error('[WallpaperStudio] Failed to load settings:', error);
-            }
-        };
-        void loadSettings();
-    }, [db]);
-
-    // Save settings to database
-    const saveSettings = useCallback(
-        async (newSettings: WallpaperSettings) => {
-            if (!db) return;
-            try {
-                await db.kv.put({
-                    key: 'wallpaperSettings',
-                    valueJson: JSON.stringify(newSettings),
-                    updatedAt: Date.now(),
-                });
-            } catch (error) {
-                console.error('[WallpaperStudio] Failed to save settings:', error);
-            }
-        },
-        [db]
-    );
 
     // Update a specific setting
     const updateSetting = useCallback(
         <K extends keyof WallpaperSettings>(key: K, value: WallpaperSettings[K]) => {
-            setWallpaperSettings(prev => {
-                const newSettings = { ...prev, [key]: value };
-                void saveSettings(newSettings);
-                return newSettings;
-            });
+            updateSettings({ [key]: value } as Partial<WallpaperSettings>);
         },
-        [saveSettings]
+        [updateSettings]
     );
 
     // Filter wallpapers by tag

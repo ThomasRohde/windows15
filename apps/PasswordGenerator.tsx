@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { copyTextToClipboard } from '../utils/clipboard';
 
 export const PasswordGenerator = () => {
     const [length, setLength] = useState(16);
@@ -30,11 +31,11 @@ export const PasswordGenerator = () => {
     }, [length, uppercase, lowercase, numbers, symbols]);
 
     const copyToClipboard = async () => {
-        if (password && password !== 'Select at least one option') {
-            await navigator.clipboard.writeText(password);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        }
+        if (!password || password === 'Select at least one option') return;
+        const ok = await copyTextToClipboard(password);
+        if (!ok) return;
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
     };
 
     const getStrength = () => {

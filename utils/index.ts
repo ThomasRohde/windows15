@@ -15,6 +15,9 @@ export type { EventBus, AppEvents } from './eventBus';
 // File system utilities
 export * from './fileSystem';
 
+// Clipboard utilities
+export * from './clipboard';
+
 // Storage (re-export from storage/index.ts)
 export * from './storage';
 

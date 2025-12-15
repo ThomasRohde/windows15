@@ -6,6 +6,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useTerminalPreferences, useContextMenu } from '../hooks';
 import { ContextMenu } from '../components/ContextMenu';
 import { TERMINAL_THEMES } from '../types/terminal';
+import { copyTextToClipboard, readTextFromClipboard } from '../utils/clipboard';
 import { getFiles, saveFileToFolder } from '../utils/fileSystem';
 import type { FileSystemItem } from '../types';
 import { generateUuid } from '../utils/uuid';
@@ -233,20 +234,17 @@ export const Terminal = () => {
     };
 
     const copyToClipboard = async (text: string): Promise<void> => {
-        try {
-            await navigator.clipboard.writeText(text);
-        } catch (error) {
-            console.error('Failed to copy to clipboard:', error);
-        }
+        const ok = await copyTextToClipboard(text);
+        if (!ok) console.error('Failed to copy to clipboard');
     };
 
     const pasteFromClipboard = async (): Promise<void> => {
-        try {
-            const text = await navigator.clipboard.readText();
-            setInput(prev => prev + text);
-        } catch (error) {
-            console.error('Failed to read from clipboard:', error);
+        const text = await readTextFromClipboard();
+        if (text === null) {
+            console.error('Failed to read from clipboard');
+            return;
         }
+        setInput(prev => prev + text);
     };
 
     const handleContextMenu = (e: React.MouseEvent) => {

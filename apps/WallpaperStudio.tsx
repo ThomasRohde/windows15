@@ -11,6 +11,7 @@
  */
 import React, { useState, useMemo, useCallback } from 'react';
 import { useWallpaper } from '../context';
+import { Slider } from '../components/ui';
 import type { WallpaperManifest, WallpaperSettings } from '../types/wallpaper';
 
 /**
@@ -319,24 +320,18 @@ export const WallpaperStudio: React.FC = () => {
 
                             {/* Intensity */}
                             <div className="space-y-2">
-                                <label className="block text-sm font-medium text-white/80">
-                                    Intensity: {Math.round(wallpaperSettings.intensity * 100)}%
-                                </label>
                                 <p className="text-xs text-white/40 mb-2">
                                     Controls brightness/effect intensity for live wallpapers
                                 </p>
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="100"
+                                <Slider
+                                    label="Intensity"
                                     value={Math.round(wallpaperSettings.intensity * 100)}
-                                    onChange={e => updateSetting('intensity', parseInt(e.target.value) / 100)}
-                                    className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
+                                    min={0}
+                                    max={100}
+                                    onChange={v => updateSetting('intensity', v / 100)}
+                                    formatValue={v => `${v}%`}
+                                    rangeLabels={['Subtle', 'Vibrant']}
                                 />
-                                <div className="flex justify-between text-xs text-white/40">
-                                    <span>Subtle</span>
-                                    <span>Vibrant</span>
-                                </div>
                             </div>
 
                             {/* Audio Reactive */}
@@ -366,17 +361,14 @@ export const WallpaperStudio: React.FC = () => {
 
                             {/* Mic Sensitivity (only when audio reactive) */}
                             {wallpaperSettings.audioReactive && (
-                                <div className="space-y-2 pl-4 border-l-2 border-primary/30">
-                                    <label className="block text-sm font-medium text-white/80">
-                                        Mic Sensitivity: {Math.round(wallpaperSettings.micSensitivity * 100)}%
-                                    </label>
-                                    <input
-                                        type="range"
-                                        min="0"
-                                        max="100"
+                                <div className="pl-4 border-l-2 border-primary/30">
+                                    <Slider
+                                        label="Mic Sensitivity"
                                         value={Math.round(wallpaperSettings.micSensitivity * 100)}
-                                        onChange={e => updateSetting('micSensitivity', parseInt(e.target.value) / 100)}
-                                        className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
+                                        min={0}
+                                        max={100}
+                                        onChange={v => updateSetting('micSensitivity', v / 100)}
+                                        formatValue={v => `${v}%`}
                                     />
                                 </div>
                             )}

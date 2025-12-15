@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useCopyToClipboard } from '../hooks';
+import { Slider } from '../components/ui';
 
 interface SavedColor {
     hex: string;
@@ -97,41 +98,6 @@ export const ColorPicker = () => {
         </div>
     );
 
-    const Slider = ({
-        label,
-        value,
-        max,
-        onChange,
-        gradient,
-    }: {
-        label: string;
-        value: number;
-        max: number;
-        onChange: (v: number) => void;
-        gradient: string;
-    }) => (
-        <div>
-            <div className="flex justify-between text-white/70 text-sm mb-1">
-                <span>{label}</span>
-                <span>{value}</span>
-            </div>
-            <div className="relative h-3 rounded-full" style={{ background: gradient }}>
-                <input
-                    type="range"
-                    min="0"
-                    max={max}
-                    value={value}
-                    onChange={e => onChange(Number(e.target.value))}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-                <div
-                    className="absolute w-4 h-4 bg-white rounded-full shadow-md border-2 border-gray-300 -top-0.5 pointer-events-none"
-                    style={{ left: `calc(${(value / max) * 100}% - 8px)` }}
-                />
-            </div>
-        </div>
-    );
-
     return (
         <div className="h-full bg-background-dark p-4 flex flex-col gap-4 overflow-y-auto">
             <div
@@ -150,6 +116,7 @@ export const ColorPicker = () => {
                 <Slider
                     label="Hue"
                     value={hue}
+                    min={0}
                     max={360}
                     onChange={setHue}
                     gradient="linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)"
@@ -157,6 +124,7 @@ export const ColorPicker = () => {
                 <Slider
                     label="Saturation"
                     value={saturation}
+                    min={0}
                     max={100}
                     onChange={setSaturation}
                     gradient={`linear-gradient(to right, hsl(${hue}, 0%, ${lightness}%), hsl(${hue}, 100%, ${lightness}%))`}
@@ -164,6 +132,7 @@ export const ColorPicker = () => {
                 <Slider
                     label="Lightness"
                     value={lightness}
+                    min={0}
                     max={100}
                     onChange={setLightness}
                     gradient={`linear-gradient(to right, hsl(${hue}, ${saturation}%, 0%), hsl(${hue}, ${saturation}%, 50%), hsl(${hue}, ${saturation}%, 100%))`}

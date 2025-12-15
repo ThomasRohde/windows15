@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useCopyToClipboard } from '../hooks';
+import { Slider } from '../components/ui';
 
 export const PasswordGenerator = () => {
     const [length, setLength] = useState(16);
@@ -98,24 +99,14 @@ export const PasswordGenerator = () => {
             </div>
 
             <div className="bg-black/20 p-4 rounded-lg space-y-4">
-                <div>
-                    <div className="flex justify-between text-white/80 mb-2">
-                        <span>Password Length</span>
-                        <span className="font-mono">{length}</span>
-                    </div>
-                    <input
-                        type="range"
-                        min="8"
-                        max="64"
-                        value={length}
-                        onChange={e => setLength(Number(e.target.value))}
-                        className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                    />
-                    <div className="flex justify-between text-xs text-white/40 mt-1">
-                        <span>8</span>
-                        <span>64</span>
-                    </div>
-                </div>
+                <Slider
+                    label="Password Length"
+                    value={length}
+                    min={8}
+                    max={64}
+                    onChange={setLength}
+                    rangeLabels={['8', '64']}
+                />
 
                 <div className="grid grid-cols-2 gap-3">
                     <Checkbox checked={uppercase} onChange={() => setUppercase(!uppercase)} label="Uppercase (A-Z)" />

@@ -11,6 +11,7 @@
  */
 import React from 'react';
 import { useWindowSpace } from '../../context';
+import { Slider } from '../../components/ui';
 
 export const WindowSpaceSettings: React.FC = () => {
     const { settings, is3DMode, toggle3DMode, updateSettings, prefersReducedMotion } = useWindowSpace();
@@ -64,57 +65,37 @@ export const WindowSpaceSettings: React.FC = () => {
 
                 {/* Depth Intensity (F107) */}
                 <div className="p-4 bg-white/5 rounded-xl space-y-3">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h3 className="text-base font-medium text-white">Depth Intensity</h3>
-                            <p className="text-sm text-white/60">Controls how far windows appear separated in depth</p>
-                        </div>
-                        <span className="text-sm font-mono text-white/80">
-                            {Math.round(settings.depthIntensity * 100)}%
-                        </span>
+                    <div className="mb-2">
+                        <h3 className="text-base font-medium text-white">Depth Intensity</h3>
+                        <p className="text-sm text-white/60">Controls how far windows appear separated in depth</p>
                     </div>
-                    <input
-                        type="range"
-                        min="0"
-                        max="100"
+                    <Slider
                         value={Math.round(settings.depthIntensity * 100)}
-                        onChange={e => updateSettings({ depthIntensity: parseInt(e.target.value) / 100 })}
+                        min={0}
+                        max={100}
+                        onChange={v => updateSettings({ depthIntensity: v / 100 })}
+                        formatValue={v => `${v}%`}
+                        rangeLabels={['Subtle', 'Dramatic']}
                         disabled={!is3DMode}
-                        className={`w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary ${
-                            !is3DMode ? 'opacity-50' : ''
-                        }`}
                     />
-                    <div className="flex justify-between text-xs text-white/40">
-                        <span>Subtle</span>
-                        <span>Dramatic</span>
-                    </div>
                 </div>
 
                 {/* Perspective (F108) */}
                 <div className="p-4 bg-white/5 rounded-xl space-y-3">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h3 className="text-base font-medium text-white">Perspective</h3>
-                            <p className="text-sm text-white/60">Adjust the field of view (lower = more dramatic)</p>
-                        </div>
-                        <span className="text-sm font-mono text-white/80">{settings.perspective}px</span>
+                    <div className="mb-2">
+                        <h3 className="text-base font-medium text-white">Perspective</h3>
+                        <p className="text-sm text-white/60">Adjust the field of view (lower = more dramatic)</p>
                     </div>
-                    <input
-                        type="range"
-                        min="500"
-                        max="2000"
-                        step="100"
+                    <Slider
                         value={settings.perspective}
-                        onChange={e => updateSettings({ perspective: parseInt(e.target.value) })}
+                        min={500}
+                        max={2000}
+                        step={100}
+                        onChange={v => updateSettings({ perspective: v })}
+                        formatValue={v => `${v}px`}
+                        rangeLabels={['Dramatic (500px)', 'Subtle (2000px)']}
                         disabled={!is3DMode}
-                        className={`w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary ${
-                            !is3DMode ? 'opacity-50' : ''
-                        }`}
                     />
-                    <div className="flex justify-between text-xs text-white/40">
-                        <span>Dramatic (500px)</span>
-                        <span>Subtle (2000px)</span>
-                    </div>
                 </div>
 
                 {/* Tilt on Drag */}

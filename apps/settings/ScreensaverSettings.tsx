@@ -12,6 +12,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useScreensaver } from '../../context/ScreensaverContext';
 import { useLocalization } from '../../context/LocalizationContext';
+import { Slider } from '../../components/ui';
 
 // Simple preview component that mirrors the main Screensaver logic
 const ScreensaverPreview: React.FC<{
@@ -379,20 +380,14 @@ export const ScreensaverSettings: React.FC = () => {
             <section className="mb-8">
                 <h3 className="text-lg font-medium mb-4">Idle Timeout</h3>
                 <p className="text-sm text-white/60 mb-4">Time of inactivity before screensaver activates</p>
-                <div className="flex items-center gap-4">
-                    <input
-                        type="range"
-                        min="1"
-                        max="30"
-                        value={timeoutMinutes}
-                        onChange={e => handleTimeoutChange(parseInt(e.target.value))}
-                        disabled={!settings.enabled || isSaving}
-                        className="flex-1 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary disabled:opacity-50"
-                    />
-                    <span className="text-lg font-medium w-24 text-center">
-                        {timeoutMinutes} {timeoutMinutes === 1 ? 'min' : 'mins'}
-                    </span>
-                </div>
+                <Slider
+                    value={timeoutMinutes}
+                    min={1}
+                    max={30}
+                    onChange={handleTimeoutChange}
+                    formatValue={v => `${v} ${v === 1 ? 'min' : 'mins'}`}
+                    disabled={!settings.enabled || isSaving}
+                />
             </section>
 
             {/* Animation Type Selection */}
@@ -469,42 +464,32 @@ export const ScreensaverSettings: React.FC = () => {
             <section className="mb-8">
                 <h3 className="text-lg font-medium mb-4">Animation Speed</h3>
                 <p className="text-sm text-white/60 mb-4">Control how fast the animation moves</p>
-                <div className="flex items-center gap-4">
-                    <span className="text-sm text-white/60 w-16">Slow</span>
-                    <input
-                        type="range"
-                        min="0.25"
-                        max="2"
-                        step="0.25"
-                        value={settings.animationSpeed}
-                        onChange={e => handleSpeedChange(parseFloat(e.target.value))}
-                        disabled={!settings.enabled || isSaving}
-                        className="flex-1 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary disabled:opacity-50"
-                    />
-                    <span className="text-sm text-white/60 w-16 text-right">Fast</span>
-                    <span className="text-lg font-medium w-20 text-center">{settings.animationSpeed}x</span>
-                </div>
+                <Slider
+                    value={settings.animationSpeed}
+                    min={0.25}
+                    max={2}
+                    step={0.25}
+                    onChange={handleSpeedChange}
+                    formatValue={v => `${v}x`}
+                    rangeLabels={['Slow', 'Fast']}
+                    disabled={!settings.enabled || isSaving}
+                />
             </section>
 
             {/* Intensity Control */}
             <section className="mb-8">
                 <h3 className="text-lg font-medium mb-4">Animation Intensity</h3>
                 <p className="text-sm text-white/60 mb-4">Control animation density and brightness</p>
-                <div className="flex items-center gap-4">
-                    <span className="text-sm text-white/60 w-16">Subtle</span>
-                    <input
-                        type="range"
-                        min="0.25"
-                        max="2"
-                        step="0.25"
-                        value={settings.animationIntensity}
-                        onChange={e => handleIntensityChange(parseFloat(e.target.value))}
-                        disabled={!settings.enabled || isSaving}
-                        className="flex-1 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary disabled:opacity-50"
-                    />
-                    <span className="text-sm text-white/60 w-16 text-right">Intense</span>
-                    <span className="text-lg font-medium w-20 text-center">{settings.animationIntensity}x</span>
-                </div>
+                <Slider
+                    value={settings.animationIntensity}
+                    min={0.25}
+                    max={2}
+                    step={0.25}
+                    onChange={handleIntensityChange}
+                    formatValue={v => `${v}x`}
+                    rangeLabels={['Subtle', 'Intense']}
+                    disabled={!settings.enabled || isSaving}
+                />
             </section>
 
             {/* Overlay Options */}

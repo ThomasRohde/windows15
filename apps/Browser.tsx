@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDb, useDexieLiveQuery } from '../utils/storage';
 import { generateUuid } from '../utils/uuid';
-import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { useConfirmDialog, ConfirmDialog, SearchInput } from '../components/ui';
 import { usePersistedState } from '../hooks';
 
 type ViewMode = 'live' | 'reader';
@@ -465,11 +465,12 @@ export const Browser = () => {
                         </div>
 
                         <div className="p-3 border-b border-gray-200">
-                            <input
+                            <SearchInput
                                 value={bookmarkSearch}
-                                onChange={e => setBookmarkSearch(e.target.value)}
+                                onChange={setBookmarkSearch}
                                 placeholder="Search bookmarks..."
-                                className="w-full h-9 px-3 rounded-lg bg-white border border-gray-300 text-sm text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                aria-label="Search bookmarks"
+                                inputClassName="!bg-white !border-gray-300 !text-gray-700 placeholder:!text-gray-500 focus:!border-blue-500 focus:!ring-blue-500"
                             />
                         </div>
 

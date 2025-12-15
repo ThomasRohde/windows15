@@ -18,7 +18,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useDb, useDexieLiveQuery } from '../utils/storage';
 import { generateUuid } from '../utils/uuid';
-import { ErrorBanner, ConfirmDialog, Button, Checkbox } from '../components/ui';
+import { ErrorBanner, ConfirmDialog, Button, Checkbox, SearchInput } from '../components/ui';
 import { useAsyncAction } from '../hooks';
 
 type Filter = 'all' | 'active' | 'completed';
@@ -432,24 +432,12 @@ export const TodoList = () => {
                 </div>
             </div>
 
-            <div className="flex gap-2 items-center">
-                <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    placeholder="Search tasks..."
-                    className="flex-1 bg-black/30 text-white px-3 py-1 rounded-lg border border-white/10 focus:outline-none focus:border-blue-500 text-sm min-w-0"
-                />
-                {searchQuery && (
-                    <button
-                        onClick={() => setSearchQuery('')}
-                        className="text-white/50 hover:text-white text-xs"
-                        title="Clear search"
-                    >
-                        ✕
-                    </button>
-                )}
-            </div>
+            <SearchInput
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search tasks..."
+                aria-label="Search tasks"
+            />
 
             <div className="flex gap-2 flex-wrap">
                 <div className="flex gap-2">

@@ -1,5 +1,6 @@
 import React from 'react';
 import { SkeletonList } from '../../components/LoadingSkeleton';
+import { SearchInput } from '../../components/ui';
 import { NoteRecord } from './types';
 
 interface NotesListProps {
@@ -53,11 +54,11 @@ export const NotesList: React.FC<NotesListProps> = ({
 
             {/* Search */}
             <div className="p-3 border-b border-white/10">
-                <input
+                <SearchInput
                     value={search}
-                    onChange={e => onSearchChange(e.target.value)}
+                    onChange={onSearchChange}
                     placeholder="Search notes..."
-                    className="w-full h-9 px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
+                    aria-label="Search notes"
                 />
             </div>
 

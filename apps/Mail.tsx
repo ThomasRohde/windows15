@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { STORAGE_KEYS, storageService, useDexieLiveQuery } from '../utils/storage';
 import { generateUuid } from '../utils/uuid';
+import { SearchInput } from '../components/ui';
 
 type MailboxId = 'inbox' | 'sent' | 'drafts' | 'trash';
 
@@ -363,18 +364,12 @@ export const Mail = () => {
                 {/* Message List */}
                 <div className="w-80 shrink-0 border-r border-white/5 bg-black/10 flex flex-col">
                     <div className="p-3 border-b border-white/5 bg-black/20">
-                        <div className="relative">
-                            <span className="material-symbols-outlined text-white/40 text-[18px] absolute left-3 top-1/2 -translate-y-1/2">
-                                search
-                            </span>
-                            <input
-                                value={searchQuery}
-                                onChange={e => setSearchQuery(e.target.value)}
-                                placeholder="Search mail"
-                                spellCheck={false}
-                                className="w-full h-9 pl-10 pr-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 placeholder:text-white/30 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
-                            />
-                        </div>
+                        <SearchInput
+                            value={searchQuery}
+                            onChange={setSearchQuery}
+                            placeholder="Search mail"
+                            aria-label="Search mail"
+                        />
                     </div>
 
                     <div className="flex-1 overflow-y-auto">

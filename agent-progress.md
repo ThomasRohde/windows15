@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: In Progress
+## Current Status: Session Ended
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                                                          | Status         |
 | ---- | ------------------------------------------------------------------------------------ | -------------- |
-| F117 | Implement useHotkeys in apps that display keyboard shortcuts but lack functionality  | 🔄 In progress |
 | F114 | Extract shared Checkbox component for consistent form controls                       | ⏳ Not started |
 | F115 | Add paste functionality to useCopyToClipboard hook for complete clipboard management | ⏳ Not started |
+| F116 | Create SearchInput component for consistent search UI across apps                    | ⏳ Not started |
 
 ---
 
@@ -809,8 +809,8 @@ klondike feature list  # List all features
 ### Session 27 - 2025-12-15
 
 **Agent**: Coding Agent
-**Duration**: (in progress)
-**Focus**: F117 - Implement useHotkeys in apps that display keyboard shortcuts but lack functionality
+**Duration**: ~session
+**Focus**: Successfully completed F117: Implemented keyboard shortcuts using useHotkeys hook in Notepad FilesPanel. Conducted full audit of all apps - only Notepad displayed non-functional shortcuts. Implemented smart ignoreInput logic so save shortcuts work while typing but New/Open only work when not typing. All tests pass, build succeeds.
 
 #### Completed
 
@@ -818,7 +818,7 @@ klondike feature list  # List all features
 
 #### In Progress
 
-- Session started
+- None
 
 #### Blockers
 
@@ -826,7 +826,7 @@ klondike feature list  # List all features
 
 #### Recommended Next Steps
 
-1. Continue implementation
+1. Suggested next tasks: F114 (Extract shared Checkbox component) or F115 (Add paste functionality to useCopyToClipboard)
 
 #### Technical Notes
 

@@ -3130,11 +3130,13 @@
         "No conflicts between app-level and OS-level shortcuts"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-15T16:05:07.273904",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Implemented useHotkeys in Notepad FilesPanel. Shortcuts work as follows: Ctrl+S/Shift+S always work (even when typing) for save operations. Ctrl+N/O only work when not typing to avoid interference. Terminal already had inline keyboard handling. WindowSpaceSettings documents Ctrl+Alt+3 which is implemented at OS-level in App.tsx. All tests pass (75/75). Build succeeds. Audit complete - no other apps display shortcuts without implementation."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-15T16:02:38.741028",
       "notes": "Implementation: useHotkeys hook exists and works well. Some apps display keyboard shortcuts in menus/tooltips but don't implement them. Audit: Check Notepad menu bar shortcuts, Settings app shortcuts, FileExplorer shortcuts. Pattern: useHotkeys({'ctrl+s': handleSave, 'ctrl+n': handleNew}). Edge cases: Prevent shortcuts when in text input unless appropriate (Ctrl+S should still work), handle modifier key variations (Ctrl vs Cmd on Mac). Dependencies: hooks/useHotkeys.ts already exists and works. Gotchas: Ensure shortcuts don't interfere with browser defaults (Ctrl+D, Ctrl+P), use scope parameter to limit to focused windows."
@@ -3164,8 +3166,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-15T15:59:31.817398",
+    "lastUpdated": "2025-12-15T16:05:07.273923",
     "totalFeatures": 118,
-    "passingFeatures": 113
+    "passingFeatures": 114
   }
 }

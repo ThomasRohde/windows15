@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocalization } from '../context';
 import { formatSpeed, formatTemperature } from '../utils/localization';
 import { useNotification, useAsyncAction } from '../hooks';
-import { AppContainer } from '../components/ui';
+import { AppContainer, LoadingState } from '../components/ui';
 
 interface WeatherData {
     location: string;
@@ -145,17 +145,19 @@ export const Weather = () => {
 
     if (loading) {
         return (
-            <div className="h-full bg-background-dark p-4 flex items-center justify-center">
-                <div className="text-white/60">Loading weather...</div>
-            </div>
+            <AppContainer>
+                <LoadingState message="Loading weather..." variant="spinner" />
+            </AppContainer>
         );
     }
 
     if (error || !weather) {
         return (
-            <div className="h-full bg-background-dark p-4 flex items-center justify-center">
-                <div className="text-red-400">{error || 'Unable to load weather'}</div>
-            </div>
+            <AppContainer>
+                <div className="flex items-center justify-center h-full">
+                    <div className="text-red-400">{error || 'Unable to load weather'}</div>
+                </div>
+            </AppContainer>
         );
     }
 

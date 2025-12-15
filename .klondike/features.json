@@ -3305,11 +3305,17 @@
         "TodoList.tsx uses ensureArray instead of inline ternaries"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-15T17:26:58.399655",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Created ensureArray utility function. Refactored TodoList",
+        "Widgets",
+        "App.tsx",
+        "Browser",
+        "and NotesPanel to use it instead of inline Array.isArray ternaries. All tests pass."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-15T17:23:26.998297",
       "notes": "Implementation: Create utils/ensureArray.ts with generic function: export const ensureArray = <T>(value: T[] | null | undefined): T[] => Array.isArray(value) ? value : []. Pattern appears as 'Array.isArray(x) ? x : []' in Calendar.tsx, Mail.tsx, TodoList.tsx. Edge cases: Handle objects that look array-like but aren't (e.g., arguments object, NodeList). Dependencies: None. Context: Reduces repetitive ternary expressions and ensures consistent null handling. Gotchas: Keep it simple - don't try to convert iterables, just return empty array for non-arrays."
@@ -3451,20 +3457,20 @@
         "Custom loading divs removed from refactored apps"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-15T17:27:16.834211",
       "notes": "Implementation: Replace custom loading patterns like '<div>Loading...</div>' or spinner divs with LoadingState from components/ui/LoadingState.tsx. The component already exists but is underutilized. Edge cases: Some apps show contextual loading messages (e.g., 'Loading weather data...') - ensure LoadingState accepts custom message prop. Dependencies: LoadingState component exists. Context: Inconsistent loading states across apps - some use spinners, some use text, some use skeletons. Standardizing improves UX consistency. Gotchas: Don't remove loading states that have app-specific animations or are part of the app's design language."
     }
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-15T17:23:07.375342",
+    "lastUpdated": "2025-12-15T17:26:58.399705",
     "totalFeatures": 128,
-    "passingFeatures": 121
+    "passingFeatures": 122
   }
 }

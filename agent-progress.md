@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                      | Status         |
-| ---- | ---------------------------------------------------------------- | -------------- |
-| F122 | Create ensureArray utility for type-safe array coercion          | 🔄 In progress |
-| F128 | Standardize loading states using existing LoadingState component | ⏳ Not started |
-| F123 | Create Icon component for consistent Material Symbols rendering  | ⏳ Not started |
+| ID   | Description                                                        | Status         |
+| ---- | ------------------------------------------------------------------ | -------------- |
+| F128 | Standardize loading states using existing LoadingState component   | 🔄 In progress |
+| F123 | Create Icon component for consistent Material Symbols rendering    | ⏳ Not started |
+| F124 | Migrate apps from raw button elements to existing Button component | ⏳ Not started |
 
 ---
 

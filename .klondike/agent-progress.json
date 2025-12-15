@@ -522,18 +522,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F122",
-        "description": "Create ensureArray utility for type-safe array coercion",
-        "status": "in-progress"
-      },
-      {
         "id": "F128",
         "description": "Standardize loading states using existing LoadingState component",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F123",
         "description": "Create Icon component for consistent Material Symbols rendering",
+        "status": "not-started"
+      },
+      {
+        "id": "F124",
+        "description": "Migrate apps from raw button elements to existing Button component",
         "status": "not-started"
       }
     ]

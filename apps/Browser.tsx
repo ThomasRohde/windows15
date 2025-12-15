@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDb, useDexieLiveQuery } from '../utils/storage';
 import { generateUuid } from '../utils/uuid';
+import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog';
 
 type ViewMode = 'live' | 'reader';
 
@@ -120,6 +121,8 @@ export const Browser = () => {
     const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
     const [bookmarkDraft, setBookmarkDraft] = useState<BookmarkDraft | null>(null);
     const [bookmarkSearch, setBookmarkSearch] = useState('');
+
+    const { confirm, dialogProps } = useConfirmDialog();
 
     const currentEntry = state.history[state.historyIndex] ?? initialEntry;
     const currentUrl = currentEntry.url;
@@ -270,7 +273,14 @@ export const Browser = () => {
     const deleteBookmark = async (id: string) => {
         const item = bookmarks.find(b => b.id === id);
         if (!item) return;
-        if (!confirm(`Delete bookmark "${item.title || item.url}"?`)) return;
+        const confirmed = await confirm({
+            title: 'Delete Bookmark',
+            message: `Delete bookmark "${item.title || item.url}"?`,
+            variant: 'danger',
+            confirmLabel: 'Delete',
+            cancelLabel: 'Cancel',
+        });
+        if (!confirmed) return;
         await db.bookmarks.delete(id);
     };
 
@@ -648,6 +658,9 @@ export const Browser = () => {
                     </div>
                 </div>
             )}
+
+            {/* Confirm Dialog */}
+            <ConfirmDialog {...dialogProps} />
         </div>
     );
 };

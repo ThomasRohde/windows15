@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { getFiles, saveFileToFolder } from '../../utils/fileSystem';
 import { FileSystemItem } from '../../types';
+import { useConfirmDialog, ConfirmDialog } from '../../components/ui/ConfirmDialog';
 
 interface FilesPanelProps {
     initialContent?: string;
@@ -40,6 +41,8 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
     const [files, setFiles] = useState<FileSystemItem[]>([]);
     const menuRef = useRef<HTMLDivElement>(null);
 
+    const { confirm, dialogProps } = useConfirmDialog();
+
     // Reset state when props change
     useEffect(() => {
         setContent(initialContent);
@@ -75,9 +78,16 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
         return { line, column };
     }, [content, cursorIndex]);
 
-    const handleNew = () => {
-        if (hasUnsavedChanges && !confirm('You have unsaved changes. Create a new file anyway?')) {
-            return;
+    const handleNew = async () => {
+        if (hasUnsavedChanges) {
+            const confirmed = await confirm({
+                title: 'Unsaved Changes',
+                message: 'You have unsaved changes. Create a new file anyway?',
+                variant: 'warning',
+                confirmLabel: 'Continue',
+                cancelLabel: 'Cancel',
+            });
+            if (!confirmed) return;
         }
         setContent('');
         setCurrentFileId(null);
@@ -92,9 +102,16 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
         setActiveMenu(null);
     };
 
-    const handleOpenFile = (file: FileSystemItem) => {
-        if (hasUnsavedChanges && !confirm('You have unsaved changes. Open a different file anyway?')) {
-            return;
+    const handleOpenFile = async (file: FileSystemItem) => {
+        if (hasUnsavedChanges) {
+            const confirmed = await confirm({
+                title: 'Unsaved Changes',
+                message: 'You have unsaved changes. Open a different file anyway?',
+                variant: 'warning',
+                confirmLabel: 'Continue',
+                cancelLabel: 'Cancel',
+            });
+            if (!confirmed) return;
         }
         setContent(file.content || '');
         setCurrentFileId(file.id);
@@ -295,6 +312,9 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
                     </div>
                 </div>
             )}
+
+            {/* Confirm Dialog */}
+            <ConfirmDialog {...dialogProps} />
         </>
     );
 };

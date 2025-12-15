@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDb, getCloudDatabaseUrl, setCloudDatabaseUrl, validateCloudDatabaseUrl } from '@/utils/storage';
 import { copyTextToClipboard } from '@/utils/clipboard';
+import { useConfirmDialog, ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 const PROD_ORIGIN = 'https://thomasrohde.github.io';
 
@@ -78,6 +79,7 @@ const CopyableCommand = ({ command }: { command: string }) => {
 
 export const SyncSettings = () => {
     const db = useDb();
+    const { confirm, dialogProps } = useConfirmDialog();
     const origin = useMemo(() => getOrigin(), []);
     const [databaseUrl, setDatabaseUrl] = useState(() => getCloudDatabaseUrl() ?? '');
     const [validationError, setValidationError] = useState<string | null>(null);
@@ -149,7 +151,14 @@ export const SyncSettings = () => {
 
     const disconnect = async () => {
         setActionError(null);
-        if (!confirm('Disconnect from Dexie Cloud? Local data will be kept.')) return;
+        const confirmed = await confirm({
+            title: 'Disconnect from Cloud',
+            message: 'Disconnect from Dexie Cloud? Local data will be kept.',
+            variant: 'warning',
+            confirmLabel: 'Disconnect',
+            cancelLabel: 'Cancel',
+        });
+        if (!confirmed) return;
         setIsReconnecting(true);
 
         try {
@@ -200,7 +209,14 @@ export const SyncSettings = () => {
 
     const resetLocalData = async () => {
         setActionError(null);
-        if (!confirm('Reset local Dexie data? This clears notes, bookmarks, and OS state on this device.')) return;
+        const confirmed = await confirm({
+            title: 'Reset Local Data',
+            message: 'Reset local Dexie data? This clears notes, bookmarks, and OS state on this device.',
+            variant: 'danger',
+            confirmLabel: 'Reset',
+            cancelLabel: 'Cancel',
+        });
+        if (!confirmed) return;
         setIsWorking(true);
         try {
             await db.delete();
@@ -429,6 +445,9 @@ export const SyncSettings = () => {
                     </div>
                 </div>
             )}
+
+            {/* Confirm Dialog */}
+            <ConfirmDialog {...dialogProps} />
         </div>
     );
 };

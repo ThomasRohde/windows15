@@ -3,6 +3,7 @@ import { useDb, useDexieLiveQuery } from '../../utils/storage';
 import { NotesList } from './NotesList';
 import { NoteEditor } from './NoteEditor';
 import { NoteDraft, NoteRecord } from './types';
+import { useConfirmDialog, ConfirmDialog } from '../../components/ui/ConfirmDialog';
 
 const createId = () => globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 11);
 
@@ -20,6 +21,8 @@ export const NotesPanel: React.FC = () => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [draft, setDraft] = useState<NoteDraft>({ title: '', content: '' });
     const [search, setSearch] = useState('');
+
+    const { confirm, dialogProps } = useConfirmDialog();
 
     const selectedNote = useMemo(() => notes.find(note => note.id === selectedId) ?? null, [notes, selectedId]);
 
@@ -69,7 +72,14 @@ export const NotesPanel: React.FC = () => {
     const deleteNote = async (id: string) => {
         const note = notes.find(n => n.id === id);
         if (!note) return;
-        if (!confirm(`Delete "${note.title || 'Untitled'}"?`)) return;
+        const confirmed = await confirm({
+            title: 'Delete Note',
+            message: `Delete "${note.title || 'Untitled'}"?`,
+            variant: 'danger',
+            confirmLabel: 'Delete',
+            cancelLabel: 'Cancel',
+        });
+        if (!confirmed) return;
         await db.notes.delete(id);
         if (selectedId === id) {
             const remaining = notes.filter(n => n.id !== id);
@@ -90,6 +100,9 @@ export const NotesPanel: React.FC = () => {
                 onSearchChange={setSearch}
             />
             <NoteEditor note={selectedNote} draft={draft} onDraftChange={setDraft} onCreateNote={createNote} />
+
+            {/* Confirm Dialog */}
+            <ConfirmDialog {...dialogProps} />
         </div>
     );
 };

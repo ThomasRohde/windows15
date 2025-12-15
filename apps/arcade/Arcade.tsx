@@ -28,6 +28,7 @@ import {
     BUTTON_RIGHT,
 } from './Wasm4Runtime';
 import type { Wasm4State } from './Wasm4Runtime';
+import { useConfirmDialog, ConfirmDialog } from '../../components/ui/ConfirmDialog';
 
 /**
  * View modes for the arcade app
@@ -87,6 +88,7 @@ const GameCard: React.FC<{
             };
         } else {
             setIconUrl(null);
+            return undefined;
         }
     }, [game.iconBlob]);
 
@@ -160,6 +162,8 @@ export const Arcade: React.FC = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [isLoadingCartridge, setIsLoadingCartridge] = useState(false);
     const [loadError, setLoadError] = useState<string | null>(null);
+
+    const { confirm, dialogProps } = useConfirmDialog();
 
     // Load games from database
     const games = useLiveQuery(async () => {
@@ -538,15 +542,22 @@ export const Arcade: React.FC = () => {
         async (gameId: string) => {
             if (!db || gameId === DEMO_CART_ID) return;
 
-            if (confirm('Delete this game from your library?')) {
-                try {
-                    await db.$arcadeGames.delete(gameId);
-                } catch (error) {
-                    console.error('[Arcade] Delete failed:', error);
-                }
+            const confirmed = await confirm({
+                title: 'Delete Game',
+                message: 'Delete this game from your library?',
+                variant: 'danger',
+                confirmLabel: 'Delete',
+                cancelLabel: 'Cancel',
+            });
+            if (!confirmed) return;
+
+            try {
+                await db.$arcadeGames.delete(gameId);
+            } catch (error) {
+                console.error('[Arcade] Delete failed:', error);
             }
         },
-        [db]
+        [db, confirm]
     );
 
     /**
@@ -881,6 +892,9 @@ export const Arcade: React.FC = () => {
                     <p>Keyboard: Arrow keys / WASD to move, X/Space = Button 1, Z/C = Button 2</p>
                 </div>
             )}
+
+            {/* Confirm Dialog */}
+            <ConfirmDialog {...dialogProps} />
         </div>
     );
 };

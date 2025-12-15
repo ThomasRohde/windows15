@@ -175,8 +175,9 @@ export const Arcade: React.FC = () => {
                 }
             }
 
-            // Load cartridge after canvas is ready
-            setTimeout(async () => {
+            // Load cartridge after runtime is ready - poll for runtime initialization
+            const loadWithRetry = async (retriesLeft: number): Promise<void> => {
+                // Check if runtime is ready
                 if (runtimeRef.current && game.cartridgeBlob) {
                     try {
                         const arrayBuffer = await game.cartridgeBlob.arrayBuffer();
@@ -192,9 +193,20 @@ export const Arcade: React.FC = () => {
                         }
                         setLoadError(errorMsg);
                     }
+                    setIsLoadingCartridge(false);
+                } else if (retriesLeft > 0) {
+                    // Runtime not ready yet, retry after a short delay
+                    setTimeout(() => void loadWithRetry(retriesLeft - 1), 50);
+                } else {
+                    // Ran out of retries
+                    console.error('[Arcade] Runtime not initialized after retries');
+                    setLoadError('Failed to initialize game runtime. Please try again.');
+                    setIsLoadingCartridge(false);
                 }
-                setIsLoadingCartridge(false);
-            }, 100);
+            };
+
+            // Start loading after initial render, with retries
+            setTimeout(() => void loadWithRetry(20), 50); // 20 retries * 50ms = 1 second max wait
         },
         [db]
     );

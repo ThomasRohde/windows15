@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                                   | Status         |
-| ---- | ----------------------------------------------------------------------------- | -------------- |
-| F132 | Extract time formatting utilities to utils/timeFormatters.ts and migrate apps | 🔄 In progress |
-| F133 | Create TextArea component with dark theme styling and migrate apps            | ⏳ Not started |
-| F134 | Create TextInput component with dark theme styling and migrate apps           | ⏳ Not started |
+| ID   | Description                                                         | Status         |
+| ---- | ------------------------------------------------------------------- | -------------- |
+| F133 | Create TextArea component with dark theme styling and migrate apps  | ⏳ Not started |
+| F134 | Create TextInput component with dark theme styling and migrate apps | ⏳ Not started |
+| F135 | Create Select component with dark theme styling and migrate apps    | ⏳ Not started |
 
 ---
 

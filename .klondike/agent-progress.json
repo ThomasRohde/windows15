@@ -573,11 +573,6 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F132",
-        "description": "Extract time formatting utilities to utils/timeFormatters.ts and migrate apps",
-        "status": "in-progress"
-      },
-      {
         "id": "F133",
         "description": "Create TextArea component with dark theme styling and migrate apps",
         "status": "not-started"
@@ -585,6 +580,11 @@
       {
         "id": "F134",
         "description": "Create TextInput component with dark theme styling and migrate apps",
+        "status": "not-started"
+      },
+      {
+        "id": "F135",
+        "description": "Create Select component with dark theme styling and migrate apps",
         "status": "not-started"
       }
     ]

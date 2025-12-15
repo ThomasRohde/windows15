@@ -3,7 +3,7 @@ import { STORAGE_KEYS } from '../utils/storage';
 import { SkeletonCalendar } from '../components/LoadingSkeleton';
 import { useLocalization } from '../context';
 import { generateUuid } from '../utils/uuid';
-import { TextArea, EmptyState } from '../components/ui';
+import { TextArea, EmptyState, FormField } from '../components/ui';
 import { Checkbox } from '../components/ui';
 import { required, validateValue, validateDateRange } from '../utils/validation';
 import { useSeededCollection } from '../hooks';
@@ -419,19 +419,17 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                         )}
 
                         <div className="p-4 grid grid-cols-1 gap-3">
-                            <label className="flex flex-col gap-1">
-                                <span className="text-xs text-white/60">Title</span>
+                            <FormField label="Title" required>
                                 <input
                                     value={draft.title}
                                     onChange={e => setDraft(prev => (prev ? { ...prev, title: e.target.value } : prev))}
                                     className="h-9 px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
                                     placeholder="Event title"
                                 />
-                            </label>
+                            </FormField>
 
                             <div className="grid grid-cols-2 gap-3">
-                                <label className="flex flex-col gap-1">
-                                    <span className="text-xs text-white/60">Date</span>
+                                <FormField label="Date" required>
                                     <input
                                         type="date"
                                         value={draft.date}
@@ -440,7 +438,7 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                                         }
                                         className="h-9 px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
                                     />
-                                </label>
+                                </FormField>
 
                                 <div className="mt-6">
                                     <Checkbox
@@ -457,8 +455,7 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
 
                             {!draft.allDay && (
                                 <div className="grid grid-cols-2 gap-3">
-                                    <label className="flex flex-col gap-1">
-                                        <span className="text-xs text-white/60">Start</span>
+                                    <FormField label="Start">
                                         <input
                                             type="time"
                                             value={draft.startTime}
@@ -467,9 +464,8 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                                             }
                                             className="h-9 px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
                                         />
-                                    </label>
-                                    <label className="flex flex-col gap-1">
-                                        <span className="text-xs text-white/60">End</span>
+                                    </FormField>
+                                    <FormField label="End">
                                         <input
                                             type="time"
                                             value={draft.endTime}
@@ -478,12 +474,11 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                                             }
                                             className="h-9 px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
                                         />
-                                    </label>
+                                    </FormField>
                                 </div>
                             )}
 
-                            <label className="flex flex-col gap-1">
-                                <span className="text-xs text-white/60">Location</span>
+                            <FormField label="Location">
                                 <input
                                     value={draft.location}
                                     onChange={e =>
@@ -492,17 +487,16 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                                     className="h-9 px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
                                     placeholder="Where?"
                                 />
-                            </label>
+                            </FormField>
 
-                            <label className="flex flex-col gap-1">
-                                <span className="text-xs text-white/60">Notes</span>
+                            <FormField label="Notes">
                                 <TextArea
                                     value={draft.notes}
                                     onChange={e => setDraft(prev => (prev ? { ...prev, notes: e.target.value } : prev))}
                                     className="h-28 bg-black/30 focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
                                     placeholder="Add details…"
                                 />
-                            </label>
+                            </FormField>
                         </div>
 
                         <div className="px-4 py-3 flex items-center justify-between border-t border-white/10 bg-black/20">

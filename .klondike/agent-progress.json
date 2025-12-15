@@ -607,18 +607,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F140",
-        "description": "Create useStandardHotkeys hook for common app keyboard shortcuts",
-        "status": "in-progress"
-      },
-      {
         "id": "F141",
         "description": "Create FormField wrapper component with label and error display",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F137",
         "description": "Extract color conversion utilities to utils/color.ts",
+        "status": "not-started"
+      },
+      {
+        "id": "F138",
+        "description": "Create StatCard component for metric display grids",
         "status": "not-started"
       }
     ]

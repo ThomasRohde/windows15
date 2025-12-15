@@ -3,6 +3,7 @@
  */
 import React, { useState, useCallback, useEffect } from 'react';
 import { useUserProfile } from '../../context/UserProfileContext';
+import { FormField } from '../../components/ui';
 
 export const ProfileSettings: React.FC = () => {
     const { profile, setProfile, getInitials } = useUserProfile();
@@ -57,38 +58,37 @@ export const ProfileSettings: React.FC = () => {
 
                     {/* Name input */}
                     <div className="flex-1">
-                        <label htmlFor="profile-name" className="block text-sm text-white/60 mb-2">
-                            Your name
-                        </label>
-                        <div className="flex gap-3">
-                            <input
-                                id="profile-name"
-                                type="text"
-                                value={name}
-                                onChange={e => setName(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                placeholder="Enter your name"
-                                className="flex-1 h-10 px-4 bg-black/30 border border-white/10 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent"
-                            />
-                            <button
-                                onClick={handleSave}
-                                disabled={!hasChanges || isSaving || !name.trim()}
-                                className="h-10 px-4 bg-blue-500 hover:bg-blue-600 disabled:bg-white/10 disabled:text-white/40 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
-                            >
-                                {isSaving ? (
-                                    <span className="material-symbols-outlined animate-spin text-lg">
-                                        progress_activity
-                                    </span>
-                                ) : showSuccess ? (
-                                    <>
-                                        <span className="material-symbols-outlined text-lg">check</span>
-                                        Saved
-                                    </>
-                                ) : (
-                                    'Save'
-                                )}
-                            </button>
-                        </div>
+                        <FormField label="Your name" id="profile-name" required>
+                            <div className="flex gap-3">
+                                <input
+                                    id="profile-name"
+                                    type="text"
+                                    value={name}
+                                    onChange={e => setName(e.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                    placeholder="Enter your name"
+                                    className="flex-1 h-10 px-4 bg-black/30 border border-white/10 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent"
+                                />
+                                <button
+                                    onClick={handleSave}
+                                    disabled={!hasChanges || isSaving || !name.trim()}
+                                    className="h-10 px-4 bg-blue-500 hover:bg-blue-600 disabled:bg-white/10 disabled:text-white/40 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+                                >
+                                    {isSaving ? (
+                                        <span className="material-symbols-outlined animate-spin text-lg">
+                                            progress_activity
+                                        </span>
+                                    ) : showSuccess ? (
+                                        <>
+                                            <span className="material-symbols-outlined text-lg">check</span>
+                                            Saved
+                                        </>
+                                    ) : (
+                                        'Save'
+                                    )}
+                                </button>
+                            </div>
+                        </FormField>
                     </div>
                 </div>
             </div>

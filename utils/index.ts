@@ -27,5 +27,8 @@ export * from './dateUtils';
 // Storage (re-export from storage/index.ts)
 export * from './storage';
 
+// Color utilities
+export * from './color';
+
 // UUID generation
 export { generateUuid, createId } from './uuid';

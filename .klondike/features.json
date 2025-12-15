@@ -3754,13 +3754,13 @@
         "ColorPicker migrated to use shared color utilities"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-15T20:12:26.597123",
       "notes": "Implementation: Create utils/color.ts with pure functions for color space conversions. Functions: hslToRgb(h,s,l), rgbToHex(r,g,b), hexToRgb(hex), hexToHsl(hex). Edge cases: Handle invalid hex strings, out-of-range values, shorthand hex (#fff). Dependencies: None. Context: Low priority - only ColorPicker uses these currently but useful for future theming features. Gotchas: HSL uses 0-360 for hue, 0-100 for s/l - document expected ranges."
     },
     {
@@ -3851,11 +3851,13 @@
         "Calendar event form migrated to use FormField"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-15T20:12:21.733460",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "FormField component created. Calendar event form (6 fields) and ProfileSettings migrated. All tests passing (119 passed)."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-15T20:09:47.614216",
       "notes": "Implementation: Wrapper component that renders label above input children and error message below. Props: label (string), required (boolean), error (string), children (input element). Styling: label uses text-white/60 text-sm mb-1, error uses text-red-400 text-xs mt-1. Edge cases: Should work with any input component (TextInput, Select, TextArea). Dependencies: Existing validation utilities in utils/validation.ts. Context: Medium priority - improves form UX consistency. Gotchas: Use htmlFor/id connection for accessibility."
@@ -3863,8 +3865,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-15T20:09:43.549056",
+    "lastUpdated": "2025-12-15T20:12:21.733472",
     "totalFeatures": 141,
-    "passingFeatures": 137
+    "passingFeatures": 138
   }
 }

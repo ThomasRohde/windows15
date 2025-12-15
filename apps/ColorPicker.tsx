@@ -1,6 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { usePersistedState, useStandardHotkeys, useCopyToClipboard } from '../hooks';
 import { AppContainer, Slider, Button, SectionLabel, CopyButton } from '../components/ui';
+import { hslToRgb, rgbToHex, rgbToHsl } from '../utils/color';
 
 interface SavedColor {
     hex: string;
@@ -12,31 +13,6 @@ export const ColorPicker = () => {
     const [saturation, setSaturation] = useState(70);
     const [lightness, setLightness] = useState(50);
     const { value: savedColors, setValue: setSavedColors } = usePersistedState<SavedColor[]>('colorpicker.saved', []);
-
-    const hslToRgb = useCallback((h: number, s: number, l: number) => {
-        s /= 100;
-        l /= 100;
-        const a = s * Math.min(l, 1 - l);
-        const f = (n: number) => {
-            const k = (n + h / 30) % 12;
-            return l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-        };
-        return {
-            r: Math.round(f(0) * 255),
-            g: Math.round(f(8) * 255),
-            b: Math.round(f(4) * 255),
-        };
-    }, []);
-
-    const rgbToHex = useCallback((r: number, g: number, b: number) => {
-        return (
-            '#' +
-            [r, g, b]
-                .map(x => x.toString(16).padStart(2, '0'))
-                .join('')
-                .toUpperCase()
-        );
-    }, []);
 
     const rgb = hslToRgb(hue, saturation, lightness);
     const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
@@ -64,26 +40,10 @@ export const ColorPicker = () => {
         const g = parseInt(savedHex.slice(3, 5), 16);
         const b = parseInt(savedHex.slice(5, 7), 16);
 
-        const max = Math.max(r, g, b) / 255;
-        const min = Math.min(r, g, b) / 255;
-        let h = 0,
-            s = 0;
-        const l = (max + min) / 2;
-
-        if (max !== min) {
-            const d = max - min;
-            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-            const rNorm = r / 255,
-                gNorm = g / 255,
-                bNorm = b / 255;
-            if (max === rNorm) h = ((gNorm - bNorm) / d + (gNorm < bNorm ? 6 : 0)) * 60;
-            else if (max === gNorm) h = ((bNorm - rNorm) / d + 2) * 60;
-            else h = ((rNorm - gNorm) / d + 4) * 60;
-        }
-
-        setHue(Math.round(h));
-        setSaturation(Math.round(s * 100));
-        setLightness(Math.round(l * 100));
+        const hsl = rgbToHsl(r, g, b);
+        setHue(hsl.h);
+        setSaturation(hsl.s);
+        setLightness(hsl.l);
     };
 
     const ColorValue = ({ label, value, format }: { label: string; value: string; format: string }) => (

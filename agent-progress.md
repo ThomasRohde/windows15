@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                     | Status         |
-| ---- | --------------------------------------------------------------- | -------------- |
-| F141 | Create FormField wrapper component with label and error display | 🔄 In progress |
-| F137 | Extract color conversion utilities to utils/color.ts            | ⏳ Not started |
-| F138 | Create StatCard component for metric display grids              | ⏳ Not started |
+| ID   | Description                                                 | Status         |
+| ---- | ----------------------------------------------------------- | -------------- |
+| F137 | Extract color conversion utilities to utils/color.ts        | 🔄 In progress |
+| F138 | Create StatCard component for metric display grids          | ⏳ Not started |
+| F139 | Create SplitPane layout component for two-panel app layouts | ⏳ Not started |
 
 ---
 

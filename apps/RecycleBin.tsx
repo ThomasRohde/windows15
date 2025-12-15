@@ -11,7 +11,7 @@ import { FileSystemItem } from '../types';
 import { ContextMenu } from '../components/ContextMenu';
 import { useContextMenu, useNotification } from '../hooks';
 import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog';
-import { Button } from '../components/ui';
+import { Button, EmptyState } from '../components/ui';
 
 export const RecycleBin = () => {
     const [items, setItems] = useState<FileSystemItem[]>([]);
@@ -152,10 +152,12 @@ export const RecycleBin = () => {
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-4">
                 {items.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-white/30">
-                        <span className="material-symbols-outlined text-6xl mb-4">delete_outline</span>
-                        <p>Recycle Bin is empty</p>
-                    </div>
+                    <EmptyState
+                        icon="delete_outline"
+                        title="Recycle Bin is empty"
+                        variant="minimal"
+                        className="h-full"
+                    />
                 ) : (
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-4">
                         {items.map(item => (

@@ -34,3 +34,5 @@ export { TextInput } from './TextInput';
 export type { TextInputProps, TextInputType, TextInputSize } from './TextInput';
 export { Select } from './Select';
 export type { SelectProps, SelectOption, SelectSize } from './Select';
+export { EmptyState } from './EmptyState';
+export type { EmptyStateProps } from './EmptyState';

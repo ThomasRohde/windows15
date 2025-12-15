@@ -3,7 +3,7 @@ import { STORAGE_KEYS } from '../utils/storage';
 import { SkeletonCalendar } from '../components/LoadingSkeleton';
 import { useLocalization } from '../context';
 import { generateUuid } from '../utils/uuid';
-import { TextArea } from '../components/ui';
+import { TextArea, EmptyState } from '../components/ui';
 import { Checkbox } from '../components/ui';
 import { required, validateValue, validateDateRange } from '../utils/validation';
 import { useSeededCollection } from '../hooks';
@@ -355,11 +355,14 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
 
                     <div className="flex-1 overflow-y-auto p-4">
                         {events.length === 0 ? (
-                            <div className="text-sm text-white/50 mt-6 text-center px-4">
-                                Your calendar is empty. Create an event to get started.
-                            </div>
+                            <EmptyState
+                                icon="calendar_month"
+                                title="No events yet"
+                                description="Your calendar is empty. Create an event to get started."
+                                variant="minimal"
+                            />
                         ) : selectedEvents.length === 0 ? (
-                            <div className="text-sm text-white/50 mt-6 text-center">No events for this day.</div>
+                            <EmptyState icon="event" title="No events for this day" variant="minimal" />
                         ) : (
                             <div className="flex flex-col gap-2">
                                 {selectedEvents.map(event => (

@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                                           | Status         |
 | ---- | --------------------------------------------------------------------- | -------------- |
-| F135 | Create Select component with dark theme styling and migrate apps      | 🔄 In progress |
-| F136 | Create EmptyState component for consistent empty content placeholders | ⏳ Not started |
+| F136 | Create EmptyState component for consistent empty content placeholders | 🔄 In progress |
 | F140 | Create useStandardHotkeys hook for common app keyboard shortcuts      | ⏳ Not started |
+| F141 | Create FormField wrapper component with label and error display       | ⏳ Not started |
 
 ---
 

@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { useCopyToClipboard, usePersistedState } from '../hooks';
-import { AppContainer, Slider, Button, SectionLabel } from '../components/ui';
+import { usePersistedState } from '../hooks';
+import { AppContainer, Slider, Button, SectionLabel, CopyButton } from '../components/ui';
 
 interface SavedColor {
     hex: string;
@@ -12,7 +12,6 @@ export const ColorPicker = () => {
     const [saturation, setSaturation] = useState(70);
     const [lightness, setLightness] = useState(50);
     const { value: savedColors, setValue: setSavedColors } = usePersistedState<SavedColor[]>('colorpicker.saved', []);
-    const { copy, isCopied } = useCopyToClipboard(1500);
 
     const hslToRgb = useCallback((h: number, s: number, l: number) => {
         s /= 100;
@@ -87,14 +86,7 @@ export const ColorPicker = () => {
                 <div className="text-white/50 text-xs">{label}</div>
                 <div className="text-white font-mono">{value}</div>
             </div>
-            <Button
-                onClick={() => copy(value, format)}
-                variant={isCopied(format) ? 'primary' : 'secondary'}
-                size="sm"
-                className="!text-xs !px-2 !py-1"
-            >
-                {isCopied(format) ? 'Copied!' : 'Copy'}
-            </Button>
+            <CopyButton value={value} label={format} size="sm" className="!text-xs !px-2 !py-1" />
         </div>
     );
 

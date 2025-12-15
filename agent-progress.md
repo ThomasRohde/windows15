@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                           | Status         |
-| ---- | --------------------------------------------------------------------- | -------------- |
-| F129 | Create SectionLabel component and migrate all apps to use it          | 🔄 In progress |
-| F130 | Create CopyButton component with feedback state and migrate all apps  | ⏳ Not started |
-| F131 | Create AppToolbar component and migrate all apps with toolbar headers | ⏳ Not started |
+| ID   | Description                                                                   | Status         |
+| ---- | ----------------------------------------------------------------------------- | -------------- |
+| F130 | Create CopyButton component with feedback state and migrate all apps          | 🔄 In progress |
+| F131 | Create AppToolbar component and migrate all apps with toolbar headers         | ⏳ Not started |
+| F132 | Extract time formatting utilities to utils/timeFormatters.ts and migrate apps | ⏳ Not started |
 
 ---
 

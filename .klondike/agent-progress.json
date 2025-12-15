@@ -573,18 +573,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F129",
-        "description": "Create SectionLabel component and migrate all apps to use it",
-        "status": "in-progress"
-      },
-      {
         "id": "F130",
         "description": "Create CopyButton component with feedback state and migrate all apps",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F131",
         "description": "Create AppToolbar component and migrate all apps with toolbar headers",
+        "status": "not-started"
+      },
+      {
+        "id": "F132",
+        "description": "Extract time formatting utilities to utils/timeFormatters.ts and migrate apps",
         "status": "not-started"
       }
     ]

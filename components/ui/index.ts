@@ -14,6 +14,7 @@ export { Checkbox } from './Checkbox';
 export type { CheckboxProps } from './Checkbox';
 export { ConfirmDialog, useConfirmDialog } from './ConfirmDialog';
 export type { ConfirmDialogProps } from './ConfirmDialog';
+export { CopyButton } from './CopyButton';
 export { ErrorBanner } from './ErrorBanner';
 export { Icon } from './Icon';
 export type { IconProps, IconSize } from './Icon';

@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { useCopyToClipboard, usePersistedState } from '../hooks';
-import { AppContainer, Slider, Checkbox, Button } from '../components/ui';
+import { usePersistedState } from '../hooks';
+import { AppContainer, Slider, Checkbox, Button, CopyButton } from '../components/ui';
 
 interface PasswordSettings {
     length: number;
@@ -19,7 +19,6 @@ export const PasswordGenerator = () => {
         symbols: true,
     });
     const [password, setPassword] = useState('');
-    const { copy, copied } = useCopyToClipboard();
 
     const { length, uppercase, lowercase, numbers, symbols } = settings;
 
@@ -41,11 +40,6 @@ export const PasswordGenerator = () => {
         }
         setPassword(result);
     }, [length, uppercase, lowercase, numbers, symbols]);
-
-    const handleCopy = async () => {
-        if (!password || password === 'Select at least one option') return;
-        await copy(password);
-    };
 
     const getStrength = () => {
         if (!password || password === 'Select at least one option') return { label: '', color: '', width: '0%' };
@@ -78,9 +72,11 @@ export const PasswordGenerator = () => {
                         placeholder="Click Generate"
                         className="flex-1 bg-transparent text-white text-lg font-mono focus:outline-none"
                     />
-                    <Button onClick={handleCopy} variant={copied ? 'primary' : 'secondary'} size="sm">
-                        {copied ? 'Copied!' : 'Copy'}
-                    </Button>
+                    <CopyButton
+                        value={password}
+                        disabled={!password || password === 'Select at least one option'}
+                        size="sm"
+                    />
                 </div>
                 {password && password !== 'Select at least one option' && (
                     <div className="mt-3">

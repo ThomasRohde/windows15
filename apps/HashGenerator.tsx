@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useCopyToClipboard, useAsyncAction } from '../hooks';
-import { SectionLabel } from '../components/ui';
+import { useAsyncAction } from '../hooks';
+import { SectionLabel, CopyButton } from '../components/ui';
 
 const md5 = (str: string): string => {
     const rotateLeft = (x: number, n: number) => (x << n) | (x >>> (32 - n));
@@ -173,7 +173,6 @@ interface HashResult {
 export const HashGenerator = () => {
     const [input, setInput] = useState('');
     const [hashes, setHashes] = useState<HashResult[]>([]);
-    const { copy, isCopied } = useCopyToClipboard();
     const { execute, loading } = useAsyncAction();
 
     const generateHashes = async () => {
@@ -191,10 +190,6 @@ export const HashGenerator = () => {
                 { name: 'SHA-256', value: sha256Hash, length: 64 },
             ]);
         });
-    };
-
-    const handleCopy = (hash: HashResult) => {
-        copy(hash.value, hash.name);
     };
 
     const clear = () => {
@@ -246,12 +241,12 @@ export const HashGenerator = () => {
                                     <span className="font-medium text-white">{hash.name}</span>
                                     <div className="flex items-center gap-2">
                                         <span className="text-xs text-gray-500">{hash.length} chars</span>
-                                        <button
-                                            onClick={() => handleCopy(hash)}
-                                            className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-xs transition-colors"
-                                        >
-                                            {isCopied(hash.name) ? '✓ Copied!' : '📋 Copy'}
-                                        </button>
+                                        <CopyButton
+                                            value={hash.value}
+                                            label={hash.name}
+                                            size="sm"
+                                            className="!text-xs !px-2 !py-1"
+                                        />
                                     </div>
                                 </div>
                                 <div className="font-mono text-sm text-green-400 break-all bg-black/30 rounded p-2">

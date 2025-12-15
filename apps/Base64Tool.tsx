@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { useCopyToClipboard, useAsyncAction } from '../hooks';
-import { TabSwitcher, ErrorBanner, SectionLabel } from '../components/ui';
+import { useAsyncAction } from '../hooks';
+import { TabSwitcher, ErrorBanner, SectionLabel, CopyButton } from '../components/ui';
 
 export const Base64Tool = () => {
     const [input, setInput] = useState('');
     const [output, setOutput] = useState('');
     const [mode, setMode] = useState<'encode' | 'decode'>('encode');
-    const { copy, copied } = useCopyToClipboard();
     const { execute, error, clearError } = useAsyncAction();
 
     const encode = async () => {
@@ -29,15 +28,6 @@ export const Base64Tool = () => {
         } else {
             await decode();
         }
-    };
-
-    const handleCopy = async () => {
-        await execute(async () => {
-            const ok = await copy(output);
-            if (!ok) {
-                throw new Error('Failed to copy to clipboard');
-            }
-        });
     };
 
     const swap = () => {
@@ -116,14 +106,7 @@ export const Base64Tool = () => {
                         </SectionLabel>
                         <div className="flex items-center gap-2">
                             <span className="text-xs text-gray-500">{output.length} characters</span>
-                            {output && (
-                                <button
-                                    onClick={handleCopy}
-                                    className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-xs transition-colors"
-                                >
-                                    {copied ? '✓ Copied!' : '📋 Copy'}
-                                </button>
-                            )}
+                            {output && <CopyButton value={output} size="sm" className="!text-xs !px-2 !py-1" />}
                         </div>
                     </div>
                     <textarea

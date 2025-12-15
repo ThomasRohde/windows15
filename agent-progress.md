@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: Session Ended
+## Current Status: In Progress
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -799,6 +799,34 @@ klondike feature list  # List all features
 #### Recommended Next Steps
 
 1. Continue with F117 (Implement useHotkeys in apps) or F114 (Extract shared Checkbox component)
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 27 - 2025-12-15
+
+**Agent**: Coding Agent
+**Duration**: (in progress)
+**Focus**: F117 - Implement useHotkeys in apps that display keyboard shortcuts but lack functionality
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- Session started
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Continue implementation
 
 #### Technical Notes
 

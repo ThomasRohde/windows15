@@ -3215,13 +3215,13 @@
         "Seed function only called once when data is empty"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-15T17:14:54.098916",
       "notes": "Implementation: Create hooks/useSeededCollection.ts that wraps usePersistedState with internal ref tracking for initialization. The pattern appears in Calendar.tsx L116-140 and Mail.tsx L111-140 - both use hasInitializedRef to prevent double-seeding. Edge cases: Handle race conditions if component unmounts during async seed, handle corrupted data that isn't an array. Dependencies: usePersistedState hook, storageService. Context: Reduces ~60 lines of duplicated boilerplate and eliminates subtle ref-tracking bugs. Gotchas: Must handle the isLoading state correctly to avoid flash of empty content."
     },
     {

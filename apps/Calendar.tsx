@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { STORAGE_KEYS, storageService, useDexieLiveQuery } from '../utils/storage';
+import React, { useEffect, useMemo, useState } from 'react';
+import { STORAGE_KEYS } from '../utils/storage';
 import { SkeletonCalendar } from '../components/LoadingSkeleton';
 import { useLocalization } from '../context';
 import { generateUuid } from '../utils/uuid';
 import { Checkbox } from '../components/ui';
 import { required, validateValue } from '../utils/validation';
+import { useSeededCollection } from '../hooks';
 
 type CalendarEvent = {
     id: string;
@@ -113,34 +114,11 @@ const normalizeInitialDate = (value?: string) => {
 
 export const Calendar = ({ initialDate }: { initialDate?: string }) => {
     const { formatTimeShortFromHm } = useLocalization();
-    const { value: persistedEvents, isLoading: isLoadingEvents } = useDexieLiveQuery(
-        () => storageService.get<CalendarEvent[]>(STORAGE_KEYS.calendarEvents),
-        [STORAGE_KEYS.calendarEvents],
-        null // Initial value to distinguish loading from "no data"
-    );
-    const hasInitializedRef = useRef(false);
-
-    // Initialize events on first load only, then stay reactive to persistedEvents
-    const events = useMemo(() => {
-        if (isLoadingEvents) {
-            // During loading, return empty array or previously loaded events
-            return hasInitializedRef.current && Array.isArray(persistedEvents) ? persistedEvents : [];
-        }
-
-        if (!hasInitializedRef.current) {
-            hasInitializedRef.current = true;
-
-            // Initialize with seed data if no persisted events
-            if (!Array.isArray(persistedEvents)) {
-                const seeded = seedEvents();
-                storageService.set(STORAGE_KEYS.calendarEvents, seeded).catch(() => undefined);
-                return seeded;
-            }
-        }
-
-        // Return persisted events (reactive to changes)
-        return Array.isArray(persistedEvents) ? persistedEvents : [];
-    }, [isLoadingEvents, persistedEvents]);
+    const {
+        items: events,
+        setItems: setEvents,
+        isLoading: isLoadingEvents,
+    } = useSeededCollection(STORAGE_KEYS.calendarEvents, seedEvents);
 
     const [monthCursor, setMonthCursor] = useState(() => {
         const start = normalizeInitialDate(initialDate) ?? toYmd(new Date());
@@ -242,22 +220,22 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
             notes: draft.notes,
         };
 
-        // Update storage directly - useDexieLiveQuery will trigger UI update
+        // Update using setEvents from useSeededCollection
         const idx = events.findIndex(event => event.id === normalized.id);
         const updatedEvents =
             idx === -1
                 ? [...events, normalized].sort((a, b) => eventStartDate(a).getTime() - eventStartDate(b).getTime())
                 : events.map(event => (event.id === normalized.id ? normalized : event));
 
-        await storageService.set(STORAGE_KEYS.calendarEvents, updatedEvents);
+        setEvents(updatedEvents);
         setSelectedDate(normalized.date);
         closeDraft();
     };
 
     const deleteEvent = async (id: string) => {
-        // Update storage directly - useDexieLiveQuery will trigger UI update
+        // Update using setEvents from useSeededCollection
         const updatedEvents = events.filter(event => event.id !== id);
-        await storageService.set(STORAGE_KEYS.calendarEvents, updatedEvents);
+        setEvents(updatedEvents);
         closeDraft();
     };
 

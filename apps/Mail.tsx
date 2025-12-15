@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { STORAGE_KEYS, storageService, useDexieLiveQuery } from '../utils/storage';
+import React, { useEffect, useMemo, useState } from 'react';
+import { STORAGE_KEYS } from '../utils/storage';
+import { useSeededCollection } from '../hooks';
 import { generateUuid } from '../utils/uuid';
 import { SearchInput } from '../components/ui';
 import { email as emailValidator, validateValue } from '../utils/validation';
@@ -107,38 +108,13 @@ const MAILBOX_LABELS: Record<MailboxId, string> = {
 };
 
 export const Mail = () => {
-    const { value: persistedMessages, isLoading: isLoadingMessages } = useDexieLiveQuery(
-        () => storageService.get<MailMessage[]>(STORAGE_KEYS.mailMessages),
-        [STORAGE_KEYS.mailMessages]
-    );
-    const didInitFromStorageRef = useRef(false);
-    const [messages, setMessages] = useState<MailMessage[]>([]);
+    const { items: messages, setItems: setMessages } = useSeededCollection(STORAGE_KEYS.mailMessages, seedMessages);
 
     const [activeMailbox, setActiveMailbox] = useState<MailboxId>('inbox');
     const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [compose, setCompose] = useState<ComposeState | null>(null);
     const [composeError, setComposeError] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (isLoadingMessages) return;
-        if (didInitFromStorageRef.current) return;
-        didInitFromStorageRef.current = true;
-
-        if (Array.isArray(persistedMessages)) {
-            setMessages(persistedMessages);
-            return;
-        }
-
-        const seeded = seedMessages();
-        setMessages(seeded);
-        storageService.set(STORAGE_KEYS.mailMessages, seeded).catch(() => undefined);
-    }, [isLoadingMessages, persistedMessages]);
-
-    useEffect(() => {
-        if (!didInitFromStorageRef.current) return;
-        storageService.set(STORAGE_KEYS.mailMessages, messages).catch(() => undefined);
-    }, [messages]);
 
     const mailboxCounts = useMemo(() => {
         const counts: Record<MailboxId, { total: number; unread: number }> = {

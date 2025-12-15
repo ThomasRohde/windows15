@@ -29,3 +29,5 @@ export type {
 export { useCopyToClipboard } from './useCopyToClipboard';
 export { useNotification } from './useNotification';
 export type { NotificationOptions, UseNotificationReturn } from './useNotification';
+export { useSeededCollection } from './useSeededCollection';
+export type { UseSeededCollectionReturn } from './useSeededCollection';

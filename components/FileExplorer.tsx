@@ -179,14 +179,14 @@ export const FileExplorer = () => {
     }) => (
         <button
             type="button"
-            onClick={() => {
+            onClick={e => {
+                e.stopPropagation();
                 if (path) {
                     setCurrentPath(['root', path]);
                 } else {
                     setCurrentPath(['root']);
                 }
             }}
-            onPointerDown={e => e.stopPropagation()}
             className="flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer"
         >
             <span className={`material-symbols-outlined text-[20px] ${color}`}>{icon}</span>

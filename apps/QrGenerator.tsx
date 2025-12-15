@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
+import { AppContainer } from '../components/ui';
 
 export const QrGenerator = () => {
     const [text, setText] = useState('');
@@ -107,7 +108,7 @@ export const QrGenerator = () => {
     };
 
     return (
-        <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
+        <AppContainer>
             <div className="bg-black/20 p-4 rounded-lg space-y-3">
                 <label className="text-white/70 text-sm">Enter text or URL</label>
                 <textarea
@@ -155,6 +156,6 @@ export const QrGenerator = () => {
             <div className="text-white/40 text-xs text-center">
                 Note: This generates a visual QR-like pattern. For production use, consider a proper QR library.
             </div>
-        </div>
+        </AppContainer>
     );
 };

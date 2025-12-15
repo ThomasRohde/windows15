@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useCopyToClipboard, usePersistedState } from '../hooks';
-import { Slider, Checkbox } from '../components/ui';
+import { AppContainer, Slider, Checkbox } from '../components/ui';
 
 interface PasswordSettings {
     length: number;
@@ -68,7 +68,7 @@ export const PasswordGenerator = () => {
     const strength = getStrength();
 
     return (
-        <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
+        <AppContainer>
             <div className="bg-black/30 p-4 rounded-lg">
                 <div className="flex items-center gap-2">
                     <input
@@ -147,6 +147,6 @@ export const PasswordGenerator = () => {
             >
                 Generate Password
             </button>
-        </div>
+        </AppContainer>
     );
 };

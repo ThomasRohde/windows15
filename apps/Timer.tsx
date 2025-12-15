@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TabSwitcher, Card, Button } from '../components/ui';
+import { AppContainer, TabSwitcher, Card, Button } from '../components/ui';
 
 type TimerMode = 'stopwatch' | 'countdown';
 
@@ -88,7 +88,7 @@ export const Timer = () => {
     };
 
     return (
-        <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
+        <AppContainer>
             <TabSwitcher
                 options={[
                     { value: 'stopwatch', label: 'Stopwatch' },
@@ -172,6 +172,6 @@ export const Timer = () => {
                     ))}
                 </Card>
             )}
-        </div>
+        </AppContainer>
     );
 };

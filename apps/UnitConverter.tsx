@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TabSwitcher, Card } from '../components/ui';
+import { AppContainer, TabSwitcher, Card } from '../components/ui';
 
 type Category = 'length' | 'weight' | 'temperature' | 'data';
 
@@ -98,7 +98,7 @@ export const UnitConverter = () => {
     };
 
     return (
-        <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
+        <AppContainer>
             <TabSwitcher
                 options={(Object.keys(units) as Category[]).map(cat => ({
                     value: cat,
@@ -177,6 +177,6 @@ export const UnitConverter = () => {
                     </div>
                 </div>
             </Card>
-        </div>
+        </AppContainer>
     );
 };

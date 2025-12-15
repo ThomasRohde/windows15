@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocalization } from '../context';
+import { AppContainer } from '../components/ui';
 
 interface TimeZone {
     name: string;
@@ -92,7 +93,7 @@ export const Clock = () => {
     const selectedTime = selectedTz ? getTimeForZone(selectedTz) : new Date();
 
     return (
-        <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
+        <AppContainer>
             <div className="flex gap-2 justify-center">
                 <button
                     onClick={() => setViewMode('digital')}
@@ -144,6 +145,6 @@ export const Clock = () => {
                     })}
                 </div>
             </div>
-        </div>
+        </AppContainer>
     );
 };

@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useCopyToClipboard, usePersistedState } from '../hooks';
-import { Slider } from '../components/ui';
+import { AppContainer, Slider } from '../components/ui';
 
 interface SavedColor {
     hex: string;
@@ -99,7 +99,7 @@ export const ColorPicker = () => {
     );
 
     return (
-        <div className="h-full bg-background-dark p-4 flex flex-col gap-4 overflow-y-auto">
+        <AppContainer scrollable>
             <div
                 className="h-32 rounded-xl shadow-inner flex items-center justify-center"
                 style={{ backgroundColor: hex }}
@@ -170,6 +170,6 @@ export const ColorPicker = () => {
                     </div>
                 </div>
             )}
-        </div>
+        </AppContainer>
     );
 };

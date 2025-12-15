@@ -522,18 +522,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F119",
-        "description": "Create useSeededCollection hook for persisted data with automatic seeding",
-        "status": "in-progress"
-      },
-      {
         "id": "F120",
         "description": "Create AppContainer component for standardized app layout wrapper",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F121",
         "description": "Refactor Timer.tsx to use existing useInterval hook",
+        "status": "not-started"
+      },
+      {
+        "id": "F122",
+        "description": "Create ensureArray utility for type-safe array coercion",
         "status": "not-started"
       }
     ]

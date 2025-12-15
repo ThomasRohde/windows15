@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocalization } from '../context';
 import { formatSpeed, formatTemperature } from '../utils/localization';
 import { useNotification, useAsyncAction } from '../hooks';
+import { AppContainer } from '../components/ui';
 
 interface WeatherData {
     location: string;
@@ -165,7 +166,7 @@ export const Weather = () => {
     const wind = formatSpeed(weather.windSpeed, unitSystem);
 
     return (
-        <div className="h-full bg-background-dark p-4 flex flex-col gap-4 overflow-y-auto">
+        <AppContainer scrollable>
             <div className="bg-black/20 rounded-xl p-6 flex flex-col items-center">
                 <div className="text-white/60 text-lg">{locationName}</div>
                 <span className="material-symbols-outlined text-7xl text-orange-400 my-4">{weather.icon}</span>
@@ -220,6 +221,6 @@ export const Weather = () => {
                     ))}
                 </div>
             </div>
-        </div>
+        </AppContainer>
     );
 };

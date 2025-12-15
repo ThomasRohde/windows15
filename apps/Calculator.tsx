@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNotification, useCopyToClipboard } from '../hooks';
+import { AppContainer } from '../components/ui';
 
 type Operator = '+' | '-' | '*' | '/' | null;
 
@@ -168,7 +169,7 @@ export const Calculator = () => {
     );
 
     return (
-        <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
+        <AppContainer>
             <div className="flex-1 bg-black/20 rounded-xl p-4 flex flex-col gap-2">
                 <div className="flex items-center justify-end gap-2">
                     <button
@@ -205,6 +206,6 @@ export const Calculator = () => {
                 <Btn v="." />
                 <Btn v="=" op />
             </div>
-        </div>
+        </AppContainer>
     );
 };

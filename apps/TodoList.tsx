@@ -18,7 +18,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useDb, useDexieLiveQuery } from '../utils/storage';
 import { generateUuid } from '../utils/uuid';
-import { ErrorBanner, ConfirmDialog, Button, Checkbox, SearchInput } from '../components/ui';
+import { AppContainer, ErrorBanner, ConfirmDialog, Button, Checkbox, SearchInput } from '../components/ui';
 import { useAsyncAction } from '../hooks';
 import { required, maxLength, validateValue } from '../utils/validation';
 
@@ -354,7 +354,7 @@ export const TodoList = () => {
     };
 
     return (
-        <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
+        <AppContainer>
             <ConfirmDialog
                 open={showConfirmation !== null}
                 title={showConfirmation === 'clear' ? 'Clear Completed Tasks?' : 'Delete All Tasks?'}
@@ -669,6 +669,6 @@ export const TodoList = () => {
             <div className="text-white/50 text-sm">
                 {activeCount} task{activeCount !== 1 ? 's' : ''} remaining
             </div>
-        </div>
+        </AppContainer>
     );
 };

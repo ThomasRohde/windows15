@@ -3,6 +3,8 @@
  * @module components/ui
  */
 
+export { AppContainer } from './AppContainer';
+export type { AppContainerProps } from './AppContainer';
 export { AppSidebar } from './AppSidebar';
 export type { SidebarItem } from './AppSidebar';
 export { Button } from './Button';

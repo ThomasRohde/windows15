@@ -3215,11 +3215,14 @@
         "Seed function only called once when data is empty"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-15T17:17:53.352096",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Created useSeededCollection hook",
+        "refactored Calendar.tsx and Mail.tsx. Tests pass. Eliminates 60+ lines of boilerplate initialization code."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-15T17:14:54.098916",
       "notes": "Implementation: Create hooks/useSeededCollection.ts that wraps usePersistedState with internal ref tracking for initialization. The pattern appears in Calendar.tsx L116-140 and Mail.tsx L111-140 - both use hasInitializedRef to prevent double-seeding. Edge cases: Handle race conditions if component unmounts during async seed, handle corrupted data that isn't an array. Dependencies: usePersistedState hook, storageService. Context: Reduces ~60 lines of duplicated boilerplate and eliminates subtle ref-tracking bugs. Gotchas: Must handle the isLoading state correctly to avoid flash of empty content."
@@ -3238,13 +3241,13 @@
         "At least 10 apps refactored to use AppContainer"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-15T17:17:58.439110",
       "notes": "Implementation: Create components/ui/AppContainer.tsx with configurable padding (p-4 default), gap (gap-2/gap-4/gap-6), and scrollable options. Pattern found in 20+ apps using identical className='h-full bg-background-dark p-4 flex flex-col gap-4'. Edge cases: Some apps need custom backgrounds or no padding - make all props optional with sensible defaults. Dependencies: cn utility from utils/cn.ts. Context: Single source of truth for app layouts ensures visual consistency and makes global styling changes easier. Gotchas: Don't break existing apps - ensure default props match current styling exactly."
     },
     {
@@ -3445,8 +3448,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-15T16:47:49.019470",
+    "lastUpdated": "2025-12-15T17:17:53.352117",
     "totalFeatures": 128,
-    "passingFeatures": 118
+    "passingFeatures": 119
   }
 }

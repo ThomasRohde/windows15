@@ -1,124 +1,43 @@
 import React, { useState } from 'react';
 import { useOS } from '../context/OSContext';
 import { WALLPAPERS } from '../utils/constants';
+import { AppSidebar, type SidebarItem } from '../components/ui';
 import { SyncSettings } from './settings/SyncSettings';
 import { LocalizationSettings } from './settings/LocalizationSettings';
 import { ScreensaverSettings } from './settings/ScreensaverSettings';
 import { WindowSpaceSettings } from './settings/WindowSpaceSettings';
 import { ProfileSettings } from './settings/ProfileSettings';
 
+type SettingsSection =
+    | 'account'
+    | 'personalization'
+    | 'localization'
+    | 'sync'
+    | 'network'
+    | 'apps'
+    | 'screensaver'
+    | '3dmode';
+
+const sidebarItems: SidebarItem<SettingsSection>[] = [
+    { id: 'account', label: 'Account', icon: 'person' },
+    { id: 'personalization', label: 'Personalization', icon: 'wallpaper' },
+    { id: 'sync', label: 'Sync', icon: 'sync' },
+    { id: 'localization', label: 'Time & language', icon: 'language' },
+    { id: 'network', label: 'Network', icon: 'wifi' },
+    { id: 'apps', label: 'Apps', icon: 'apps' },
+    { id: 'screensaver', label: 'Screensaver', icon: 'screenshot_monitor' },
+    { id: '3dmode', label: '3D Window Space', icon: 'view_in_ar' },
+];
+
 export const Settings = () => {
     const { activeWallpaper, setWallpaper } = useOS();
-    const [activeSection, setActiveSection] = useState<
-        'account' | 'personalization' | 'localization' | 'sync' | 'network' | 'apps' | 'screensaver' | '3dmode'
-    >('account');
+    const [activeSection, setActiveSection] = useState<SettingsSection>('account');
 
     return (
         <div className="h-full bg-background-dark text-white flex">
             {/* Sidebar */}
-            <div className="w-60 bg-black/20 p-4 border-r border-white/5 hidden md:block">
-                <h2 className="text-xl font-semibold mb-6 px-2">Settings</h2>
-                <div className="flex flex-col gap-1">
-                    <button
-                        type="button"
-                        onClick={() => setActiveSection('account')}
-                        className={`p-2 rounded flex items-center gap-3 text-left ${activeSection === 'account' ? 'bg-white/10' : 'hover:bg-white/5 text-white/70'}`}
-                    >
-                        <span
-                            className={`material-symbols-outlined ${activeSection === 'account' ? 'text-primary' : ''}`}
-                        >
-                            person
-                        </span>
-                        <span className="text-sm font-medium">Account</span>
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => setActiveSection('personalization')}
-                        className={`p-2 rounded flex items-center gap-3 text-left ${activeSection === 'personalization' ? 'bg-white/10' : 'hover:bg-white/5 text-white/70'}`}
-                    >
-                        <span
-                            className={`material-symbols-outlined ${activeSection === 'personalization' ? 'text-primary' : ''}`}
-                        >
-                            wallpaper
-                        </span>
-                        <span className="text-sm font-medium">Personalization</span>
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => setActiveSection('sync')}
-                        className={`p-2 rounded flex items-center gap-3 text-left ${activeSection === 'sync' ? 'bg-white/10' : 'hover:bg-white/5 text-white/70'}`}
-                    >
-                        <span className={`material-symbols-outlined ${activeSection === 'sync' ? 'text-primary' : ''}`}>
-                            sync
-                        </span>
-                        <span className="text-sm font-medium">Sync</span>
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => setActiveSection('localization')}
-                        className={`p-2 rounded flex items-center gap-3 text-left ${activeSection === 'localization' ? 'bg-white/10' : 'hover:bg-white/5 text-white/70'}`}
-                    >
-                        <span
-                            className={`material-symbols-outlined ${activeSection === 'localization' ? 'text-primary' : ''}`}
-                        >
-                            language
-                        </span>
-                        <span className="text-sm font-medium">Time &amp; language</span>
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => setActiveSection('network')}
-                        className={`p-2 rounded flex items-center gap-3 text-left ${activeSection === 'network' ? 'bg-white/10' : 'hover:bg-white/5 text-white/70'}`}
-                    >
-                        <span
-                            className={`material-symbols-outlined ${activeSection === 'network' ? 'text-primary' : ''}`}
-                        >
-                            wifi
-                        </span>
-                        <span className="text-sm font-medium">Network</span>
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => setActiveSection('apps')}
-                        className={`p-2 rounded flex items-center gap-3 text-left ${activeSection === 'apps' ? 'bg-white/10' : 'hover:bg-white/5 text-white/70'}`}
-                    >
-                        <span className={`material-symbols-outlined ${activeSection === 'apps' ? 'text-primary' : ''}`}>
-                            apps
-                        </span>
-                        <span className="text-sm font-medium">Apps</span>
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => setActiveSection('screensaver')}
-                        className={`p-2 rounded flex items-center gap-3 text-left ${activeSection === 'screensaver' ? 'bg-white/10' : 'hover:bg-white/5 text-white/70'}`}
-                    >
-                        <span
-                            className={`material-symbols-outlined ${activeSection === 'screensaver' ? 'text-primary' : ''}`}
-                        >
-                            screenshot_monitor
-                        </span>
-                        <span className="text-sm font-medium">Screensaver</span>
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => setActiveSection('3dmode')}
-                        className={`p-2 rounded flex items-center gap-3 text-left ${activeSection === '3dmode' ? 'bg-white/10' : 'hover:bg-white/5 text-white/70'}`}
-                    >
-                        <span
-                            className={`material-symbols-outlined ${activeSection === '3dmode' ? 'text-primary' : ''}`}
-                        >
-                            view_in_ar
-                        </span>
-                        <span className="text-sm font-medium">3D Window Space</span>
-                    </button>
-                </div>
+            <div className="hidden md:block">
+                <AppSidebar title="Settings" items={sidebarItems} active={activeSection} onChange={setActiveSection} />
             </div>
 
             {/* Content */}

@@ -18,6 +18,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useDb, useDexieLiveQuery } from '../utils/storage';
 import { generateUuid } from '../utils/uuid';
+import { ErrorBanner, ConfirmDialog, Button } from '../components/ui';
 
 type Filter = 'all' | 'active' | 'completed';
 type Priority = 'low' | 'medium' | 'high';
@@ -385,47 +386,28 @@ export const TodoList = () => {
 
     return (
         <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
-            {showConfirmation && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-[#2d2d2d] border border-white/20 rounded-lg p-6 max-w-md mx-4">
-                        <h3 className="text-white text-lg font-semibold mb-2">
-                            {showConfirmation === 'clear' ? 'Clear Completed Tasks?' : 'Delete All Tasks?'}
-                        </h3>
-                        <p className="text-white/70 mb-4">
-                            {showConfirmation === 'clear'
-                                ? `This will permanently delete ${completedCount} completed task${completedCount !== 1 ? 's' : ''}. This action cannot be undone.`
-                                : `This will permanently delete all ${todos.length} task${todos.length !== 1 ? 's' : ''}. This action cannot be undone.`}
-                        </p>
-                        <div className="flex gap-2 justify-end">
-                            <button
-                                onClick={() => setShowConfirmation(null)}
-                                className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={showConfirmation === 'clear' ? clearCompleted : deleteAll}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-400 transition-colors"
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmDialog
+                open={showConfirmation !== null}
+                title={showConfirmation === 'clear' ? 'Clear Completed Tasks?' : 'Delete All Tasks?'}
+                message={
+                    showConfirmation === 'clear'
+                        ? `This will permanently delete ${completedCount} completed task${completedCount !== 1 ? 's' : ''}. This action cannot be undone.`
+                        : `This will permanently delete all ${todos.length} task${todos.length !== 1 ? 's' : ''}. This action cannot be undone.`
+                }
+                variant="danger"
+                confirmLabel="Delete"
+                onConfirm={() => {
+                    if (showConfirmation === 'clear') {
+                        clearCompleted();
+                    } else {
+                        deleteAll();
+                    }
+                    setShowConfirmation(null);
+                }}
+                onCancel={() => setShowConfirmation(null)}
+            />
 
-            {error && (
-                <div className="bg-red-500/20 border border-red-500/50 text-red-300 px-4 py-2 rounded-lg flex items-center justify-between">
-                    <span>{error}</span>
-                    <button
-                        onClick={() => setError(null)}
-                        className="text-red-300 hover:text-red-100 ml-2"
-                        aria-label="Dismiss error"
-                    >
-                        ✕
-                    </button>
-                </div>
-            )}
+            {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
 
             <div className="space-y-2">
                 <div className="flex gap-2">
@@ -439,13 +421,9 @@ export const TodoList = () => {
                         maxLength={500}
                         className="flex-1 bg-black/30 text-white px-4 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     />
-                    <button
-                        onClick={addTodo}
-                        disabled={isSubmitting}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-500"
-                    >
-                        {isSubmitting ? 'Adding...' : 'Add'}
-                    </button>
+                    <Button onClick={addTodo} disabled={isSubmitting} loading={isSubmitting} variant="secondary">
+                        Add
+                    </Button>
                 </div>
 
                 <div className="flex gap-2 flex-wrap items-center">

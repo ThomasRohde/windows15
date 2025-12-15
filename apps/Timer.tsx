@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TabSwitcher, Card } from '../components/ui';
+import { TabSwitcher, Card, Button } from '../components/ui';
 
 type TimerMode = 'stopwatch' | 'countdown';
 
@@ -86,36 +86,6 @@ export const Timer = () => {
         setMode(newMode);
     };
 
-    const Btn = ({
-        label,
-        onClick,
-        variant = 'default',
-    }: {
-        label: string;
-        onClick: () => void;
-        variant?: 'default' | 'primary' | 'danger';
-    }) => (
-        <button
-            type="button"
-            onPointerDown={e => e.stopPropagation()}
-            onPointerUp={e => {
-                e.stopPropagation();
-                onClick();
-            }}
-            onClick={e => {
-                e.stopPropagation();
-                if (e.detail === 0) onClick();
-            }}
-            className={`px-6 py-3 rounded-lg text-lg font-medium transition-all active:scale-95
-                ${variant === 'primary' ? 'bg-green-500 text-white hover:bg-green-400' : ''}
-                ${variant === 'danger' ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30' : ''}
-                ${variant === 'default' ? 'bg-white/10 text-white hover:bg-white/20' : ''}
-            `}
-        >
-            {label}
-        </button>
-    );
-
     return (
         <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
             <TabSwitcher
@@ -182,12 +152,12 @@ export const Timer = () => {
 
             <div className="flex gap-2 justify-center">
                 {!isRunning ? (
-                    <Btn label="Start" onClick={handleStart} variant="primary" />
+                    <Button label="Start" onClick={handleStart} variant="primary" size="lg" />
                 ) : (
-                    <Btn label="Stop" onClick={handleStop} variant="danger" />
+                    <Button label="Stop" onClick={handleStop} variant="danger" size="lg" />
                 )}
-                <Btn label="Reset" onClick={handleReset} />
-                {mode === 'stopwatch' && <Btn label="Lap" onClick={handleLap} />}
+                <Button label="Reset" onClick={handleReset} size="lg" />
+                {mode === 'stopwatch' && <Button label="Lap" onClick={handleLap} size="lg" />}
             </div>
 
             {laps.length > 0 && (

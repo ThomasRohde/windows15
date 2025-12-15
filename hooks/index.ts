@@ -2,10 +2,13 @@
  * Custom React hooks for Windows15
  */
 
+export { useAsyncAction } from './useAsyncAction';
+export type { UseAsyncActionResult, UseAsyncActionOptions } from './useAsyncAction';
 export { useDebounce } from './useDebounce';
 export { useAppEvent, useAppEmit, useEventBus } from './useEventBus';
 export { useHotkey, useHotkeys, getShortcutLabel } from './useHotkeys';
 export type { UseHotkeysOptions } from './useHotkeys';
+export { useInterval, useControllableInterval } from './useInterval';
 export { useLocalStorage } from './useLocalStorage';
 export { useWindowDrag } from './useWindowDrag';
 export type { Position, UseWindowDragOptions, UseWindowDragResult } from './useWindowDrag';

@@ -3,9 +3,15 @@
  * @module components/ui
  */
 
-export { Card } from './Card';
-export { TabSwitcher } from './TabSwitcher';
-export type { TabOption } from './TabSwitcher';
 export { AppSidebar } from './AppSidebar';
 export type { SidebarItem } from './AppSidebar';
+export { Button } from './Button';
+export type { ButtonProps, ButtonVariant, ButtonSize } from './Button';
+export { Card } from './Card';
+export { ConfirmDialog, useConfirmDialog } from './ConfirmDialog';
+export type { ConfirmDialogProps } from './ConfirmDialog';
 export { ErrorBanner } from './ErrorBanner';
+export { LoadingState, LoadingWrapper } from './LoadingState';
+export type { LoadingStateProps, LoadingVariant } from './LoadingState';
+export { TabSwitcher } from './TabSwitcher';
+export type { TabOption } from './TabSwitcher';

@@ -10,6 +10,7 @@ import {
 import { FileSystemItem } from '../types';
 import { ContextMenu } from '../components/ContextMenu';
 import { useContextMenu } from '../hooks';
+import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog';
 
 export const RecycleBin = () => {
     const [items, setItems] = useState<FileSystemItem[]>([]);
@@ -23,6 +24,8 @@ export const RecycleBin = () => {
         menuProps,
         menuRef,
     } = useContextMenu<FileSystemItem>();
+
+    const { confirm, dialogProps } = useConfirmDialog();
 
     const loadItems = useCallback(async () => {
         try {
@@ -50,10 +53,14 @@ export const RecycleBin = () => {
     };
 
     const handlePermanentDelete = async (item: FileSystemItem) => {
-        const confirmDelete = window.confirm(
-            `Are you sure you want to permanently delete "${item.name}"? This cannot be undone.`
-        );
-        if (!confirmDelete) return;
+        const confirmed = await confirm({
+            title: 'Permanently Delete',
+            message: `Are you sure you want to permanently delete "${item.name}"? This cannot be undone.`,
+            variant: 'danger',
+            confirmLabel: 'Delete',
+            cancelLabel: 'Cancel',
+        });
+        if (!confirmed) return;
 
         await permanentlyDelete(item.id);
         setSelectedItem(null);
@@ -63,10 +70,14 @@ export const RecycleBin = () => {
     const handleEmptyRecycleBin = async () => {
         if (items.length === 0) return;
 
-        const confirmEmpty = window.confirm(
-            'Are you sure you want to permanently delete all items in the Recycle Bin? This cannot be undone.'
-        );
-        if (!confirmEmpty) return;
+        const confirmed = await confirm({
+            title: 'Empty Recycle Bin',
+            message: 'Are you sure you want to permanently delete all items in the Recycle Bin? This cannot be undone.',
+            variant: 'danger',
+            confirmLabel: 'Empty Recycle Bin',
+            cancelLabel: 'Cancel',
+        });
+        if (!confirmed) return;
 
         await emptyRecycleBin();
     };
@@ -215,6 +226,9 @@ export const RecycleBin = () => {
                     </ContextMenu.Item>
                 </ContextMenu>
             )}
+
+            {/* Confirm Dialog */}
+            <ConfirmDialog {...dialogProps} />
         </div>
     );
 };

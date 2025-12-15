@@ -2911,13 +2911,13 @@
         "Dialog supports customizable title and message and confirm/cancel button text"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-15T12:31:18.876852",
       "notes": "Implementation: Create hook that manages ConfirmDialog state and returns async confirm() function. Use React portal for rendering. Pattern: const { confirm, ConfirmDialogPortal } = useConfirmDialog(); if (await confirm({title, message})) { doAction(); }. Edge cases: Handle rapid successive calls (queue or reject), cleanup on unmount. Dependencies: Existing ConfirmDialog component in components/ui/. Apps to migrate: Notepad, RecycleBin, Timer, Calendar, TodoList, Browser, WallpaperStudio, Mail. Gotchas: Must handle focus management and keyboard accessibility (Escape to cancel, Enter to confirm)."
     },
     {

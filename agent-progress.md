@@ -30,7 +30,7 @@ klondike feature list  # List all features
 
 | ID   | Description                                                                                         | Status         |
 | ---- | --------------------------------------------------------------------------------------------------- | -------------- |
-| F109 | Create useConfirmDialog hook to replace native window.confirm() with styled ConfirmDialog component | ⏳ Not started |
+| F109 | Create useConfirmDialog hook to replace native window.confirm() with styled ConfirmDialog component | 🔄 In progress |
 | F110 | Create useNotification hook for consistent toast notifications across all apps                      | ⏳ Not started |
 | F111 | Migrate apps from duplicated error/loading state to useAsyncAction hook                             | ⏳ Not started |
 

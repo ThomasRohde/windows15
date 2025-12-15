@@ -3130,13 +3130,13 @@
         "No conflicts between app-level and OS-level shortcuts"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-15T16:02:38.741028",
       "notes": "Implementation: useHotkeys hook exists and works well. Some apps display keyboard shortcuts in menus/tooltips but don't implement them. Audit: Check Notepad menu bar shortcuts, Settings app shortcuts, FileExplorer shortcuts. Pattern: useHotkeys({'ctrl+s': handleSave, 'ctrl+n': handleNew}). Edge cases: Prevent shortcuts when in text input unless appropriate (Ctrl+S should still work), handle modifier key variations (Ctrl vs Cmd on Mac). Dependencies: hooks/useHotkeys.ts already exists and works. Gotchas: Ensure shortcuts don't interfere with browser defaults (Ctrl+D, Ctrl+P), use scope parameter to limit to focused windows."
     },
     {

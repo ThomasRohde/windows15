@@ -30,7 +30,7 @@ klondike feature list  # List all features
 
 | ID   | Description                                                                          | Status         |
 | ---- | ------------------------------------------------------------------------------------ | -------------- |
-| F117 | Implement useHotkeys in apps that display keyboard shortcuts but lack functionality  | ⏳ Not started |
+| F117 | Implement useHotkeys in apps that display keyboard shortcuts but lack functionality  | 🔄 In progress |
 | F114 | Extract shared Checkbox component for consistent form controls                       | ⏳ Not started |
 | F115 | Add paste functionality to useCopyToClipboard hook for complete clipboard management | ⏳ Not started |
 

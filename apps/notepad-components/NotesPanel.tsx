@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDb, useDexieLiveQuery } from '../../utils/storage';
+import { ensureArray } from '../../utils';
 import { NotesList } from './NotesList';
 import { NoteEditor } from './NoteEditor';
 import { NoteDraft, NoteRecord } from './types';
@@ -15,7 +16,7 @@ export const NotesPanel: React.FC = () => {
         () => db.notes.orderBy('updatedAt').reverse().toArray(),
         [db]
     );
-    const notes = useMemo(() => (Array.isArray(notesRaw) ? (notesRaw as NoteRecord[]) : []), [notesRaw]);
+    const notes = useMemo(() => ensureArray(notesRaw as NoteRecord[] | null), [notesRaw]);
 
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [draft, setDraft] = useState<NoteDraft>({ title: '', content: '' });

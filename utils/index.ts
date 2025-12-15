@@ -18,6 +18,9 @@ export * from './fileSystem';
 // Clipboard utilities
 export * from './clipboard';
 
+// Array utilities
+export { ensureArray } from './ensureArray';
+
 // Storage (re-export from storage/index.ts)
 export * from './storage';
 

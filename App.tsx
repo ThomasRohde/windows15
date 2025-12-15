@@ -21,6 +21,7 @@ import { useDexieLiveQuery } from './utils/storage/react';
 import { DesktopIconRecord } from './utils/storage/db';
 import { APP_REGISTRY } from './apps';
 import { useHotkeys, useContextMenu, useNotification } from './hooks';
+import { ensureArray } from './utils';
 
 const Desktop = () => {
     const {
@@ -52,7 +53,7 @@ const Desktop = () => {
         () => db.desktopIcons.orderBy('order').toArray(),
         [db]
     );
-    const icons = Array.isArray(iconsRaw) ? iconsRaw : [];
+    const icons = ensureArray(iconsRaw);
 
     // Initialize default icons if none exist
     useEffect(() => {

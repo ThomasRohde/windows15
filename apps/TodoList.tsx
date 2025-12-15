@@ -17,7 +17,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useDb, useDexieLiveQuery } from '../utils/storage';
-import { generateUuid } from '../utils/uuid';
+import { generateUuid, ensureArray } from '../utils';
 import { AppContainer, ErrorBanner, ConfirmDialog, Button, Checkbox, SearchInput } from '../components/ui';
 import { useAsyncAction } from '../hooks';
 import { required, maxLength, validateValue } from '../utils/validation';
@@ -68,7 +68,7 @@ export const TodoList = () => {
         () => db.todos.orderBy('createdAt').toArray(),
         [db]
     );
-    const todos = useMemo(() => (Array.isArray(todosRaw) ? todosRaw : []), [todosRaw]);
+    const todos = useMemo(() => ensureArray(todosRaw), [todosRaw]);
 
     const [input, setInput] = useState('');
     const [filter, setFilter] = useState<Filter>('all');

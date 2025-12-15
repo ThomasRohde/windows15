@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDb, useDexieLiveQuery } from '../utils/storage';
-import { generateUuid } from '../utils/uuid';
+import { generateUuid, ensureArray } from '../utils';
 import { useConfirmDialog, ConfirmDialog, SearchInput } from '../components/ui';
 import { usePersistedState } from '../hooks';
 import { url as urlValidator, validateValue } from '../utils/validation';
@@ -119,7 +119,7 @@ export const Browser = () => {
         () => db.bookmarks.orderBy('updatedAt').reverse().toArray(),
         [db]
     );
-    const bookmarks = useMemo(() => (Array.isArray(bookmarksRaw) ? bookmarksRaw : []), [bookmarksRaw]);
+    const bookmarks = useMemo(() => ensureArray(bookmarksRaw), [bookmarksRaw]);
     const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
     const [bookmarkDraft, setBookmarkDraft] = useState<BookmarkDraft | null>(null);
     const [bookmarkSearch, setBookmarkSearch] = useState('');

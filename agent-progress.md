@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                                      | Status         |
 | ---- | ---------------------------------------------------------------- | -------------- |
-| F121 | Refactor Timer.tsx to use existing useInterval hook              | 🔄 In progress |
-| F122 | Create ensureArray utility for type-safe array coercion          | ⏳ Not started |
+| F122 | Create ensureArray utility for type-safe array coercion          | 🔄 In progress |
 | F128 | Standardize loading states using existing LoadingState component | ⏳ Not started |
+| F123 | Create Icon component for consistent Material Symbols rendering  | ⏳ Not started |
 
 ---
 

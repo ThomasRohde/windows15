@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocalization, useOS, useWindowSpace } from '../context';
 import { STORAGE_KEYS, storageService, useDexieLiveQuery } from '../utils/storage';
+import { ensureArray } from '../utils';
 import { formatTemperature } from '../utils/localization';
 import { SystemStatusWidget } from './SystemStatusWidget';
 
@@ -64,10 +65,7 @@ export const Widgets: React.FC = () => {
         () => storageService.get<CalendarEvent[]>(STORAGE_KEYS.calendarEvents),
         [STORAGE_KEYS.calendarEvents]
     );
-    const calendarEvents = useMemo(
-        () => (Array.isArray(calendarEventsRaw) ? calendarEventsRaw : []),
-        [calendarEventsRaw]
-    );
+    const calendarEvents = useMemo(() => ensureArray(calendarEventsRaw), [calendarEventsRaw]);
     const [weather, setWeather] = useState<WidgetWeather>({
         temp: 22,
         high: 24,

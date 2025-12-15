@@ -28,9 +28,8 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                   | Status         |
-| ---- | ------------------------------------------------------------- | -------------- |
-| F127 | Apply existing validation utilities to Calendar and Mail apps | 🔄 In progress |
+| ID  | Description | Status |
+| --- | ----------- | ------ |
 
 ---
 

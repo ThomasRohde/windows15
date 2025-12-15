@@ -554,12 +554,6 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": [
-      {
-        "id": "F127",
-        "description": "Apply existing validation utilities to Calendar and Mail apps",
-        "status": "in-progress"
-      }
-    ]
+    "priorityFeatures": []
   }
 }

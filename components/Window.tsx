@@ -74,6 +74,10 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
     // Refs for tilt velocity calculation (F093)
     const lastPointerRef = useRef({ x: 0, y: 0, time: 0 });
     const velocityRef = useRef({ vx: 0, vy: 0 });
+    // Ref for isDragging to use in RAF callbacks without stale closure
+    const isDraggingRef = useRef(false);
+    // Ref for current tilt to use in RAF callbacks
+    const tiltRef = useRef({ rotateX: 0, rotateY: 0 });
 
     useEffect(() => {
         if (window.isMaximized) {
@@ -97,12 +101,33 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
         };
     }, []);
 
-    const applyTransform = (nextPos: { x: number; y: number }, nextSize: { width: number; height: number }) => {
+    // Build the full transform string including 3D effects
+    const buildFullTransform = (pos: { x: number; y: number }, tiltState: { rotateX: number; rotateY: number }) => {
+        const parts = [`translate3d(${pos.x}px, ${pos.y}px, 0)`];
+        // Add 3D depth transform if in 3D mode
+        if (is3DMode && !window.isMaximized) {
+            const isFocused = window.zIndex === maxZIndex;
+            const transform3D = getWindowTransform(window.zIndex, maxZIndex, isFocused);
+            if (transform3D) parts.push(transform3D);
+        }
+        // Add tilt transform when dragging in 3D mode
+        const canTilt = is3DMode && windowSpaceSettings.tiltOnDrag && !prefersReducedMotion && !window.isMaximized;
+        if (canTilt && isDraggingRef.current && (tiltState.rotateX !== 0 || tiltState.rotateY !== 0)) {
+            parts.push(`rotateX(${tiltState.rotateX}deg) rotateY(${tiltState.rotateY}deg)`);
+        }
+        return parts.join(' ');
+    };
+
+    const applyTransform = (
+        nextPos: { x: number; y: number },
+        nextSize: { width: number; height: number },
+        tiltState?: { rotateX: number; rotateY: number }
+    ) => {
         positionRef.current = nextPos;
         sizeRef.current = nextSize;
         const el = windowRef.current;
         if (el) {
-            el.style.transform = `translate3d(${nextPos.x}px, ${nextPos.y}px, 0)`;
+            el.style.transform = buildFullTransform(nextPos, tiltState ?? { rotateX: 0, rotateY: 0 });
             el.style.width = `${nextSize.width}px`;
             el.style.height = `${nextSize.height}px`;
         }
@@ -116,7 +141,7 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
             const nextSize = pendingSizeRef.current ?? sizeRef.current;
             pendingPositionRef.current = null;
             pendingSizeRef.current = null;
-            applyTransform(nextPos, nextSize);
+            applyTransform(nextPos, nextSize, tiltRef.current);
         });
     };
 
@@ -126,6 +151,7 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
         const target = e.target as HTMLElement;
         if (target.closest('button, a, input, textarea, select')) return;
         setIsDragging(true);
+        isDraggingRef.current = true;
         const rect = windowRef.current?.getBoundingClientRect();
         if (rect) {
             pointerIdRef.current = e.pointerId;
@@ -171,7 +197,9 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
                 const sensitivity = 8; // Higher = less sensitive
                 const rotateY = Math.max(-maxRotation, Math.min(maxRotation, velocityRef.current.vx * sensitivity));
                 const rotateX = Math.max(-maxRotation, Math.min(maxRotation, -velocityRef.current.vy * sensitivity));
-                setTilt({ rotateX, rotateY });
+                const newTilt = { rotateX, rotateY };
+                tiltRef.current = newTilt;
+                setTilt(newTilt);
             }
             lastPointerRef.current = { x: e.clientX, y: e.clientY, time: now };
         }
@@ -185,9 +213,11 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
 
         pointerIdRef.current = null;
         setIsDragging(false);
+        isDraggingRef.current = false;
 
         // Reset tilt with smooth animation (F093)
         if (shouldTilt) {
+            tiltRef.current = { rotateX: 0, rotateY: 0 };
             setTilt({ rotateX: 0, rotateY: 0 });
             velocityRef.current = { vx: 0, vy: 0 };
         }

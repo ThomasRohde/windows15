@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: Session Ended
+## Current Status: In Progress
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -936,6 +936,34 @@ klondike feature list  # List all features
 #### Recommended Next Steps
 
 1. Production ready - all features complete
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 32 - 2025-12-15
+
+**Agent**: Coding Agent
+**Duration**: (in progress)
+**Focus**: Improve Calendar empty state UX when no entries exist
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- Session started
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Continue implementation
 
 #### Technical Notes
 

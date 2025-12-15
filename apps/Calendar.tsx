@@ -316,6 +316,35 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                 <div className="flex-1 min-w-0 p-4">
                     {isLoadingEvents && events.length === 0 ? (
                         <SkeletonCalendar />
+                    ) : events.length === 0 ? (
+                        /* Empty state when no events exist */
+                        <div className="h-full flex flex-col items-center justify-center text-center px-8">
+                            <div className="mb-6 w-24 h-24 rounded-full bg-white/5 flex items-center justify-center">
+                                <span
+                                    className="material-symbols-outlined text-[56px] text-white/30"
+                                    style={{ fontVariationSettings: "'FILL' 0" }}
+                                >
+                                    event
+                                </span>
+                            </div>
+                            <h3 className="text-lg font-medium text-white/90 mb-2">No events yet</h3>
+                            <p className="text-sm text-white/50 mb-6 max-w-md">
+                                Get started by creating your first calendar event. Track appointments, deadlines, and
+                                important dates.
+                            </p>
+                            <button
+                                onClick={() => openNewEvent()}
+                                className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center gap-2"
+                            >
+                                <span
+                                    className="material-symbols-outlined text-[18px]"
+                                    style={{ fontVariationSettings: "'FILL' 1" }}
+                                >
+                                    add
+                                </span>
+                                Create your first event
+                            </button>
+                        </div>
                     ) : (
                         <>
                             <div className="grid grid-cols-7 gap-2 text-xs text-white/50 px-1">
@@ -387,19 +416,25 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
 
                 {/* Agenda */}
                 <div className="w-80 shrink-0 border-l border-white/5 bg-black/10 flex flex-col">
-                    <div className="p-4 border-b border-white/5 bg-black/20">
-                        <div className="text-sm font-medium text-white/90">{selectedLabel}</div>
-                        <button
-                            onClick={() => openNewEvent(selectedDate)}
-                            className="mt-3 w-full px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs text-white/90 flex items-center justify-center gap-2"
-                        >
-                            <span className="material-symbols-outlined text-[18px]">add</span>
-                            Add event
-                        </button>
-                    </div>
+                    {events.length > 0 && (
+                        <div className="p-4 border-b border-white/5 bg-black/20">
+                            <div className="text-sm font-medium text-white/90">{selectedLabel}</div>
+                            <button
+                                onClick={() => openNewEvent(selectedDate)}
+                                className="mt-3 w-full px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs text-white/90 flex items-center justify-center gap-2"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">add</span>
+                                Add event
+                            </button>
+                        </div>
+                    )}
 
                     <div className="flex-1 overflow-y-auto p-4">
-                        {selectedEvents.length === 0 ? (
+                        {events.length === 0 ? (
+                            <div className="text-sm text-white/50 mt-6 text-center px-4">
+                                Your calendar is empty. Create an event to get started.
+                            </div>
+                        ) : selectedEvents.length === 0 ? (
                             <div className="text-sm text-white/50 mt-6 text-center">No events for this day.</div>
                         ) : (
                             <div className="flex flex-col gap-2">

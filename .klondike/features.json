@@ -2911,11 +2911,23 @@
         "Dialog supports customizable title and message and confirm/cancel button text"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-15T12:46:48.729642",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "All apps migrated from window.confirm() to useConfirmDialog hook. Migrated: RecycleBin (2 usages)",
+        "Browser (1 usage)",
+        "NotesPanel (1 usage)",
+        "FilesPanel (2 usages)",
+        "Arcade (1 usage)",
+        "SyncSettings (2 usages). Total: 9 window.confirm() calls replaced. All use appropriate variants (danger/warning/info)",
+        "custom labels",
+        "and ConfirmDialog component renders via portal. Pre-commit checks passed (lint",
+        "format",
+        "test",
+        "build)."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-15T12:31:18.876852",
       "notes": "Implementation: Create hook that manages ConfirmDialog state and returns async confirm() function. Use React portal for rendering. Pattern: const { confirm, ConfirmDialogPortal } = useConfirmDialog(); if (await confirm({title, message})) { doAction(); }. Edge cases: Handle rapid successive calls (queue or reject), cleanup on unmount. Dependencies: Existing ConfirmDialog component in components/ui/. Apps to migrate: Notepad, RecycleBin, Timer, Calendar, TodoList, Browser, WallpaperStudio, Mail. Gotchas: Must handle focus management and keyboard accessibility (Escape to cancel, Enter to confirm)."
@@ -3121,8 +3133,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-15T12:16:31.420841",
+    "lastUpdated": "2025-12-15T12:46:48.729656",
     "totalFeatures": 118,
-    "passingFeatures": 108
+    "passingFeatures": 109
   }
 }

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { AppContainer, SectionLabel } from '../components/ui';
+import { AppContainer, SectionLabel, TextArea } from '../components/ui';
 
 export const QrGenerator = () => {
     const [text, setText] = useState('');
@@ -111,11 +111,12 @@ export const QrGenerator = () => {
         <AppContainer>
             <div className="bg-black/20 p-4 rounded-lg space-y-3">
                 <SectionLabel>Enter text or URL</SectionLabel>
-                <textarea
+                <TextArea
                     value={text}
                     onChange={e => setText(e.target.value)}
                     placeholder="https://example.com or any text..."
-                    className="w-full bg-black/30 text-white px-4 py-3 rounded-lg border border-white/10 focus:outline-none focus:border-blue-500 resize-none h-24"
+                    className="bg-black/30"
+                    rows={3}
                 />
                 <button
                     onClick={handleGenerate}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAsyncAction } from '../hooks';
-import { TabSwitcher, ErrorBanner, SectionLabel, CopyButton, AppToolbar } from '../components/ui';
+import { TabSwitcher, ErrorBanner, SectionLabel, CopyButton, AppToolbar, TextArea } from '../components/ui';
 
 export const Base64Tool = () => {
     const [input, setInput] = useState('');
@@ -71,8 +71,9 @@ export const Base64Tool = () => {
                         </SectionLabel>
                         <span className="text-xs text-gray-500">{input.length} characters</span>
                     </div>
-                    <textarea
-                        className="flex-1 bg-black/20 rounded-lg resize-none border border-white/10 p-3 focus:outline-none focus:border-blue-500/50 font-mono text-sm text-white/90"
+                    <TextArea
+                        className="flex-1"
+                        variant="code"
                         value={input}
                         onChange={e => setInput(e.target.value)}
                         placeholder={mode === 'encode' ? 'Enter text to encode...' : 'Enter Base64 string to decode...'}
@@ -108,8 +109,9 @@ export const Base64Tool = () => {
                             {output && <CopyButton value={output} size="sm" className="!text-xs !px-2 !py-1" />}
                         </div>
                     </div>
-                    <textarea
-                        className="flex-1 bg-black/20 rounded-lg resize-none border border-white/10 p-3 focus:outline-none font-mono text-sm text-green-400"
+                    <TextArea
+                        className="flex-1 text-green-400"
+                        variant="code"
                         value={output}
                         readOnly
                         placeholder="Output will appear here..."

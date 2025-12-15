@@ -3,6 +3,7 @@ import { STORAGE_KEYS } from '../utils/storage';
 import { SkeletonCalendar } from '../components/LoadingSkeleton';
 import { useLocalization } from '../context';
 import { generateUuid } from '../utils/uuid';
+import { TextArea } from '../components/ui';
 import { Checkbox } from '../components/ui';
 import { required, validateValue, validateDateRange } from '../utils/validation';
 import { useSeededCollection } from '../hooks';
@@ -492,10 +493,10 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
 
                             <label className="flex flex-col gap-1">
                                 <span className="text-xs text-white/60">Notes</span>
-                                <textarea
+                                <TextArea
                                     value={draft.notes}
                                     onChange={e => setDraft(prev => (prev ? { ...prev, notes: e.target.value } : prev))}
-                                    className="h-28 resize-none px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
+                                    className="h-28 bg-black/30 focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
                                     placeholder="Add details…"
                                 />
                             </label>

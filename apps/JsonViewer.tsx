@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAsyncAction } from '../hooks';
-import { AppToolbar } from '../components/ui';
+import { AppToolbar, TextArea } from '../components/ui';
 
 interface JsonNodeProps {
     data: unknown;
@@ -159,8 +159,9 @@ export const JsonViewer = () => {
             <div className="flex-1 flex min-h-0">
                 <div className="w-1/2 flex flex-col border-r border-white/10">
                     <div className="px-3 py-2 text-xs text-gray-400 bg-black/20">Input JSON</div>
-                    <textarea
-                        className="flex-1 bg-transparent resize-none border-none p-3 focus:outline-none font-mono text-sm text-white/90"
+                    <TextArea
+                        className="flex-1 bg-transparent border-none"
+                        variant="code"
                         value={input}
                         onChange={e => setInput(e.target.value)}
                         placeholder='{"key": "value"}'

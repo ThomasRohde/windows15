@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAsyncAction } from '../hooks';
-import { SectionLabel, CopyButton, AppToolbar } from '../components/ui';
+import { SectionLabel, CopyButton, AppToolbar, TextArea } from '../components/ui';
 
 const md5 = (str: string): string => {
     const rotateLeft = (x: number, n: number) => (x << n) | (x >>> (32 - n));
@@ -214,8 +214,9 @@ export const HashGenerator = () => {
                         <SectionLabel>Input Text</SectionLabel>
                         <span className="text-xs text-gray-500">{input.length} characters</span>
                     </div>
-                    <textarea
-                        className="h-32 bg-black/20 rounded-lg resize-none border border-white/10 p-3 focus:outline-none focus:border-blue-500/50 font-mono text-sm text-white/90"
+                    <TextArea
+                        className="h-32"
+                        variant="code"
                         value={input}
                         onChange={e => setInput(e.target.value)}
                         placeholder="Enter text to generate hashes..."

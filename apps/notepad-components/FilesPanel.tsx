@@ -3,6 +3,7 @@ import { getFiles, saveFileToFolder } from '../../utils/fileSystem';
 import { FileSystemItem } from '../../types';
 import { useConfirmDialog, ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { useHotkeys } from '../../hooks';
+import { TextArea } from '../../components/ui';
 
 interface FilesPanelProps {
     initialContent?: string;
@@ -236,8 +237,9 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
             </div>
 
             {/* Text Area */}
-            <textarea
-                className="flex-1 bg-transparent resize-none border-none p-4 focus:outline-none font-mono text-sm leading-relaxed text-white/90 selection:bg-blue-500/40"
+            <TextArea
+                className="flex-1 bg-transparent border-none font-mono leading-relaxed selection:bg-blue-500/40"
+                variant="code"
                 value={content}
                 onChange={handleContentChange}
                 onSelect={e => setCursorIndex(e.currentTarget.selectionStart ?? 0)}

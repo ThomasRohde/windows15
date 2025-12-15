@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Button } from '../components/ui';
+import { Button, TextArea } from '../components/ui';
 import { formatReadingTime } from '../utils/timeFormatters';
 
 export const WordCounter = () => {
@@ -62,8 +62,8 @@ export const WordCounter = () => {
             </div>
 
             <div className="flex-1 flex flex-col min-h-0 p-4">
-                <textarea
-                    className="flex-1 bg-black/20 rounded-lg resize-none border border-white/10 p-4 focus:outline-none focus:border-blue-500/50 font-sans text-sm text-white/90 leading-relaxed"
+                <TextArea
+                    className="flex-1 leading-relaxed"
                     value={text}
                     onChange={e => setText(e.target.value)}
                     placeholder="Start typing or paste your text here..."

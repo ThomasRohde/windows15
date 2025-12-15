@@ -1,5 +1,6 @@
 import React from 'react';
 import { NoteRecord, NoteDraft } from './types';
+import { TextArea } from '../../components/ui';
 
 interface NoteEditorProps {
     note: NoteRecord | null;
@@ -42,8 +43,9 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ note, draft, onDraftChan
             </div>
 
             {/* Content Textarea */}
-            <textarea
-                className="flex-1 bg-transparent resize-none border-none p-4 focus:outline-none font-mono text-sm leading-relaxed text-white/90 selection:bg-blue-500/40"
+            <TextArea
+                className="flex-1 bg-transparent border-none font-mono leading-relaxed selection:bg-blue-500/40"
+                variant="code"
                 value={draft.content}
                 onChange={e => onDraftChange({ ...draft, content: e.target.value })}
                 spellCheck={false}

@@ -18,15 +18,47 @@ let mockIsStartMenuOpen = false;
 
 vi.mock('../../context/OSContext', () => ({
     useOS: () => ({
-        isStartMenuOpen: mockIsStartMenuOpen,
         apps: mockApps,
         openWindow: mockOpenWindow,
+    }),
+}));
+
+// Mock useStartMenu hook
+const mockToggleStartMenu = vi.fn();
+vi.mock('../../context/StartMenuContext', () => ({
+    useStartMenu: () => ({
+        isStartMenuOpen: mockIsStartMenuOpen,
+        toggleStartMenu: mockToggleStartMenu,
+        closeStartMenu: vi.fn(),
+        openStartMenu: vi.fn(),
+        pinnedApps: ['notepad', 'calculator', 'settings'],
+        pinApp: vi.fn(),
+        unpinApp: vi.fn(),
+        isPinned: (appId: string) => ['notepad', 'calculator', 'settings'].includes(appId),
+        showAllApps: false,
+        toggleAllApps: vi.fn(),
+        setShowAllApps: vi.fn(),
+    }),
+}));
+
+// Mock useUserProfile hook
+vi.mock('../../context/UserProfileContext', () => ({
+    useUserProfile: () => ({
+        profile: { name: 'John Doe', initials: 'JD', avatar: null },
+        getInitials: (name: string) =>
+            name
+                .split(' ')
+                .map(n => n[0])
+                .join('')
+                .toUpperCase(),
+        updateProfile: vi.fn(),
     }),
 }));
 
 describe('StartMenu', () => {
     beforeEach(() => {
         mockOpenWindow.mockClear();
+        mockToggleStartMenu.mockClear();
         mockIsStartMenuOpen = false;
     });
 

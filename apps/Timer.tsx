@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { AppContainer, TabSwitcher, Card, Button } from '../components/ui';
+import { useInterval } from '../hooks';
 
 type TimerMode = 'stopwatch' | 'countdown';
 
@@ -9,16 +10,10 @@ export const Timer = () => {
     const [isRunning, setIsRunning] = useState(false);
     const [laps, setLaps] = useState<number[]>([]);
     const [countdownInput, setCountdownInput] = useState({ hours: 0, minutes: 5, seconds: 0 });
-    const intervalIdsRef = useRef<Set<ReturnType<typeof setInterval>>>(new Set());
-    const runTokenRef = useRef(0);
 
-    useEffect(() => {
-        if (!isRunning) return;
-
-        const intervalIds = intervalIdsRef.current;
-        const token = ++runTokenRef.current;
-        const intervalId = setInterval(() => {
-            if (runTokenRef.current !== token) return;
+    // Use useInterval hook with 10ms precision for smooth display
+    useInterval(
+        () => {
             setTime(prev => {
                 if (mode === 'countdown') {
                     if (prev <= 0) {
@@ -29,20 +24,9 @@ export const Timer = () => {
                 }
                 return prev + 10;
             });
-        }, 10);
-
-        intervalIds.add(intervalId);
-        return () => {
-            clearInterval(intervalId);
-            intervalIds.delete(intervalId);
-        };
-    }, [isRunning, mode]);
-
-    const stopAllIntervals = () => {
-        runTokenRef.current++;
-        intervalIdsRef.current.forEach(id => clearInterval(id));
-        intervalIdsRef.current.clear();
-    };
+        },
+        isRunning ? 10 : null // Pass null when paused
+    );
 
     const formatTime = (ms: number) => {
         const hours = Math.floor(ms / 3600000);
@@ -65,12 +49,10 @@ export const Timer = () => {
     };
 
     const handleStop = () => {
-        stopAllIntervals();
         setIsRunning(false);
     };
 
     const handleReset = () => {
-        stopAllIntervals();
         setIsRunning(false);
         setTime(0);
         setLaps([]);

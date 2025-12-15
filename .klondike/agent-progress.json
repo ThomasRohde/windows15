@@ -522,18 +522,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F120",
-        "description": "Create AppContainer component for standardized app layout wrapper",
-        "status": "in-progress"
-      },
-      {
         "id": "F121",
         "description": "Refactor Timer.tsx to use existing useInterval hook",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F122",
         "description": "Create ensureArray utility for type-safe array coercion",
+        "status": "not-started"
+      },
+      {
+        "id": "F128",
+        "description": "Standardize loading states using existing LoadingState component",
         "status": "not-started"
       }
     ]

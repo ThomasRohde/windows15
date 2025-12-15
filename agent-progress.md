@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                       | Status         |
-| ---- | ----------------------------------------------------------------- | -------------- |
-| F120 | Create AppContainer component for standardized app layout wrapper | 🔄 In progress |
-| F121 | Refactor Timer.tsx to use existing useInterval hook               | ⏳ Not started |
-| F122 | Create ensureArray utility for type-safe array coercion           | ⏳ Not started |
+| ID   | Description                                                      | Status         |
+| ---- | ---------------------------------------------------------------- | -------------- |
+| F121 | Refactor Timer.tsx to use existing useInterval hook              | 🔄 In progress |
+| F122 | Create ensureArray utility for type-safe array coercion          | ⏳ Not started |
+| F128 | Standardize loading states using existing LoadingState component | ⏳ Not started |
 
 ---
 

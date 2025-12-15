@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useCopyToClipboard, useAsyncAction } from '../hooks';
-import { TabSwitcher, ErrorBanner } from '../components/ui';
+import { TabSwitcher, ErrorBanner, SectionLabel } from '../components/ui';
 
 export const Base64Tool = () => {
     const [input, setInput] = useState('');
@@ -77,9 +77,9 @@ export const Base64Tool = () => {
             <div className="flex-1 flex flex-col min-h-0 p-4 gap-4">
                 <div className="flex-1 flex flex-col min-h-0">
                     <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-400">
+                        <SectionLabel className="mb-0">
                             {mode === 'encode' ? 'Text to Encode' : 'Base64 to Decode'}
-                        </span>
+                        </SectionLabel>
                         <span className="text-xs text-gray-500">{input.length} characters</span>
                     </div>
                     <textarea
@@ -111,9 +111,9 @@ export const Base64Tool = () => {
 
                 <div className="flex-1 flex flex-col min-h-0">
                     <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-400">
+                        <SectionLabel className="mb-0">
                             {mode === 'encode' ? 'Encoded Base64' : 'Decoded Text'}
-                        </span>
+                        </SectionLabel>
                         <div className="flex items-center gap-2">
                             <span className="text-xs text-gray-500">{output.length} characters</span>
                             {output && (

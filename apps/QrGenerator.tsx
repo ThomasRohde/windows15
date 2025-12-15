@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { AppContainer } from '../components/ui';
+import { AppContainer, SectionLabel } from '../components/ui';
 
 export const QrGenerator = () => {
     const [text, setText] = useState('');
@@ -110,7 +110,7 @@ export const QrGenerator = () => {
     return (
         <AppContainer>
             <div className="bg-black/20 p-4 rounded-lg space-y-3">
-                <label className="text-white/70 text-sm">Enter text or URL</label>
+                <SectionLabel>Enter text or URL</SectionLabel>
                 <textarea
                     value={text}
                     onChange={e => setText(e.target.value)}

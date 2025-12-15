@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useCopyToClipboard, useAsyncAction } from '../hooks';
+import { SectionLabel } from '../components/ui';
 
 const md5 = (str: string): string => {
     const rotateLeft = (x: number, n: number) => (x << n) | (x >>> (32 - n));
@@ -217,7 +218,7 @@ export const HashGenerator = () => {
             <div className="flex-1 flex flex-col min-h-0 p-4 gap-4">
                 <div className="flex flex-col gap-2">
                     <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-400">Input Text</span>
+                        <SectionLabel>Input Text</SectionLabel>
                         <span className="text-xs text-gray-500">{input.length} characters</span>
                     </div>
                     <textarea
@@ -238,7 +239,7 @@ export const HashGenerator = () => {
 
                 {hashes.length > 0 && (
                     <div className="flex-1 flex flex-col gap-3 overflow-auto">
-                        <span className="text-sm text-gray-400">Generated Hashes</span>
+                        <SectionLabel>Generated Hashes</SectionLabel>
                         {hashes.map(hash => (
                             <div key={hash.name} className="bg-black/20 rounded-lg p-4 border border-white/10">
                                 <div className="flex justify-between items-center mb-2">

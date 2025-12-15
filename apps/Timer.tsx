@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppContainer, TabSwitcher, Card, Button } from '../components/ui';
+import { AppContainer, TabSwitcher, Card, Button, SectionLabel } from '../components/ui';
 import { useInterval } from '../hooks';
 
 type TimerMode = 'stopwatch' | 'countdown';
@@ -145,7 +145,7 @@ export const Timer = () => {
 
             {laps.length > 0 && (
                 <Card className="max-h-32 overflow-y-auto">
-                    <div className="text-white/60 text-sm mb-2">Laps</div>
+                    <SectionLabel>Laps</SectionLabel>
                     {laps.map((lap, index) => (
                         <div key={index} className="flex justify-between text-white py-1 border-b border-white/10">
                             <span>Lap {index + 1}</span>

@@ -21,6 +21,7 @@ export { LoadingState, LoadingWrapper } from './LoadingState';
 export type { LoadingStateProps, LoadingVariant } from './LoadingState';
 export { SearchInput } from './SearchInput';
 export type { SearchInputProps } from './SearchInput';
+export { SectionLabel } from './SectionLabel';
 export { Slider } from './Slider';
 export type { SliderProps } from './Slider';
 export { TabSwitcher } from './TabSwitcher';

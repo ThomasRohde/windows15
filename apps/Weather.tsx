@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocalization } from '../context';
 import { formatSpeed, formatTemperature } from '../utils/localization';
 import { useNotification, useAsyncAction } from '../hooks';
-import { AppContainer, LoadingState, Icon } from '../components/ui';
+import { AppContainer, LoadingState, Icon, SectionLabel } from '../components/ui';
 
 interface WeatherData {
     location: string;
@@ -183,7 +183,7 @@ export const Weather = () => {
             </div>
 
             <div className="bg-black/20 rounded-xl p-4">
-                <div className="text-white/60 text-sm mb-3">Details</div>
+                <SectionLabel className="mb-3">Details</SectionLabel>
                 <div className="grid grid-cols-3 gap-4">
                     <div className="flex flex-col items-center">
                         <Icon name="thermostat" size="xl" className="text-white/60" />
@@ -209,7 +209,7 @@ export const Weather = () => {
             </div>
 
             <div className="bg-black/20 rounded-xl p-4">
-                <div className="text-white/60 text-sm mb-3">5-Day Forecast</div>
+                <SectionLabel className="mb-3">5-Day Forecast</SectionLabel>
                 <div className="flex justify-between">
                     {forecast.map((day, idx) => (
                         <div key={idx} className="flex flex-col items-center">

@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useCopyToClipboard, usePersistedState } from '../hooks';
-import { AppContainer, Slider, Button } from '../components/ui';
+import { AppContainer, Slider, Button, SectionLabel } from '../components/ui';
 
 interface SavedColor {
     hex: string;
@@ -144,7 +144,7 @@ export const ColorPicker = () => {
 
             {savedColors.length > 0 && (
                 <div className="bg-black/20 p-4 rounded-lg">
-                    <div className="text-white/70 text-sm mb-2">Saved Colors</div>
+                    <SectionLabel>Saved Colors</SectionLabel>
                     <div className="flex flex-wrap gap-2">
                         {savedColors.map(color => (
                             <div

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AppContainer, TabSwitcher, Card, Button } from '../components/ui';
+import { AppContainer, TabSwitcher, Card, Button, SectionLabel } from '../components/ui';
 
 type Category = 'length' | 'weight' | 'temperature' | 'data';
 
@@ -112,7 +112,7 @@ export const UnitConverter = () => {
 
             <Card className="flex-1 flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
-                    <label className="text-white/60 text-sm">From</label>
+                    <SectionLabel>From</SectionLabel>
                     <div className="flex gap-2">
                         <input
                             type="number"
@@ -140,7 +140,7 @@ export const UnitConverter = () => {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                    <label className="text-white/60 text-sm">To</label>
+                    <SectionLabel>To</SectionLabel>
                     <div className="flex gap-2">
                         <div className="flex-1 bg-white/5 text-white text-xl p-3 rounded-lg border border-white/10">
                             {result || '—'}
@@ -160,7 +160,7 @@ export const UnitConverter = () => {
                 </div>
 
                 <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
-                    <div className="text-white/60 text-sm">Conversion</div>
+                    <SectionLabel>Conversion</SectionLabel>
                     <div className="text-white text-lg mt-1">
                         {inputValue && result ? (
                             <>

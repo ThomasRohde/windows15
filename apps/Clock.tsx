@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocalization } from '../context';
-import { AppContainer } from '../components/ui';
+import { AppContainer, SectionLabel } from '../components/ui';
 
 interface TimeZone {
     name: string;
@@ -128,7 +128,7 @@ export const Clock = () => {
             </div>
 
             <div className="bg-black/20 rounded-xl p-3">
-                <div className="text-white/60 text-sm mb-2">World Clocks</div>
+                <SectionLabel>World Clocks</SectionLabel>
                 <div className="grid gap-2">
                     {timeZones.map((tz, index) => {
                         const tzTime = getTimeForZone(tz);

@@ -90,19 +90,14 @@ const buildMonthGrid = (month: Date) => {
     const first = new Date(year, monthIndex, 1);
     const firstWeekday = first.getDay();
     const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-    const daysInPrevMonth = new Date(year, monthIndex, 0).getDate();
 
     const cells: { date: Date; inMonth: boolean; ymd: string }[] = [];
 
     for (let i = 0; i < 42; i++) {
         const dayOffset = i - firstWeekday;
         const inMonth = dayOffset >= 0 && dayOffset < daysInMonth;
-        const dayNumber = inMonth
-            ? dayOffset + 1
-            : dayOffset < 0
-              ? daysInPrevMonth + dayOffset + 1
-              : dayOffset - daysInMonth + 1;
-        const cellDate = new Date(year, monthIndex, dayNumber);
+        // Use dayOffset + 1 to get the correct date - JavaScript Date handles overflow/underflow
+        const cellDate = new Date(year, monthIndex, dayOffset + 1);
         cells.push({ date: cellDate, inMonth, ymd: toYmd(cellDate) });
     }
 
@@ -120,7 +115,8 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
     const { formatTimeShortFromHm } = useLocalization();
     const { value: persistedEvents, isLoading: isLoadingEvents } = useDexieLiveQuery(
         () => storageService.get<CalendarEvent[]>(STORAGE_KEYS.calendarEvents),
-        [STORAGE_KEYS.calendarEvents]
+        [STORAGE_KEYS.calendarEvents],
+        null // Initial value to distinguish loading from "no data"
     );
     const hasInitializedRef = useRef(false);
 
@@ -316,35 +312,6 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                 <div className="flex-1 min-w-0 p-4">
                     {isLoadingEvents && events.length === 0 ? (
                         <SkeletonCalendar />
-                    ) : events.length === 0 ? (
-                        /* Empty state when no events exist */
-                        <div className="h-full flex flex-col items-center justify-center text-center px-8">
-                            <div className="mb-6 w-24 h-24 rounded-full bg-white/5 flex items-center justify-center">
-                                <span
-                                    className="material-symbols-outlined text-[56px] text-white/30"
-                                    style={{ fontVariationSettings: "'FILL' 0" }}
-                                >
-                                    event
-                                </span>
-                            </div>
-                            <h3 className="text-lg font-medium text-white/90 mb-2">No events yet</h3>
-                            <p className="text-sm text-white/50 mb-6 max-w-md">
-                                Get started by creating your first calendar event. Track appointments, deadlines, and
-                                important dates.
-                            </p>
-                            <button
-                                onClick={() => openNewEvent()}
-                                className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center gap-2"
-                            >
-                                <span
-                                    className="material-symbols-outlined text-[18px]"
-                                    style={{ fontVariationSettings: "'FILL' 1" }}
-                                >
-                                    add
-                                </span>
-                                Create your first event
-                            </button>
-                        </div>
                     ) : (
                         <>
                             <div className="grid grid-cols-7 gap-2 text-xs text-white/50 px-1">

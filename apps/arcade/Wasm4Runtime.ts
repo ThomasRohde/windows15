@@ -332,7 +332,9 @@ export class Wasm4Runtime {
      * Render the framebuffer to the canvas
      */
     private render(): void {
-        if (!this.ctx || !this.imageData || !this.memory) return;
+        if (!this.ctx || !this.imageData || !this.memory) {
+            return;
+        }
 
         const palette = this.getPalette();
         const mem = new Uint8Array(this.memory.buffer);
@@ -378,6 +380,20 @@ export class Wasm4Runtime {
 
         window.addEventListener('keydown', this.keyDownHandler);
         window.addEventListener('keyup', this.keyUpHandler);
+    }
+
+    /**
+     * Public method to handle key down from canvas
+     */
+    handleKeyDown(e: React.KeyboardEvent | KeyboardEvent): void {
+        this.handleKeyEvent(e as KeyboardEvent, true);
+    }
+
+    /**
+     * Public method to handle key up from canvas
+     */
+    handleKeyUp(e: React.KeyboardEvent | KeyboardEvent): void {
+        this.handleKeyEvent(e as KeyboardEvent, false);
     }
 
     /**
@@ -439,6 +455,39 @@ export class Wasm4Runtime {
         } else {
             this.gamepad[player] = (this.gamepad[player] ?? 0) & ~button;
         }
+    }
+
+    /**
+     * Set mouse position (for canvas mouse events)
+     */
+    setMouse(x: number, y: number): void {
+        this.mouseX = Math.max(0, Math.min(SCREEN_WIDTH - 1, x));
+        this.mouseY = Math.max(0, Math.min(SCREEN_HEIGHT - 1, y));
+    }
+
+    /**
+     * Set mouse button state (for canvas mouse events)
+     * Buttons: 1 = left, 2 = right, 4 = middle
+     */
+    setMouseButton(button: number, pressed: boolean): void {
+        if (pressed) {
+            this.mouseButtons |= button;
+        } else {
+            this.mouseButtons &= ~button;
+        }
+    }
+
+    /**
+     * Capture current frame as a Blob (for thumbnails/icons)
+     */
+    captureScreenshot(): Promise<Blob | null> {
+        return new Promise(resolve => {
+            if (!this.canvas) {
+                resolve(null);
+                return;
+            }
+            this.canvas.toBlob(blob => resolve(blob), 'image/png');
+        });
     }
 
     /**
@@ -520,55 +569,1046 @@ export class Wasm4Runtime {
 
     // ===== WASM-4 API Implementation =====
 
-    // Drawing functions (simplified implementations)
-    private blit(_sprite: number, _x: number, _y: number, _width: number, _height: number, _flags: number): void {
-        // TODO: Implement sprite blitting
+    /**
+     * Get draw colors from memory
+     */
+    private getDrawColors(): number {
+        if (!this.memory) return 0x1234;
+        const mem = new DataView(this.memory.buffer);
+        return mem.getUint16(DRAW_COLORS, true);
     }
 
+    /**
+     * Set a pixel in the framebuffer
+     */
+    private setPixel(x: number, y: number, colorIndex: number): void {
+        if (!this.memory || x < 0 || x >= SCREEN_WIDTH || y < 0 || y >= SCREEN_HEIGHT) return;
+        if (colorIndex === 0) return; // Color 0 is transparent
+
+        const actualColor = (colorIndex - 1) & 0x3; // Convert 1-4 to 0-3
+        const i = y * SCREEN_WIDTH + x;
+        const byteIndex = FRAMEBUFFER + (i >> 2);
+        const bitOffset = (i & 3) * 2;
+
+        const mem = new Uint8Array(this.memory.buffer);
+        const mask = 0x3 << bitOffset;
+        mem[byteIndex] = (mem[byteIndex]! & ~mask) | (actualColor << bitOffset);
+    }
+
+    /**
+     * Draw a horizontal line
+     */
+    private hline(x: number, y: number, len: number): void {
+        const dc = this.getDrawColors();
+        const strokeColor = dc & 0xf;
+        if (strokeColor === 0) return;
+
+        for (let i = 0; i < len; i++) {
+            this.setPixel(x + i, y, strokeColor);
+        }
+    }
+
+    /**
+     * Draw a vertical line
+     */
+    private vline(x: number, y: number, len: number): void {
+        const dc = this.getDrawColors();
+        const strokeColor = dc & 0xf;
+        if (strokeColor === 0) return;
+
+        for (let i = 0; i < len; i++) {
+            this.setPixel(x, y + i, strokeColor);
+        }
+    }
+
+    /**
+     * Draw a line using Bresenham's algorithm
+     */
+    private line(x1: number, y1: number, x2: number, y2: number): void {
+        const dc = this.getDrawColors();
+        const strokeColor = dc & 0xf;
+        if (strokeColor === 0) return;
+
+        const dx = Math.abs(x2 - x1);
+        const dy = Math.abs(y2 - y1);
+        const sx = x1 < x2 ? 1 : -1;
+        const sy = y1 < y2 ? 1 : -1;
+        let err = dx - dy;
+
+        let x = x1;
+        let y = y1;
+
+        while (true) {
+            this.setPixel(x, y, strokeColor);
+            if (x === x2 && y === y2) break;
+            const e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                x += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                y += sy;
+            }
+        }
+    }
+
+    /**
+     * Draw a filled/outlined rectangle
+     */
+    private rect(x: number, y: number, width: number, height: number): void {
+        const dc = this.getDrawColors();
+        const fillColor = (dc >> 4) & 0xf;
+        const strokeColor = dc & 0xf;
+
+        // Fill
+        if (fillColor !== 0) {
+            for (let py = 0; py < height; py++) {
+                for (let px = 0; px < width; px++) {
+                    this.setPixel(x + px, y + py, fillColor);
+                }
+            }
+        }
+
+        // Stroke (outline)
+        if (strokeColor !== 0) {
+            // Top and bottom
+            for (let px = 0; px < width; px++) {
+                this.setPixel(x + px, y, strokeColor);
+                this.setPixel(x + px, y + height - 1, strokeColor);
+            }
+            // Left and right
+            for (let py = 0; py < height; py++) {
+                this.setPixel(x, y + py, strokeColor);
+                this.setPixel(x + width - 1, y + py, strokeColor);
+            }
+        }
+    }
+
+    /**
+     * Draw an oval
+     */
+    private oval(x: number, y: number, width: number, height: number): void {
+        const dc = this.getDrawColors();
+        const fillColor = (dc >> 4) & 0xf;
+        const strokeColor = dc & 0xf;
+
+        const a = width / 2;
+        const b = height / 2;
+
+        // Simple midpoint ellipse algorithm
+        for (let py = 0; py < height; py++) {
+            for (let px = 0; px < width; px++) {
+                const dx = (px - a + 0.5) / a;
+                const dy = (py - b + 0.5) / b;
+                const dist = dx * dx + dy * dy;
+
+                if (dist <= 1) {
+                    // Check if on edge for stroke
+                    const innerDx = (px - a + 0.5) / (a - 1);
+                    const innerDy = (py - b + 0.5) / (b - 1);
+                    const innerDist = innerDx * innerDx + innerDy * innerDy;
+
+                    if (innerDist > 1 && strokeColor !== 0) {
+                        this.setPixel(x + px, y + py, strokeColor);
+                    } else if (fillColor !== 0) {
+                        this.setPixel(x + px, y + py, fillColor);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * WASM-4 built-in font (8x8 1bpp)
+     */
+    private static readonly FONT: Uint8Array = new Uint8Array([
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00, // 32: space
+        0x00,
+        0x10,
+        0x10,
+        0x10,
+        0x10,
+        0x00,
+        0x10,
+        0x00, // 33: !
+        0x00,
+        0x28,
+        0x28,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00, // 34: "
+        0x00,
+        0x28,
+        0x7c,
+        0x28,
+        0x28,
+        0x7c,
+        0x28,
+        0x00, // 35: #
+        0x00,
+        0x10,
+        0x3c,
+        0x50,
+        0x38,
+        0x14,
+        0x78,
+        0x10, // 36: $
+        0x00,
+        0x60,
+        0x64,
+        0x08,
+        0x10,
+        0x26,
+        0x06,
+        0x00, // 37: %
+        0x00,
+        0x30,
+        0x48,
+        0x30,
+        0x4a,
+        0x44,
+        0x3a,
+        0x00, // 38: &
+        0x00,
+        0x10,
+        0x10,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00, // 39: '
+        0x00,
+        0x08,
+        0x10,
+        0x10,
+        0x10,
+        0x10,
+        0x08,
+        0x00, // 40: (
+        0x00,
+        0x10,
+        0x08,
+        0x08,
+        0x08,
+        0x08,
+        0x10,
+        0x00, // 41: )
+        0x00,
+        0x00,
+        0x28,
+        0x10,
+        0x7c,
+        0x10,
+        0x28,
+        0x00, // 42: *
+        0x00,
+        0x00,
+        0x10,
+        0x10,
+        0x7c,
+        0x10,
+        0x10,
+        0x00, // 43: +
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x10,
+        0x10,
+        0x20, // 44: ,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x7c,
+        0x00,
+        0x00,
+        0x00, // 45: -
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x10,
+        0x00, // 46: .
+        0x00,
+        0x00,
+        0x04,
+        0x08,
+        0x10,
+        0x20,
+        0x40,
+        0x00, // 47: /
+        0x00,
+        0x38,
+        0x4c,
+        0x54,
+        0x64,
+        0x44,
+        0x38,
+        0x00, // 48: 0
+        0x00,
+        0x10,
+        0x30,
+        0x10,
+        0x10,
+        0x10,
+        0x38,
+        0x00, // 49: 1
+        0x00,
+        0x38,
+        0x44,
+        0x08,
+        0x10,
+        0x20,
+        0x7c,
+        0x00, // 50: 2
+        0x00,
+        0x38,
+        0x44,
+        0x18,
+        0x04,
+        0x44,
+        0x38,
+        0x00, // 51: 3
+        0x00,
+        0x08,
+        0x18,
+        0x28,
+        0x48,
+        0x7c,
+        0x08,
+        0x00, // 52: 4
+        0x00,
+        0x7c,
+        0x40,
+        0x78,
+        0x04,
+        0x44,
+        0x38,
+        0x00, // 53: 5
+        0x00,
+        0x18,
+        0x20,
+        0x78,
+        0x44,
+        0x44,
+        0x38,
+        0x00, // 54: 6
+        0x00,
+        0x7c,
+        0x04,
+        0x08,
+        0x10,
+        0x20,
+        0x20,
+        0x00, // 55: 7
+        0x00,
+        0x38,
+        0x44,
+        0x38,
+        0x44,
+        0x44,
+        0x38,
+        0x00, // 56: 8
+        0x00,
+        0x38,
+        0x44,
+        0x44,
+        0x3c,
+        0x08,
+        0x30,
+        0x00, // 57: 9
+        0x00,
+        0x00,
+        0x10,
+        0x00,
+        0x00,
+        0x10,
+        0x00,
+        0x00, // 58: :
+        0x00,
+        0x00,
+        0x10,
+        0x00,
+        0x00,
+        0x10,
+        0x10,
+        0x20, // 59: ;
+        0x00,
+        0x08,
+        0x10,
+        0x20,
+        0x20,
+        0x10,
+        0x08,
+        0x00, // 60: <
+        0x00,
+        0x00,
+        0x00,
+        0x7c,
+        0x00,
+        0x7c,
+        0x00,
+        0x00, // 61: =
+        0x00,
+        0x20,
+        0x10,
+        0x08,
+        0x08,
+        0x10,
+        0x20,
+        0x00, // 62: >
+        0x00,
+        0x38,
+        0x44,
+        0x08,
+        0x10,
+        0x00,
+        0x10,
+        0x00, // 63: ?
+        0x00,
+        0x38,
+        0x44,
+        0x5c,
+        0x54,
+        0x5c,
+        0x40,
+        0x38, // 64: @
+        0x00,
+        0x38,
+        0x44,
+        0x44,
+        0x7c,
+        0x44,
+        0x44,
+        0x00, // 65: A
+        0x00,
+        0x78,
+        0x44,
+        0x78,
+        0x44,
+        0x44,
+        0x78,
+        0x00, // 66: B
+        0x00,
+        0x38,
+        0x44,
+        0x40,
+        0x40,
+        0x44,
+        0x38,
+        0x00, // 67: C
+        0x00,
+        0x78,
+        0x44,
+        0x44,
+        0x44,
+        0x44,
+        0x78,
+        0x00, // 68: D
+        0x00,
+        0x7c,
+        0x40,
+        0x78,
+        0x40,
+        0x40,
+        0x7c,
+        0x00, // 69: E
+        0x00,
+        0x7c,
+        0x40,
+        0x78,
+        0x40,
+        0x40,
+        0x40,
+        0x00, // 70: F
+        0x00,
+        0x38,
+        0x44,
+        0x40,
+        0x5c,
+        0x44,
+        0x38,
+        0x00, // 71: G
+        0x00,
+        0x44,
+        0x44,
+        0x7c,
+        0x44,
+        0x44,
+        0x44,
+        0x00, // 72: H
+        0x00,
+        0x38,
+        0x10,
+        0x10,
+        0x10,
+        0x10,
+        0x38,
+        0x00, // 73: I
+        0x00,
+        0x04,
+        0x04,
+        0x04,
+        0x04,
+        0x44,
+        0x38,
+        0x00, // 74: J
+        0x00,
+        0x44,
+        0x48,
+        0x70,
+        0x48,
+        0x44,
+        0x44,
+        0x00, // 75: K
+        0x00,
+        0x40,
+        0x40,
+        0x40,
+        0x40,
+        0x40,
+        0x7c,
+        0x00, // 76: L
+        0x00,
+        0x44,
+        0x6c,
+        0x54,
+        0x44,
+        0x44,
+        0x44,
+        0x00, // 77: M
+        0x00,
+        0x44,
+        0x64,
+        0x54,
+        0x4c,
+        0x44,
+        0x44,
+        0x00, // 78: N
+        0x00,
+        0x38,
+        0x44,
+        0x44,
+        0x44,
+        0x44,
+        0x38,
+        0x00, // 79: O
+        0x00,
+        0x78,
+        0x44,
+        0x44,
+        0x78,
+        0x40,
+        0x40,
+        0x00, // 80: P
+        0x00,
+        0x38,
+        0x44,
+        0x44,
+        0x54,
+        0x48,
+        0x34,
+        0x00, // 81: Q
+        0x00,
+        0x78,
+        0x44,
+        0x44,
+        0x78,
+        0x48,
+        0x44,
+        0x00, // 82: R
+        0x00,
+        0x38,
+        0x40,
+        0x38,
+        0x04,
+        0x44,
+        0x38,
+        0x00, // 83: S
+        0x00,
+        0x7c,
+        0x10,
+        0x10,
+        0x10,
+        0x10,
+        0x10,
+        0x00, // 84: T
+        0x00,
+        0x44,
+        0x44,
+        0x44,
+        0x44,
+        0x44,
+        0x38,
+        0x00, // 85: U
+        0x00,
+        0x44,
+        0x44,
+        0x44,
+        0x44,
+        0x28,
+        0x10,
+        0x00, // 86: V
+        0x00,
+        0x44,
+        0x44,
+        0x44,
+        0x54,
+        0x6c,
+        0x44,
+        0x00, // 87: W
+        0x00,
+        0x44,
+        0x28,
+        0x10,
+        0x28,
+        0x44,
+        0x44,
+        0x00, // 88: X
+        0x00,
+        0x44,
+        0x44,
+        0x28,
+        0x10,
+        0x10,
+        0x10,
+        0x00, // 89: Y
+        0x00,
+        0x7c,
+        0x08,
+        0x10,
+        0x20,
+        0x40,
+        0x7c,
+        0x00, // 90: Z
+        0x00,
+        0x38,
+        0x20,
+        0x20,
+        0x20,
+        0x20,
+        0x38,
+        0x00, // 91: [
+        0x00,
+        0x00,
+        0x40,
+        0x20,
+        0x10,
+        0x08,
+        0x04,
+        0x00, // 92: \
+        0x00,
+        0x38,
+        0x08,
+        0x08,
+        0x08,
+        0x08,
+        0x38,
+        0x00, // 93: ]
+        0x00,
+        0x10,
+        0x28,
+        0x44,
+        0x00,
+        0x00,
+        0x00,
+        0x00, // 94: ^
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x7c,
+        0x00, // 95: _
+        0x00,
+        0x20,
+        0x10,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00, // 96: `
+        0x00,
+        0x00,
+        0x38,
+        0x04,
+        0x3c,
+        0x44,
+        0x3c,
+        0x00, // 97: a
+        0x00,
+        0x40,
+        0x40,
+        0x78,
+        0x44,
+        0x44,
+        0x78,
+        0x00, // 98: b
+        0x00,
+        0x00,
+        0x38,
+        0x44,
+        0x40,
+        0x44,
+        0x38,
+        0x00, // 99: c
+        0x00,
+        0x04,
+        0x04,
+        0x3c,
+        0x44,
+        0x44,
+        0x3c,
+        0x00, // 100: d
+        0x00,
+        0x00,
+        0x38,
+        0x44,
+        0x7c,
+        0x40,
+        0x38,
+        0x00, // 101: e
+        0x00,
+        0x18,
+        0x20,
+        0x78,
+        0x20,
+        0x20,
+        0x20,
+        0x00, // 102: f
+        0x00,
+        0x00,
+        0x3c,
+        0x44,
+        0x44,
+        0x3c,
+        0x04,
+        0x38, // 103: g
+        0x00,
+        0x40,
+        0x40,
+        0x78,
+        0x44,
+        0x44,
+        0x44,
+        0x00, // 104: h
+        0x00,
+        0x10,
+        0x00,
+        0x30,
+        0x10,
+        0x10,
+        0x38,
+        0x00, // 105: i
+        0x00,
+        0x08,
+        0x00,
+        0x08,
+        0x08,
+        0x08,
+        0x48,
+        0x30, // 106: j
+        0x00,
+        0x40,
+        0x48,
+        0x50,
+        0x60,
+        0x50,
+        0x48,
+        0x00, // 107: k
+        0x00,
+        0x30,
+        0x10,
+        0x10,
+        0x10,
+        0x10,
+        0x38,
+        0x00, // 108: l
+        0x00,
+        0x00,
+        0x68,
+        0x54,
+        0x54,
+        0x44,
+        0x44,
+        0x00, // 109: m
+        0x00,
+        0x00,
+        0x78,
+        0x44,
+        0x44,
+        0x44,
+        0x44,
+        0x00, // 110: n
+        0x00,
+        0x00,
+        0x38,
+        0x44,
+        0x44,
+        0x44,
+        0x38,
+        0x00, // 111: o
+        0x00,
+        0x00,
+        0x78,
+        0x44,
+        0x44,
+        0x78,
+        0x40,
+        0x40, // 112: p
+        0x00,
+        0x00,
+        0x3c,
+        0x44,
+        0x44,
+        0x3c,
+        0x04,
+        0x04, // 113: q
+        0x00,
+        0x00,
+        0x58,
+        0x64,
+        0x40,
+        0x40,
+        0x40,
+        0x00, // 114: r
+        0x00,
+        0x00,
+        0x3c,
+        0x40,
+        0x38,
+        0x04,
+        0x78,
+        0x00, // 115: s
+        0x00,
+        0x20,
+        0x78,
+        0x20,
+        0x20,
+        0x24,
+        0x18,
+        0x00, // 116: t
+        0x00,
+        0x00,
+        0x44,
+        0x44,
+        0x44,
+        0x4c,
+        0x34,
+        0x00, // 117: u
+        0x00,
+        0x00,
+        0x44,
+        0x44,
+        0x44,
+        0x28,
+        0x10,
+        0x00, // 118: v
+        0x00,
+        0x00,
+        0x44,
+        0x44,
+        0x54,
+        0x54,
+        0x28,
+        0x00, // 119: w
+        0x00,
+        0x00,
+        0x44,
+        0x28,
+        0x10,
+        0x28,
+        0x44,
+        0x00, // 120: x
+        0x00,
+        0x00,
+        0x44,
+        0x44,
+        0x44,
+        0x3c,
+        0x04,
+        0x38, // 121: y
+        0x00,
+        0x00,
+        0x7c,
+        0x08,
+        0x10,
+        0x20,
+        0x7c,
+        0x00, // 122: z
+        0x00,
+        0x08,
+        0x10,
+        0x20,
+        0x10,
+        0x08,
+        0x00,
+        0x00, // 123: {
+        0x00,
+        0x10,
+        0x10,
+        0x10,
+        0x10,
+        0x10,
+        0x10,
+        0x00, // 124: |
+        0x00,
+        0x20,
+        0x10,
+        0x08,
+        0x10,
+        0x20,
+        0x00,
+        0x00, // 125: }
+        0x00,
+        0x00,
+        0x00,
+        0x32,
+        0x4c,
+        0x00,
+        0x00,
+        0x00, // 126: ~
+    ]);
+
+    /**
+     * Draw text using built-in font
+     */
+    private text(textPtr: number, x: number, y: number): void {
+        if (!this.memory) return;
+        const dc = this.getDrawColors();
+        const textColor = dc & 0xf;
+        const bgColor = (dc >> 4) & 0xf;
+
+        const mem = new Uint8Array(this.memory.buffer);
+        let cx = x;
+        let cy = y;
+
+        for (let i = textPtr; mem[i] !== 0 && i < mem.length; i++) {
+            const char = mem[i]!;
+
+            if (char === 10) {
+                // Newline
+                cx = x;
+                cy += 8;
+                continue;
+            }
+
+            if (char >= 32 && char <= 126) {
+                const fontIndex = (char - 32) * 8;
+                for (let row = 0; row < 8; row++) {
+                    const fontByte = Wasm4Runtime.FONT[fontIndex + row] ?? 0;
+                    for (let col = 0; col < 8; col++) {
+                        const bit = (fontByte >> (7 - col)) & 1;
+                        if (bit && textColor !== 0) {
+                            this.setPixel(cx + col, cy + row, textColor);
+                        } else if (!bit && bgColor !== 0) {
+                            this.setPixel(cx + col, cy + row, bgColor);
+                        }
+                    }
+                }
+            }
+            cx += 8;
+        }
+    }
+
+    private textUtf8(textPtr: number, byteLength: number, x: number, y: number): void {
+        // For now, treat as regular text (ASCII subset)
+        void byteLength;
+        this.text(textPtr, x, y);
+    }
+
+    private textUtf16(textPtr: number, byteLength: number, x: number, y: number): void {
+        // Simplified - just render what we can
+        void byteLength;
+        void textPtr;
+        void x;
+        void y;
+    }
+
+    /**
+     * Blit a sprite to the framebuffer
+     */
+    private blit(spritePtr: number, x: number, y: number, width: number, height: number, flags: number): void {
+        this.blitSub(spritePtr, x, y, width, height, 0, 0, width, flags);
+    }
+
+    /**
+     * Blit a sub-region of a sprite
+     */
     private blitSub(
-        _sprite: number,
-        _x: number,
-        _y: number,
-        _width: number,
-        _height: number,
-        _srcX: number,
-        _srcY: number,
-        _stride: number,
-        _flags: number
+        spritePtr: number,
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        srcX: number,
+        srcY: number,
+        stride: number,
+        flags: number
     ): void {
-        // TODO: Implement sub-region sprite blitting
-    }
+        if (!this.memory) return;
 
-    private line(_x1: number, _y1: number, _x2: number, _y2: number): void {
-        // TODO: Implement line drawing
-    }
+        const mem = new Uint8Array(this.memory.buffer);
+        const dc = this.getDrawColors();
 
-    private hline(_x: number, _y: number, _len: number): void {
-        // TODO: Implement horizontal line
-    }
+        const bpp2 = (flags & 1) !== 0; // 2 bits per pixel if set, else 1bpp
+        const flipX = (flags & 2) !== 0;
+        const flipY = (flags & 4) !== 0;
+        const rotate = (flags & 8) !== 0;
 
-    private vline(_x: number, _y: number, _len: number): void {
-        // TODO: Implement vertical line
-    }
+        for (let py = 0; py < height; py++) {
+            const dy = flipY ? height - 1 - py : py;
+            for (let px = 0; px < width; px++) {
+                const dx = flipX ? width - 1 - px : px;
 
-    private oval(_x: number, _y: number, _width: number, _height: number): void {
-        // TODO: Implement oval drawing
-    }
+                let drawX = x + px;
+                let drawY = y + py;
+                if (rotate) {
+                    const tmp = drawX;
+                    drawX = drawY;
+                    drawY = tmp;
+                }
 
-    private rect(_x: number, _y: number, _width: number, _height: number): void {
-        // TODO: Implement rectangle drawing
-    }
+                const srcPx = srcX + dx;
+                const srcPy = srcY + dy;
 
-    private text(_textPtr: number, _x: number, _y: number): void {
-        // TODO: Implement text rendering
-    }
+                let colorIndex: number;
+                if (bpp2) {
+                    // 2bpp: 4 pixels per byte
+                    const bitIndex = srcPy * stride + srcPx;
+                    const byteIndex = spritePtr + (bitIndex >> 2);
+                    const shift = (3 - (bitIndex & 3)) * 2;
+                    colorIndex = (mem[byteIndex]! >> shift) & 0x3;
+                } else {
+                    // 1bpp: 8 pixels per byte
+                    const bitIndex = srcPy * stride + srcPx;
+                    const byteIndex = spritePtr + (bitIndex >> 3);
+                    const shift = 7 - (bitIndex & 7);
+                    colorIndex = (mem[byteIndex]! >> shift) & 0x1;
+                }
 
-    private textUtf8(_textPtr: number, _byteLength: number, _x: number, _y: number): void {
-        // TODO: Implement UTF-8 text rendering
-    }
-
-    private textUtf16(_textPtr: number, _byteLength: number, _x: number, _y: number): void {
-        // TODO: Implement UTF-16 text rendering
+                // Map through draw colors
+                const drawColor = (dc >> (colorIndex * 4)) & 0xf;
+                if (drawColor !== 0) {
+                    this.setPixel(drawX, drawY, drawColor);
+                }
+            }
+        }
     }
 
     // Sound

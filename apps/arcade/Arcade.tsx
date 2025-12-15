@@ -12,7 +12,7 @@
  * - Fullscreen mode with integer scaling
  * - Panic button for hung games
  */
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useDb } from '../../context/DbContext';
 import type { ArcadeGameRecord, ArcadeSaveRecord } from '../../utils/storage/db';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -54,6 +54,92 @@ interface SaveSlotInfo {
 }
 
 /**
+ * Game Card Component - displays a game in the library with proper icon management
+ */
+const GameCard: React.FC<{
+    game: ArcadeGameRecord;
+    onPlay: () => void;
+    onDelete: () => void;
+    canDelete: boolean;
+}> = ({ game, onPlay, onDelete, canDelete }) => {
+    // Generate a color based on game title for visual variety (fallback when no icon)
+    const { bgColor, iconColor } = useMemo(() => {
+        const hash = game.title.split('').reduce((acc, char) => char.charCodeAt(0) + acc, 0);
+        const hue = hash % 360;
+        return {
+            bgColor: `hsl(${hue}, 40%, 25%)`,
+            iconColor: `hsl(${hue}, 60%, 60%)`,
+        };
+    }, [game.title]);
+
+    // Create and manage object URL for icon blob
+    const iconUrl = useMemo(() => {
+        if (game.iconBlob) {
+            return URL.createObjectURL(game.iconBlob);
+        }
+        return null;
+    }, [game.iconBlob]);
+
+    // Clean up object URL when component unmounts or icon changes
+    useEffect(() => {
+        return () => {
+            if (iconUrl) {
+                URL.revokeObjectURL(iconUrl);
+            }
+        };
+    }, [iconUrl]);
+
+    return (
+        <div
+            className="group relative bg-gray-800 rounded-lg overflow-hidden hover:ring-2 ring-purple-500 cursor-pointer transition-all"
+            onClick={onPlay}
+        >
+            {/* Game Icon/Preview */}
+            <div
+                className="aspect-square flex items-center justify-center overflow-hidden"
+                style={{ backgroundColor: iconUrl ? '#000' : bgColor }}
+            >
+                {iconUrl ? (
+                    <img
+                        src={iconUrl}
+                        alt={game.title}
+                        className="w-full h-full object-contain"
+                        style={{ imageRendering: 'pixelated' }}
+                    />
+                ) : (
+                    <span className="material-icons text-5xl" style={{ color: iconColor }}>
+                        sports_esports
+                    </span>
+                )}
+            </div>
+
+            {/* Game Info */}
+            <div className="p-2">
+                <p className="font-medium truncate text-sm">{game.title}</p>
+                {game.lastPlayedAt && (
+                    <p className="text-xs text-gray-400">
+                        Last played: {new Date(game.lastPlayedAt).toLocaleDateString()}
+                    </p>
+                )}
+            </div>
+
+            {/* Delete Button */}
+            {canDelete && (
+                <button
+                    onClick={e => {
+                        e.stopPropagation();
+                        onDelete();
+                    }}
+                    className="absolute top-2 right-2 p-1 bg-red-600 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                    <span className="material-icons text-sm">delete</span>
+                </button>
+            )}
+        </div>
+    );
+};
+
+/**
  * Arcade App Component
  */
 export const Arcade: React.FC = () => {
@@ -77,7 +163,9 @@ export const Arcade: React.FC = () => {
     // Load games from database
     const games = useLiveQuery(async () => {
         if (!db) return [];
-        return db.$arcadeGames.orderBy('lastPlayedAt').reverse().toArray();
+        const allGames = await db.$arcadeGames.toArray();
+        // Sort by lastPlayedAt (or createdAt as fallback), most recent first
+        return allGames.sort((a, b) => (b.lastPlayedAt ?? b.createdAt) - (a.lastPlayedAt ?? a.createdAt));
     }, [db]);
 
     // Load save slots for current game
@@ -120,6 +208,9 @@ export const Arcade: React.FC = () => {
                 },
             });
             runtimeRef.current = runtime;
+
+            // Auto-focus canvas for keyboard input
+            canvasRef.current.focus();
         }
 
         return () => {
@@ -182,6 +273,25 @@ export const Arcade: React.FC = () => {
                     try {
                         const arrayBuffer = await game.cartridgeBlob.arrayBuffer();
                         await runtimeRef.current.loadCartridge(arrayBuffer);
+
+                        // Capture screenshot for icon after a short delay (let game render a few frames)
+                        if (!game.iconBlob && db) {
+                            setTimeout(async () => {
+                                if (runtimeRef.current) {
+                                    const screenshot = await runtimeRef.current.captureScreenshot();
+                                    if (screenshot) {
+                                        try {
+                                            await db.$arcadeGames.update(game.id, {
+                                                iconBlob: screenshot,
+                                                updatedAt: Date.now(),
+                                            });
+                                        } catch {
+                                            // Ignore icon save errors
+                                        }
+                                    }
+                                }
+                            }, 500); // Wait 500ms for game to render title screen
+                        }
                     } catch (error) {
                         console.error('[Arcade] Failed to load cartridge:', error);
                         // Parse error message for user-friendly display
@@ -329,7 +439,6 @@ export const Arcade: React.FC = () => {
 
                 // Reload save slots
                 await loadSaveSlots();
-                console.log(`[Arcade] Saved to slot ${slot}`);
             } catch (error) {
                 console.error('[Arcade] Save failed:', error);
                 alert(`Save failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -361,7 +470,6 @@ export const Arcade: React.FC = () => {
                     throw new Error('Failed to restore game state');
                 }
 
-                console.log(`[Arcade] Loaded from slot ${slot}`);
                 setShowSaveModal(false);
             } catch (error) {
                 console.error('[Arcade] Load failed:', error);
@@ -405,12 +513,12 @@ export const Arcade: React.FC = () => {
                     type: 'wasm4',
                     cartridgeBlob: new Blob([buffer], { type: 'application/wasm' }),
                     tags: ['imported'],
+                    lastPlayedAt: now, // Set so it appears in recently played
                     createdAt: now,
                     updatedAt: now,
                 };
 
                 await db.$arcadeGames.add(gameRecord);
-                console.log('[Arcade] Imported cartridge:', title);
             } catch (error) {
                 console.error('[Arcade] Import failed:', error);
                 alert(`Failed to import cartridge: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -489,39 +597,13 @@ export const Arcade: React.FC = () => {
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             {games.map(game => (
-                                <div
+                                <GameCard
                                     key={game.id}
-                                    className="group relative bg-gray-800 rounded-lg overflow-hidden hover:ring-2 ring-purple-500 cursor-pointer transition-all"
-                                    onClick={() => playGame(game)}
-                                >
-                                    {/* Game Icon/Preview */}
-                                    <div className="aspect-square bg-gray-700 flex items-center justify-center">
-                                        <span className="material-icons text-4xl text-gray-500">sports_esports</span>
-                                    </div>
-
-                                    {/* Game Info */}
-                                    <div className="p-2">
-                                        <p className="font-medium truncate text-sm">{game.title}</p>
-                                        {game.lastPlayedAt && (
-                                            <p className="text-xs text-gray-400">
-                                                Last played: {new Date(game.lastPlayedAt).toLocaleDateString()}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    {/* Delete Button */}
-                                    {game.id !== DEMO_CART_ID && (
-                                        <button
-                                            onClick={e => {
-                                                e.stopPropagation();
-                                                deleteGame(game.id);
-                                            }}
-                                            className="absolute top-2 right-2 p-1 bg-red-600 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >
-                                            <span className="material-icons text-sm">delete</span>
-                                        </button>
-                                    )}
-                                </div>
+                                    game={game}
+                                    onPlay={() => playGame(game)}
+                                    onDelete={() => deleteGame(game.id)}
+                                    canDelete={game.id !== DEMO_CART_ID}
+                                />
                             ))}
                         </div>
                     )}
@@ -676,12 +758,44 @@ export const Arcade: React.FC = () => {
                     ref={canvasRef}
                     width={SCREEN_WIDTH}
                     height={SCREEN_HEIGHT}
+                    tabIndex={0}
                     style={{
                         width: SCREEN_WIDTH * scale,
                         height: SCREEN_HEIGHT * scale,
                         imageRendering: 'pixelated',
+                        outline: 'none',
                     }}
-                    className="border-2 border-gray-700"
+                    className="border-2 border-gray-700 focus:border-purple-500"
+                    onKeyDown={e => {
+                        if (!runtimeRef.current) return;
+                        runtimeRef.current.handleKeyDown(e);
+                    }}
+                    onKeyUp={e => {
+                        if (!runtimeRef.current) return;
+                        runtimeRef.current.handleKeyUp(e);
+                    }}
+                    onMouseMove={e => {
+                        if (!runtimeRef.current || !canvasRef.current) return;
+                        const rect = canvasRef.current.getBoundingClientRect();
+                        const x = Math.floor(((e.clientX - rect.left) / rect.width) * SCREEN_WIDTH);
+                        const y = Math.floor(((e.clientY - rect.top) / rect.height) * SCREEN_HEIGHT);
+                        runtimeRef.current.setMouse(x, y);
+                    }}
+                    onMouseDown={e => {
+                        canvasRef.current?.focus();
+                        if (!runtimeRef.current) return;
+                        const button = e.button === 0 ? 1 : e.button === 2 ? 2 : 4;
+                        runtimeRef.current.setMouseButton(button, true);
+                    }}
+                    onMouseUp={e => {
+                        if (!runtimeRef.current) return;
+                        const button = e.button === 0 ? 1 : e.button === 2 ? 2 : 4;
+                        runtimeRef.current.setMouseButton(button, false);
+                    }}
+                    onMouseLeave={() => {
+                        runtimeRef.current?.setMouseButton(0, false);
+                    }}
+                    onContextMenu={e => e.preventDefault()}
                 />
 
                 {/* Loading Overlay */}

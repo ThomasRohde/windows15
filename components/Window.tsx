@@ -414,7 +414,7 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
                 ...outerStyle,
                 zIndex: window.zIndex,
             }}
-            onPointerDown={() => focusWindow(window.id)}
+            onPointerDownCapture={() => focusWindow(window.id)}
         >
             <div
                 className={`glass-panel flex h-full w-full flex-col overflow-hidden animate-pop-in ${isDragging || isResizing ? 'transition-none opacity-90' : 'transition-all duration-200'} ${window.isMaximized ? '' : 'shadow-2xl rounded-xl border border-white/10'}`}

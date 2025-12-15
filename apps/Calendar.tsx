@@ -4,7 +4,7 @@ import { SkeletonCalendar } from '../components/LoadingSkeleton';
 import { useLocalization } from '../context';
 import { generateUuid } from '../utils/uuid';
 import { Checkbox } from '../components/ui';
-import { required, validateValue } from '../utils/validation';
+import { required, validateValue, validateDateRange } from '../utils/validation';
 import { useSeededCollection } from '../hooks';
 import { toYmd, fromYmd, pad2, addMonths, buildMonthGrid } from '../utils/dateUtils';
 
@@ -173,9 +173,17 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
         const start = draft.allDay ? '00:00' : draft.startTime;
         const end = draft.allDay ? '23:59' : draft.endTime;
 
-        if (!draft.allDay && start >= end) {
-            setDraftError('End time must be after start time.');
-            return;
+        // Validate time range for non-all-day events
+        if (!draft.allDay) {
+            const dateRangeError = validateDateRange(
+                `${draft.date}T${start}`,
+                `${draft.date}T${end}`,
+                'End time must be after start time'
+            );
+            if (dateRangeError) {
+                setDraftError(dateRangeError);
+                return;
+            }
         }
 
         const normalized: CalendarEvent = {

@@ -257,6 +257,7 @@ export const Mail = () => {
     const sendMessage = () => {
         if (!compose) return;
 
+        // Validate recipient email addresses using existing emailValidator
         let recipients: string[];
         try {
             recipients = parseRecipients(compose.to);

@@ -156,6 +156,28 @@ export function custom<T>(fn: (value: T) => boolean, message: string): Validator
 }
 
 /**
+ * Date range validator - validates that start date/time is before end date/time
+ * @param startValue - Start date/time value
+ * @param endValue - End date/time value
+ * @param message - Custom error message (default: "End time must be after start time")
+ * @returns Error message or null if valid
+ */
+export function validateDateRange(
+    startValue: string | Date,
+    endValue: string | Date,
+    message = 'End time must be after start time'
+): string | null {
+    if (!startValue || !endValue) return null;
+
+    const start = typeof startValue === 'string' ? new Date(startValue) : startValue;
+    const end = typeof endValue === 'string' ? new Date(endValue) : endValue;
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return null;
+
+    return start >= end ? message : null;
+}
+
+/**
  * Validate a single value against multiple validators
  * @param value - Value to validate
  * @param validators - Single validator or array of validators

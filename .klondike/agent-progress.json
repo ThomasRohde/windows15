@@ -607,14 +607,9 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F138",
-        "description": "Create StatCard component for metric display grids",
-        "status": "in-progress"
-      },
-      {
         "id": "F139",
         "description": "Create SplitPane layout component for two-panel app layouts",
-        "status": "not-started"
+        "status": "in-progress"
       }
     ]
   }

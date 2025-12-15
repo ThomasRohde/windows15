@@ -30,8 +30,7 @@ klondike feature list  # List all features
 
 | ID   | Description                                                 | Status         |
 | ---- | ----------------------------------------------------------- | -------------- |
-| F138 | Create StatCard component for metric display grids          | 🔄 In progress |
-| F139 | Create SplitPane layout component for two-panel app layouts | ⏳ Not started |
+| F139 | Create SplitPane layout component for two-panel app layouts | 🔄 In progress |
 
 ---
 

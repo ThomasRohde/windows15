@@ -40,3 +40,5 @@ export { FormField } from './FormField';
 export type { FormFieldProps } from './FormField';
 export { StatCard } from './StatCard';
 export type { StatCardProps } from './StatCard';
+export { SplitPane } from './SplitPane';
+export type { SplitPaneProps, SplitPaneDirection } from './SplitPane';

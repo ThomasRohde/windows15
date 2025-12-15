@@ -3778,11 +3778,13 @@
         "SystemInfo details grid migrated to use StatCard"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-15T20:15:02.246891",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "StatCard component created. WordCounter migrated with 4 cards. All tests passing (119 passed)."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-15T20:13:51.801910",
       "notes": "Implementation: Card component with label (small text), value (large text), optional subtitle and icon. Styling: bg-black/20 rounded-lg p-3 with label text-white/60 text-xs and value text-white text-lg font-semibold. Props: label, value, subtitle, icon (Material Symbol name). Edge cases: Long values may need truncation. Dependencies: None. Context: Lower priority - only 2-3 apps use this pattern currently. Gotchas: Consider responsive sizing for different app layouts."
@@ -3801,13 +3803,13 @@
         "Mail app migrated to use SplitPane for list/detail layout"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-15T20:15:06.432855",
       "notes": "Implementation: Flex container with configurable direction and split ratio. Props: direction (horizontal/vertical), primarySize (CSS value like 50% or 1fr), primary (ReactNode), secondary (ReactNode), gap (optional spacing). Edge cases: May need resizable divider in future - design API to support this. Dependencies: None. Context: Lower priority - only 2-3 apps use split layouts. Gotchas: Ensure proper overflow handling for scrollable panels."
     },
     {
@@ -3867,8 +3869,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-15T20:13:47.525824",
+    "lastUpdated": "2025-12-15T20:15:02.246909",
     "totalFeatures": 141,
-    "passingFeatures": 139
+    "passingFeatures": 140
   }
 }

@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                                                   | Status         |
 | ---- | ----------------------------------------------------------------------------- | -------------- |
-| F124 | Migrate apps from raw button elements to existing Button component            | 🔄 In progress |
-| F125 | Extract date utility functions from Calendar.tsx to shared utils              | ⏳ Not started |
+| F125 | Extract date utility functions from Calendar.tsx to shared utils              | 🔄 In progress |
 | F126 | Create useSearchFilter hook for consistent search and filter state management | ⏳ Not started |
+| F127 | Apply existing validation utilities to Calendar and Mail apps                 | ⏳ Not started |
 
 ---
 

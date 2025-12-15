@@ -21,6 +21,9 @@ export * from './clipboard';
 // Array utilities
 export { ensureArray } from './ensureArray';
 
+// Date utilities
+export * from './dateUtils';
+
 // Storage (re-export from storage/index.ts)
 export * from './storage';
 

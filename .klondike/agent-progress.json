@@ -540,18 +540,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F124",
-        "description": "Migrate apps from raw button elements to existing Button component",
-        "status": "in-progress"
-      },
-      {
         "id": "F125",
         "description": "Extract date utility functions from Calendar.tsx to shared utils",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F126",
         "description": "Create useSearchFilter hook for consistent search and filter state management",
+        "status": "not-started"
+      },
+      {
+        "id": "F127",
+        "description": "Apply existing validation utilities to Calendar and Mail apps",
         "status": "not-started"
       }
     ]

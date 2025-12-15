@@ -6,6 +6,7 @@ import { generateUuid } from '../utils/uuid';
 import { Checkbox } from '../components/ui';
 import { required, validateValue } from '../utils/validation';
 import { useSeededCollection } from '../hooks';
+import { toYmd, fromYmd, pad2, addMonths, buildMonthGrid } from '../utils/dateUtils';
 
 type CalendarEvent = {
     id: string;
@@ -19,18 +20,6 @@ type CalendarEvent = {
 };
 
 type EventDraft = Omit<CalendarEvent, 'id'> & { id?: string };
-
-const pad2 = (value: number) => value.toString().padStart(2, '0');
-
-const toYmd = (date: Date) => `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
-
-const fromYmd = (ymd: string) => {
-    const [y, m, d] = ymd.split('-').map(Number);
-    if (!y || !m || !d) return new Date();
-    return new Date(y, m - 1, d);
-};
-
-const addMonths = (date: Date, delta: number) => new Date(date.getFullYear(), date.getMonth() + delta, 1);
 
 const compareTime = (a: CalendarEvent, b: CalendarEvent) => {
     const aKey = a.allDay ? '00:00' : a.startTime;
@@ -83,26 +72,6 @@ const seedEvents = (): CalendarEvent[] => {
             notes: '',
         },
     ];
-};
-
-const buildMonthGrid = (month: Date) => {
-    const year = month.getFullYear();
-    const monthIndex = month.getMonth();
-    const first = new Date(year, monthIndex, 1);
-    const firstWeekday = first.getDay();
-    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-
-    const cells: { date: Date; inMonth: boolean; ymd: string }[] = [];
-
-    for (let i = 0; i < 42; i++) {
-        const dayOffset = i - firstWeekday;
-        const inMonth = dayOffset >= 0 && dayOffset < daysInMonth;
-        // Use dayOffset + 1 to get the correct date - JavaScript Date handles overflow/underflow
-        const cellDate = new Date(year, monthIndex, dayOffset + 1);
-        cells.push({ date: cellDate, inMonth, ymd: toYmd(cellDate) });
-    }
-
-    return cells;
 };
 
 const normalizeInitialDate = (value?: string) => {

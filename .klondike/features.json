@@ -3367,11 +3367,18 @@
         "Button component handles all variant needs (primary/secondary/ghost)"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-15T17:39:32.245753",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Migrated 9 buttons across 6 apps (SystemInfo",
+        "WordCounter",
+        "ColorPicker",
+        "UnitConverter",
+        "RecycleBin",
+        "PasswordGenerator). All use Button component with appropriate variants. Build and lint pass."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-15T17:35:59.514178",
       "notes": "Implementation: Search for '<button' in apps/ directory, replace with Button from components/ui/Button.tsx. Button already supports variants (primary, secondary, ghost), sizes (sm, md, lg), and disabled states. Edge cases: Some buttons have very custom styling - evaluate case by case whether to extend Button variants or leave as custom. Dependencies: Button component already exists and is well-tested. Context: Inconsistent button styling across apps - some use Button component, others use raw button with inline classes. Gotchas: Calculator has a grid of buttons that may need special handling for keyboard navigation."
@@ -3392,13 +3399,13 @@
         "Unit tests cover date utility edge cases"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-15T17:39:36.687174",
       "notes": "Implementation: Create utils/dateUtils.ts and extract getMonthDays (L35-52), isSameDay (L54-59), isSameMonth (L61-66), formatTime (L68-70) from Calendar.tsx. These are pure functions with no dependencies. Edge cases: getMonthDays must handle month boundaries correctly (e.g., Jan 31 -> Feb), timezone edge cases around midnight. Dependencies: None - pure date math. Context: Other apps (Timer, Clock, potential future scheduling features) could reuse these utilities. Gotchas: getMonthDays returns weeks array including days from prev/next months for calendar grid - don't change this behavior."
     },
     {
@@ -3479,8 +3486,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-15T17:35:54.474362",
+    "lastUpdated": "2025-12-15T17:39:32.245769",
     "totalFeatures": 128,
-    "passingFeatures": 124
+    "passingFeatures": 125
   }
 }

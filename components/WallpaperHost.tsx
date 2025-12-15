@@ -7,7 +7,7 @@
  * Integrates WebGPU (F089) and WebGL2 fallback (F090) runtimes.
  * Supports audio-reactive mode with microphone input (F092).
  */
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useDb } from '../context/DbContext';
 import { useWallpaper } from '../context/WallpaperContext';
 import type { WallpaperRuntime, WallpaperSettings } from '../types/wallpaper';
@@ -48,6 +48,22 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
     const [runtimeType, setRuntimeType] = useState<RuntimeType>('none');
     const [runtimeError, setRuntimeError] = useState<string | null>(null);
     const [audioState, setAudioState] = useState<AnalyzerState>('inactive');
+
+    // Refs for values needed in render loop but shouldn't trigger re-init
+    const settingsRef = useRef(settings);
+    const audioStateRef = useRef(audioState);
+    const batterySaverRef = useRef(batterySaver);
+
+    // Keep refs in sync
+    useEffect(() => {
+        settingsRef.current = settings;
+    }, [settings]);
+    useEffect(() => {
+        audioStateRef.current = audioState;
+    }, [audioState]);
+    useEffect(() => {
+        batterySaverRef.current = batterySaver;
+    }, [batterySaver]);
 
     // Determine if we have a live wallpaper active
     const isLiveWallpaperActive = activeManifest?.type === 'shader';
@@ -95,51 +111,143 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
         }
     }, [settings.micSensitivity]);
 
-    // Initialize shader runtime when wallpaper changes
-    const initializeRuntime = useCallback(async () => {
-        if (!canvasRef.current || !activeManifest || activeManifest.type !== 'shader') {
+    // Single effect to manage entire shader runtime lifecycle
+    // This handles init, render loop, and cleanup in one place to avoid race conditions
+    useEffect(() => {
+        if (!isLiveWallpaperActive || !activeManifest || activeManifest.type !== 'shader') {
             return;
         }
 
-        // Dispose previous runtime
-        if (runtimeRef.current) {
-            runtimeRef.current.dispose();
-            runtimeRef.current = null;
-        }
+        const canvas = canvasRef.current;
+        if (!canvas) return;
 
-        try {
-            setRuntimeError(null);
+        let disposed = false;
+        let runtime: WallpaperRuntime | null = null;
 
-            // Create runtime with optional shader URLs from manifest
-            const runtime = await createShaderRuntime({
-                wgslUrl: activeManifest.entry,
-                glslUrl: activeManifest.fallback,
-            });
+        const initAndRun = async () => {
+            try {
+                setRuntimeError(null);
 
-            if (!runtime) {
-                throw new Error('No compatible shader runtime available');
+                // Create runtime with shader URLs from manifest
+                runtime = await createShaderRuntime({
+                    wgslUrl: activeManifest.entry,
+                    glslUrl: activeManifest.fallback,
+                });
+
+                if (!runtime) {
+                    throw new Error('No compatible shader runtime available');
+                }
+
+                // Check if we were disposed during async init
+                if (disposed) {
+                    runtime.dispose();
+                    return;
+                }
+
+                // Initialize with canvas and current settings
+                await runtime.init({
+                    canvas,
+                    settings: settingsRef.current,
+                });
+
+                // Check again after init
+                if (disposed) {
+                    runtime.dispose();
+                    return;
+                }
+
+                runtimeRef.current = runtime;
+                console.log(`[WallpaperHost] Shader runtime initialized (${runtimeType})`);
+
+                // Create and start scheduler for render loop
+                const scheduler = new WallpaperScheduler({
+                    fpsCap: settingsRef.current.fpsCap,
+                    batterySaver: batterySaverRef.current,
+                    quality: settingsRef.current.quality,
+                });
+                schedulerRef.current = scheduler;
+
+                // Initial canvas sizing
+                const dpr = window.devicePixelRatio || 1;
+                const scale = scheduler.resolutionScale ?? 1;
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                canvas.width = Math.floor(width * dpr * scale);
+                canvas.height = Math.floor(height * dpr * scale);
+                canvas.style.width = `${width}px`;
+                canvas.style.height = `${height}px`;
+                runtime.resize(width, height, dpr * scale);
+
+                // Handle window resize
+                const handleResize = () => {
+                    if (!runtime || disposed) return;
+                    const dpr = window.devicePixelRatio || 1;
+                    const scale = schedulerRef.current?.resolutionScale ?? 1;
+                    const w = window.innerWidth;
+                    const h = window.innerHeight;
+                    canvas.width = Math.floor(w * dpr * scale);
+                    canvas.height = Math.floor(h * dpr * scale);
+                    canvas.style.width = `${w}px`;
+                    canvas.style.height = `${h}px`;
+                    runtime.resize(w, h, dpr * scale);
+                };
+                window.addEventListener('resize', handleResize);
+
+                // Start render loop
+                scheduler.start((timestamp: number) => {
+                    if (disposed || !runtime) return;
+                    // Pass audio data to runtime if available
+                    if (audioAnalyzerRef.current && audioStateRef.current === 'active' && 'setAudioData' in runtime) {
+                        const runtimeWithAudio = runtime as WallpaperRuntime & {
+                            setAudioData: (frequencies: Float32Array, level: number) => void;
+                        };
+                        runtimeWithAudio.setAudioData(
+                            audioAnalyzerRef.current.getBandsAsArray(),
+                            audioAnalyzerRef.current.getLevel()
+                        );
+                    }
+                    runtime.render(timestamp);
+                });
+
+                // Store cleanup handler for resize listener
+                (scheduler as unknown as { _resizeHandler: () => void })._resizeHandler = handleResize;
+            } catch (error) {
+                console.error('[WallpaperHost] Failed to initialize shader runtime:', error);
+                setRuntimeError(error instanceof Error ? error.message : 'Unknown error');
             }
+        };
 
-            // Initialize with canvas and settings
-            await runtime.init({
-                canvas: canvasRef.current,
-                settings,
-            });
+        void initAndRun();
 
-            runtimeRef.current = runtime;
-            console.log(`[WallpaperHost] Shader runtime initialized (${runtimeType})`);
-        } catch (error) {
-            console.error('[WallpaperHost] Failed to initialize shader runtime:', error);
-            setRuntimeError(error instanceof Error ? error.message : 'Unknown error');
-        }
-    }, [activeManifest, settings, runtimeType]);
+        // Cleanup function
+        return () => {
+            disposed = true;
+            if (schedulerRef.current) {
+                const handler = (schedulerRef.current as unknown as { _resizeHandler?: () => void })._resizeHandler;
+                if (handler) {
+                    window.removeEventListener('resize', handler);
+                }
+                schedulerRef.current.stop();
+                schedulerRef.current.dispose();
+                schedulerRef.current = null;
+            }
+            if (runtimeRef.current) {
+                runtimeRef.current.dispose();
+                runtimeRef.current = null;
+            }
+        };
+    }, [activeManifest?.id, isLiveWallpaperActive, runtimeType]); // Only re-run when wallpaper changes
 
-    // Initialize runtime when shader wallpaper is selected
+    // Update runtime settings when they change (without reinitializing)
     useEffect(() => {
-        if (isLiveWallpaperActive && activeManifest?.type === 'shader') {
-            void initializeRuntime();
+        if (runtimeRef.current) {
+            runtimeRef.current.setSettings(settings);
         }
-    }, [isLiveWallpaperActive, activeManifest, initializeRuntime]);
+        if (schedulerRef.current) {
+            schedulerRef.current.updateFromSettings(settings);
+            schedulerRef.current.updateConfig({ batterySaver });
+        }
+    }, [settings, batterySaver]);
 
     // Load wallpaper settings from database
     useEffect(() => {
@@ -159,111 +267,6 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
 
         void loadSettings();
     }, [db]);
-
-    // Initialize scheduler
-    useEffect(() => {
-        schedulerRef.current = new WallpaperScheduler({
-            fpsCap: settings.fpsCap,
-            batterySaver,
-            quality: settings.quality,
-        });
-
-        return () => {
-            if (schedulerRef.current) {
-                schedulerRef.current.dispose();
-                schedulerRef.current = null;
-            }
-        };
-    }, []);
-
-    // Update scheduler config when settings change
-    useEffect(() => {
-        if (schedulerRef.current) {
-            schedulerRef.current.updateFromSettings(settings);
-            schedulerRef.current.updateConfig({ batterySaver });
-        }
-    }, [settings, batterySaver]);
-
-    // Handle canvas resize on viewport change
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const handleResize = () => {
-            const dpr = window.devicePixelRatio || 1;
-            const scale = schedulerRef.current?.resolutionScale ?? 1;
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-
-            // Update canvas dimensions (with resolution scaling for battery saver)
-            canvas.width = Math.floor(width * dpr * scale);
-            canvas.height = Math.floor(height * dpr * scale);
-            canvas.style.width = `${width}px`;
-            canvas.style.height = `${height}px`;
-
-            // Notify runtime of resize
-            if (runtimeRef.current) {
-                runtimeRef.current.resize(width, height, dpr * scale);
-            }
-        };
-
-        // Initial sizing
-        handleResize();
-
-        window.addEventListener('resize', handleResize);
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
-    }, []);
-
-    // Start/stop render loop via scheduler
-    useEffect(() => {
-        const scheduler = schedulerRef.current;
-        const runtime = runtimeRef.current;
-
-        if (isLiveWallpaperActive && runtime && scheduler) {
-            // Start scheduler with render callback that includes audio data
-            scheduler.start((timestamp: number) => {
-                // Pass audio data to runtime if available
-                if (audioAnalyzerRef.current && audioState === 'active' && 'setAudioData' in runtime) {
-                    const runtimeWithAudio = runtime as WallpaperRuntime & {
-                        setAudioData: (frequencies: Float32Array, level: number) => void;
-                    };
-                    runtimeWithAudio.setAudioData(
-                        audioAnalyzerRef.current.getBandsAsArray(),
-                        audioAnalyzerRef.current.getLevel()
-                    );
-                }
-                runtime.render(timestamp);
-            });
-        }
-
-        return () => {
-            if (scheduler) {
-                scheduler.stop();
-            }
-        };
-    }, [isLiveWallpaperActive, activeManifest, audioState]);
-
-    // Clean up runtime on unmount or wallpaper change
-    useEffect(() => {
-        return () => {
-            if (schedulerRef.current) {
-                schedulerRef.current.stop();
-            }
-            if (runtimeRef.current) {
-                runtimeRef.current.dispose();
-                runtimeRef.current = null;
-            }
-        };
-    }, [activeManifest]);
-
-    // Update runtime settings when changed
-    useEffect(() => {
-        if (runtimeRef.current) {
-            runtimeRef.current.setSettings(settings);
-        }
-    }, [settings]);
 
     // Render static image fallback or canvas for live wallpaper
     if (!isLiveWallpaperActive || runtimeError) {

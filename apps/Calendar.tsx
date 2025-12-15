@@ -310,7 +310,7 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
             <div className="flex-1 min-h-0 flex">
                 {/* Month Grid */}
                 <div className="flex-1 min-w-0 p-4">
-                    {isLoadingEvents ? (
+                    {isLoadingEvents && events.length === 0 ? (
                         <SkeletonCalendar />
                     ) : (
                         <>

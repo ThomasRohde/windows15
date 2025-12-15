@@ -9,7 +9,8 @@
  */
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useDb } from '../context/DbContext';
-import type { WallpaperRuntime, WallpaperSettings, WallpaperManifest } from '../types/wallpaper';
+import { useWallpaper } from '../context/WallpaperContext';
+import type { WallpaperRuntime, WallpaperSettings } from '../types/wallpaper';
 import { DEFAULT_WALLPAPER_SETTINGS } from '../types/wallpaper';
 import { WallpaperScheduler } from '../utils/WallpaperScheduler';
 import { createShaderRuntime, getPreferredRuntime, type RuntimeType } from '../runtime';
@@ -37,17 +38,19 @@ interface WallpaperHostProps {
  */
 export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, batterySaver = false }) => {
     const db = useDb();
+    const { activeManifest, activeWallpaper: activeWallpaperUrl } = useWallpaper();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const runtimeRef = useRef<WallpaperRuntime | null>(null);
     const schedulerRef = useRef<WallpaperScheduler | null>(null);
     const audioAnalyzerRef = useRef<AudioAnalyzer | null>(null);
 
-    const [activeWallpaper, setActiveWallpaper] = useState<WallpaperManifest | null>(null);
     const [settings, setSettings] = useState<WallpaperSettings>(DEFAULT_WALLPAPER_SETTINGS);
-    const [isLiveWallpaperActive, setIsLiveWallpaperActive] = useState(false);
     const [runtimeType, setRuntimeType] = useState<RuntimeType>('none');
     const [runtimeError, setRuntimeError] = useState<string | null>(null);
     const [audioState, setAudioState] = useState<AnalyzerState>('inactive');
+
+    // Determine if we have a live wallpaper active
+    const isLiveWallpaperActive = activeManifest?.type === 'shader';
 
     // Detect available runtime on mount
     useEffect(() => {
@@ -94,7 +97,7 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
 
     // Initialize shader runtime when wallpaper changes
     const initializeRuntime = useCallback(async () => {
-        if (!canvasRef.current || !activeWallpaper || activeWallpaper.type !== 'shader') {
+        if (!canvasRef.current || !activeManifest || activeManifest.type !== 'shader') {
             return;
         }
 
@@ -109,8 +112,8 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
 
             // Create runtime with optional shader URLs from manifest
             const runtime = await createShaderRuntime({
-                wgslUrl: activeWallpaper.entry,
-                glslUrl: activeWallpaper.fallback,
+                wgslUrl: activeManifest.entry,
+                glslUrl: activeManifest.fallback,
             });
 
             if (!runtime) {
@@ -128,41 +131,33 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
         } catch (error) {
             console.error('[WallpaperHost] Failed to initialize shader runtime:', error);
             setRuntimeError(error instanceof Error ? error.message : 'Unknown error');
-            setIsLiveWallpaperActive(false);
         }
-    }, [activeWallpaper, settings, runtimeType]);
+    }, [activeManifest, settings, runtimeType]);
 
     // Initialize runtime when shader wallpaper is selected
     useEffect(() => {
-        if (isLiveWallpaperActive && activeWallpaper?.type === 'shader') {
+        if (isLiveWallpaperActive && activeManifest?.type === 'shader') {
             void initializeRuntime();
         }
-    }, [isLiveWallpaperActive, activeWallpaper, initializeRuntime]);
+    }, [isLiveWallpaperActive, activeManifest, initializeRuntime]);
 
-    // Load active wallpaper from settings on mount
+    // Load wallpaper settings from database
     useEffect(() => {
-        const loadWallpaperPreference = async () => {
+        const loadSettings = async () => {
             if (!db) return;
 
             try {
-                const wallpaperRecord = await db.kv.get('activeWallpaper');
-                if (wallpaperRecord) {
-                    const manifest = JSON.parse(wallpaperRecord.valueJson) as WallpaperManifest;
-                    setActiveWallpaper(manifest);
-                    setIsLiveWallpaperActive(manifest.type !== 'image');
-                }
-
                 const settingsRecord = await db.kv.get('wallpaperSettings');
                 if (settingsRecord) {
                     const savedSettings = JSON.parse(settingsRecord.valueJson) as WallpaperSettings;
                     setSettings({ ...DEFAULT_WALLPAPER_SETTINGS, ...savedSettings });
                 }
             } catch (error) {
-                console.error('[WallpaperHost] Failed to load preferences:', error);
+                console.error('[WallpaperHost] Failed to load settings:', error);
             }
         };
 
-        void loadWallpaperPreference();
+        void loadSettings();
     }, [db]);
 
     // Initialize scheduler
@@ -248,7 +243,7 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
                 scheduler.stop();
             }
         };
-    }, [isLiveWallpaperActive, activeWallpaper, audioState]);
+    }, [isLiveWallpaperActive, activeManifest, audioState]);
 
     // Clean up runtime on unmount or wallpaper change
     useEffect(() => {
@@ -261,7 +256,7 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
                 runtimeRef.current = null;
             }
         };
-    }, [activeWallpaper]);
+    }, [activeManifest]);
 
     // Update runtime settings when changed
     useEffect(() => {
@@ -273,10 +268,11 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
     // Render static image fallback or canvas for live wallpaper
     if (!isLiveWallpaperActive || runtimeError) {
         // Static image wallpaper (existing behavior or fallback on error)
+        const bgImage = fallbackImage || activeWallpaperUrl || '';
         return (
             <div
                 className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-700 ease-in-out transform scale-105"
-                style={{ backgroundImage: `url('${fallbackImage || ''}')` }}
+                style={{ backgroundImage: `url('${bgImage}')` }}
             >
                 <div className="absolute inset-0 bg-black/10 backdrop-blur-[0px]" />
                 {runtimeError && (

@@ -15,9 +15,31 @@ import { WallpaperManifest, WallpaperSettings, DEFAULT_WALLPAPER_SETTINGS } from
 
 /**
  * Built-in wallpaper packs
- * These are high-quality images from Unsplash
+ * Includes both shader-based live wallpapers and static images
  */
 const BUILT_IN_WALLPAPERS: WallpaperManifest[] = [
+    // Shader-based live wallpapers (WebGPU/WebGL)
+    {
+        id: 'gradient-flow',
+        name: 'Gradient Flow',
+        type: 'shader',
+        entry: '/wallpapers/gradient-flow/shader.wgsl',
+        fallback: '/wallpapers/gradient-flow/shader.glsl',
+        preview:
+            'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"%3E%3Cdefs%3E%3ClinearGradient id="g1" x1="0%25" y1="0%25" x2="100%25" y2="100%25"%3E%3Cstop offset="0%25" style="stop-color:rgb(255,100,150);stop-opacity:1" /%3E%3Cstop offset="50%25" style="stop-color:rgb(100,150,255);stop-opacity:1" /%3E%3Cstop offset="100%25" style="stop-color:rgb(150,255,100);stop-opacity:1" /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width="800" height="600" fill="url(%23g1)"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="24" fill="white" opacity="0.8"%3EAnimated Gradient%3C/text%3E%3C/svg%3E',
+        tags: ['gradient', 'animated', 'minimal', 'live'],
+    },
+    {
+        id: 'particle-field',
+        name: 'Particle Field',
+        type: 'shader',
+        entry: '/wallpapers/particle-field/shader.wgsl',
+        fallback: '/wallpapers/particle-field/shader.glsl',
+        preview:
+            'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"%3E%3Crect width="800" height="600" fill="%23000033"/%3E%3Ccircle cx="100" cy="100" r="3" fill="%23ffffff" opacity="0.8"/%3E%3Ccircle cx="300" cy="200" r="2" fill="%23ffffff" opacity="0.6"/%3E%3Ccircle cx="500" cy="150" r="3" fill="%23ffffff" opacity="0.9"/%3E%3Ccircle cx="700" cy="400" r="2" fill="%23ffffff" opacity="0.7"/%3E%3Ccircle cx="200" cy="500" r="3" fill="%23ffffff" opacity="0.8"/%3E%3Ccircle cx="600" cy="300" r="2" fill="%23ffffff" opacity="0.6"/%3E%3Ccircle cx="400" cy="450" r="3" fill="%23ffffff" opacity="0.9"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="24" fill="white" opacity="0.6"%3EParticle Field%3C/text%3E%3C/svg%3E',
+        tags: ['particles', 'space', 'animated', 'live'],
+    },
+    // Static image wallpapers
     {
         id: 'abstract-gradient',
         name: 'Abstract Gradient',
@@ -172,12 +194,16 @@ export const WallpaperStudio: React.FC = () => {
     // Apply wallpaper
     const handleApplyWallpaper = useCallback(
         async (wallpaper: WallpaperManifest) => {
-            if (!wallpaper.preview) return;
-
             setIsApplying(true);
             try {
-                // For image type wallpapers, we set the preview URL as the wallpaper
-                await setWallpaper(wallpaper.preview);
+                if (wallpaper.type === 'shader') {
+                    // For shader wallpapers, pass the entire manifest to the context
+                    // The WallpaperHost will handle loading and rendering
+                    await setWallpaper(wallpaper);
+                } else if (wallpaper.preview) {
+                    // For image type wallpapers, we set the preview URL as the wallpaper
+                    await setWallpaper(wallpaper.preview);
+                }
                 setSelectedWallpaper(null);
             } catch (error) {
                 console.error('[WallpaperStudio] Failed to set wallpaper:', error);
@@ -585,6 +611,9 @@ function getCategoryIcon(tag: string): string {
         blue: 'water',
         desert: 'landscape',
         minimal: 'crop_square',
+        live: 'play_circle',
+        animated: 'motion_photos_on',
+        particles: 'scatter_plot',
     };
     return icons[tag] ?? 'tag';
 }

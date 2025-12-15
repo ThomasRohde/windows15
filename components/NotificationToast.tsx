@@ -30,6 +30,9 @@ const NOTIFICATION_COLORS: Record<Notification['type'], string> = {
 
 let notificationId = 0;
 
+// Maximum number of notifications to display at once
+const MAX_VISIBLE_NOTIFICATIONS = 5;
+
 /**
  * Toast notification component that displays brief notifications
  * Listens to 'notification:show' events from the event bus
@@ -47,7 +50,11 @@ export const NotificationToast: React.FC = () => {
                 duration: duration ?? 3000,
             };
 
-            setNotifications(prev => [...prev, notification]);
+            setNotifications(prev => {
+                // If at max capacity, remove the oldest notification
+                const updated = prev.length >= MAX_VISIBLE_NOTIFICATIONS ? prev.slice(1) : prev;
+                return [...updated, notification];
+            });
 
             // Auto-dismiss
             setTimeout(() => {

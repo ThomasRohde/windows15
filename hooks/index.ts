@@ -25,3 +25,5 @@ export type {
     UseContextMenuResult,
 } from './useContextMenu';
 export { useCopyToClipboard } from './useCopyToClipboard';
+export { useNotification } from './useNotification';
+export type { NotificationOptions, UseNotificationReturn } from './useNotification';

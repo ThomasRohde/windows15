@@ -4,8 +4,7 @@ import { NotesList } from './NotesList';
 import { NoteEditor } from './NoteEditor';
 import { NoteDraft, NoteRecord } from './types';
 import { useConfirmDialog, ConfirmDialog } from '../../components/ui/ConfirmDialog';
-
-const createId = () => globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 11);
+import { useNotification } from '../../hooks';
 
 /**
  * NotesPanel - Cloud-synced notes view with list and editor
@@ -23,6 +22,7 @@ export const NotesPanel: React.FC = () => {
     const [search, setSearch] = useState('');
 
     const { confirm, dialogProps } = useConfirmDialog();
+    const notify = useNotification();
 
     const selectedNote = useMemo(() => notes.find(note => note.id === selectedId) ?? null, [notes, selectedId]);
 
@@ -63,10 +63,16 @@ export const NotesPanel: React.FC = () => {
     }, [draft.title, draft.content, selectedNote?.id, selectedNote?.title, selectedNote?.content, db.notes]);
 
     const createNote = async () => {
-        const now = Date.now();
-        const id = createId();
-        await db.notes.add({ id, title: 'Untitled', content: '', createdAt: now, updatedAt: now });
-        setSelectedId(id);
+        try {
+            const now = Date.now();
+            // Let Dexie Cloud auto-generate the ID when using @id schema
+            const id = await db.notes.add({ title: 'Untitled', content: '', createdAt: now, updatedAt: now });
+            setSelectedId(id);
+            notify.success('Note created');
+        } catch (error) {
+            console.error('Failed to create note:', error);
+            notify.error('Failed to create note');
+        }
     };
 
     const deleteNote = async (id: string) => {
@@ -85,6 +91,7 @@ export const NotesPanel: React.FC = () => {
             const remaining = notes.filter(n => n.id !== id);
             setSelectedId(remaining[0]?.id ?? null);
         }
+        notify.success('Note deleted');
     };
 
     return (

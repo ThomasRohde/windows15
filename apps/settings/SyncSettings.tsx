@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useDb, getCloudDatabaseUrl, setCloudDatabaseUrl, validateCloudDatabaseUrl } from '@/utils/storage';
 import { copyTextToClipboard } from '@/utils/clipboard';
 import { useConfirmDialog, ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useNotification } from '@/hooks';
 
 const PROD_ORIGIN = 'https://thomasrohde.github.io';
 
@@ -80,6 +81,7 @@ const CopyableCommand = ({ command }: { command: string }) => {
 export const SyncSettings = () => {
     const db = useDb();
     const { confirm, dialogProps } = useConfirmDialog();
+    const notify = useNotification();
     const origin = useMemo(() => getOrigin(), []);
     const [databaseUrl, setDatabaseUrl] = useState(() => getCloudDatabaseUrl() ?? '');
     const [validationError, setValidationError] = useState<string | null>(null);
@@ -188,8 +190,11 @@ export const SyncSettings = () => {
         setIsWorking(true);
         try {
             await db.cloud.login();
+            notify.success('Logged in successfully');
         } catch (err) {
-            setActionError(getUserFriendlyErrorMessage(err));
+            const errorMsg = getUserFriendlyErrorMessage(err);
+            setActionError(errorMsg);
+            notify.error('Login failed');
         } finally {
             setIsWorking(false);
         }
@@ -200,8 +205,11 @@ export const SyncSettings = () => {
         setIsWorking(true);
         try {
             await db.cloud.logout();
+            notify.success('Logged out successfully');
         } catch (err) {
-            setActionError(getUserFriendlyErrorMessage(err));
+            const errorMsg = getUserFriendlyErrorMessage(err);
+            setActionError(errorMsg);
+            notify.error('Logout failed');
         } finally {
             setIsWorking(false);
         }

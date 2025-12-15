@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { useNotification } from '../hooks';
+import { copyTextToClipboard } from '../utils/clipboard';
 
 type Operator = '+' | '-' | '*' | '/' | null;
 
 export const Calculator = () => {
+    const notify = useNotification();
     const [display, setDisplay] = useState('0');
     const [accumulator, setAccumulator] = useState<number | null>(null);
     const [operator, setOperator] = useState<Operator>(null);
@@ -13,6 +16,20 @@ export const Calculator = () => {
         setAccumulator(null);
         setOperator(null);
         setAwaitingNext(true);
+        notify.info('Cleared');
+    };
+
+    const copyResult = async () => {
+        if (display === 'Error') {
+            notify.error('Cannot copy error');
+            return;
+        }
+        try {
+            await copyTextToClipboard(display);
+            notify.success('Copied to clipboard');
+        } catch {
+            notify.error('Failed to copy');
+        }
     };
 
     const formatNumber = (value: number) => {
@@ -152,8 +169,20 @@ export const Calculator = () => {
 
     return (
         <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
-            <div className="flex-1 bg-black/20 rounded-xl p-4 flex items-end justify-end">
-                <span className="text-5xl font-light text-white truncate">{display}</span>
+            <div className="flex-1 bg-black/20 rounded-xl p-4 flex flex-col gap-2">
+                <div className="flex items-center justify-end gap-2">
+                    <button
+                        onClick={copyResult}
+                        className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 transition-colors flex items-center gap-1 text-sm text-white/70 hover:text-white"
+                        title="Copy result"
+                    >
+                        <span className="material-symbols-outlined text-base">content_copy</span>
+                        Copy
+                    </button>
+                </div>
+                <div className="flex-1 flex items-end justify-end">
+                    <span className="text-5xl font-light text-white truncate">{display}</span>
+                </div>
             </div>
             <div className="grid grid-cols-4 gap-2">
                 <Btn v="C" />

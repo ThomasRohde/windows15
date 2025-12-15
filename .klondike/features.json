@@ -2945,13 +2945,13 @@
         "Notification duration is configurable with sensible defaults"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-15T12:52:34.492446",
       "notes": "Implementation: Wrap existing event bus 'notification:show' event in convenience hook. Pattern: const notify = useNotification(); notify.success('File saved!'); notify.error('Failed to load'). The event bus and NotificationToast already exist - this just provides ergonomic API. Edge cases: Handle rapid notifications (queue them), handle long messages (truncate or wrap). Dependencies: hooks/useEventBus.ts, components/NotificationToast.tsx. Context: Currently apps rely on inline error states shown in ErrorBanner - this provides unified feedback mechanism. Gotchas: Ensure notifications don't stack infinitely - implement max visible count."
     },
     {

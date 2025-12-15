@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocalization } from '../context';
 import { formatSpeed, formatTemperature } from '../utils/localization';
+import { useNotification } from '../hooks';
 
 interface WeatherData {
     location: string;
@@ -51,6 +52,7 @@ const getWeatherInfo = (code: number) => {
 
 export const Weather = () => {
     const { locale, unitSystem } = useLocalization();
+    const notify = useNotification();
     const [weather, setWeather] = useState<WeatherData | null>(null);
     const [forecast, setForecast] = useState<ForecastDay[]>([]);
     const [loading, setLoading] = useState(true);
@@ -95,9 +97,11 @@ export const Weather = () => {
                 }
                 setForecast(forecastDays);
                 setLoading(false);
+                notify.success('Weather data loaded');
             } catch {
                 setError('Failed to fetch weather data');
                 setLoading(false);
+                notify.error('Failed to fetch weather data');
             }
         };
 
@@ -137,6 +141,7 @@ export const Weather = () => {
             setLocationName('San Francisco, CA');
             fetchWeather(37.7749, -122.4194, 'San Francisco, CA');
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [locale]);
 
     if (loading) {

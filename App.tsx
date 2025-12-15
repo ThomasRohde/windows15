@@ -20,8 +20,7 @@ import { OSProvider, useOS, DbProvider, useDb, useWindowSpace, UserProfileProvid
 import { useDexieLiveQuery } from './utils/storage/react';
 import { DesktopIconRecord } from './utils/storage/db';
 import { APP_REGISTRY } from './apps';
-import { useHotkeys, useContextMenu } from './hooks';
-import { appEventBus } from './utils/eventBus';
+import { useHotkeys, useContextMenu, useNotification } from './hooks';
 
 const Desktop = () => {
     const {
@@ -37,6 +36,7 @@ const Desktop = () => {
     } = useOS();
     const { is3DMode, settings: windowSpaceSettings, toggle3DMode } = useWindowSpace();
     const db = useDb();
+    const notify = useNotification();
 
     // Overview mode state (F095)
     const [isOverviewOpen, setIsOverviewOpen] = useState(false);
@@ -225,13 +225,9 @@ const Desktop = () => {
 
     const handleRefreshDesktop = useCallback(() => {
         // Trigger a visual refresh notification
-        appEventBus.emit('notification:show', {
-            message: 'Desktop refreshed',
-            type: 'info',
-            duration: 1500,
-        });
+        notify.info('Desktop refreshed', { duration: 1500 });
         closeDesktopMenu();
-    }, [closeDesktopMenu]);
+    }, [notify, closeDesktopMenu]);
 
     const handleOpenDisplaySettings = useCallback(() => {
         openWindow('settings');
@@ -266,11 +262,7 @@ const Desktop = () => {
         'ctrl+alt+3': () => {
             toggle3DMode();
             const newMode = !is3DMode ? '3D' : 'Flat';
-            appEventBus.emit('notification:show', {
-                message: `Window Space: ${newMode} Mode`,
-                type: 'info',
-                duration: 2000,
-            });
+            notify.info(`Window Space: ${newMode} Mode`, { duration: 2000 });
         },
         // Overview mode (F095)
         'ctrl+tab': () => openOverview(),

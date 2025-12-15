@@ -9,13 +9,14 @@ import {
 } from '../utils/fileSystem';
 import { FileSystemItem } from '../types';
 import { ContextMenu } from '../components/ContextMenu';
-import { useContextMenu } from '../hooks';
+import { useContextMenu, useNotification } from '../hooks';
 import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog';
 
 export const RecycleBin = () => {
     const [items, setItems] = useState<FileSystemItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedItem, setSelectedItem] = useState<FileSystemItem | null>(null);
+    const notify = useNotification();
 
     const {
         menu: contextMenu,
@@ -50,6 +51,7 @@ export const RecycleBin = () => {
         await restoreFromRecycleBin(item.id);
         setSelectedItem(null);
         closeContextMenu();
+        notify.success(`Restored "${item.name}"`);
     };
 
     const handlePermanentDelete = async (item: FileSystemItem) => {
@@ -65,6 +67,7 @@ export const RecycleBin = () => {
         await permanentlyDelete(item.id);
         setSelectedItem(null);
         closeContextMenu();
+        notify.success(`Permanently deleted "${item.name}"`);
     };
 
     const handleEmptyRecycleBin = async () => {
@@ -80,6 +83,7 @@ export const RecycleBin = () => {
         if (!confirmed) return;
 
         await emptyRecycleBin();
+        notify.success('Recycle Bin emptied');
     };
 
     const handleContextMenu = (e: React.MouseEvent, item?: FileSystemItem) => {

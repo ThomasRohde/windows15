@@ -355,9 +355,12 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
             ? `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`
             : '';
 
-    // Combine all transforms
+    // Combine all transforms - use ref during drag to avoid state/RAF conflicts
     const buildTransform = () => {
-        const parts = [`translate3d(${position.x}px, ${position.y}px, 0)`];
+        // During drag/resize, use the ref value which is updated by RAF
+        // This prevents the position snapping back to state on re-renders
+        const pos = isDragging || isResizing ? positionRef.current : position;
+        const parts = [`translate3d(${pos.x}px, ${pos.y}px, 0)`];
         if (transform3D) parts.push(transform3D);
         if (tiltTransform) parts.push(tiltTransform);
         return parts.join(' ');
@@ -375,8 +378,9 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
         : {
               top: 0,
               left: 0,
-              width: size.width,
-              height: size.height,
+              // During drag/resize, use ref values to avoid state/RAF conflicts
+              width: isResizing ? sizeRef.current.width : size.width,
+              height: isResizing ? sizeRef.current.height : size.height,
               transform: buildTransform(),
               // Ensure 3D transforms work with pointer events
               transformStyle: is3DMode ? 'preserve-3d' : undefined,

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { useAsyncAction } from '../hooks';
 
 interface JsonNodeProps {
-    data: any;
+    data: unknown;
     keyName?: string | number;
     level: number;
 }
@@ -9,7 +10,7 @@ interface JsonNodeProps {
 const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level }) => {
     const [collapsed, setCollapsed] = useState(false);
 
-    const getType = (value: any): string => {
+    const getType = (value: unknown): string => {
         if (value === null) return 'null';
         if (Array.isArray(value)) return 'array';
         return typeof value;
@@ -44,7 +45,8 @@ const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level }) => {
         );
     }
 
-    const entries = type === 'array' ? data.map((v: any, i: number) => [i, v]) : Object.entries(data);
+    const entries =
+        type === 'array' ? (data as unknown[]).map((v, i) => [i, v]) : Object.entries(data as Record<string, unknown>);
     const bracket = type === 'array' ? ['[', ']'] : ['{', '}'];
 
     return (
@@ -60,14 +62,16 @@ const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level }) => {
                 <span className="text-white">{bracket[0]}</span>
                 {collapsed && (
                     <span className="text-gray-500">
-                        {type === 'array' ? `${data.length} items` : `${Object.keys(data).length} keys`}
+                        {type === 'array'
+                            ? `${(data as unknown[]).length} items`
+                            : `${Object.keys(data as Record<string, unknown>).length} keys`}
                     </span>
                 )}
                 {collapsed && <span className="text-white">{bracket[1]}</span>}
             </div>
             {!collapsed && (
                 <>
-                    {entries.map(([entryKey, value]: [any, any], idx: number) => (
+                    {entries.map(([entryKey, value], idx) => (
                         <JsonNode
                             key={idx}
                             data={value}
@@ -86,44 +90,32 @@ const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level }) => {
 
 export const JsonViewer = () => {
     const [input, setInput] = useState('');
-    const [parsedJson, setParsedJson] = useState<any>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [parsedJson, setParsedJson] = useState<unknown>(null);
     const [view, setView] = useState<'tree' | 'formatted'>('tree');
+    const { execute, error } = useAsyncAction();
 
-    const parseJson = () => {
+    const parseJson = async () => {
         if (!input.trim()) {
-            setError('Please enter JSON to parse');
-            setParsedJson(null);
-            return;
+            throw new Error('Please enter JSON to parse');
         }
-        try {
+        await execute(async () => {
             const parsed = JSON.parse(input);
             setParsedJson(parsed);
-            setError(null);
-        } catch (e) {
-            setError((e as Error).message);
-            setParsedJson(null);
-        }
+        });
     };
 
-    const formatJson = () => {
-        try {
+    const formatJson = async () => {
+        await execute(async () => {
             const parsed = JSON.parse(input);
             setInput(JSON.stringify(parsed, null, 2));
-            setError(null);
-        } catch (e) {
-            setError((e as Error).message);
-        }
+        });
     };
 
-    const minifyJson = () => {
-        try {
+    const minifyJson = async () => {
+        await execute(async () => {
             const parsed = JSON.parse(input);
             setInput(JSON.stringify(parsed));
-            setError(null);
-        } catch (e) {
-            setError((e as Error).message);
-        }
+        });
     };
 
     return (

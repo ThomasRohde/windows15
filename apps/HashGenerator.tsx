@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useCopyToClipboard } from '../hooks';
+import { useCopyToClipboard, useAsyncAction } from '../hooks';
 
 const md5 = (str: string): string => {
     const rotateLeft = (x: number, n: number) => (x << n) | (x >>> (32 - n));
@@ -173,7 +173,7 @@ export const HashGenerator = () => {
     const [input, setInput] = useState('');
     const [hashes, setHashes] = useState<HashResult[]>([]);
     const { copy, isCopied } = useCopyToClipboard();
-    const [loading, setLoading] = useState(false);
+    const { execute, loading } = useAsyncAction();
 
     const generateHashes = async () => {
         if (!input) {
@@ -181,8 +181,7 @@ export const HashGenerator = () => {
             return;
         }
 
-        setLoading(true);
-        try {
+        await execute(async () => {
             const [sha1Hash, sha256Hash] = await Promise.all([sha1(input), sha256(input)]);
 
             setHashes([
@@ -190,10 +189,7 @@ export const HashGenerator = () => {
                 { name: 'SHA-1', value: sha1Hash, length: 40 },
                 { name: 'SHA-256', value: sha256Hash, length: 64 },
             ]);
-        } catch (e) {
-            console.error('Hash generation failed:', e);
-        }
-        setLoading(false);
+        });
     };
 
     const handleCopy = (hash: HashResult) => {

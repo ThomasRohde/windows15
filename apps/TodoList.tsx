@@ -19,6 +19,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { useDb, useDexieLiveQuery } from '../utils/storage';
 import { generateUuid } from '../utils/uuid';
 import { ErrorBanner, ConfirmDialog, Button } from '../components/ui';
+import { useAsyncAction } from '../hooks';
 
 type Filter = 'all' | 'active' | 'completed';
 type Priority = 'low' | 'medium' | 'high';
@@ -72,8 +73,6 @@ export const TodoList = () => {
     const [filter, setFilter] = useState<Filter>('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [sortMode, setSortMode] = useState<SortMode>('smart');
-    const [error, setError] = useState<string | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editText, setEditText] = useState('');
     const [editPriority, setEditPriority] = useState<Priority | undefined>(undefined);
@@ -82,29 +81,34 @@ export const TodoList = () => {
     const [newTodoPriority, setNewTodoPriority] = useState<Priority | undefined>(undefined);
     const [newTodoDueDate, setNewTodoDueDate] = useState<string>('');
 
+    // Async action hooks for different operations
+    const addAction = useAsyncAction({ errorPrefix: 'Failed to add task' });
+    const updateAction = useAsyncAction({ errorPrefix: 'Failed to update task' });
+    const deleteAction = useAsyncAction({ errorPrefix: 'Failed to delete task' });
+    const bulkAction = useAsyncAction();
+
+    // Combine errors from all async actions
+    const error = addAction.error || updateAction.error || deleteAction.error || bulkAction.error;
+    const clearError = () => {
+        addAction.clearError();
+        updateAction.clearError();
+        deleteAction.clearError();
+        bulkAction.clearError();
+    };
+
     const addTodo = async () => {
         const trimmedInput = input.trim();
 
         // Validation
         if (!trimmedInput) {
-            setError('Task cannot be empty');
-            return;
+            throw new Error('Task cannot be empty');
         }
 
         if (trimmedInput.length > 500) {
-            setError('Task is too long (max 500 characters)');
-            return;
+            throw new Error('Task is too long (max 500 characters)');
         }
 
-        // Prevent duplicate submissions
-        if (isSubmitting) {
-            return;
-        }
-
-        setIsSubmitting(true);
-        setError(null);
-
-        try {
+        await addAction.execute(async () => {
             const now = Date.now();
             const minSortOrder = todos.reduce((min, todo) => {
                 const order = typeof todo.sortOrder === 'number' ? todo.sortOrder : todo.createdAt;
@@ -124,41 +128,27 @@ export const TodoList = () => {
             setInput('');
             setNewTodoPriority(undefined);
             setNewTodoDueDate('');
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to add task');
-            console.error('Error adding todo:', err);
-        } finally {
-            setIsSubmitting(false);
-        }
+        });
     };
 
     const toggleTodo = async (id: string) => {
-        try {
+        await updateAction.execute(async () => {
             const todo = todos.find(t => t.id === id);
             if (!todo) {
-                setError('Task not found');
-                return;
+                throw new Error('Task not found');
             }
 
             await db.todos.update(id, {
                 completed: !todo.completed,
                 updatedAt: Date.now(),
             });
-            setError(null);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to update task');
-            console.error('Error toggling todo:', err);
-        }
+        });
     };
 
     const deleteTodo = async (id: string) => {
-        try {
+        await deleteAction.execute(async () => {
             await db.todos.delete(id);
-            setError(null);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to delete task');
-            console.error('Error deleting todo:', err);
-        }
+        });
     };
 
     const startEdit = (id: string, currentText: string, currentPriority?: Priority, currentDueDate?: number) => {
@@ -166,7 +156,7 @@ export const TodoList = () => {
         setEditText(currentText);
         setEditPriority(currentPriority);
         setEditDueDate(currentDueDate ? new Date(currentDueDate).toISOString().split('T')[0] : '');
-        setError(null);
+        clearError();
     };
 
     const cancelEdit = () => {
@@ -180,16 +170,14 @@ export const TodoList = () => {
         const trimmedText = editText.trim();
 
         if (!trimmedText) {
-            setError('Task cannot be empty');
-            return;
+            throw new Error('Task cannot be empty');
         }
 
         if (trimmedText.length > 500) {
-            setError('Task is too long (max 500 characters)');
-            return;
+            throw new Error('Task is too long (max 500 characters)');
         }
 
-        try {
+        await updateAction.execute(async () => {
             await db.todos.update(id, {
                 text: trimmedText,
                 priority: editPriority,
@@ -200,15 +188,11 @@ export const TodoList = () => {
             setEditText('');
             setEditPriority(undefined);
             setEditDueDate('');
-            setError(null);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to update task');
-            console.error('Error updating todo:', err);
-        }
+        });
     };
 
     const completeAll = async () => {
-        try {
+        await bulkAction.execute(async () => {
             const activeTodos = todos.filter(t => !t.completed);
             const now = Date.now();
 
@@ -220,34 +204,22 @@ export const TodoList = () => {
                     })
                 )
             );
-            setError(null);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to complete all tasks');
-            console.error('Error completing all todos:', err);
-        }
+        });
     };
 
     const clearCompleted = async () => {
-        try {
+        await bulkAction.execute(async () => {
             const completedIds = todos.filter(t => t.completed).map(t => t.id);
             await db.todos.bulkDelete(completedIds);
-            setError(null);
             setShowConfirmation(null);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to clear completed tasks');
-            console.error('Error clearing completed todos:', err);
-        }
+        });
     };
 
     const deleteAll = async () => {
-        try {
+        await bulkAction.execute(async () => {
             await db.todos.clear();
-            setError(null);
             setShowConfirmation(null);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to delete all tasks');
-            console.error('Error deleting all todos:', err);
-        }
+        });
     };
 
     const filteredAndSortedTodos = useMemo(() => {
@@ -325,17 +297,13 @@ export const TodoList = () => {
         const newOrder = arrayMove(filteredAndSortedTodos, oldIndex, newIndex);
         const now = Date.now();
 
-        try {
+        await bulkAction.execute(async () => {
             await db.transaction('rw', db.todos, async () => {
                 for (let i = 0; i < newOrder.length; i++) {
                     await db.todos.update(newOrder[i].id, { sortOrder: i, updatedAt: now });
                 }
             });
-            setError(null);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to reorder tasks');
-            console.error('Error reordering todos:', err);
-        }
+        });
     };
 
     const getPriorityColor = (priority?: Priority) => {
@@ -407,7 +375,7 @@ export const TodoList = () => {
                 onCancel={() => setShowConfirmation(null)}
             />
 
-            {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
+            {error && <ErrorBanner message={error} onDismiss={clearError} />}
 
             <div className="space-y-2">
                 <div className="flex gap-2">
@@ -415,13 +383,18 @@ export const TodoList = () => {
                         type="text"
                         value={input}
                         onChange={e => setInput(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && !isSubmitting && addTodo()}
+                        onKeyDown={e => e.key === 'Enter' && !addAction.loading && addTodo()}
                         placeholder="Add a new task..."
-                        disabled={isSubmitting}
+                        disabled={addAction.loading}
                         maxLength={500}
                         className="flex-1 bg-black/30 text-white px-4 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     />
-                    <Button onClick={addTodo} disabled={isSubmitting} loading={isSubmitting} variant="secondary">
+                    <Button
+                        onClick={addTodo}
+                        disabled={addAction.disabled}
+                        loading={addAction.loading}
+                        variant="secondary"
+                    >
                         Add
                     </Button>
                 </div>

@@ -2945,11 +2945,17 @@
         "Notification duration is configurable with sensible defaults"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-15T15:07:14.888840",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Hook implemented with success/error/info/warning methods. Integrated into 5 apps: Weather",
+        "Calculator",
+        "RecycleBin",
+        "NotesPanel",
+        "SyncSettings. NotificationToast handles events via event bus. Duration is configurable with 3000ms default. Max 5 visible notifications to prevent stacking."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-15T12:52:34.492446",
       "notes": "Implementation: Wrap existing event bus 'notification:show' event in convenience hook. Pattern: const notify = useNotification(); notify.success('File saved!'); notify.error('Failed to load'). The event bus and NotificationToast already exist - this just provides ergonomic API. Edge cases: Handle rapid notifications (queue them), handle long messages (truncate or wrap). Dependencies: hooks/useEventBus.ts, components/NotificationToast.tsx. Context: Currently apps rely on inline error states shown in ErrorBanner - this provides unified feedback mechanism. Gotchas: Ensure notifications don't stack infinitely - implement max visible count."
@@ -2967,13 +2973,13 @@
         "Error messages automatically extracted and displayed"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-15T15:07:22.938925",
       "notes": "Implementation: The useAsyncAction hook already exists in hooks/useAsyncAction.ts but is underutilized. Pattern: const { execute, loading, error, clearError } = useAsyncAction<T>(); await execute(async () => { return await db.todos.add({...}); }). Target apps: TodoList (15+ setError calls), Weather (3 error states), Terminal, Base64Tool, Calendar, Mail. Edge cases: Hook prevents concurrent executions - ensure this is desired behavior. Dependencies: hooks/useAsyncAction.ts already exists. Gotchas: Some apps may need multiple async actions - consider if hook supports this pattern or needs enhancement."
     },
     {
@@ -3133,8 +3139,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-15T12:46:48.729656",
+    "lastUpdated": "2025-12-15T15:07:14.888854",
     "totalFeatures": 118,
-    "passingFeatures": 109
+    "passingFeatures": 110
   }
 }

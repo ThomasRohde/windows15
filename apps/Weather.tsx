@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocalization } from '../context';
 import { formatSpeed, formatTemperature } from '../utils/localization';
-import { useNotification } from '../hooks';
+import { useNotification, useAsyncAction } from '../hooks';
 
 interface WeatherData {
     location: string;
@@ -55,16 +55,20 @@ export const Weather = () => {
     const notify = useNotification();
     const [weather, setWeather] = useState<WeatherData | null>(null);
     const [forecast, setForecast] = useState<ForecastDay[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [locationName, setLocationName] = useState('Detecting location...');
+
+    const { execute, loading, error } = useAsyncAction({
+        errorPrefix: 'Failed to fetch weather data',
+        onSuccess: () => notify.success('Weather data loaded'),
+        onError: () => notify.error('Failed to fetch weather data'),
+    });
 
     useEffect(() => {
         const weekdayFormatter = new Intl.DateTimeFormat(locale, { weekday: 'short' });
         const getDayName = (dateStr: string) => weekdayFormatter.format(new Date(dateStr));
 
         const fetchWeather = async (lat: number, lon: number, location: string) => {
-            try {
+            await execute(async () => {
                 const response = await fetch(
                     `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`
                 );
@@ -96,13 +100,7 @@ export const Weather = () => {
                     });
                 }
                 setForecast(forecastDays);
-                setLoading(false);
-                notify.success('Weather data loaded');
-            } catch {
-                setError('Failed to fetch weather data');
-                setLoading(false);
-                notify.error('Failed to fetch weather data');
-            }
+            });
         };
 
         const getLocationName = async (lat: number, lon: number) => {

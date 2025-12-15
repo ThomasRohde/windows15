@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useAsyncAction } from '../hooks';
 
 interface ImageViewerProps {
     initialSrc?: string;
@@ -10,8 +11,8 @@ export const ImageViewer = ({ initialSrc }: ImageViewerProps) => {
     );
     const [urlInput, setUrlInput] = useState('');
     const [zoom, setZoom] = useState(100);
-    const [error, setError] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
+    const { execute, error: loadError } = useAsyncAction();
 
     const handleZoomIn = () => {
         setZoom(prev => Math.min(prev + 25, 300));
@@ -25,11 +26,19 @@ export const ImageViewer = ({ initialSrc }: ImageViewerProps) => {
         setZoom(100);
     };
 
-    const handleLoadUrl = () => {
+    const handleLoadUrl = async () => {
         if (urlInput.trim()) {
-            setError(false);
-            setImageSrc(urlInput.trim());
-            setZoom(100);
+            await execute(async () => {
+                // Test if image can load before setting
+                const img = new window.Image();
+                await new Promise<void>((resolve, reject) => {
+                    img.onload = () => resolve();
+                    img.onerror = () => reject(new Error('Failed to load image'));
+                    img.src = urlInput.trim();
+                });
+                setImageSrc(urlInput.trim());
+                setZoom(100);
+            });
         }
     };
 
@@ -83,10 +92,10 @@ export const ImageViewer = ({ initialSrc }: ImageViewerProps) => {
             </div>
 
             <div ref={containerRef} className="flex-1 overflow-auto flex items-center justify-center p-4 bg-[#0d0d0d]">
-                {error ? (
+                {loadError ? (
                     <div className="text-center">
                         <span className="material-symbols-outlined text-6xl text-white/20 mb-4">broken_image</span>
-                        <p className="text-white/40 text-sm">Failed to load image</p>
+                        <p className="text-white/40 text-sm">{loadError}</p>
                     </div>
                 ) : (
                     <img
@@ -99,8 +108,6 @@ export const ImageViewer = ({ initialSrc }: ImageViewerProps) => {
                             objectFit: 'contain',
                         }}
                         className="transition-transform duration-200"
-                        onError={() => setError(true)}
-                        onLoad={() => setError(false)}
                         draggable={false}
                     />
                 )}

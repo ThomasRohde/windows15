@@ -1,61 +1,55 @@
 import React, { useState } from 'react';
-import { useCopyToClipboard } from '../hooks';
+import { useCopyToClipboard, useAsyncAction } from '../hooks';
 import { TabSwitcher, ErrorBanner } from '../components/ui';
 
 export const Base64Tool = () => {
     const [input, setInput] = useState('');
     const [output, setOutput] = useState('');
     const [mode, setMode] = useState<'encode' | 'decode'>('encode');
-    const [error, setError] = useState<string | null>(null);
     const { copy, copied } = useCopyToClipboard();
+    const { execute, error, clearError } = useAsyncAction();
 
-    const encode = () => {
-        try {
+    const encode = async () => {
+        await execute(async () => {
             const encoded = btoa(unescape(encodeURIComponent(input)));
             setOutput(encoded);
-            setError(null);
-        } catch (e) {
-            setError('Failed to encode: ' + (e as Error).message);
-            setOutput('');
-        }
+        });
     };
 
-    const decode = () => {
-        try {
+    const decode = async () => {
+        await execute(async () => {
             const decoded = decodeURIComponent(escape(atob(input)));
             setOutput(decoded);
-            setError(null);
-        } catch {
-            setError('Invalid Base64 string');
-            setOutput('');
-        }
+        });
     };
 
-    const handleAction = () => {
+    const handleAction = async () => {
         if (mode === 'encode') {
-            encode();
+            await encode();
         } else {
-            decode();
+            await decode();
         }
     };
 
     const handleCopy = async () => {
-        const ok = await copy(output);
-        if (!ok) {
-            setError('Failed to copy to clipboard');
-        }
+        await execute(async () => {
+            const ok = await copy(output);
+            if (!ok) {
+                throw new Error('Failed to copy to clipboard');
+            }
+        });
     };
 
     const swap = () => {
         setInput(output);
         setOutput('');
-        setError(null);
+        clearError();
     };
 
     const clear = () => {
         setInput('');
         setOutput('');
-        setError(null);
+        clearError();
     };
 
     return (
@@ -113,7 +107,7 @@ export const Base64Tool = () => {
                     </button>
                 </div>
 
-                {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
+                {error && <ErrorBanner message={error} onDismiss={clearError} />}
 
                 <div className="flex-1 flex flex-col min-h-0">
                     <div className="flex justify-between items-center mb-2">

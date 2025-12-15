@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAsyncAction } from '../hooks';
+import { AppToolbar } from '../components/ui';
 
 interface JsonNodeProps {
     data: unknown;
@@ -120,7 +121,7 @@ export const JsonViewer = () => {
 
     return (
         <div className="h-full flex flex-col bg-background-dark text-white">
-            <div className="flex gap-2 p-3 bg-[#2d2d2d] border-b border-white/10">
+            <AppToolbar>
                 <button
                     onClick={parseJson}
                     className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded text-sm font-medium transition-colors"
@@ -139,7 +140,6 @@ export const JsonViewer = () => {
                 >
                     Minify
                 </button>
-                <div className="flex-1" />
                 <div className="flex bg-black/20 rounded overflow-hidden">
                     <button
                         onClick={() => setView('tree')}
@@ -154,7 +154,7 @@ export const JsonViewer = () => {
                         Formatted
                     </button>
                 </div>
-            </div>
+            </AppToolbar>
 
             <div className="flex-1 flex min-h-0">
                 <div className="w-1/2 flex flex-col border-r border-white/10">

@@ -7,6 +7,7 @@ export { AppContainer } from './AppContainer';
 export type { AppContainerProps } from './AppContainer';
 export { AppSidebar } from './AppSidebar';
 export type { SidebarItem } from './AppSidebar';
+export { AppToolbar } from './AppToolbar';
 export { Button } from './Button';
 export type { ButtonProps, ButtonVariant, ButtonSize } from './Button';
 export { Card } from './Card';

@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                                                   | Status         |
 | ---- | ----------------------------------------------------------------------------- | -------------- |
-| F130 | Create CopyButton component with feedback state and migrate all apps          | 🔄 In progress |
-| F131 | Create AppToolbar component and migrate all apps with toolbar headers         | ⏳ Not started |
+| F131 | Create AppToolbar component and migrate all apps with toolbar headers         | 🔄 In progress |
 | F132 | Extract time formatting utilities to utils/timeFormatters.ts and migrate apps | ⏳ Not started |
+| F133 | Create TextArea component with dark theme styling and migrate apps            | ⏳ Not started |
 
 ---
 

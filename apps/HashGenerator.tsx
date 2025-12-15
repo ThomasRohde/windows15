@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAsyncAction } from '../hooks';
-import { SectionLabel, CopyButton } from '../components/ui';
+import { SectionLabel, CopyButton, AppToolbar } from '../components/ui';
 
 const md5 = (str: string): string => {
     const rotateLeft = (x: number, n: number) => (x << n) | (x >>> (32 - n));
@@ -199,16 +199,14 @@ export const HashGenerator = () => {
 
     return (
         <div className="h-full flex flex-col bg-background-dark text-white">
-            <div className="flex items-center gap-3 p-3 bg-[#2d2d2d] border-b border-white/10">
-                <span className="text-sm text-gray-400">Hash Generator</span>
-                <div className="flex-1" />
+            <AppToolbar title="Hash Generator">
                 <button
                     onClick={clear}
                     className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors"
                 >
                     Clear
                 </button>
-            </div>
+            </AppToolbar>
 
             <div className="flex-1 flex flex-col min-h-0 p-4 gap-4">
                 <div className="flex flex-col gap-2">

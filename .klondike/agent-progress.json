@@ -573,18 +573,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F130",
-        "description": "Create CopyButton component with feedback state and migrate all apps",
-        "status": "in-progress"
-      },
-      {
         "id": "F131",
         "description": "Create AppToolbar component and migrate all apps with toolbar headers",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F132",
         "description": "Extract time formatting utilities to utils/timeFormatters.ts and migrate apps",
+        "status": "not-started"
+      },
+      {
+        "id": "F133",
+        "description": "Create TextArea component with dark theme styling and migrate apps",
         "status": "not-started"
       }
     ]

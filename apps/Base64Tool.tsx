@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAsyncAction } from '../hooks';
-import { TabSwitcher, ErrorBanner, SectionLabel, CopyButton } from '../components/ui';
+import { TabSwitcher, ErrorBanner, SectionLabel, CopyButton, AppToolbar } from '../components/ui';
 
 export const Base64Tool = () => {
     const [input, setInput] = useState('');
@@ -44,7 +44,7 @@ export const Base64Tool = () => {
 
     return (
         <div className="h-full flex flex-col bg-background-dark text-white">
-            <div className="flex items-center gap-3 p-3 bg-[#2d2d2d] border-b border-white/10">
+            <AppToolbar>
                 <TabSwitcher
                     options={[
                         { value: 'encode', label: 'Encode' },
@@ -55,14 +55,13 @@ export const Base64Tool = () => {
                     variant="secondary"
                     size="sm"
                 />
-                <div className="flex-1" />
                 <button
                     onClick={clear}
                     className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors"
                 >
                     Clear All
                 </button>
-            </div>
+            </AppToolbar>
 
             <div className="flex-1 flex flex-col min-h-0 p-4 gap-4">
                 <div className="flex-1 flex flex-col min-h-0">

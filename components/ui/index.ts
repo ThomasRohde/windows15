@@ -32,3 +32,5 @@ export { TextArea } from './TextArea';
 export type { TextAreaProps, TextAreaVariant, TextAreaResize } from './TextArea';
 export { TextInput } from './TextInput';
 export type { TextInputProps, TextInputType, TextInputSize } from './TextInput';
+export { Select } from './Select';
+export type { SelectProps, SelectOption, SelectSize } from './Select';

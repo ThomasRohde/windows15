@@ -50,6 +50,7 @@ export default [
                 HTMLElement: 'readonly',
                 HTMLInputElement: 'readonly',
                 HTMLTextAreaElement: 'readonly',
+                HTMLSelectElement: 'readonly',
                 HTMLDivElement: 'readonly',
                 HTMLCanvasElement: 'readonly',
                 HTMLIFrameElement: 'readonly',

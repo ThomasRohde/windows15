@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AppContainer, TabSwitcher, Card, Button, SectionLabel, TextInput } from '../components/ui';
+import { AppContainer, TabSwitcher, Card, Button, SectionLabel, TextInput, Select } from '../components/ui';
 
 type Category = 'length' | 'weight' | 'temperature' | 'data';
 
@@ -122,17 +122,16 @@ export const UnitConverter = () => {
                             size="lg"
                             placeholder="Enter value"
                         />
-                        <select
+                        <Select
                             value={fromUnit}
-                            onChange={e => setFromUnit(parseInt(e.target.value))}
-                            className="bg-white/10 text-white p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer"
-                        >
-                            {currentUnits.map((unit, index) => (
-                                <option key={unit.value} value={index} className="bg-gray-800">
-                                    {unit.label} ({unit.value})
-                                </option>
-                            ))}
-                        </select>
+                            onChange={value => setFromUnit(Number(value))}
+                            options={currentUnits.map((unit, index) => ({
+                                value: index,
+                                label: `${unit.label} (${unit.value})`,
+                            }))}
+                            className="focus:ring-2 focus:ring-orange-500"
+                            size="lg"
+                        />
                     </div>
                 </div>
 
@@ -146,17 +145,16 @@ export const UnitConverter = () => {
                         <div className="flex-1 bg-white/5 text-white text-xl p-3 rounded-lg border border-white/10">
                             {result || '—'}
                         </div>
-                        <select
+                        <Select
                             value={toUnit}
-                            onChange={e => setToUnit(parseInt(e.target.value))}
-                            className="bg-white/10 text-white p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 cursor-pointer"
-                        >
-                            {currentUnits.map((unit, index) => (
-                                <option key={unit.value} value={index} className="bg-gray-800">
-                                    {unit.label} ({unit.value})
-                                </option>
-                            ))}
-                        </select>
+                            onChange={value => setToUnit(Number(value))}
+                            options={currentUnits.map((unit, index) => ({
+                                value: index,
+                                label: `${unit.label} (${unit.value})`,
+                            }))}
+                            className="focus:ring-2 focus:ring-orange-500"
+                            size="lg"
+                        />
                     </div>
                 </div>
 

@@ -18,7 +18,16 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useDb, useDexieLiveQuery } from '../utils/storage';
 import { generateUuid, ensureArray } from '../utils';
-import { AppContainer, ErrorBanner, ConfirmDialog, Button, Checkbox, SearchInput, TextInput } from '../components/ui';
+import {
+    AppContainer,
+    ErrorBanner,
+    ConfirmDialog,
+    Button,
+    Checkbox,
+    SearchInput,
+    TextInput,
+    Select,
+} from '../components/ui';
 import { useAsyncAction } from '../hooks';
 import { required, maxLength, validateValue } from '../utils/validation';
 
@@ -401,16 +410,18 @@ export const TodoList = () => {
                 </div>
 
                 <div className="flex gap-2 flex-wrap items-center">
-                    <select
+                    <Select
                         value={newTodoPriority || ''}
-                        onChange={e => setNewTodoPriority((e.target.value as Priority) || undefined)}
-                        className="bg-black/30 text-white px-3 py-1 rounded-lg border border-white/10 focus:outline-none focus:border-blue-500 text-sm"
-                    >
-                        <option value="">No priority</option>
-                        <option value="low">Low priority</option>
-                        <option value="medium">Medium priority</option>
-                        <option value="high">High priority</option>
-                    </select>
+                        onChange={value => setNewTodoPriority((value as Priority) || undefined)}
+                        options={[
+                            { value: '', label: 'No priority' },
+                            { value: 'low', label: 'Low priority' },
+                            { value: 'medium', label: 'Medium priority' },
+                            { value: 'high', label: 'High priority' },
+                        ]}
+                        className="bg-black/30"
+                        size="sm"
+                    />
 
                     <TextInput
                         type="date"
@@ -573,20 +584,20 @@ export const TodoList = () => {
                                                         className="bg-transparent border-none"
                                                     />
                                                     <div className="flex gap-2 flex-wrap items-center">
-                                                        <select
+                                                        <Select
                                                             value={editPriority || ''}
-                                                            onChange={e =>
-                                                                setEditPriority(
-                                                                    (e.target.value as Priority) || undefined
-                                                                )
+                                                            onChange={value =>
+                                                                setEditPriority((value as Priority) || undefined)
                                                             }
-                                                            className="bg-black/30 text-white px-2 py-1 rounded text-xs border border-white/10"
-                                                        >
-                                                            <option value="">No priority</option>
-                                                            <option value="low">Low</option>
-                                                            <option value="medium">Medium</option>
-                                                            <option value="high">High</option>
-                                                        </select>
+                                                            options={[
+                                                                { value: '', label: 'No priority' },
+                                                                { value: 'low', label: 'Low' },
+                                                                { value: 'medium', label: 'Medium' },
+                                                                { value: 'high', label: 'High' },
+                                                            ]}
+                                                            className="bg-black/30 text-xs"
+                                                            size="sm"
+                                                        />
                                                         <TextInput
                                                             type="date"
                                                             value={editDueDate}

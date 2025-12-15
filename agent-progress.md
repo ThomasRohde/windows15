@@ -30,8 +30,7 @@ klondike feature list  # List all features
 
 | ID   | Description                                                 | Status         |
 | ---- | ----------------------------------------------------------- | -------------- |
-| F137 | Extract color conversion utilities to utils/color.ts        | 🔄 In progress |
-| F138 | Create StatCard component for metric display grids          | ⏳ Not started |
+| F138 | Create StatCard component for metric display grids          | 🔄 In progress |
 | F139 | Create SplitPane layout component for two-panel app layouts | ⏳ Not started |
 
 ---

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Button, TextArea } from '../components/ui';
+import { Button, TextArea, StatCard } from '../components/ui';
 import { formatReadingTime } from '../utils/timeFormatters';
 
 export const WordCounter = () => {
@@ -29,21 +29,13 @@ export const WordCounter = () => {
         };
     }, [text]);
 
-    const StatCard = ({ label, value, sub }: { label: string; value: string | number; sub?: string }) => (
-        <div className="bg-black/20 rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-white mb-1">{value}</div>
-            <div className="text-sm text-gray-400">{label}</div>
-            {sub && <div className="text-xs text-gray-500 mt-1">{sub}</div>}
-        </div>
-    );
-
     return (
         <div className="h-full flex flex-col bg-background-dark text-white">
             <div className="grid grid-cols-4 gap-3 p-4 bg-[#2d2d2d] border-b border-white/10">
                 <StatCard
                     label="Characters"
                     value={stats.characters}
-                    sub={`${stats.charactersNoSpaces} without spaces`}
+                    subtitle={`${stats.charactersNoSpaces} without spaces`}
                 />
                 <StatCard label="Words" value={stats.words} />
                 <StatCard label="Sentences" value={stats.sentences} />

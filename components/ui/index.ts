@@ -38,3 +38,5 @@ export { EmptyState } from './EmptyState';
 export type { EmptyStateProps } from './EmptyState';
 export { FormField } from './FormField';
 export type { FormFieldProps } from './FormField';
+export { StatCard } from './StatCard';
+export type { StatCardProps } from './StatCard';

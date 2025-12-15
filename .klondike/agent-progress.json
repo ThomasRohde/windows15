@@ -607,14 +607,9 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F137",
-        "description": "Extract color conversion utilities to utils/color.ts",
-        "status": "in-progress"
-      },
-      {
         "id": "F138",
         "description": "Create StatCard component for metric display grids",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F139",

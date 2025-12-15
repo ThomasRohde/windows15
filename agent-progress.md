@@ -28,9 +28,8 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                                | Status         |
-| ---- | -------------------------------------------------------------------------- | -------------- |
-| F118 | Create form validation utility for consistent input validation across apps | ⏳ Not started |
+| ID  | Description | Status |
+| --- | ----------- | ------ |
 
 ---
 

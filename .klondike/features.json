@@ -3178,11 +3178,24 @@
         "Clear error message generation for failed validations"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-15T16:22:17.790682",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Created utils/validation.ts with 8 validators (required",
+        "minLength",
+        "maxLength",
+        "email",
+        "url",
+        "pattern",
+        "range",
+        "custom) plus validate() and validateValue() functions. Refactored 4 apps: TodoList (required+maxLength for tasks)",
+        "Calendar (required for event title)",
+        "Mail (email validation for recipients with parseRecipients)",
+        "Browser (URL validation for bookmarks). All validators composable and tree-shakeable. All 75 tests pass",
+        "build succeeds."
+      ],
       "blockedBy": null,
       "lastWorkedOn": null,
       "notes": "Implementation: Create utils/validation.ts with composable validators. Pattern: const validators = { text: [required('Cannot be empty'), maxLength(500, 'Too long')] }; const result = validate(validators, { text: input }); if (!result.valid) setError(result.errors.text). Apps with validation: TodoList (required + maxLength), Mail (email validation), Calendar (event validation), Browser (URL validation). Edge cases: Async validation for uniqueness checks, field dependencies (password confirmation). Dependencies: None - pure utility. Gotchas: Don't over-engineer - keep simple and composable, avoid class-based validation that's hard to tree-shake."
@@ -3190,8 +3203,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-15T16:19:05.046538",
+    "lastUpdated": "2025-12-15T16:22:17.790697",
     "totalFeatures": 118,
-    "passingFeatures": 117
+    "passingFeatures": 118
   }
 }

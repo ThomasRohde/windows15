@@ -492,12 +492,6 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": [
-      {
-        "id": "F118",
-        "description": "Create form validation utility for consistent input validation across apps",
-        "status": "not-started"
-      }
-    ]
+    "priorityFeatures": []
   }
 }

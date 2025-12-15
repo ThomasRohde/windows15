@@ -1,4 +1,5 @@
 import React from 'react';
+import { Icon } from '../components/ui';
 
 export const SystemInfo = () => {
     const systemSpecs = [
@@ -24,7 +25,7 @@ export const SystemInfo = () => {
             <div className="p-6 max-w-3xl mx-auto">
                 <div className="flex items-center gap-6 mb-8">
                     <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg">
-                        <span className="material-symbols-outlined text-5xl text-white">window</span>
+                        <Icon name="window" size="xl" className="text-5xl text-white" />
                     </div>
                     <div>
                         <h1 className="text-3xl font-light">Windows 15</h1>
@@ -34,7 +35,7 @@ export const SystemInfo = () => {
 
                 <section className="mb-8">
                     <h2 className="text-lg font-medium mb-4 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-blue-400">info</span>
+                        <Icon name="info" className="text-blue-400" />
                         Windows specifications
                     </h2>
                     <div className="bg-black/20 rounded-xl p-4 space-y-3">
@@ -49,7 +50,7 @@ export const SystemInfo = () => {
 
                 <section className="mb-8">
                     <h2 className="text-lg font-medium mb-4 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-green-400">computer</span>
+                        <Icon name="computer" className="text-green-400" />
                         Device specifications
                     </h2>
                     <div className="bg-black/20 rounded-xl p-4 space-y-3">
@@ -64,7 +65,7 @@ export const SystemInfo = () => {
 
                 <section className="mb-8">
                     <h2 className="text-lg font-medium mb-4 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-purple-400">verified</span>
+                        <Icon name="verified" className="text-purple-400" />
                         About
                     </h2>
                     <div className="bg-black/20 rounded-xl p-4">

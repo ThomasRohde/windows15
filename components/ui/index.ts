@@ -15,6 +15,8 @@ export type { CheckboxProps } from './Checkbox';
 export { ConfirmDialog, useConfirmDialog } from './ConfirmDialog';
 export type { ConfirmDialogProps } from './ConfirmDialog';
 export { ErrorBanner } from './ErrorBanner';
+export { Icon } from './Icon';
+export type { IconProps, IconSize } from './Icon';
 export { LoadingState, LoadingWrapper } from './LoadingState';
 export type { LoadingStateProps, LoadingVariant } from './LoadingState';
 export { SearchInput } from './SearchInput';

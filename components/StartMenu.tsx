@@ -4,6 +4,7 @@ import { useStartMenu } from '../context/StartMenuContext';
 import { useUserProfile } from '../context/UserProfileContext';
 import { ContextMenu } from './ContextMenu';
 import { useContextMenu } from '../hooks';
+import { Icon } from './ui';
 
 export const StartMenu = () => {
     const { apps, openWindow } = useOS();
@@ -84,9 +85,7 @@ export const StartMenu = () => {
             {/* Search */}
             <div className="p-6 pb-2">
                 <div className="bg-black/20 h-10 rounded-lg flex items-center px-4 gap-3 border border-white/5">
-                    <span className="material-symbols-outlined text-white/50" aria-hidden="true">
-                        search
-                    </span>
+                    <Icon name="search" className="text-white/50" />
                     <input
                         ref={searchInputRef}
                         aria-label="Search apps"
@@ -101,7 +100,7 @@ export const StartMenu = () => {
                             className="text-white/50 hover:text-white/80"
                             aria-label="Clear search"
                         >
-                            <span className="material-symbols-outlined text-lg">close</span>
+                            <Icon name="close" size="lg" />
                         </button>
                     )}
                 </div>
@@ -139,16 +138,14 @@ export const StartMenu = () => {
                                     </div>
                                     <span className="text-sm text-white/90 font-medium">{app.title}</span>
                                     {isPinned(app.id) && (
-                                        <span className="material-symbols-outlined text-white/40 text-sm ml-auto">
-                                            push_pin
-                                        </span>
+                                        <Icon name="push_pin" size="sm" className="text-white/40 ml-auto" />
                                     )}
                                 </button>
                             ))}
                         </div>
                     ) : (
                         <div className="text-center text-white/50 py-8">
-                            <span className="material-symbols-outlined text-4xl mb-2 block">search_off</span>
+                            <Icon name="search_off" size="xl" className="text-4xl mb-2 block" />
                             No apps found matching "{searchQuery}"
                         </div>
                     )}
@@ -167,13 +164,13 @@ export const StartMenu = () => {
                             >
                                 {showAllApps ? (
                                     <>
-                                        <span className="material-symbols-outlined text-sm">arrow_back</span>
+                                        <Icon name="arrow_back" size="sm" />
                                         Back
                                     </>
                                 ) : (
                                     <>
                                         All apps
-                                        <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                                        <Icon name="arrow_forward" size="sm" />
                                     </>
                                 )}
                             </button>

@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { Icon } from './Icon';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'default';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -49,12 +50,6 @@ const sizeClasses: Record<ButtonSize, string> = {
     sm: 'px-3 py-1.5 text-sm rounded',
     md: 'px-4 py-2 text-base rounded-lg',
     lg: 'px-6 py-3 text-lg rounded-lg',
-};
-
-const iconSizeClasses: Record<ButtonSize, string> = {
-    sm: 'text-base',
-    md: 'text-lg',
-    lg: 'text-xl',
 };
 
 /**
@@ -132,14 +127,10 @@ export const Button: React.FC<ButtonProps> = ({
             onPointerUp={handlePointerUp}
             aria-label={props['aria-label']}
         >
-            {loading && <span className="material-symbols-outlined animate-spin text-current">progress_activity</span>}
-            {!loading && icon && iconPosition === 'left' && (
-                <span className={`material-symbols-outlined ${iconSizeClasses[size]}`}>{icon}</span>
-            )}
+            {loading && <Icon name="progress_activity" className="animate-spin text-current" />}
+            {!loading && icon && iconPosition === 'left' && <Icon name={icon} size={size} />}
             {content && <span>{content}</span>}
-            {!loading && icon && iconPosition === 'right' && (
-                <span className={`material-symbols-outlined ${iconSizeClasses[size]}`}>{icon}</span>
-            )}
+            {!loading && icon && iconPosition === 'right' && <Icon name={icon} size={size} />}
         </button>
     );
 };

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocalization } from '../context';
 import { formatSpeed, formatTemperature } from '../utils/localization';
 import { useNotification, useAsyncAction } from '../hooks';
-import { AppContainer, LoadingState } from '../components/ui';
+import { AppContainer, LoadingState, Icon } from '../components/ui';
 
 interface WeatherData {
     location: string;
@@ -171,7 +171,7 @@ export const Weather = () => {
         <AppContainer scrollable>
             <div className="bg-black/20 rounded-xl p-6 flex flex-col items-center">
                 <div className="text-white/60 text-lg">{locationName}</div>
-                <span className="material-symbols-outlined text-7xl text-orange-400 my-4">{weather.icon}</span>
+                <Icon name={weather.icon} size="xl" className="text-7xl text-orange-400 my-4" />
                 <div className="text-6xl font-light text-white">
                     {temperature.value}
                     {temperature.unit}
@@ -186,7 +186,7 @@ export const Weather = () => {
                 <div className="text-white/60 text-sm mb-3">Details</div>
                 <div className="grid grid-cols-3 gap-4">
                     <div className="flex flex-col items-center">
-                        <span className="material-symbols-outlined text-white/60 text-2xl">thermostat</span>
+                        <Icon name="thermostat" size="xl" className="text-white/60" />
                         <span className="text-white/60 text-xs mt-1">Feels Like</span>
                         <span className="text-white text-lg">
                             {feelsLike.value}
@@ -194,12 +194,12 @@ export const Weather = () => {
                         </span>
                     </div>
                     <div className="flex flex-col items-center">
-                        <span className="material-symbols-outlined text-white/60 text-2xl">water_drop</span>
+                        <Icon name="water_drop" size="xl" className="text-white/60" />
                         <span className="text-white/60 text-xs mt-1">Humidity</span>
                         <span className="text-white text-lg">{weather.humidity}%</span>
                     </div>
                     <div className="flex flex-col items-center">
-                        <span className="material-symbols-outlined text-white/60 text-2xl">air</span>
+                        <Icon name="air" size="xl" className="text-white/60" />
                         <span className="text-white/60 text-xs mt-1">Wind</span>
                         <span className="text-white text-lg">
                             {wind.value} {wind.unit}
@@ -214,7 +214,7 @@ export const Weather = () => {
                     {forecast.map((day, idx) => (
                         <div key={idx} className="flex flex-col items-center">
                             <span className="text-white/60 text-sm">{day.day}</span>
-                            <span className="material-symbols-outlined text-orange-400 text-2xl my-2">{day.icon}</span>
+                            <Icon name={day.icon} size="xl" className="text-orange-400 my-2" />
                             <span className="text-white text-sm">{formatTemperature(day.high, unitSystem).value}°</span>
                             <span className="text-white/40 text-sm">
                                 {formatTemperature(day.low, unitSystem).value}°

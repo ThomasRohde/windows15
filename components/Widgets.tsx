@@ -4,6 +4,7 @@ import { STORAGE_KEYS, storageService, useDexieLiveQuery } from '../utils/storag
 import { ensureArray } from '../utils';
 import { formatTemperature } from '../utils/localization';
 import { SystemStatusWidget } from './SystemStatusWidget';
+import { Icon } from './ui';
 
 type CalendarEvent = {
     id: string;
@@ -208,7 +209,7 @@ export const Widgets: React.FC = () => {
             {/* Quick Settings (F087) */}
             <div className="p-4 glass-panel rounded-xl pointer-events-auto hover:bg-white/5 transition-colors cursor-default">
                 <div className="flex items-center gap-3 mb-3">
-                    <span className="material-symbols-outlined text-white/60">tune</span>
+                    <Icon name="tune" className="text-white/60" />
                     <span className="text-sm font-medium text-white/90">Quick Settings</span>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
@@ -228,16 +229,16 @@ export const Widgets: React.FC = () => {
                                 : 'Toggle 3D Window Space (Ctrl+Alt+3)'
                         }
                     >
-                        <span className="material-symbols-outlined text-xl">view_in_ar</span>
+                        <Icon name="view_in_ar" size="lg" />
                         <span className="text-[10px] font-medium">3D Space</span>
                     </button>
                     {/* Placeholder toggles for future features */}
                     <div className="flex flex-col items-center justify-center gap-1 p-3 rounded-xl bg-white/5 text-white/40">
-                        <span className="material-symbols-outlined text-xl">dark_mode</span>
+                        <Icon name="dark_mode" size="lg" />
                         <span className="text-[10px] font-medium">Dark</span>
                     </div>
                     <div className="flex flex-col items-center justify-center gap-1 p-3 rounded-xl bg-white/5 text-white/40">
-                        <span className="material-symbols-outlined text-xl">bluetooth</span>
+                        <Icon name="bluetooth" size="lg" />
                         <span className="text-[10px] font-medium">Bluetooth</span>
                     </div>
                 </div>
@@ -253,7 +254,7 @@ export const Widgets: React.FC = () => {
                         </span>
                         <span className="text-sm text-white/60">{weather.condition}</span>
                     </div>
-                    <span className="material-symbols-outlined text-yellow-300 text-4xl">{weather.icon}</span>
+                    <Icon name={weather.icon} size="xl" className="text-yellow-300 text-4xl" />
                 </div>
                 <div className="flex justify-between items-center mt-4 text-xs text-white/50 border-t border-white/10 pt-3">
                     <span>{weather.location}</span>

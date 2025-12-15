@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDb, getCloudDatabaseUrl, setCloudDatabaseUrl, validateCloudDatabaseUrl } from '@/utils/storage';
-import { copyTextToClipboard } from '@/utils/clipboard';
 import { useConfirmDialog, ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { useNotification } from '@/hooks';
+import { useNotification, useCopyToClipboard } from '@/hooks';
 
 const PROD_ORIGIN = 'https://thomasrohde.github.io';
 
@@ -53,13 +52,10 @@ const getUserFriendlyErrorMessage = (error: any): string => {
 };
 
 const CopyableCommand = ({ command }: { command: string }) => {
-    const [copied, setCopied] = useState(false);
+    const { copy, copied } = useCopyToClipboard(1200);
 
     const doCopy = async () => {
-        const ok = await copyTextToClipboard(command);
-        if (!ok) return;
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1200);
+        await copy(command);
     };
 
     return (
@@ -90,6 +86,7 @@ export const SyncSettings = () => {
     const [isReconnecting, setIsReconnecting] = useState(false);
     const [wizardOpen, setWizardOpen] = useState(false);
     const [copiedOrigin, setCopiedOrigin] = useState(false);
+    const { copy: copyOriginText } = useCopyToClipboard(1200);
 
     const [user, setUser] = useState(() => db.cloud.currentUser.value);
     const [syncState, setSyncState] = useState(() => db.cloud.syncState.value);
@@ -119,10 +116,11 @@ export const SyncSettings = () => {
     const isLoggedIn = Boolean(user?.isLoggedIn);
 
     const copyOrigin = async () => {
-        const ok = await copyTextToClipboard(origin);
-        if (!ok) return;
-        setCopiedOrigin(true);
-        setTimeout(() => setCopiedOrigin(false), 1200);
+        const ok = await copyOriginText(origin);
+        if (ok) {
+            setCopiedOrigin(true);
+            setTimeout(() => setCopiedOrigin(false), 1200);
+        }
     };
 
     const connect = async () => {

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useNotification } from '../hooks';
-import { copyTextToClipboard } from '../utils/clipboard';
+import { useNotification, useCopyToClipboard } from '../hooks';
 
 type Operator = '+' | '-' | '*' | '/' | null;
 
 export const Calculator = () => {
     const notify = useNotification();
+    const { copy } = useCopyToClipboard();
     const [display, setDisplay] = useState('0');
     const [accumulator, setAccumulator] = useState<number | null>(null);
     const [operator, setOperator] = useState<Operator>(null);
@@ -25,7 +25,7 @@ export const Calculator = () => {
             return;
         }
         try {
-            await copyTextToClipboard(display);
+            await copy(display);
             notify.success('Copied to clipboard');
         } catch {
             notify.error('Failed to copy');

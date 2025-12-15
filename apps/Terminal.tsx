@@ -3,10 +3,9 @@ import { useLocalization } from '../context';
 import { useDb } from '../context/DbContext';
 import { useOS } from '../context/OSContext';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useTerminalPreferences, useContextMenu } from '../hooks';
+import { useTerminalPreferences, useContextMenu, useCopyToClipboard } from '../hooks';
 import { ContextMenu } from '../components/ContextMenu';
 import { TERMINAL_THEMES } from '../types/terminal';
-import { copyTextToClipboard, readTextFromClipboard } from '../utils/clipboard';
 import { getFiles, saveFileToFolder } from '../utils/fileSystem';
 import type { FileSystemItem } from '../types';
 import { generateUuid } from '../utils/uuid';
@@ -229,17 +228,19 @@ export const Terminal = () => {
         }
     }, [output]);
 
+    const { copy, paste } = useCopyToClipboard();
+
     const getSelectedText = (): string => {
         return window.getSelection()?.toString() || '';
     };
 
     const copyToClipboard = async (text: string): Promise<void> => {
-        const ok = await copyTextToClipboard(text);
+        const ok = await copy(text);
         if (!ok) console.error('Failed to copy to clipboard');
     };
 
     const pasteFromClipboard = async (): Promise<void> => {
-        const text = await readTextFromClipboard();
+        const text = await paste();
         if (text === null) {
             console.error('Failed to read from clipboard');
             return;

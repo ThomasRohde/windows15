@@ -30,7 +30,6 @@ klondike feature list  # List all features
 
 | ID   | Description                                                                | Status         |
 | ---- | -------------------------------------------------------------------------- | -------------- |
-| F116 | Create SearchInput component for consistent search UI across apps          | 🔄 In progress |
 | F118 | Create form validation utility for consistent input validation across apps | ⏳ Not started |
 
 ---

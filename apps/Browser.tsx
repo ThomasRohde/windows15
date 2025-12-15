@@ -3,6 +3,7 @@ import { useDb, useDexieLiveQuery } from '../utils/storage';
 import { generateUuid } from '../utils/uuid';
 import { useConfirmDialog, ConfirmDialog, SearchInput } from '../components/ui';
 import { usePersistedState } from '../hooks';
+import { url as urlValidator, validateValue } from '../utils/validation';
 
 type ViewMode = 'live' | 'reader';
 
@@ -253,7 +254,9 @@ export const Browser = () => {
         const trimmedTitle = bookmarkDraft.title.trim() || defaultBookmarkTitle(trimmedUrl);
         const trimmedFolder = bookmarkDraft.folder.trim() || 'Bookmarks';
 
-        if (!isHttpUrl(trimmedUrl)) {
+        // Validate URL format using validation utility
+        const urlError = validateValue(trimmedUrl, urlValidator('Invalid URL format'));
+        if (urlError || !isHttpUrl(trimmedUrl)) {
             setNotice('Bookmarks only support http(s) URLs.');
             return;
         }

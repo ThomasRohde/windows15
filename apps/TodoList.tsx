@@ -20,6 +20,7 @@ import { useDb, useDexieLiveQuery } from '../utils/storage';
 import { generateUuid } from '../utils/uuid';
 import { ErrorBanner, ConfirmDialog, Button, Checkbox, SearchInput } from '../components/ui';
 import { useAsyncAction } from '../hooks';
+import { required, maxLength, validateValue } from '../utils/validation';
 
 type Filter = 'all' | 'active' | 'completed';
 type Priority = 'low' | 'medium' | 'high';
@@ -100,12 +101,12 @@ export const TodoList = () => {
         const trimmedInput = input.trim();
 
         // Validation
-        if (!trimmedInput) {
-            throw new Error('Task cannot be empty');
-        }
-
-        if (trimmedInput.length > 500) {
-            throw new Error('Task is too long (max 500 characters)');
+        const validationError = validateValue(trimmedInput, [
+            required('Task cannot be empty'),
+            maxLength(500, 'Task is too long (max 500 characters)'),
+        ]);
+        if (validationError) {
+            throw new Error(validationError);
         }
 
         await addAction.execute(async () => {

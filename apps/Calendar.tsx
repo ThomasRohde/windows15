@@ -4,6 +4,7 @@ import { SkeletonCalendar } from '../components/LoadingSkeleton';
 import { useLocalization } from '../context';
 import { generateUuid } from '../utils/uuid';
 import { Checkbox } from '../components/ui';
+import { required, validateValue } from '../utils/validation';
 
 type CalendarEvent = {
     id: string;
@@ -217,8 +218,11 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
     const saveEvent = async () => {
         if (!draft) return;
         const title = draft.title.trim();
-        if (!title) {
-            setDraftError('Title is required.');
+
+        // Validation
+        const titleError = validateValue(title, required('Title is required'));
+        if (titleError) {
+            setDraftError(titleError);
             return;
         }
 

@@ -494,11 +494,6 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F116",
-        "description": "Create SearchInput component for consistent search UI across apps",
-        "status": "in-progress"
-      },
-      {
         "id": "F118",
         "description": "Create form validation utility for consistent input validation across apps",
         "status": "not-started"

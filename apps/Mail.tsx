@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { STORAGE_KEYS, storageService, useDexieLiveQuery } from '../utils/storage';
 import { generateUuid } from '../utils/uuid';
 import { SearchInput } from '../components/ui';
+import { email as emailValidator, validateValue } from '../utils/validation';
 
 type MailboxId = 'inbox' | 'sent' | 'drafts' | 'trash';
 
@@ -26,11 +27,22 @@ type ComposeState = {
 
 const USER_EMAIL = 'john.doe@windows15.local';
 
-const parseRecipients = (raw: string) =>
-    raw
+const parseRecipients = (raw: string) => {
+    const recipients = raw
         .split(/[;,]/g)
         .map(value => value.trim())
         .filter(Boolean);
+
+    // Validate each email address
+    for (const recipient of recipients) {
+        const error = validateValue(recipient, emailValidator('Invalid email address'));
+        if (error) {
+            throw new Error(`${recipient}: ${error}`);
+        }
+    }
+
+    return recipients;
+};
 
 const formatMessageTime = (iso: string) => {
     const date = new Date(iso);
@@ -220,7 +232,14 @@ export const Mail = () => {
     const saveDraft = () => {
         if (!compose) return;
         const nowIso = new Date().toISOString();
-        const draftRecipients = parseRecipients(compose.to);
+
+        let draftRecipients: string[];
+        try {
+            draftRecipients = parseRecipients(compose.to);
+        } catch (error) {
+            setComposeError(error instanceof Error ? error.message : 'Invalid email address');
+            return;
+        }
 
         let savedDraftId: string | undefined;
 
@@ -261,7 +280,15 @@ export const Mail = () => {
 
     const sendMessage = () => {
         if (!compose) return;
-        const recipients = parseRecipients(compose.to);
+
+        let recipients: string[];
+        try {
+            recipients = parseRecipients(compose.to);
+        } catch (error) {
+            setComposeError(error instanceof Error ? error.message : 'Invalid email address');
+            return;
+        }
+
         if (recipients.length === 0) {
             setComposeError('Add at least one recipient.');
             return;

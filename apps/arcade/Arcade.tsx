@@ -108,7 +108,7 @@ const GameCard: React.FC<{
                         style={{ imageRendering: 'pixelated' }}
                     />
                 ) : (
-                    <span className="material-icons text-5xl" style={{ color: iconColor }}>
+                    <span className="material-symbols-outlined text-5xl" style={{ color: iconColor }}>
                         sports_esports
                     </span>
                 )}
@@ -133,7 +133,7 @@ const GameCard: React.FC<{
                     }}
                     className="absolute top-2 right-2 p-1 bg-red-600 rounded opacity-0 group-hover:opacity-100 transition-opacity"
                 >
-                    <span className="material-icons text-sm">delete</span>
+                    <span className="material-symbols-outlined text-sm">delete</span>
                 </button>
             )}
         </div>
@@ -574,7 +574,7 @@ export const Arcade: React.FC = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-gray-700">
                     <div className="flex items-center gap-3">
-                        <span className="material-icons text-purple-400">sports_esports</span>
+                        <span className="material-symbols-outlined text-purple-400">sports_esports</span>
                         <h1 className="text-xl font-bold">Arcade</h1>
                     </div>
                     <button
@@ -582,7 +582,7 @@ export const Arcade: React.FC = () => {
                         disabled={isImporting}
                         className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg disabled:opacity-50"
                     >
-                        <span className="material-icons text-sm">add</span>
+                        <span className="material-symbols-outlined text-sm">add</span>
                         {isImporting ? 'Importing...' : 'Import Game'}
                     </button>
                 </div>
@@ -591,7 +591,7 @@ export const Arcade: React.FC = () => {
                 <div className="flex-1 overflow-y-auto p-4">
                     {!games || games.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full text-gray-400">
-                            <span className="material-icons text-6xl mb-4">videogame_asset_off</span>
+                            <span className="material-symbols-outlined text-6xl mb-4">videogame_asset_off</span>
                             <p className="text-lg mb-2">No games installed</p>
                             <p className="text-sm">Import a WASM-4 cartridge (.wasm) to get started</p>
                         </div>
@@ -641,7 +641,7 @@ export const Arcade: React.FC = () => {
                         onClick={stopGame}
                         className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded text-white text-sm"
                     >
-                        <span className="material-icons text-sm">arrow_back</span>
+                        <span className="material-symbols-outlined text-sm">arrow_back</span>
                         Library
                     </button>
 
@@ -653,7 +653,7 @@ export const Arcade: React.FC = () => {
                             className="p-2 bg-gray-700 hover:bg-gray-600 rounded text-white"
                             title={runtimeState?.isPaused ? 'Resume' : 'Pause'}
                         >
-                            <span className="material-icons text-sm">
+                            <span className="material-symbols-outlined text-sm">
                                 {runtimeState?.isPaused ? 'play_arrow' : 'pause'}
                             </span>
                         </button>
@@ -663,7 +663,7 @@ export const Arcade: React.FC = () => {
                             className="p-2 bg-gray-700 hover:bg-gray-600 rounded text-white"
                             title="Reset"
                         >
-                            <span className="material-icons text-sm">refresh</span>
+                            <span className="material-symbols-outlined text-sm">refresh</span>
                         </button>
 
                         <button
@@ -671,7 +671,7 @@ export const Arcade: React.FC = () => {
                             className="p-2 bg-gray-700 hover:bg-gray-600 rounded text-white"
                             title="Fullscreen"
                         >
-                            <span className="material-icons text-sm">fullscreen</span>
+                            <span className="material-symbols-outlined text-sm">fullscreen</span>
                         </button>
 
                         <button
@@ -679,7 +679,7 @@ export const Arcade: React.FC = () => {
                             className="p-2 bg-red-700 hover:bg-red-600 rounded text-white"
                             title="Panic Stop (Escape hung game)"
                         >
-                            <span className="material-icons text-sm">emergency</span>
+                            <span className="material-symbols-outlined text-sm">emergency</span>
                         </button>
 
                         {/* Save/Load (F098) */}
@@ -690,7 +690,7 @@ export const Arcade: React.FC = () => {
                             title="Save/Load"
                             disabled={isSaving}
                         >
-                            <span className="material-icons text-sm">save</span>
+                            <span className="material-symbols-outlined text-sm">save</span>
                         </button>
                     </div>
                 </div>
@@ -703,7 +703,7 @@ export const Arcade: React.FC = () => {
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-xl font-bold text-white">Save / Load</h2>
                             <button onClick={() => setShowSaveModal(false)} className="p-1 hover:bg-gray-700 rounded">
-                                <span className="material-icons text-gray-400">close</span>
+                                <span className="material-symbols-outlined text-gray-400">close</span>
                             </button>
                         </div>
 
@@ -817,7 +817,7 @@ export const Arcade: React.FC = () => {
                 {/* Load Error Overlay */}
                 {loadError && !isLoadingCartridge && (
                     <div className="absolute inset-0 bg-red-900/90 flex flex-col items-center justify-center p-4">
-                        <span className="material-icons text-4xl text-white mb-2">error</span>
+                        <span className="material-symbols-outlined text-4xl text-white mb-2">error</span>
                         <span className="text-white text-center text-sm max-w-xs">{loadError}</span>
                         <button
                             onClick={stopGame}
@@ -831,7 +831,7 @@ export const Arcade: React.FC = () => {
                 {/* Runtime Error Overlay */}
                 {runtimeState?.lastError && !loadError && !isLoadingCartridge && (
                     <div className="absolute inset-0 bg-red-900/80 flex flex-col items-center justify-center p-4">
-                        <span className="material-icons text-4xl text-white mb-2">error</span>
+                        <span className="material-symbols-outlined text-4xl text-white mb-2">error</span>
                         <span className="text-white text-center">{runtimeState.lastError}</span>
                     </div>
                 )}

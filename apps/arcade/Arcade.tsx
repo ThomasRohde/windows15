@@ -72,22 +72,23 @@ const GameCard: React.FC<{
         };
     }, [game.title]);
 
-    // Create and manage object URL for icon blob
-    const iconUrl = useMemo(() => {
-        if (game.iconBlob) {
-            return URL.createObjectURL(game.iconBlob);
-        }
-        return null;
-    }, [game.iconBlob]);
+    // Track icon URL with state so it's recreated on each mount
+    const [iconUrl, setIconUrl] = useState<string | null>(null);
 
-    // Clean up object URL when component unmounts or icon changes
+    // Create object URL when component mounts or icon blob changes
+    // Using useEffect ensures we create a fresh URL each time the component mounts
     useEffect(() => {
-        return () => {
-            if (iconUrl) {
-                URL.revokeObjectURL(iconUrl);
-            }
-        };
-    }, [iconUrl]);
+        if (game.iconBlob) {
+            const url = URL.createObjectURL(game.iconBlob);
+            setIconUrl(url);
+            // Cleanup: revoke URL when blob changes or component unmounts
+            return () => {
+                URL.revokeObjectURL(url);
+            };
+        } else {
+            setIconUrl(null);
+        }
+    }, [game.iconBlob]);
 
     return (
         <div

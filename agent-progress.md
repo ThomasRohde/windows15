@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                             | Status         |
-| ---- | ----------------------------------------------------------------------- | -------------- |
-| F111 | Migrate apps from duplicated error/loading state to useAsyncAction hook | 🔄 In progress |
-| F112 | Extract shared Slider component from ColorPicker and PasswordGenerator  | ⏳ Not started |
-| F113 | Standardize state persistence patterns across apps using Dexie          | ⏳ Not started |
+| ID   | Description                                                                         | Status         |
+| ---- | ----------------------------------------------------------------------------------- | -------------- |
+| F112 | Extract shared Slider component from ColorPicker and PasswordGenerator              | ⏳ Not started |
+| F113 | Standardize state persistence patterns across apps using Dexie                      | ⏳ Not started |
+| F117 | Implement useHotkeys in apps that display keyboard shortcuts but lack functionality | ⏳ Not started |
 
 ---
 

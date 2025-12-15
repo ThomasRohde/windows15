@@ -2973,11 +2973,18 @@
         "Error messages automatically extracted and displayed"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-15T15:38:36.355701",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Refactored 6 apps to use useAsyncAction: TodoList (15+ error states)",
+        "Weather (loading state)",
+        "Base64Tool (9 error states)",
+        "JsonViewer (8 error states)",
+        "HashGenerator (loading state)",
+        "ImageViewer (4 error states). All tests passing. Removed ~40 lines of duplicated try/catch/error code."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-15T15:07:22.938925",
       "notes": "Implementation: The useAsyncAction hook already exists in hooks/useAsyncAction.ts but is underutilized. Pattern: const { execute, loading, error, clearError } = useAsyncAction<T>(); await execute(async () => { return await db.todos.add({...}); }). Target apps: TodoList (15+ setError calls), Weather (3 error states), Terminal, Base64Tool, Calendar, Mail. Edge cases: Hook prevents concurrent executions - ensure this is desired behavior. Dependencies: hooks/useAsyncAction.ts already exists. Gotchas: Some apps may need multiple async actions - consider if hook supports this pattern or needs enhancement."
@@ -3139,8 +3146,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-15T15:07:14.888854",
+    "lastUpdated": "2025-12-15T15:38:36.355718",
     "totalFeatures": 118,
-    "passingFeatures": 110
+    "passingFeatures": 111
   }
 }

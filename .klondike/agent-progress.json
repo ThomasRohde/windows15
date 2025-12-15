@@ -395,11 +395,6 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F111",
-        "description": "Migrate apps from duplicated error/loading state to useAsyncAction hook",
-        "status": "in-progress"
-      },
-      {
         "id": "F112",
         "description": "Extract shared Slider component from ColorPicker and PasswordGenerator",
         "status": "not-started"
@@ -407,6 +402,11 @@
       {
         "id": "F113",
         "description": "Standardize state persistence patterns across apps using Dexie",
+        "status": "not-started"
+      },
+      {
+        "id": "F117",
+        "description": "Implement useHotkeys in apps that display keyboard shortcuts but lack functionality",
         "status": "not-started"
       }
     ]

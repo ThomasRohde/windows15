@@ -166,39 +166,11 @@ export const FileExplorer = () => {
         closeContextMenu();
     };
 
-    const QuickAccessItem = ({
-        icon,
-        color,
-        label,
-        path,
-    }: {
-        icon: string;
-        color: string;
-        label: string;
-        path?: string;
-    }) => (
-        <button
-            type="button"
-            onClick={e => {
-                e.stopPropagation();
-                if (path) {
-                    setCurrentPath(['root', path]);
-                } else {
-                    setCurrentPath(['root']);
-                }
-            }}
-            className="flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer"
-        >
-            <span className={`material-symbols-outlined text-[20px] ${color}`}>{icon}</span>
-            {label}
-        </button>
-    );
-
     if (loading) {
         return (
             <div className="flex h-full w-full bg-transparent">
                 {/* Skeleton Sidebar */}
-                <div className="w-48 hidden md:flex flex-col border-r border-white/5 bg-black/10">
+                <div className="w-48 hidden sm:flex flex-col border-r border-white/5 bg-black/10">
                     <SkeletonFileSidebar count={5} />
                 </div>
                 {/* Skeleton Content */}
@@ -212,12 +184,40 @@ export const FileExplorer = () => {
     return (
         <div className="flex h-full w-full bg-transparent" onContextMenu={e => handleContextMenu(e)}>
             {/* Sidebar */}
-            <div className="w-48 hidden md:flex flex-col gap-1 p-3 border-r border-white/5 bg-black/10 relative z-10">
+            <div className="w-48 hidden sm:flex flex-col gap-1 p-3 border-r border-white/5 bg-black/10">
                 <div className="text-xs font-bold text-white/40 uppercase px-3 py-2">Favorites</div>
-                <QuickAccessItem icon="home" color="text-blue-400" label="Home" />
-                <QuickAccessItem icon="star" color="text-yellow-400" label="Desktop" path="desktop" />
-                <QuickAccessItem icon="image" color="text-pink-400" label="Pictures" path="pictures" />
-                <QuickAccessItem icon="description" color="text-orange-400" label="Documents" path="documents" />
+                <button
+                    type="button"
+                    onClick={() => setCurrentPath(['root'])}
+                    className="flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors"
+                >
+                    <span className="material-symbols-outlined text-[20px] text-blue-400">home</span>
+                    Home
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setCurrentPath(['root', 'desktop'])}
+                    className="flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors"
+                >
+                    <span className="material-symbols-outlined text-[20px] text-yellow-400">star</span>
+                    Desktop
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setCurrentPath(['root', 'pictures'])}
+                    className="flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors"
+                >
+                    <span className="material-symbols-outlined text-[20px] text-pink-400">image</span>
+                    Pictures
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setCurrentPath(['root', 'documents'])}
+                    className="flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors"
+                >
+                    <span className="material-symbols-outlined text-[20px] text-orange-400">description</span>
+                    Documents
+                </button>
             </div>
 
             {/* Main Content */}

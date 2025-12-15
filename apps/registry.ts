@@ -34,6 +34,8 @@ export const APP_REGISTRY: AppConfig[] = [
         icon: 'folder',
         color: 'bg-yellow-400',
         component: React.lazy(() => import('../components/FileExplorer').then(m => ({ default: m.FileExplorer }))),
+        defaultWidth: 800,
+        defaultHeight: 500,
     },
     {
         id: 'browser',

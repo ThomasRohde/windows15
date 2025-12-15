@@ -71,6 +71,8 @@ export const Arcade: React.FC = () => {
     const [showSaveModal, setShowSaveModal] = useState(false);
     const [saveSlots, setSaveSlots] = useState<SaveSlotInfo[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+    const [isLoadingCartridge, setIsLoadingCartridge] = useState(false);
+    const [loadError, setLoadError] = useState<string | null>(null);
 
     // Load games from database
     const games = useLiveQuery(async () => {
@@ -158,6 +160,8 @@ export const Arcade: React.FC = () => {
         async (game: ArcadeGameRecord) => {
             setSelectedGame(game);
             setViewMode('player');
+            setLoadError(null);
+            setIsLoadingCartridge(true);
 
             // Update last played timestamp
             if (db && game.id !== DEMO_CART_ID) {
@@ -179,8 +183,17 @@ export const Arcade: React.FC = () => {
                         await runtimeRef.current.loadCartridge(arrayBuffer);
                     } catch (error) {
                         console.error('[Arcade] Failed to load cartridge:', error);
+                        // Parse error message for user-friendly display
+                        let errorMsg = error instanceof Error ? error.message : 'Failed to load game';
+                        // Check for common non-WASM-4 import errors
+                        if (errorMsg.includes('import') || errorMsg.includes('WebAssembly.Module')) {
+                            errorMsg =
+                                'This game is not a WASM-4 cartridge. Only WASM-4 games are supported. Get compatible games at wasm4.org/play';
+                        }
+                        setLoadError(errorMsg);
                     }
                 }
+                setIsLoadingCartridge(false);
             }, 100);
         },
         [db]
@@ -659,15 +672,37 @@ export const Arcade: React.FC = () => {
                     className="border-2 border-gray-700"
                 />
 
+                {/* Loading Overlay */}
+                {isLoadingCartridge && (
+                    <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center">
+                        <div className="animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full mb-3"></div>
+                        <span className="text-white text-sm">Loading cartridge...</span>
+                    </div>
+                )}
+
                 {/* Paused Overlay */}
-                {runtimeState?.isPaused && (
+                {runtimeState?.isPaused && !isLoadingCartridge && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                         <span className="text-white text-2xl font-bold">PAUSED</span>
                     </div>
                 )}
 
-                {/* Error Overlay */}
-                {runtimeState?.lastError && (
+                {/* Load Error Overlay */}
+                {loadError && !isLoadingCartridge && (
+                    <div className="absolute inset-0 bg-red-900/90 flex flex-col items-center justify-center p-4">
+                        <span className="material-icons text-4xl text-white mb-2">error</span>
+                        <span className="text-white text-center text-sm max-w-xs">{loadError}</span>
+                        <button
+                            onClick={stopGame}
+                            className="mt-4 px-4 py-2 bg-white/20 hover:bg-white/30 rounded text-white text-sm"
+                        >
+                            Back to Library
+                        </button>
+                    </div>
+                )}
+
+                {/* Runtime Error Overlay */}
+                {runtimeState?.lastError && !loadError && !isLoadingCartridge && (
                     <div className="absolute inset-0 bg-red-900/80 flex flex-col items-center justify-center p-4">
                         <span className="material-icons text-4xl text-white mb-2">error</span>
                         <span className="text-white text-center">{runtimeState.lastError}</span>

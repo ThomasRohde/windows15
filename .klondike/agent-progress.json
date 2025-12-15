@@ -540,14 +540,9 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F125",
-        "description": "Extract date utility functions from Calendar.tsx to shared utils",
-        "status": "in-progress"
-      },
-      {
         "id": "F126",
         "description": "Create useSearchFilter hook for consistent search and filter state management",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F127",

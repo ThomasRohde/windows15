@@ -30,8 +30,7 @@ klondike feature list  # List all features
 
 | ID   | Description                                                                   | Status         |
 | ---- | ----------------------------------------------------------------------------- | -------------- |
-| F125 | Extract date utility functions from Calendar.tsx to shared utils              | 🔄 In progress |
-| F126 | Create useSearchFilter hook for consistent search and filter state management | ⏳ Not started |
+| F126 | Create useSearchFilter hook for consistent search and filter state management | 🔄 In progress |
 | F127 | Apply existing validation utilities to Calendar and Mail apps                 | ⏳ Not started |
 
 ---

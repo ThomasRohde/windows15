@@ -3399,11 +3399,20 @@
         "Unit tests cover date utility edge cases"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-15T17:42:49.246180",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Created utils/dateUtils.ts with 9 documented functions (pad2",
+        "toYmd",
+        "fromYmd",
+        "addMonths",
+        "buildMonthGrid",
+        "isSameDay",
+        "isSameMonth",
+        "formatTime). Extracted from Calendar.tsx and exported via utils/index.ts. All functions have JSDoc with examples. Build and lint pass."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-15T17:39:36.687174",
       "notes": "Implementation: Create utils/dateUtils.ts and extract getMonthDays (L35-52), isSameDay (L54-59), isSameMonth (L61-66), formatTime (L68-70) from Calendar.tsx. These are pure functions with no dependencies. Edge cases: getMonthDays must handle month boundaries correctly (e.g., Jan 31 -> Feb), timezone edge cases around midnight. Dependencies: None - pure date math. Context: Other apps (Timer, Clock, potential future scheduling features) could reuse these utilities. Gotchas: getMonthDays returns weeks array including days from prev/next months for calendar grid - don't change this behavior."
@@ -3424,13 +3433,13 @@
         "Browser.tsx bookmarks filter uses useSearchFilter"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-15T17:43:09.524954",
       "notes": "Implementation: Create hooks/useSearchFilter.ts that combines search term state with filtering logic. Pattern appears in Mail (folder+search filtering), TodoList (status+text filtering), Browser (bookmark search). Use existing useDebounce hook internally. Edge cases: Empty search should return all items, handle special characters in search term, case-insensitive by default. Dependencies: useDebounce hook. Context: Search+filter is a common pattern but each app implements it differently with varying behaviors. Gotchas: Some apps need multi-field search (e.g., search title AND body) - make searchKeys accept array of field names."
     },
     {
@@ -3486,8 +3495,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-15T17:39:32.245769",
+    "lastUpdated": "2025-12-15T17:42:49.246195",
     "totalFeatures": 128,
-    "passingFeatures": 125
+    "passingFeatures": 126
   }
 }

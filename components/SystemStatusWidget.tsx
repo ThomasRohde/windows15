@@ -8,7 +8,7 @@ interface BatteryManager {
 }
 
 export const SystemStatusWidget: React.FC = () => {
-    const { windows, setActiveWindow } = useOS();
+    const { windows, focusWindow } = useOS();
 
     // System Status state
     const [cpuUsage, setCpuUsage] = useState(25);
@@ -269,7 +269,7 @@ export const SystemStatusWidget: React.FC = () => {
                                     <button
                                         key={window.id}
                                         type="button"
-                                        onClick={() => setActiveWindow(window.id)}
+                                        onClick={() => focusWindow(window.id)}
                                         className="w-full flex items-center justify-between text-xs py-1 px-2 rounded hover:bg-white/10 transition-colors text-left"
                                         title={`Focus ${window.title}`}
                                     >

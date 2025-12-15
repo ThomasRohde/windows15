@@ -1,19 +1,27 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
 import { getFiles, saveFiles, subscribeToFileSystem, STORE_NAMES, moveToRecycleBin } from '../utils/fileSystem';
 import { FileSystemItem } from '../types';
 import { useOS } from '../context/OSContext';
 import { SkeletonFileSidebar, SkeletonFileGrid } from './LoadingSkeleton';
+import { ContextMenu } from './ContextMenu';
+import { useContextMenu } from '../hooks';
 
 export const FileExplorer = () => {
     const [currentPath, setCurrentPath] = useState<string[]>(['root']);
     const [currentFolder, setCurrentFolder] = useState<FileSystemItem | null>(null);
     const [files, setFiles] = useState<FileSystemItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [contextMenu, setContextMenu] = useState<{ x: number; y: number; item?: FileSystemItem } | null>(null);
     const [newFolderName, setNewFolderName] = useState('');
     const [showNewFolderInput, setShowNewFolderInput] = useState(false);
     const { openWindow } = useOS();
+
+    const {
+        menu: contextMenu,
+        open: openContextMenu,
+        close: closeContextMenu,
+        menuProps,
+        menuRef,
+    } = useContextMenu<FileSystemItem | undefined>();
 
     const loadFiles = useCallback(async () => {
         try {
@@ -52,12 +60,6 @@ export const FileExplorer = () => {
         }
         setCurrentFolder(folder ?? null);
     }, [currentPath, files]);
-
-    useEffect(() => {
-        const handleClick = () => setContextMenu(null);
-        window.addEventListener('click', handleClick);
-        return () => window.removeEventListener('click', handleClick);
-    }, []);
 
     const navigateUp = () => {
         if (currentPath.length > 1) {
@@ -102,9 +104,7 @@ export const FileExplorer = () => {
     };
 
     const handleContextMenu = (e: React.MouseEvent, item?: FileSystemItem) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setContextMenu({ x: e.clientX, y: e.clientY, item });
+        openContextMenu(e, item);
     };
 
     const addChildToFolder = (
@@ -163,7 +163,7 @@ export const FileExplorer = () => {
 
     const deleteItem = async (item: FileSystemItem) => {
         await moveToRecycleBin(item.id);
-        setContextMenu(null);
+        closeContextMenu();
     };
 
     const QuickAccessItem = ({
@@ -354,62 +354,53 @@ export const FileExplorer = () => {
                 </div>
             </div>
 
-            {/* Context Menu - rendered via portal to escape overflow:hidden */}
-            {contextMenu &&
-                createPortal(
-                    <div
-                        className="fixed bg-gray-900/95 backdrop-blur border border-white/10 rounded-lg shadow-xl py-1 min-w-[160px] z-[9999]"
-                        style={{ left: contextMenu.x, top: contextMenu.y }}
-                        onClick={e => e.stopPropagation()}
-                    >
-                        {contextMenu.item ? (
-                            <>
-                                <button
-                                    onClick={() => {
-                                        if (contextMenu.item) navigateTo(contextMenu.item.id);
-                                        setContextMenu(null);
-                                    }}
-                                    className="w-full px-4 py-2 text-sm text-white/80 hover:bg-white/10 flex items-center gap-2 text-left"
-                                >
-                                    <span className="material-symbols-outlined text-lg">open_in_new</span>
-                                    Open
-                                </button>
-                                <div className="border-t border-white/10 my-1"></div>
-                                <button
-                                    onClick={() => contextMenu.item && deleteItem(contextMenu.item)}
-                                    className="w-full px-4 py-2 text-sm text-red-400 hover:bg-white/10 flex items-center gap-2 text-left"
-                                >
-                                    <span className="material-symbols-outlined text-lg">delete</span>
-                                    Delete
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <button
-                                    onClick={() => {
-                                        setShowNewFolderInput(true);
-                                        setContextMenu(null);
-                                    }}
-                                    className="w-full px-4 py-2 text-sm text-white/80 hover:bg-white/10 flex items-center gap-2 text-left"
-                                >
-                                    <span className="material-symbols-outlined text-lg">create_new_folder</span>
-                                    New Folder
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        loadFiles();
-                                        setContextMenu(null);
-                                    }}
-                                    className="w-full px-4 py-2 text-sm text-white/80 hover:bg-white/10 flex items-center gap-2 text-left"
-                                >
-                                    <span className="material-symbols-outlined text-lg">refresh</span>
-                                    Refresh
-                                </button>
-                            </>
-                        )}
-                    </div>,
-                    document.body
-                )}
+            {/* Context Menu */}
+            {contextMenu && (
+                <ContextMenu ref={menuRef} position={contextMenu.position} onClose={closeContextMenu} {...menuProps}>
+                    {contextMenu.data ? (
+                        <>
+                            <ContextMenu.Item
+                                icon="open_in_new"
+                                onClick={() => {
+                                    if (contextMenu.data) navigateTo(contextMenu.data.id);
+                                    closeContextMenu();
+                                }}
+                            >
+                                Open
+                            </ContextMenu.Item>
+                            <ContextMenu.Separator />
+                            <ContextMenu.Item
+                                icon="delete"
+                                danger
+                                onClick={() => contextMenu.data && deleteItem(contextMenu.data)}
+                            >
+                                Delete
+                            </ContextMenu.Item>
+                        </>
+                    ) : (
+                        <>
+                            <ContextMenu.Item
+                                icon="create_new_folder"
+                                onClick={() => {
+                                    setShowNewFolderInput(true);
+                                    closeContextMenu();
+                                }}
+                            >
+                                New Folder
+                            </ContextMenu.Item>
+                            <ContextMenu.Item
+                                icon="refresh"
+                                onClick={() => {
+                                    loadFiles();
+                                    closeContextMenu();
+                                }}
+                            >
+                                Refresh
+                            </ContextMenu.Item>
+                        </>
+                    )}
+                </ContextMenu>
+            )}
         </div>
     );
 };

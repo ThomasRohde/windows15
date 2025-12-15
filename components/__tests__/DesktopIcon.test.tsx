@@ -14,6 +14,18 @@ vi.mock('../../context/OSContext', () => ({
     }),
 }));
 
+// Mock the useStartMenu hook
+const mockPinApp = vi.fn();
+const mockUnpinApp = vi.fn();
+const mockIsPinned = vi.fn(() => false);
+vi.mock('../../context/StartMenuContext', () => ({
+    useStartMenu: () => ({
+        isPinned: mockIsPinned,
+        pinApp: mockPinApp,
+        unpinApp: mockUnpinApp,
+    }),
+}));
+
 describe('DesktopIcon', () => {
     const defaultProps = {
         id: 'test-icon',

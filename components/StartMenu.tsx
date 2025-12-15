@@ -1,8 +1,9 @@
 import React, { useRef, useCallback, useState, useMemo } from 'react';
-import { createPortal } from 'react-dom';
 import { useOS } from '../context/OSContext';
 import { useStartMenu } from '../context/StartMenuContext';
 import { useUserProfile } from '../context/UserProfileContext';
+import { ContextMenu } from './ContextMenu';
+import { useContextMenu } from '../hooks';
 
 export const StartMenu = () => {
     const { apps, openWindow } = useOS();
@@ -11,8 +12,15 @@ export const StartMenu = () => {
     const { profile, getInitials } = useUserProfile();
     const menuRef = useRef<HTMLDivElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
-    const [contextMenu, setContextMenu] = useState<{ x: number; y: number; appId: string } | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+
+    const {
+        menu: contextMenu,
+        open: openContextMenu,
+        close: closeContextMenu,
+        menuProps,
+        menuRef: contextMenuRef,
+    } = useContextMenu<string>();
 
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent) => {
@@ -24,34 +32,12 @@ export const StartMenu = () => {
         [toggleStartMenu]
     );
 
-    const handleContextMenu = useCallback((e: React.MouseEvent, appId: string) => {
-        e.preventDefault();
-        // Calculate position with boundary checking
-        const menuWidth = 180; // Approximate context menu width
-        const menuHeight = 50; // Approximate context menu height
-        const padding = 8;
-
-        let x = e.clientX;
-        let y = e.clientY;
-
-        // Ensure menu doesn't go off the right edge
-        if (x + menuWidth > window.innerWidth - padding) {
-            x = window.innerWidth - menuWidth - padding;
-        }
-
-        // Ensure menu doesn't go off the bottom edge
-        if (y + menuHeight > window.innerHeight - padding) {
-            y = window.innerHeight - menuHeight - padding;
-        }
-
-        // Ensure menu doesn't go off the left/top edge
-        x = Math.max(padding, x);
-        y = Math.max(padding, y);
-
-        setContextMenu({ x, y, appId });
-    }, []);
-
-    const closeContextMenu = useCallback(() => setContextMenu(null), []);
+    const handleContextMenu = useCallback(
+        (e: React.MouseEvent, appId: string) => {
+            openContextMenu(e, appId);
+        },
+        [openContextMenu]
+    );
 
     const handlePinToggle = useCallback(
         async (appId: string) => {
@@ -282,26 +268,22 @@ export const StartMenu = () => {
                 </>
             )}
 
-            {/* Context Menu - rendered in portal to avoid transform issues */}
-            {contextMenu &&
-                createPortal(
-                    <div
-                        className="fixed z-[9999] bg-gray-900/95 backdrop-blur-sm border border-white/10 rounded-lg shadow-xl py-1 min-w-[160px]"
-                        style={{ left: contextMenu.x, top: contextMenu.y }}
-                        onMouseLeave={closeContextMenu}
+            {/* Context Menu */}
+            {contextMenu && (
+                <ContextMenu
+                    ref={contextMenuRef}
+                    position={contextMenu.position}
+                    onClose={closeContextMenu}
+                    {...menuProps}
+                >
+                    <ContextMenu.Item
+                        icon="push_pin"
+                        onClick={() => contextMenu.data && handlePinToggle(contextMenu.data)}
                     >
-                        <button
-                            onClick={() => handlePinToggle(contextMenu.appId)}
-                            className="w-full flex items-center gap-2 px-3 py-2 hover:bg-white/10 text-sm text-white/90"
-                        >
-                            <span className="material-symbols-outlined text-lg">
-                                {isPinned(contextMenu.appId) ? 'push_pin' : 'push_pin'}
-                            </span>
-                            {isPinned(contextMenu.appId) ? 'Unpin from Start' : 'Pin to Start'}
-                        </button>
-                    </div>,
-                    document.body
-                )}
+                        {contextMenu.data && isPinned(contextMenu.data) ? 'Unpin from Start' : 'Pin to Start'}
+                    </ContextMenu.Item>
+                </ContextMenu>
+            )}
 
             {/* Footer */}
             <div className="h-16 border-t border-white/10 flex items-center justify-between px-8 bg-black/20">

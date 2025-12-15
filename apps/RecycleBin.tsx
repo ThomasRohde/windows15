@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
 import {
     getRecycleBinContents,
     restoreFromRecycleBin,
@@ -9,12 +8,21 @@ import {
     STORE_NAMES,
 } from '../utils/fileSystem';
 import { FileSystemItem } from '../types';
+import { ContextMenu } from '../components/ContextMenu';
+import { useContextMenu } from '../hooks';
 
 export const RecycleBin = () => {
     const [items, setItems] = useState<FileSystemItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedItem, setSelectedItem] = useState<FileSystemItem | null>(null);
-    const [contextMenu, setContextMenu] = useState<{ x: number; y: number; item?: FileSystemItem } | null>(null);
+
+    const {
+        menu: contextMenu,
+        open: openContextMenu,
+        close: closeContextMenu,
+        menuProps,
+        menuRef,
+    } = useContextMenu<FileSystemItem>();
 
     const loadItems = useCallback(async () => {
         try {
@@ -35,16 +43,10 @@ export const RecycleBin = () => {
         return unsubscribe;
     }, [loadItems]);
 
-    useEffect(() => {
-        const handleClick = () => setContextMenu(null);
-        window.addEventListener('click', handleClick);
-        return () => window.removeEventListener('click', handleClick);
-    }, []);
-
     const handleRestore = async (item: FileSystemItem) => {
         await restoreFromRecycleBin(item.id);
         setSelectedItem(null);
-        setContextMenu(null);
+        closeContextMenu();
     };
 
     const handlePermanentDelete = async (item: FileSystemItem) => {
@@ -55,7 +57,7 @@ export const RecycleBin = () => {
 
         await permanentlyDelete(item.id);
         setSelectedItem(null);
-        setContextMenu(null);
+        closeContextMenu();
     };
 
     const handleEmptyRecycleBin = async () => {
@@ -70,10 +72,10 @@ export const RecycleBin = () => {
     };
 
     const handleContextMenu = (e: React.MouseEvent, item?: FileSystemItem) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setContextMenu({ x: e.clientX, y: e.clientY, item });
-        if (item) setSelectedItem(item);
+        if (item) {
+            openContextMenu(e, item);
+            setSelectedItem(item);
+        }
     };
 
     const formatDeletedDate = (dateString?: string) => {
@@ -194,33 +196,25 @@ export const RecycleBin = () => {
                 </div>
             )}
 
-            {/* Context Menu - rendered via portal to escape overflow:hidden */}
-            {contextMenu &&
-                contextMenu.item &&
-                createPortal(
-                    <div
-                        className="fixed bg-gray-900/95 backdrop-blur border border-white/10 rounded-lg shadow-xl py-1 min-w-[160px] z-[9999]"
-                        style={{ left: contextMenu.x, top: contextMenu.y }}
-                        onClick={e => e.stopPropagation()}
+            {/* Context Menu */}
+            {contextMenu && contextMenu.data && (
+                <ContextMenu ref={menuRef} position={contextMenu.position} onClose={closeContextMenu} {...menuProps}>
+                    <ContextMenu.Item
+                        icon="restore"
+                        onClick={() => contextMenu.data && handleRestore(contextMenu.data)}
                     >
-                        <button
-                            onClick={() => contextMenu.item && handleRestore(contextMenu.item)}
-                            className="w-full px-4 py-2 text-sm text-white/80 hover:bg-white/10 flex items-center gap-2 text-left"
-                        >
-                            <span className="material-symbols-outlined text-lg text-green-400">restore</span>
-                            Restore
-                        </button>
-                        <div className="border-t border-white/10 my-1"></div>
-                        <button
-                            onClick={() => contextMenu.item && handlePermanentDelete(contextMenu.item)}
-                            className="w-full px-4 py-2 text-sm text-red-400 hover:bg-white/10 flex items-center gap-2 text-left"
-                        >
-                            <span className="material-symbols-outlined text-lg">delete_forever</span>
-                            Delete Permanently
-                        </button>
-                    </div>,
-                    document.body
-                )}
+                        Restore
+                    </ContextMenu.Item>
+                    <ContextMenu.Separator />
+                    <ContextMenu.Item
+                        icon="delete_forever"
+                        danger
+                        onClick={() => contextMenu.data && handlePermanentDelete(contextMenu.data)}
+                    >
+                        Delete Permanently
+                    </ContextMenu.Item>
+                </ContextMenu>
+            )}
         </div>
     );
 };

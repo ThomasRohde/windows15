@@ -14,12 +14,13 @@ import {
     Screensaver,
     WallpaperHost,
     LoginScreen,
+    ContextMenu,
 } from './components';
 import { OSProvider, useOS, DbProvider, useDb, useWindowSpace, UserProfileProvider } from './context';
 import { useDexieLiveQuery } from './utils/storage/react';
 import { DesktopIconRecord } from './utils/storage/db';
 import { APP_REGISTRY } from './apps';
-import { useHotkeys } from './hooks';
+import { useHotkeys, useContextMenu } from './hooks';
 import { appEventBus } from './utils/eventBus';
 
 const Desktop = () => {
@@ -197,6 +198,48 @@ const Desktop = () => {
         setIsOverviewOpen(false);
     }, []);
 
+    // Desktop background context menu
+    const {
+        menu: desktopMenu,
+        open: openDesktopMenu,
+        close: closeDesktopMenu,
+        menuProps,
+        menuRef,
+    } = useContextMenu<void>();
+
+    const handleDesktopContextMenu = useCallback(
+        (e: React.MouseEvent) => {
+            // Only show if clicking directly on the desktop background, not on icons/windows
+            const target = e.target as HTMLElement;
+            if (target.closest('[data-desktop-icon]')) return;
+            if (target.closest('[data-window]')) return;
+            if (target.closest('[data-taskbar]')) return;
+            if (target.closest('[data-start-menu]')) return;
+            openDesktopMenu(e, undefined);
+        },
+        [openDesktopMenu]
+    );
+
+    const handleRefreshDesktop = useCallback(() => {
+        // Trigger a visual refresh notification
+        appEventBus.emit('notification:show', {
+            message: 'Desktop refreshed',
+            type: 'info',
+            duration: 1500,
+        });
+        closeDesktopMenu();
+    }, [closeDesktopMenu]);
+
+    const handleOpenDisplaySettings = useCallback(() => {
+        openWindow('settings');
+        closeDesktopMenu();
+    }, [openWindow, closeDesktopMenu]);
+
+    const handleOpenWallpaperStudio = useCallback(() => {
+        openWindow('wallpaperstudio');
+        closeDesktopMenu();
+    }, [openWindow, closeDesktopMenu]);
+
     const handleOverviewSelect = useCallback(
         (windowId: string) => {
             focusWindow(windowId);
@@ -246,6 +289,7 @@ const Desktop = () => {
     return (
         <div
             className="relative h-screen w-screen overflow-hidden select-none"
+            onContextMenu={handleDesktopContextMenu}
             onPointerDown={e => {
                 if (!isStartMenuOpen) return;
                 const target = e.target as HTMLElement;
@@ -294,6 +338,33 @@ const Desktop = () => {
             <OverviewMode isOpen={isOverviewOpen} onClose={closeOverview} onSelectWindow={handleOverviewSelect} />
             <InstallButton />
             <Screensaver />
+
+            {/* Desktop Background Context Menu */}
+            {desktopMenu && (
+                <ContextMenu ref={menuRef} position={desktopMenu.position} onClose={closeDesktopMenu} {...menuProps}>
+                    <ContextMenu.Item icon="refresh" onClick={handleRefreshDesktop}>
+                        Refresh
+                    </ContextMenu.Item>
+                    <ContextMenu.Separator />
+                    <ContextMenu.Submenu icon="sort" label="Sort by">
+                        <ContextMenu.Item onClick={closeDesktopMenu}>Name</ContextMenu.Item>
+                        <ContextMenu.Item onClick={closeDesktopMenu}>Size</ContextMenu.Item>
+                        <ContextMenu.Item onClick={closeDesktopMenu}>Date modified</ContextMenu.Item>
+                    </ContextMenu.Submenu>
+                    <ContextMenu.Submenu icon="visibility" label="View">
+                        <ContextMenu.Item onClick={closeDesktopMenu}>Large icons</ContextMenu.Item>
+                        <ContextMenu.Item onClick={closeDesktopMenu}>Medium icons</ContextMenu.Item>
+                        <ContextMenu.Item onClick={closeDesktopMenu}>Small icons</ContextMenu.Item>
+                    </ContextMenu.Submenu>
+                    <ContextMenu.Separator />
+                    <ContextMenu.Item icon="wallpaper" onClick={handleOpenWallpaperStudio}>
+                        Change wallpaper
+                    </ContextMenu.Item>
+                    <ContextMenu.Item icon="display_settings" onClick={handleOpenDisplaySettings}>
+                        Display settings
+                    </ContextMenu.Item>
+                </ContextMenu>
+            )}
         </div>
     );
 };

@@ -14,3 +14,10 @@ export type { Size, ResizeDirection, UseWindowResizeOptions, UseWindowResizeResu
 export { useWindowPersistence } from './useWindowPersistence';
 export type { UseWindowPersistenceResult } from './useWindowPersistence';
 export { useTerminalPreferences } from './useTerminalPreferences';
+export { useContextMenu } from './useContextMenu';
+export type {
+    ContextMenuPosition,
+    ContextMenuState,
+    UseContextMenuOptions,
+    UseContextMenuResult,
+} from './useContextMenu';

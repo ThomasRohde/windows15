@@ -4,6 +4,14 @@
 
 export { AppLoadingSkeleton } from './AppLoadingSkeleton';
 export { AriaLiveProvider, useAriaLive } from './AriaLiveRegion';
+export { ContextMenu } from './ContextMenu';
+export type {
+    ContextMenuProps,
+    ContextMenuItemProps,
+    ContextMenuSeparatorProps,
+    ContextMenuSubmenuProps,
+    ContextMenuLabelProps,
+} from './ContextMenu';
 export { DesktopIcon } from './DesktopIcon';
 export { ErrorBoundary } from './ErrorBoundary';
 export { FileExplorer } from './FileExplorer';

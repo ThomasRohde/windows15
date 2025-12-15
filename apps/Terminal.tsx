@@ -3,15 +3,14 @@ import { useLocalization } from '../context';
 import { useDb } from '../context/DbContext';
 import { useOS } from '../context/OSContext';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useTerminalPreferences } from '../hooks';
+import { useTerminalPreferences, useContextMenu } from '../hooks';
+import { ContextMenu } from '../components/ContextMenu';
 import { TERMINAL_THEMES } from '../types/terminal';
 import { getFiles, saveFileToFolder } from '../utils/fileSystem';
 import type { FileSystemItem } from '../types';
 import { generateUuid } from '../utils/uuid';
 
-interface ContextMenu {
-    x: number;
-    y: number;
+interface TerminalContextData {
     hasSelection: boolean;
 }
 
@@ -115,7 +114,6 @@ export const Terminal = () => {
     ]);
     const [historyIndex, setHistoryIndex] = useState(-1);
     const [currentPath, setCurrentPath] = useState<string[]>([]);
-    const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [suggestionIndex, setSuggestionIndex] = useState(-1);
     const [sessionId, setSessionId] = useState<number | null>(null);
@@ -124,6 +122,14 @@ export const Terminal = () => {
     const inputRef = useRef<HTMLInputElement>(null);
     const idCounter = useRef(3);
     const saveTimerRef = useRef<number | null>(null);
+
+    const {
+        menu: contextMenu,
+        open: openContextMenu,
+        close: closeContextMenu,
+        menuProps,
+        menuRef,
+    } = useContextMenu<TerminalContextData>();
 
     // Load most recent session on mount
     useEffect(() => {
@@ -222,13 +228,6 @@ export const Terminal = () => {
         }
     }, [output]);
 
-    // Close context menu on click anywhere
-    useEffect(() => {
-        const handleClick = () => setContextMenu(null);
-        document.addEventListener('click', handleClick);
-        return () => document.removeEventListener('click', handleClick);
-    }, []);
-
     const getSelectedText = (): string => {
         return window.getSelection()?.toString() || '';
     };
@@ -251,13 +250,8 @@ export const Terminal = () => {
     };
 
     const handleContextMenu = (e: React.MouseEvent) => {
-        e.preventDefault();
         const selection = getSelectedText();
-        setContextMenu({
-            x: e.clientX,
-            y: e.clientY,
-            hasSelection: selection.length > 0,
-        });
+        openContextMenu(e, { hasSelection: selection.length > 0 });
     };
 
     const handleCopySelection = async () => {
@@ -265,18 +259,18 @@ export const Terminal = () => {
         if (selection) {
             await copyToClipboard(selection);
         }
-        setContextMenu(null);
+        closeContextMenu();
     };
 
     const handleCopyAll = async () => {
         const allText = output.map(line => line.text).join('\n');
         await copyToClipboard(allText);
-        setContextMenu(null);
+        closeContextMenu();
     };
 
     const handlePaste = async () => {
         await pasteFromClipboard();
-        setContextMenu(null);
+        closeContextMenu();
         inputRef.current?.focus();
     };
 
@@ -288,12 +282,12 @@ export const Terminal = () => {
             selection?.removeAllRanges();
             selection?.addRange(range);
         }
-        setContextMenu(null);
+        closeContextMenu();
     };
 
     const handleClearTerminal = () => {
         setOutput([]);
-        setContextMenu(null);
+        closeContextMenu();
     };
 
     const addOutput = (text: string, type: 'command' | 'output' | 'error' = 'output') => {
@@ -1045,63 +1039,33 @@ export const Terminal = () => {
 
             {/* Context Menu */}
             {contextMenu && (
-                <div
-                    className="absolute bg-gray-800 border border-gray-600 rounded shadow-lg py-1 z-50"
-                    style={{ left: contextMenu.x, top: contextMenu.y }}
-                    onClick={e => e.stopPropagation()}
-                >
-                    {contextMenu.hasSelection && (
-                        <button
-                            className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2"
-                            onClick={handleCopySelection}
-                        >
-                            <span className="material-symbols-outlined text-sm">content_copy</span>
+                <ContextMenu ref={menuRef} position={contextMenu.position} onClose={closeContextMenu} {...menuProps}>
+                    {contextMenu.data?.hasSelection && (
+                        <ContextMenu.Item icon="content_copy" onClick={handleCopySelection}>
                             Copy
-                        </button>
+                        </ContextMenu.Item>
                     )}
-                    <button
-                        className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2"
-                        onClick={handlePaste}
-                    >
-                        <span className="material-symbols-outlined text-sm">content_paste</span>
+                    <ContextMenu.Item icon="content_paste" onClick={handlePaste}>
                         Paste
-                    </button>
-                    <button
-                        className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2"
-                        onClick={handleCopyAll}
-                    >
-                        <span className="material-symbols-outlined text-sm">select_all</span>
+                    </ContextMenu.Item>
+                    <ContextMenu.Item icon="select_all" onClick={handleCopyAll}>
                         Copy All Output
-                    </button>
-                    <button
-                        className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2"
-                        onClick={handleSelectAll}
-                    >
-                        <span className="material-symbols-outlined text-sm">select_all</span>
+                    </ContextMenu.Item>
+                    <ContextMenu.Item icon="select_all" onClick={handleSelectAll}>
                         Select All
-                    </button>
-                    <div className="border-t border-gray-600 my-1"></div>
+                    </ContextMenu.Item>
+                    <ContextMenu.Separator />
                     {/* Theme submenu */}
-                    <div className="relative group">
-                        <button className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2 justify-between">
-                            <span className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm">palette</span>
-                                Theme
-                            </span>
-                            <span className="material-symbols-outlined text-sm">chevron_right</span>
-                        </button>
-                        <div className="absolute left-full top-0 ml-0 bg-gray-800 border border-gray-600 rounded shadow-lg py-1 hidden group-hover:block min-w-[160px]">
-                            {availableThemes.map(theme => (
-                                <button
-                                    key={theme.name}
-                                    className={`w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2 ${
-                                        preferences.theme === theme.name ? 'bg-gray-700' : ''
-                                    }`}
-                                    onClick={() => {
-                                        void setTheme(theme.name);
-                                        setContextMenu(null);
-                                    }}
-                                >
+                    <ContextMenu.Submenu icon="palette" label="Theme">
+                        {availableThemes.map(theme => (
+                            <ContextMenu.Item
+                                key={theme.name}
+                                onClick={() => {
+                                    void setTheme(theme.name);
+                                    closeContextMenu();
+                                }}
+                            >
+                                <span className="flex items-center gap-2 w-full">
                                     <span
                                         className="w-3 h-3 rounded-full border border-gray-500"
                                         style={{ backgroundColor: theme.textColor }}
@@ -1110,88 +1074,62 @@ export const Terminal = () => {
                                     {preferences.theme === theme.name && (
                                         <span className="material-symbols-outlined text-sm ml-auto">check</span>
                                     )}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                                </span>
+                            </ContextMenu.Item>
+                        ))}
+                    </ContextMenu.Submenu>
                     {/* Font Size submenu */}
-                    <div className="relative group">
-                        <button className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2 justify-between">
-                            <span className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm">format_size</span>
-                                Font Size ({preferences.fontSize}px)
-                            </span>
-                            <span className="material-symbols-outlined text-sm">chevron_right</span>
-                        </button>
-                        <div className="absolute left-full top-0 ml-0 bg-gray-800 border border-gray-600 rounded shadow-lg py-1 hidden group-hover:block min-w-[100px]">
-                            {[10, 12, 14, 16, 18].map(size => (
-                                <button
-                                    key={size}
-                                    className={`w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2 ${
-                                        preferences.fontSize === size ? 'bg-gray-700' : ''
-                                    }`}
-                                    onClick={() => {
-                                        void setFontSize(size);
-                                        setContextMenu(null);
-                                    }}
-                                >
+                    <ContextMenu.Submenu icon="format_size" label={`Font Size (${preferences.fontSize}px)`}>
+                        {[10, 12, 14, 16, 18].map(size => (
+                            <ContextMenu.Item
+                                key={size}
+                                onClick={() => {
+                                    void setFontSize(size);
+                                    closeContextMenu();
+                                }}
+                            >
+                                <span className="flex items-center gap-2 w-full">
                                     {size}px
                                     {preferences.fontSize === size && (
                                         <span className="material-symbols-outlined text-sm ml-auto">check</span>
                                     )}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                                </span>
+                            </ContextMenu.Item>
+                        ))}
+                    </ContextMenu.Submenu>
                     {/* Font Family submenu */}
-                    <div className="relative group">
-                        <button className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2 justify-between">
-                            <span className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm">text_fields</span>
-                                Font
-                            </span>
-                            <span className="material-symbols-outlined text-sm">chevron_right</span>
-                        </button>
-                        <div className="absolute left-full top-0 ml-0 bg-gray-800 border border-gray-600 rounded shadow-lg py-1 hidden group-hover:block min-w-[140px]">
-                            {availableFonts.map(font => (
-                                <button
-                                    key={font}
-                                    className={`w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2 ${
-                                        preferences.fontFamily === font ? 'bg-gray-700' : ''
-                                    }`}
-                                    style={{ fontFamily: font }}
-                                    onClick={() => {
-                                        void setFontFamily(font);
-                                        setContextMenu(null);
-                                    }}
-                                >
+                    <ContextMenu.Submenu icon="text_fields" label="Font">
+                        {availableFonts.map(font => (
+                            <ContextMenu.Item
+                                key={font}
+                                onClick={() => {
+                                    void setFontFamily(font);
+                                    closeContextMenu();
+                                }}
+                            >
+                                <span className="flex items-center gap-2 w-full" style={{ fontFamily: font }}>
                                     {font}
                                     {preferences.fontFamily === font && (
                                         <span className="material-symbols-outlined text-sm ml-auto">check</span>
                                     )}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="border-t border-gray-600 my-1"></div>
-                    <button
-                        className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2"
+                                </span>
+                            </ContextMenu.Item>
+                        ))}
+                    </ContextMenu.Submenu>
+                    <ContextMenu.Separator />
+                    <ContextMenu.Item
+                        icon="download"
                         onClick={() => {
                             exportSession();
-                            setContextMenu(null);
+                            closeContextMenu();
                         }}
                     >
-                        <span className="material-symbols-outlined text-sm">download</span>
                         Export Session
-                    </button>
-                    <button
-                        className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 flex items-center gap-2"
-                        onClick={handleClearTerminal}
-                    >
-                        <span className="material-symbols-outlined text-sm">clear_all</span>
+                    </ContextMenu.Item>
+                    <ContextMenu.Item icon="clear_all" onClick={handleClearTerminal}>
                         Clear
-                    </button>
-                </div>
+                    </ContextMenu.Item>
+                </ContextMenu>
             )}
         </div>
     );

@@ -24,6 +24,8 @@ export const Z_INDEX = {
     MODAL_OVERLAY: 50,
     /** Resize handles (relative within window) */
     RESIZE_HANDLES: 60,
+    /** Context menus - always on top of everything */
+    CONTEXT_MENU: 9999,
 } as const;
 
 // ============================================================================

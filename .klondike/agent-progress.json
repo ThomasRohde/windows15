@@ -557,6 +557,22 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": []
+    "priorityFeatures": [
+      {
+        "id": "F129",
+        "description": "Create SectionLabel component and migrate all apps to use it",
+        "status": "not-started"
+      },
+      {
+        "id": "F130",
+        "description": "Create CopyButton component with feedback state and migrate all apps",
+        "status": "not-started"
+      },
+      {
+        "id": "F131",
+        "description": "Create AppToolbar component and migrate all apps with toolbar headers",
+        "status": "not-started"
+      }
+    ]
   }
 }

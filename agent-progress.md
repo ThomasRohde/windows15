@@ -28,8 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID  | Description | Status |
-| --- | ----------- | ------ |
+| ID   | Description                                                           | Status         |
+| ---- | --------------------------------------------------------------------- | -------------- |
+| F129 | Create SectionLabel component and migrate all apps to use it          | ⏳ Not started |
+| F130 | Create CopyButton component with feedback state and migrate all apps  | ⏳ Not started |
+| F131 | Create AppToolbar component and migrate all apps with toolbar headers | ⏳ Not started |
 
 ---
 

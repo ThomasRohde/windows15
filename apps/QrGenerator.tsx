@@ -107,7 +107,7 @@ export const QrGenerator = () => {
     };
 
     return (
-        <div className="h-full bg-[#1e1e1e] p-4 flex flex-col gap-4">
+        <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
             <div className="bg-black/20 p-4 rounded-lg space-y-3">
                 <label className="text-white/70 text-sm">Enter text or URL</label>
                 <textarea

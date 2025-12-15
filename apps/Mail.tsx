@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { STORAGE_KEYS, storageService, useDexieLiveQuery } from '../utils/storage';
+import { generateUuid } from '../utils/uuid';
 
 type MailboxId = 'inbox' | 'sent' | 'drafts' | 'trash';
 
@@ -24,8 +25,6 @@ type ComposeState = {
 
 const USER_EMAIL = 'john.doe@windows15.local';
 
-const createId = () => globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 11);
-
 const parseRecipients = (raw: string) =>
     raw
         .split(/[;,]/g)
@@ -45,7 +44,7 @@ const seedMessages = (): MailMessage[] => {
 
     return [
         {
-            id: createId(),
+            id: generateUuid(),
             mailbox: 'inbox',
             from: 'Ada Lovelace <ada@analytical.engine>',
             to: [USER_EMAIL],
@@ -55,7 +54,7 @@ const seedMessages = (): MailMessage[] => {
             isRead: false,
         },
         {
-            id: createId(),
+            id: generateUuid(),
             mailbox: 'inbox',
             from: 'Design Team <design@contoso.com>',
             to: [USER_EMAIL],
@@ -65,7 +64,7 @@ const seedMessages = (): MailMessage[] => {
             isRead: true,
         },
         {
-            id: createId(),
+            id: generateUuid(),
             mailbox: 'sent',
             from: `John Doe <${USER_EMAIL}>`,
             to: ['alex@contoso.com'],
@@ -75,7 +74,7 @@ const seedMessages = (): MailMessage[] => {
             isRead: true,
         },
         {
-            id: createId(),
+            id: generateUuid(),
             mailbox: 'drafts',
             from: `John Doe <${USER_EMAIL}>`,
             to: ['team@contoso.com'],
@@ -241,7 +240,7 @@ export const Mail = () => {
             }
 
             const newDraft: MailMessage = {
-                id: createId(),
+                id: generateUuid(),
                 mailbox: 'drafts',
                 from: `John Doe <${USER_EMAIL}>`,
                 to: draftRecipients,
@@ -289,7 +288,7 @@ export const Mail = () => {
             }
 
             const outgoing: MailMessage = {
-                id: createId(),
+                id: generateUuid(),
                 mailbox: 'sent',
                 from: `John Doe <${USER_EMAIL}>`,
                 to: recipients,

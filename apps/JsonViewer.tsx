@@ -127,7 +127,7 @@ export const JsonViewer = () => {
     };
 
     return (
-        <div className="h-full flex flex-col bg-[#1e1e1e] text-white">
+        <div className="h-full flex flex-col bg-background-dark text-white">
             <div className="flex gap-2 p-3 bg-[#2d2d2d] border-b border-white/10">
                 <button
                     onClick={parseJson}

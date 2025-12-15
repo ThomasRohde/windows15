@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { copyTextToClipboard } from '../utils/clipboard';
+import { useCopyToClipboard } from '../hooks';
 
 const md5 = (str: string): string => {
     const rotateLeft = (x: number, n: number) => (x << n) | (x >>> (32 - n));
@@ -172,7 +172,7 @@ interface HashResult {
 export const HashGenerator = () => {
     const [input, setInput] = useState('');
     const [hashes, setHashes] = useState<HashResult[]>([]);
-    const [copied, setCopied] = useState<string | null>(null);
+    const { copy, isCopied } = useCopyToClipboard();
     const [loading, setLoading] = useState(false);
 
     const generateHashes = async () => {
@@ -196,11 +196,8 @@ export const HashGenerator = () => {
         setLoading(false);
     };
 
-    const copyToClipboard = async (hash: HashResult) => {
-        const ok = await copyTextToClipboard(hash.value);
-        if (!ok) return;
-        setCopied(hash.name);
-        setTimeout(() => setCopied(null), 2000);
+    const handleCopy = (hash: HashResult) => {
+        copy(hash.value, hash.name);
     };
 
     const clear = () => {
@@ -209,7 +206,7 @@ export const HashGenerator = () => {
     };
 
     return (
-        <div className="h-full flex flex-col bg-[#1e1e1e] text-white">
+        <div className="h-full flex flex-col bg-background-dark text-white">
             <div className="flex items-center gap-3 p-3 bg-[#2d2d2d] border-b border-white/10">
                 <span className="text-sm text-gray-400">Hash Generator</span>
                 <div className="flex-1" />
@@ -253,10 +250,10 @@ export const HashGenerator = () => {
                                     <div className="flex items-center gap-2">
                                         <span className="text-xs text-gray-500">{hash.length} chars</span>
                                         <button
-                                            onClick={() => copyToClipboard(hash)}
+                                            onClick={() => handleCopy(hash)}
                                             className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-xs transition-colors"
                                         >
-                                            {copied === hash.name ? '✓ Copied!' : '📋 Copy'}
+                                            {isCopied(hash.name) ? '✓ Copied!' : '📋 Copy'}
                                         </button>
                                     </div>
                                 </div>

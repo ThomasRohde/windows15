@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { copyTextToClipboard } from '../utils/clipboard';
+import { useCopyToClipboard } from '../hooks';
+import { TabSwitcher, ErrorBanner } from '../components/ui';
 
 export const Base64Tool = () => {
     const [input, setInput] = useState('');
     const [output, setOutput] = useState('');
     const [mode, setMode] = useState<'encode' | 'decode'>('encode');
     const [error, setError] = useState<string | null>(null);
-    const [copied, setCopied] = useState(false);
+    const { copy, copied } = useCopyToClipboard();
 
     const encode = () => {
         try {
@@ -38,14 +39,11 @@ export const Base64Tool = () => {
         }
     };
 
-    const copyToClipboard = async () => {
-        const ok = await copyTextToClipboard(output);
+    const handleCopy = async () => {
+        const ok = await copy(output);
         if (!ok) {
             setError('Failed to copy to clipboard');
-            return;
         }
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
     };
 
     const swap = () => {
@@ -61,26 +59,18 @@ export const Base64Tool = () => {
     };
 
     return (
-        <div className="h-full flex flex-col bg-[#1e1e1e] text-white">
+        <div className="h-full flex flex-col bg-background-dark text-white">
             <div className="flex items-center gap-3 p-3 bg-[#2d2d2d] border-b border-white/10">
-                <div className="flex bg-black/20 rounded overflow-hidden">
-                    <button
-                        onClick={() => setMode('encode')}
-                        className={`px-4 py-2 text-sm font-medium transition-colors ${
-                            mode === 'encode' ? 'bg-blue-600' : 'hover:bg-white/10'
-                        }`}
-                    >
-                        Encode
-                    </button>
-                    <button
-                        onClick={() => setMode('decode')}
-                        className={`px-4 py-2 text-sm font-medium transition-colors ${
-                            mode === 'decode' ? 'bg-blue-600' : 'hover:bg-white/10'
-                        }`}
-                    >
-                        Decode
-                    </button>
-                </div>
+                <TabSwitcher
+                    options={[
+                        { value: 'encode', label: 'Encode' },
+                        { value: 'decode', label: 'Decode' },
+                    ]}
+                    value={mode}
+                    onChange={setMode}
+                    variant="secondary"
+                    size="sm"
+                />
                 <div className="flex-1" />
                 <button
                     onClick={clear}
@@ -123,11 +113,7 @@ export const Base64Tool = () => {
                     </button>
                 </div>
 
-                {error && (
-                    <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-red-400 text-sm">
-                        {error}
-                    </div>
-                )}
+                {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
 
                 <div className="flex-1 flex flex-col min-h-0">
                     <div className="flex justify-between items-center mb-2">
@@ -138,7 +124,7 @@ export const Base64Tool = () => {
                             <span className="text-xs text-gray-500">{output.length} characters</span>
                             {output && (
                                 <button
-                                    onClick={copyToClipboard}
+                                    onClick={handleCopy}
                                     className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-xs transition-colors"
                                 >
                                     {copied ? '✓ Copied!' : '📋 Copy'}

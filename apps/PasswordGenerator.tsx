@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { copyTextToClipboard } from '../utils/clipboard';
+import { useCopyToClipboard } from '../hooks';
 
 export const PasswordGenerator = () => {
     const [length, setLength] = useState(16);
@@ -8,7 +8,7 @@ export const PasswordGenerator = () => {
     const [numbers, setNumbers] = useState(true);
     const [symbols, setSymbols] = useState(true);
     const [password, setPassword] = useState('');
-    const [copied, setCopied] = useState(false);
+    const { copy, copied } = useCopyToClipboard();
 
     const generatePassword = useCallback(() => {
         let chars = '';
@@ -27,15 +27,11 @@ export const PasswordGenerator = () => {
             result += chars.charAt(Math.floor(Math.random() * chars.length));
         }
         setPassword(result);
-        setCopied(false);
     }, [length, uppercase, lowercase, numbers, symbols]);
 
-    const copyToClipboard = async () => {
+    const handleCopy = async () => {
         if (!password || password === 'Select at least one option') return;
-        const ok = await copyTextToClipboard(password);
-        if (!ok) return;
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        await copy(password);
     };
 
     const getStrength = () => {
@@ -66,7 +62,7 @@ export const PasswordGenerator = () => {
     );
 
     return (
-        <div className="h-full bg-[#1e1e1e] p-4 flex flex-col gap-4">
+        <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
             <div className="bg-black/30 p-4 rounded-lg">
                 <div className="flex items-center gap-2">
                     <input
@@ -77,7 +73,7 @@ export const PasswordGenerator = () => {
                         className="flex-1 bg-transparent text-white text-lg font-mono focus:outline-none"
                     />
                     <button
-                        onClick={copyToClipboard}
+                        onClick={handleCopy}
                         className={`px-3 py-1 rounded text-sm transition-colors ${
                             copied ? 'bg-green-500 text-white' : 'bg-white/10 text-white/70 hover:bg-white/20'
                         }`}

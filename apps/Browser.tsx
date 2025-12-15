@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDb, useDexieLiveQuery } from '../utils/storage';
+import { generateUuid } from '../utils/uuid';
 
 type ViewMode = 'live' | 'reader';
 
@@ -25,8 +26,6 @@ type BookmarkDraft = {
 const isHttpUrl = (value: string) => /^https?:\/\//i.test(value);
 
 const looksLikeIpAddress = (value: string) => /^\d{1,3}(\.\d{1,3}){3}/.test(value);
-
-const createId = () => globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 11);
 
 const rewriteKnownEmbedFriendlyUrls = (url: string) => {
     try {
@@ -256,7 +255,7 @@ export const Browser = () => {
         }
 
         const now = Date.now();
-        const id = createId();
+        const id = generateUuid();
         await db.bookmarks.add({
             id,
             url: trimmedUrl,

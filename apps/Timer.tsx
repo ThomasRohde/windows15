@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { TabSwitcher, Card } from '../components/ui';
 
 type TimerMode = 'stopwatch' | 'countdown';
 
@@ -117,22 +118,16 @@ export const Timer = () => {
 
     return (
         <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
-            <div className="flex gap-2 justify-center">
-                <button
-                    onClick={() => switchMode('stopwatch')}
-                    className={`px-4 py-2 rounded-lg transition-all ${mode === 'stopwatch' ? 'bg-orange-500 text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}
-                >
-                    Stopwatch
-                </button>
-                <button
-                    onClick={() => switchMode('countdown')}
-                    className={`px-4 py-2 rounded-lg transition-all ${mode === 'countdown' ? 'bg-orange-500 text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}
-                >
-                    Countdown
-                </button>
-            </div>
+            <TabSwitcher
+                options={[
+                    { value: 'stopwatch', label: 'Stopwatch' },
+                    { value: 'countdown', label: 'Countdown' },
+                ]}
+                value={mode}
+                onChange={switchMode}
+            />
 
-            <div className="flex-1 bg-black/20 rounded-xl p-4 flex flex-col items-center justify-center">
+            <Card className="flex-1 flex flex-col items-center justify-center">
                 <span className="text-5xl font-light text-white font-mono">{formatTime(time)}</span>
 
                 {mode === 'countdown' && !isRunning && time === 0 && (
@@ -183,7 +178,7 @@ export const Timer = () => {
                         />
                     </div>
                 )}
-            </div>
+            </Card>
 
             <div className="flex gap-2 justify-center">
                 {!isRunning ? (
@@ -196,7 +191,7 @@ export const Timer = () => {
             </div>
 
             {laps.length > 0 && (
-                <div className="bg-black/20 rounded-xl p-4 max-h-32 overflow-y-auto">
+                <Card className="max-h-32 overflow-y-auto">
                     <div className="text-white/60 text-sm mb-2">Laps</div>
                     {laps.map((lap, index) => (
                         <div key={index} className="flex justify-between text-white py-1 border-b border-white/10">
@@ -204,7 +199,7 @@ export const Timer = () => {
                             <span className="font-mono">{formatTime(lap)}</span>
                         </div>
                     ))}
-                </div>
+                </Card>
             )}
         </div>
     );

@@ -384,7 +384,7 @@ export const TodoList = () => {
     };
 
     return (
-        <div className="h-full bg-[#1e1e1e] p-4 flex flex-col gap-4">
+        <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
             {showConfirmation && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-[#2d2d2d] border border-white/20 rounded-lg p-6 max-w-md mx-4">

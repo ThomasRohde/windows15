@@ -20,7 +20,7 @@ export const SystemInfo = () => {
     ];
 
     return (
-        <div className="h-full bg-[#1e1e1e] text-white overflow-y-auto">
+        <div className="h-full bg-background-dark text-white overflow-y-auto">
             <div className="p-6 max-w-3xl mx-auto">
                 <div className="flex items-center gap-6 mb-8">
                     <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg">

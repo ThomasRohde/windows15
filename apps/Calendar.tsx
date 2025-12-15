@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { STORAGE_KEYS, storageService, useDexieLiveQuery } from '../utils/storage';
 import { SkeletonCalendar } from '../components/LoadingSkeleton';
 import { useLocalization } from '../context';
+import { generateUuid } from '../utils/uuid';
 
 type CalendarEvent = {
     id: string;
@@ -15,8 +16,6 @@ type CalendarEvent = {
 };
 
 type EventDraft = Omit<CalendarEvent, 'id'> & { id?: string };
-
-const createId = () => globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 11);
 
 const pad2 = (value: number) => value.toString().padStart(2, '0');
 
@@ -51,7 +50,7 @@ const seedEvents = (): CalendarEvent[] => {
 
     return [
         {
-            id: createId(),
+            id: generateUuid(),
             title: 'Design Review',
             date: toYmd(inTwoDays),
             allDay: false,
@@ -61,7 +60,7 @@ const seedEvents = (): CalendarEvent[] => {
             notes: 'Review the updated desktop widgets and mail/calendar layouts.',
         },
         {
-            id: createId(),
+            id: generateUuid(),
             title: 'Sprint Planning',
             date: toYmd(nextWeek),
             allDay: false,
@@ -71,7 +70,7 @@ const seedEvents = (): CalendarEvent[] => {
             notes: '',
         },
         {
-            id: createId(),
+            id: generateUuid(),
             title: 'Pay rent',
             date: `${today.getFullYear()}-${pad2(today.getMonth() + 1)}-01`,
             allDay: true,
@@ -231,7 +230,7 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
         }
 
         const normalized: CalendarEvent = {
-            id: draft.id ?? createId(),
+            id: draft.id ?? generateUuid(),
             title,
             date: draft.date,
             allDay: draft.allDay,

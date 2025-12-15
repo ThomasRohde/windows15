@@ -42,7 +42,7 @@ export const Notepad: React.FC<NotepadProps> = props => {
     }, [openedFromFile]);
 
     return (
-        <div className="h-full flex flex-col bg-[#1e1e1e] text-[#d4d4d4] relative">
+        <div className="h-full flex flex-col bg-background-dark text-[#d4d4d4] relative">
             {/* View Tabs */}
             <div className="h-10 px-2 flex items-center gap-2 bg-[#2d2d2d] border-b border-[#3d3d3d]">
                 <button

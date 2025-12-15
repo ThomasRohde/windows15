@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { copyTextToClipboard } from '../utils/clipboard';
+import { useCopyToClipboard } from '../hooks';
 
 interface SavedColor {
     hex: string;
@@ -11,7 +11,7 @@ export const ColorPicker = () => {
     const [saturation, setSaturation] = useState(70);
     const [lightness, setLightness] = useState(50);
     const [savedColors, setSavedColors] = useState<SavedColor[]>([]);
-    const [copied, setCopied] = useState<string | null>(null);
+    const { copy, isCopied } = useCopyToClipboard(1500);
 
     const hslToRgb = useCallback((h: number, s: number, l: number) => {
         s /= 100;
@@ -42,13 +42,6 @@ export const ColorPicker = () => {
     const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
     const hslString = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
     const rgbString = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
-
-    const copyToClipboard = async (value: string, format: string) => {
-        const ok = await copyTextToClipboard(value);
-        if (!ok) return;
-        setCopied(format);
-        setTimeout(() => setCopied(null), 1500);
-    };
 
     const saveColor = () => {
         if (!savedColors.find(c => c.hex === hex)) {
@@ -94,12 +87,12 @@ export const ColorPicker = () => {
                 <div className="text-white font-mono">{value}</div>
             </div>
             <button
-                onClick={() => copyToClipboard(value, format)}
+                onClick={() => copy(value, format)}
                 className={`px-2 py-1 rounded text-xs transition-colors ${
-                    copied === format ? 'bg-green-500 text-white' : 'bg-white/10 text-white/70 hover:bg-white/20'
+                    isCopied(format) ? 'bg-green-500 text-white' : 'bg-white/10 text-white/70 hover:bg-white/20'
                 }`}
             >
-                {copied === format ? 'Copied!' : 'Copy'}
+                {isCopied(format) ? 'Copied!' : 'Copy'}
             </button>
         </div>
     );
@@ -140,7 +133,7 @@ export const ColorPicker = () => {
     );
 
     return (
-        <div className="h-full bg-[#1e1e1e] p-4 flex flex-col gap-4 overflow-y-auto">
+        <div className="h-full bg-background-dark p-4 flex flex-col gap-4 overflow-y-auto">
             <div
                 className="h-32 rounded-xl shadow-inner flex items-center justify-center"
                 style={{ backgroundColor: hex }}

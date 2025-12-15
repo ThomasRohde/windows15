@@ -21,3 +21,4 @@ export type {
     UseContextMenuOptions,
     UseContextMenuResult,
 } from './useContextMenu';
+export { useCopyToClipboard } from './useCopyToClipboard';

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { TabSwitcher, Card } from '../components/ui';
 
 type Category = 'length' | 'weight' | 'temperature' | 'data';
 
@@ -98,19 +99,18 @@ export const UnitConverter = () => {
 
     return (
         <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
-            <div className="flex gap-2 justify-center flex-wrap">
-                {(Object.keys(units) as Category[]).map(cat => (
-                    <button
-                        key={cat}
-                        onClick={() => setCategory(cat)}
-                        className={`px-3 py-2 rounded-lg text-sm transition-all ${category === cat ? 'bg-orange-500 text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}
-                    >
-                        {categoryLabels[cat]}
-                    </button>
-                ))}
-            </div>
+            <TabSwitcher
+                options={(Object.keys(units) as Category[]).map(cat => ({
+                    value: cat,
+                    label: categoryLabels[cat],
+                }))}
+                value={category}
+                onChange={setCategory}
+                size="sm"
+                wrap
+            />
 
-            <div className="flex-1 bg-black/20 rounded-xl p-4 flex flex-col gap-4">
+            <Card className="flex-1 flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
                     <label className="text-white/60 text-sm">From</label>
                     <div className="flex gap-2">
@@ -176,7 +176,7 @@ export const UnitConverter = () => {
                         )}
                     </div>
                 </div>
-            </div>
+            </Card>
         </div>
     );
 };

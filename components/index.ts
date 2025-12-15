@@ -39,3 +39,7 @@ export { Taskbar } from './Taskbar';
 export { WallpaperHost } from './WallpaperHost';
 export { Widgets } from './Widgets';
 export { Window } from './Window';
+
+// UI primitives for apps
+export { Card, TabSwitcher, AppSidebar, ErrorBanner } from './ui';
+export type { TabOption, SidebarItem } from './ui';

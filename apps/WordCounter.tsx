@@ -47,7 +47,7 @@ export const WordCounter = () => {
     );
 
     return (
-        <div className="h-full flex flex-col bg-[#1e1e1e] text-white">
+        <div className="h-full flex flex-col bg-background-dark text-white">
             <div className="grid grid-cols-4 gap-3 p-4 bg-[#2d2d2d] border-b border-white/10">
                 <StatCard
                     label="Characters"

@@ -40,7 +40,7 @@ export const ImageViewer = ({ initialSrc }: ImageViewerProps) => {
     };
 
     return (
-        <div className="h-full bg-[#1e1e1e] flex flex-col">
+        <div className="h-full bg-background-dark flex flex-col">
             <div className="flex items-center gap-2 p-2 bg-black/20 border-b border-white/5">
                 <button
                     onClick={handleZoomOut}

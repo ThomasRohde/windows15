@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useCopyToClipboard, usePersistedState } from '../hooks';
-import { Slider } from '../components/ui';
+import { Slider, Checkbox } from '../components/ui';
 
 interface PasswordSettings {
     length: number;
@@ -67,13 +67,6 @@ export const PasswordGenerator = () => {
 
     const strength = getStrength();
 
-    const Checkbox = ({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) => (
-        <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input type="checkbox" checked={checked} onChange={onChange} className="w-4 h-4 rounded accent-blue-500" />
-            <span className="text-white/80">{label}</span>
-        </label>
-    );
-
     return (
         <div className="h-full bg-background-dark p-4 flex flex-col gap-4">
             <div className="bg-black/30 p-4 rounded-lg">
@@ -123,23 +116,27 @@ export const PasswordGenerator = () => {
                 <div className="grid grid-cols-2 gap-3">
                     <Checkbox
                         checked={uppercase}
-                        onChange={() => setSettings({ ...settings, uppercase: !uppercase })}
+                        onChange={v => setSettings({ ...settings, uppercase: v })}
                         label="Uppercase (A-Z)"
+                        size="sm"
                     />
                     <Checkbox
                         checked={lowercase}
-                        onChange={() => setSettings({ ...settings, lowercase: !lowercase })}
+                        onChange={v => setSettings({ ...settings, lowercase: v })}
                         label="Lowercase (a-z)"
+                        size="sm"
                     />
                     <Checkbox
                         checked={numbers}
-                        onChange={() => setSettings({ ...settings, numbers: !numbers })}
+                        onChange={v => setSettings({ ...settings, numbers: v })}
                         label="Numbers (0-9)"
+                        size="sm"
                     />
                     <Checkbox
                         checked={symbols}
-                        onChange={() => setSettings({ ...settings, symbols: !symbols })}
+                        onChange={v => setSettings({ ...settings, symbols: v })}
                         label="Symbols (!@#$)"
+                        size="sm"
                     />
                 </div>
             </div>

@@ -18,7 +18,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useDb, useDexieLiveQuery } from '../utils/storage';
 import { generateUuid } from '../utils/uuid';
-import { ErrorBanner, ConfirmDialog, Button } from '../components/ui';
+import { ErrorBanner, ConfirmDialog, Button, Checkbox } from '../components/ui';
 import { useAsyncAction } from '../hooks';
 
 type Filter = 'all' | 'active' | 'completed';
@@ -561,12 +561,11 @@ export const TodoList = () => {
                                                 </button>
                                             )}
 
-                                            <input
-                                                type="checkbox"
+                                            <Checkbox
                                                 checked={todo.completed}
                                                 onChange={() => toggleTodo(todo.id)}
                                                 disabled={editingId === todo.id}
-                                                className="w-5 h-5 mt-0.5 rounded accent-blue-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                                checkboxClassName="mt-0.5"
                                             />
 
                                             {editingId === todo.id ? (

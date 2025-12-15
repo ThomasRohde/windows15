@@ -8,6 +8,8 @@ export type { SidebarItem } from './AppSidebar';
 export { Button } from './Button';
 export type { ButtonProps, ButtonVariant, ButtonSize } from './Button';
 export { Card } from './Card';
+export { Checkbox } from './Checkbox';
+export type { CheckboxProps } from './Checkbox';
 export { ConfirmDialog, useConfirmDialog } from './ConfirmDialog';
 export type { ConfirmDialogProps } from './ConfirmDialog';
 export { ErrorBanner } from './ErrorBanner';

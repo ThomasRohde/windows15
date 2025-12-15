@@ -3,6 +3,7 @@ import { STORAGE_KEYS, storageService, useDexieLiveQuery } from '../utils/storag
 import { SkeletonCalendar } from '../components/LoadingSkeleton';
 import { useLocalization } from '../context';
 import { generateUuid } from '../utils/uuid';
+import { Checkbox } from '../components/ui';
 
 type CalendarEvent = {
     id: string;
@@ -475,17 +476,17 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                                     />
                                 </label>
 
-                                <label className="flex items-center gap-2 mt-6">
-                                    <input
-                                        type="checkbox"
+                                <div className="mt-6">
+                                    <Checkbox
                                         checked={draft.allDay}
-                                        onChange={e =>
-                                            setDraft(prev => (prev ? { ...prev, allDay: e.target.checked } : prev))
+                                        onChange={checked =>
+                                            setDraft(prev => (prev ? { ...prev, allDay: checked } : prev))
                                         }
-                                        className="rounded border-white/20 bg-black/30"
+                                        label="All day"
+                                        labelClassName="text-sm text-white/80"
+                                        size="sm"
                                     />
-                                    <span className="text-sm text-white/80">All day</span>
-                                </label>
+                                </div>
                             </div>
 
                             {!draft.allDay && (

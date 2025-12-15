@@ -3064,13 +3064,13 @@
         "Styling matches Windows 15 OS design language"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-15T16:06:12.124909",
       "notes": "Implementation: TodoList has custom checkbox styling. Extract to components/ui/Checkbox.tsx with standard form control props. Consider both controlled and uncontrolled modes. Edge cases: Indeterminate state for parent checkboxes, keyboard accessibility (Space to toggle), focus states. Dependencies: None - standalone UI component. Context: Form controls should be consistent across OS for professional feel. Gotchas: Ensure label click toggles checkbox, ensure proper focus ring visibility."
     },
     {

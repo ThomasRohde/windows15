@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AppContainer, TabSwitcher, Card, Button, SectionLabel } from '../components/ui';
 import { useInterval } from '../hooks';
+import { formatDuration } from '../utils/timeFormatters';
 
 type TimerMode = 'stopwatch' | 'countdown';
 
@@ -28,17 +29,7 @@ export const Timer = () => {
         isRunning ? 10 : null // Pass null when paused
     );
 
-    const formatTime = (ms: number) => {
-        const hours = Math.floor(ms / 3600000);
-        const minutes = Math.floor((ms % 3600000) / 60000);
-        const seconds = Math.floor((ms % 60000) / 1000);
-        const centiseconds = Math.floor((ms % 1000) / 10);
-
-        if (hours > 0) {
-            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`;
-        }
-        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`;
-    };
+    const formatTime = (ms: number) => formatDuration(ms, { showCentiseconds: true });
 
     const handleStart = () => {
         if (mode === 'countdown' && time === 0) {

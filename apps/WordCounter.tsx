@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Button } from '../components/ui';
+import { formatReadingTime } from '../utils/timeFormatters';
 
 export const WordCounter = () => {
     const [text, setText] = useState('');
@@ -14,19 +15,8 @@ export const WordCounter = () => {
 
         const paragraphs = text.split(/\n\n+/).filter(p => p.trim().length > 0).length;
 
-        const avgReadingSpeed = 200;
-        const readingTimeMinutes = words / avgReadingSpeed;
-        const readingTime =
-            readingTimeMinutes < 1
-                ? `${Math.ceil(readingTimeMinutes * 60)} sec`
-                : `${Math.ceil(readingTimeMinutes)} min`;
-
-        const avgSpeakingSpeed = 150;
-        const speakingTimeMinutes = words / avgSpeakingSpeed;
-        const speakingTime =
-            speakingTimeMinutes < 1
-                ? `${Math.ceil(speakingTimeMinutes * 60)} sec`
-                : `${Math.ceil(speakingTimeMinutes)} min`;
+        const readingTime = formatReadingTime(words, 200);
+        const speakingTime = formatReadingTime(words, 150);
 
         return {
             characters,

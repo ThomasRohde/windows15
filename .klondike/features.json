@@ -3822,13 +3822,13 @@
         "Apps with copy buttons migrated to support Ctrl+C shortcut"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-15T20:07:41.515185",
       "notes": "Implementation: Wrapper around existing useHotkeys that provides standard keyboard shortcuts. Props: handlers object with onSave, onCopy, onClear, onUndo, onRedo. Each handler is optional. Edge cases: Should not trigger when input/textarea is focused (for onCopy). Dependencies: useHotkeys hook exists in hooks/useHotkeys.ts. Context: Medium priority - improves keyboard accessibility across apps. Gotchas: Some apps may have conflicting shortcuts - provide override mechanism."
     },
     {

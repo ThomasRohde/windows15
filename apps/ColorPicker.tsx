@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { usePersistedState } from '../hooks';
+import { usePersistedState, useStandardHotkeys, useCopyToClipboard } from '../hooks';
 import { AppContainer, Slider, Button, SectionLabel, CopyButton } from '../components/ui';
 
 interface SavedColor {
@@ -42,6 +42,12 @@ export const ColorPicker = () => {
     const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
     const hslString = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
     const rgbString = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+    const { copy } = useCopyToClipboard();
+
+    // Keyboard shortcuts (F140)
+    useStandardHotkeys({
+        onCopy: () => void copy(hex),
+    });
 
     const saveColor = () => {
         if (!savedColors.find(c => c.hex === hex)) {

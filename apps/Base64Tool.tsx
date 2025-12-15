@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAsyncAction } from '../hooks';
+import { useAsyncAction, useStandardHotkeys, useCopyToClipboard } from '../hooks';
 import { TabSwitcher, ErrorBanner, SectionLabel, CopyButton, AppToolbar, TextArea } from '../components/ui';
 
 export const Base64Tool = () => {
@@ -7,6 +7,7 @@ export const Base64Tool = () => {
     const [output, setOutput] = useState('');
     const [mode, setMode] = useState<'encode' | 'decode'>('encode');
     const { execute, error, clearError } = useAsyncAction();
+    const { copy } = useCopyToClipboard();
 
     const encode = async () => {
         await execute(async () => {
@@ -41,6 +42,12 @@ export const Base64Tool = () => {
         setOutput('');
         clearError();
     };
+
+    // Keyboard shortcuts (F140)
+    useStandardHotkeys({
+        onCopy: output ? () => void copy(output) : undefined,
+        onClear: clear,
+    });
 
     return (
         <div className="h-full flex flex-col bg-background-dark text-white">

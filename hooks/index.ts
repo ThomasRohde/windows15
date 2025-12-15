@@ -8,6 +8,8 @@ export { useDebounce } from './useDebounce';
 export { useAppEvent, useAppEmit, useEventBus } from './useEventBus';
 export { useHotkey, useHotkeys, getShortcutLabel } from './useHotkeys';
 export type { UseHotkeysOptions } from './useHotkeys';
+export { useStandardHotkeys } from './useStandardHotkeys';
+export type { StandardHotkeysHandlers, UseStandardHotkeysOptions } from './useStandardHotkeys';
 export { useInterval, useControllableInterval } from './useInterval';
 export { useLocalStorage } from './useLocalStorage';
 export { usePersistedState } from './usePersistedState';

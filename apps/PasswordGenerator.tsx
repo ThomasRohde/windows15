@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { usePersistedState } from '../hooks';
+import { usePersistedState, useStandardHotkeys, useCopyToClipboard } from '../hooks';
 import { AppContainer, Slider, Checkbox, Button, CopyButton, TextInput } from '../components/ui';
 
 interface PasswordSettings {
@@ -60,6 +60,12 @@ export const PasswordGenerator = () => {
     };
 
     const strength = getStrength();
+    const { copy } = useCopyToClipboard();
+
+    // Keyboard shortcuts (F140)
+    useStandardHotkeys({
+        onCopy: password && password !== 'Select at least one option' ? () => void copy(password) : undefined,
+    });
 
     return (
         <AppContainer>

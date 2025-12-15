@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { getFiles, saveFileToFolder } from '../../utils/fileSystem';
 import { FileSystemItem } from '../../types';
 import { useConfirmDialog, ConfirmDialog } from '../../components/ui/ConfirmDialog';
-import { useHotkeys } from '../../hooks';
+import { useStandardHotkeys } from '../../hooks';
 import { TextArea } from '../../components/ui';
 
 interface FilesPanelProps {
@@ -187,24 +187,13 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
         ],
     };
 
-    // Implement keyboard shortcuts (F117)
-    // Save shortcuts work even when typing in textarea
-    useHotkeys(
-        {
-            'ctrl+s': () => void handleSave(),
-            'ctrl+shift+s': () => void handleSaveAs(),
-        },
-        { ignoreInput: false }
-    );
-
-    // New/Open shortcuts only when not typing (to avoid interfering)
-    useHotkeys(
-        {
-            'ctrl+n': () => void handleNew(),
-            'ctrl+o': () => void handleOpen(),
-        },
-        { ignoreInput: true }
-    );
+    // Implement keyboard shortcuts using useStandardHotkeys (F140)
+    useStandardHotkeys({
+        onSave: () => void handleSave(),
+        onSaveAs: () => void handleSaveAs(),
+        onNew: () => void handleNew(),
+        onOpen: () => void handleOpen(),
+    });
 
     return (
         <>

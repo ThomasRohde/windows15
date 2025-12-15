@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: Session Ended
+## Current Status: In Progress
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -30,7 +30,7 @@ klondike feature list  # List all features
 
 | ID   | Description                                                      | Status         |
 | ---- | ---------------------------------------------------------------- | -------------- |
-| F140 | Create useStandardHotkeys hook for common app keyboard shortcuts | ⏳ Not started |
+| F140 | Create useStandardHotkeys hook for common app keyboard shortcuts | 🔄 In progress |
 | F141 | Create FormField wrapper component with label and error display  | ⏳ Not started |
 | F137 | Extract color conversion utilities to utils/color.ts             | ⏳ Not started |
 
@@ -1122,6 +1122,34 @@ klondike feature list  # List all features
 3. F137 (color utilities)
 4. F138 (StatCard component)
 5. F139 (SplitPane component). Project at 96.5% completion.
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 38 - 2025-12-15
+
+**Agent**: Coding Agent
+**Duration**: (in progress)
+**Focus**: F137-F141 - Final 5 refactoring features
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- Session started
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Continue implementation
 
 #### Technical Notes
 

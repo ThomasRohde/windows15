@@ -68,7 +68,7 @@ export const TodoList = () => {
         () => db.todos.orderBy('createdAt').toArray(),
         [db]
     );
-    const todos = Array.isArray(todosRaw) ? todosRaw : [];
+    const todos = useMemo(() => (Array.isArray(todosRaw) ? todosRaw : []), [todosRaw]);
 
     const [input, setInput] = useState('');
     const [filter, setFilter] = useState<Filter>('all');

@@ -193,9 +193,12 @@ export class Wasm4Runtime {
      * Create the WASM-4 import object
      */
     private createImportObject(): WebAssembly.Imports {
+        if (!this.memory) {
+            throw new Error('Wasm4Runtime not initialized: missing memory');
+        }
         return {
             env: {
-                memory: this.memory!,
+                memory: this.memory,
                 // Drawing functions
                 blit: this.blit.bind(this),
                 blitSub: this.blitSub.bind(this),
@@ -344,8 +347,9 @@ export class Wasm4Runtime {
         for (let i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {
             const byteIndex = FRAMEBUFFER + (i >> 2);
             const bitOffset = (i & 3) * 2;
-            const colorIndex = (mem[byteIndex]! >> bitOffset) & 0x3;
-            const color = palette[colorIndex]!;
+            const byte = mem[byteIndex] ?? 0;
+            const colorIndex = (byte >> bitOffset) & 0x3;
+            const color = palette[colorIndex] ?? palette[0] ?? 0;
 
             const j = i * 4;
             data[j] = (color >> 16) & 0xff; // R
@@ -592,7 +596,8 @@ export class Wasm4Runtime {
 
         const mem = new Uint8Array(this.memory.buffer);
         const mask = 0x3 << bitOffset;
-        mem[byteIndex] = (mem[byteIndex]! & ~mask) | (actualColor << bitOffset);
+        const current = mem[byteIndex] ?? 0;
+        mem[byteIndex] = (current & ~mask) | (actualColor << bitOffset);
     }
 
     /**
@@ -1498,8 +1503,9 @@ export class Wasm4Runtime {
         let cx = x;
         let cy = y;
 
-        for (let i = textPtr; mem[i] !== 0 && i < mem.length; i++) {
-            const char = mem[i]!;
+        for (let i = textPtr; i < mem.length; i++) {
+            const char = mem[i];
+            if (!char) break;
 
             if (char === 10) {
                 // Newline
@@ -1593,13 +1599,15 @@ export class Wasm4Runtime {
                     const bitIndex = srcPy * stride + srcPx;
                     const byteIndex = spritePtr + (bitIndex >> 2);
                     const shift = (3 - (bitIndex & 3)) * 2;
-                    colorIndex = (mem[byteIndex]! >> shift) & 0x3;
+                    const byte = mem[byteIndex] ?? 0;
+                    colorIndex = (byte >> shift) & 0x3;
                 } else {
                     // 1bpp: 8 pixels per byte
                     const bitIndex = srcPy * stride + srcPx;
                     const byteIndex = spritePtr + (bitIndex >> 3);
                     const shift = 7 - (bitIndex & 7);
-                    colorIndex = (mem[byteIndex]! >> shift) & 0x1;
+                    const byte = mem[byteIndex] ?? 0;
+                    colorIndex = (byte >> shift) & 0x1;
                 }
 
                 // Map through draw colors
@@ -1632,8 +1640,10 @@ export class Wasm4Runtime {
         if (!this.memory) return;
         const mem = new Uint8Array(this.memory.buffer);
         let str = '';
-        for (let i = strPtr; mem[i] !== 0 && i < mem.length; i++) {
-            str += String.fromCharCode(mem[i]!);
+        for (let i = strPtr; i < mem.length; i++) {
+            const char = mem[i];
+            if (!char) break;
+            str += String.fromCharCode(char);
         }
         console.log('[WASM-4]', str);
     }

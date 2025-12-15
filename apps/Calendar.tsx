@@ -162,11 +162,12 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
     const eventsByDate = useMemo(() => {
         const map: Record<string, CalendarEvent[]> = {};
         for (const event of events) {
-            map[event.date] ||= [];
-            map[event.date]!.push(event);
+            const dayEvents = map[event.date] ?? (map[event.date] = []);
+            dayEvents.push(event);
         }
         for (const key of Object.keys(map)) {
-            map[key]!.sort(compareTime);
+            const dayEvents = map[key];
+            if (dayEvents) dayEvents.sort(compareTime);
         }
         return map;
     }, [events]);
@@ -548,7 +549,10 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                         <div className="px-4 py-3 flex items-center justify-between border-t border-white/10 bg-black/20">
                             {draft.id ? (
                                 <button
-                                    onClick={() => deleteEvent(draft.id!)}
+                                    onClick={() => {
+                                        if (!draft.id) return;
+                                        void deleteEvent(draft.id);
+                                    }}
                                     className="px-3 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-xs text-red-100"
                                 >
                                     Delete

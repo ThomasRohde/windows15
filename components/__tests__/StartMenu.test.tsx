@@ -102,7 +102,8 @@ describe('StartMenu', () => {
         const notepadButton = screen.getByText('Notepad').closest('button');
         expect(notepadButton).toBeInTheDocument();
 
-        await user.click(notepadButton!);
+        if (!notepadButton) throw new Error('Expected Notepad button');
+        await user.click(notepadButton);
 
         expect(mockOpenWindow).toHaveBeenCalledWith('notepad');
     });

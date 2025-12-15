@@ -22,24 +22,24 @@ const formatTimestamp = (): string => {
 };
 
 export const debugSync = {
-    config: (message: string, data?: any) => {
+    config: (message: string, data?: unknown) => {
         if (!isDebugEnabled()) return;
         console.log(`[${formatTimestamp()}] [CONFIG]`, message, data ?? '');
     },
 
-    db: (message: string, data?: any) => {
+    db: (message: string, data?: unknown) => {
         if (!isDebugEnabled()) return;
         console.log(`[${formatTimestamp()}] [DB]`, message, data ?? '');
     },
 
-    sync: (message: string, data?: any) => {
+    sync: (message: string, data?: unknown) => {
         if (!isDebugEnabled()) return;
         // Sanitize data - remove sensitive info
         const sanitized = data ? sanitizeLogData(data) : '';
         console.log(`[${formatTimestamp()}] [SYNC]`, message, sanitized);
     },
 
-    error: (message: string, error?: any) => {
+    error: (message: string, error?: unknown) => {
         if (!isDebugEnabled()) return;
         const sanitized = error ? sanitizeLogData(error) : '';
         console.error(`[${formatTimestamp()}] [ERROR]`, message, sanitized);
@@ -49,7 +49,7 @@ export const debugSync = {
 /**
  * Sanitize log data to remove sensitive information
  */
-const sanitizeLogData = (data: any): any => {
+const sanitizeLogData = (data: unknown): unknown => {
     if (!data) return data;
 
     // If it's a string, check for sensitive patterns
@@ -67,13 +67,14 @@ const sanitizeLogData = (data: any): any => {
             return data.map(sanitizeLogData);
         }
 
-        const sanitized: any = {};
-        for (const key in data) {
+        const sanitized: Record<string, unknown> = {};
+        const obj = data as Record<string, unknown>;
+        for (const key in obj) {
             const lowerKey = key.toLowerCase();
             if (lowerKey.includes('token') || lowerKey.includes('password') || lowerKey.includes('secret')) {
                 sanitized[key] = '***';
             } else {
-                sanitized[key] = sanitizeLogData(data[key]);
+                sanitized[key] = sanitizeLogData(obj[key]);
             }
         }
         return sanitized;

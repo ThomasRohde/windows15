@@ -181,7 +181,7 @@ const Desktop = () => {
                 defaultHeight: app.defaultHeight,
             });
         });
-    }, []);
+    }, [registerApp]);
 
     // Global keyboard shortcuts
     // Find the focused (topmost) window for window shortcuts

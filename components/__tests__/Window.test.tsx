@@ -93,7 +93,8 @@ describe('Window', () => {
         render(<Window window={defaultWindow} />);
 
         const closeButton = screen.getByText('close').closest('button');
-        await user.click(closeButton!);
+        if (!closeButton) throw new Error('Expected close button');
+        await user.click(closeButton);
 
         expect(mockCloseWindow).toHaveBeenCalledWith('test-window');
     });
@@ -103,7 +104,8 @@ describe('Window', () => {
         render(<Window window={defaultWindow} />);
 
         const minimizeButton = screen.getByText('minimize').closest('button');
-        await user.click(minimizeButton!);
+        if (!minimizeButton) throw new Error('Expected minimize button');
+        await user.click(minimizeButton);
 
         expect(mockMinimizeWindow).toHaveBeenCalledWith('test-window');
     });
@@ -113,7 +115,8 @@ describe('Window', () => {
         render(<Window window={defaultWindow} />);
 
         const maximizeButton = screen.getByText('crop_square').closest('button');
-        await user.click(maximizeButton!);
+        if (!maximizeButton) throw new Error('Expected maximize button');
+        await user.click(maximizeButton);
 
         expect(mockToggleMaximizeWindow).toHaveBeenCalledWith('test-window');
     });
@@ -122,7 +125,8 @@ describe('Window', () => {
         render(<Window window={defaultWindow} />);
 
         const windowElement = screen.getByText('Test Window').closest('[class*="glass-panel"]');
-        fireEvent.pointerDown(windowElement!, { button: 0 });
+        if (!windowElement) throw new Error('Expected window element');
+        fireEvent.pointerDown(windowElement, { button: 0 });
 
         expect(mockFocusWindow).toHaveBeenCalledWith('test-window');
     });
@@ -149,7 +153,8 @@ describe('Window', () => {
         const titleBar = document.querySelector('[class*="cursor-move"]');
         expect(titleBar).toBeInTheDocument();
 
-        await user.dblClick(titleBar!);
+        if (!titleBar) throw new Error('Expected title bar element');
+        await user.dblClick(titleBar);
 
         expect(mockToggleMaximizeWindow).toHaveBeenCalledWith('test-window');
     });

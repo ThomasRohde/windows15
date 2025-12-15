@@ -112,12 +112,13 @@ describe('Terminal - Command History Persistence (F076)', () => {
             { id: 3, command: 'help', executedAt: Date.now() - 1000 },
         ];
 
+        type OrderByReturn = ReturnType<typeof db.$terminalHistory.orderBy>;
         vi.mocked(db.$terminalHistory.orderBy).mockReturnValue({
             toArray: vi.fn(() => Promise.resolve(mockHistory)),
             limit: vi.fn(() => ({
                 toArray: vi.fn(() => Promise.resolve([])),
             })),
-        } as any);
+        } as unknown as OrderByReturn);
 
         const user = userEvent.setup();
         renderTerminal();
@@ -150,12 +151,13 @@ describe('Terminal - Command History Persistence (F076)', () => {
         vi.mocked(db.$terminalHistory.count).mockResolvedValue(501);
 
         const oldestCommands = [{ id: 1, command: 'oldest', executedAt: Date.now() - 100000 }];
+        type OrderByReturn = ReturnType<typeof db.$terminalHistory.orderBy>;
         vi.mocked(db.$terminalHistory.orderBy).mockReturnValue({
             toArray: vi.fn(() => Promise.resolve([])),
             limit: vi.fn(() => ({
                 toArray: vi.fn(() => Promise.resolve(oldestCommands)),
             })),
-        } as any);
+        } as unknown as OrderByReturn);
 
         renderTerminal();
 
@@ -173,12 +175,13 @@ describe('Terminal - Command History Persistence (F076)', () => {
             { id: 2, command: 'second', executedAt: Date.now() - 1000 },
         ];
 
+        type OrderByReturn = ReturnType<typeof db.$terminalHistory.orderBy>;
         vi.mocked(db.$terminalHistory.orderBy).mockReturnValue({
             toArray: vi.fn(() => Promise.resolve(mockHistory)),
             limit: vi.fn(() => ({
                 toArray: vi.fn(() => Promise.resolve([])),
             })),
-        } as any);
+        } as unknown as OrderByReturn);
 
         const user = userEvent.setup();
         renderTerminal();

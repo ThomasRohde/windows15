@@ -82,7 +82,7 @@ export interface AppConfig {
     /** Tailwind color class for icon styling */
     color: string;
     /** React component factory for the application */
-    component: (props: any) => ReactNode;
+    component: (props: unknown) => ReactNode;
     /** Default window width when opening the app */
     defaultWidth?: number;
     /** Default window height when opening the app */

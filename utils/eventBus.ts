@@ -97,10 +97,12 @@ export function createEventBus<Events extends Record<string, unknown>>(): EventB
     const handlers = new Map<keyof Events, Set<EventHandler<unknown>>>();
 
     const on = <K extends keyof Events>(event: K, handler: EventHandler<Events[K]>): (() => void) => {
-        if (!handlers.has(event)) {
-            handlers.set(event, new Set());
+        let eventHandlers = handlers.get(event);
+        if (!eventHandlers) {
+            eventHandlers = new Set();
+            handlers.set(event, eventHandlers);
         }
-        handlers.get(event)!.add(handler as EventHandler<unknown>);
+        eventHandlers.add(handler as EventHandler<unknown>);
 
         // Return unsubscribe function
         return () => off(event, handler);

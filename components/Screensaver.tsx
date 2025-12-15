@@ -9,6 +9,22 @@ import React, { useEffect, useRef } from 'react';
 import { useScreensaver } from '../context/ScreensaverContext';
 import { useLocalization } from '../context/LocalizationContext';
 
+type Star = { x: number; y: number; z: number };
+type StarfieldState = { kind: 'starfield'; stars: Star[] };
+type MatrixState = { kind: 'matrix'; drops: number[]; chars: string; columns: number };
+type BouncingLogoState = {
+    kind: 'bouncing-logo';
+    x: number;
+    y: number;
+    dx: number;
+    dy: number;
+    size: number;
+    hue: number;
+};
+type GeometricShape = { size: number; speed: number; hue: number };
+type GeometricState = { kind: 'geometric'; rotation: number; shapes: GeometricShape[] };
+type AnimationState = StarfieldState | MatrixState | BouncingLogoState | GeometricState;
+
 export const Screensaver: React.FC = () => {
     const { isScreensaverActive, settings } = useScreensaver();
     const { clockFormat, dateFormat } = useLocalization();
@@ -32,11 +48,8 @@ export const Screensaver: React.FC = () => {
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        // Animation state based on selected animation type
-        let animationState: any = null;
-
         // Initialize animation
-        const initAnimation = () => {
+        const initAnimation = (): AnimationState => {
             switch (settings.animation) {
                 case 'starfield':
                     return initStarfield();
@@ -52,23 +65,23 @@ export const Screensaver: React.FC = () => {
         };
 
         // Starfield animation
-        const initStarfield = () => {
-            const stars = Array.from({ length: Math.floor(200 * settings.animationIntensity) }, () => ({
+        const initStarfield = (): StarfieldState => {
+            const stars: Star[] = Array.from({ length: Math.floor(200 * settings.animationIntensity) }, () => ({
                 x: Math.random() * canvas.width - canvas.width / 2,
                 y: Math.random() * canvas.height - canvas.height / 2,
                 z: Math.random() * canvas.width,
             }));
-            return { stars };
+            return { kind: 'starfield', stars };
         };
 
-        const drawStarfield = (state: any) => {
+        const drawStarfield = (state: StarfieldState) => {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
 
-            state.stars.forEach((star: any) => {
+            state.stars.forEach(star => {
                 star.z -= 2 * settings.animationSpeed;
                 if (star.z <= 0) {
                     star.z = canvas.width;
@@ -88,14 +101,14 @@ export const Screensaver: React.FC = () => {
         };
 
         // Matrix rain animation
-        const initMatrix = () => {
+        const initMatrix = (): MatrixState => {
             const columns = Math.floor(canvas.width / 20);
-            const drops = Array(columns).fill(1);
+            const drops = Array(columns).fill(1) as number[];
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()';
-            return { drops, chars, columns };
+            return { kind: 'matrix', drops, chars, columns };
         };
 
-        const drawMatrix = (state: any) => {
+        const drawMatrix = (state: MatrixState) => {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -114,9 +127,10 @@ export const Screensaver: React.FC = () => {
         };
 
         // Bouncing logo animation
-        const initBouncingLogo = () => {
+        const initBouncingLogo = (): BouncingLogoState => {
             const size = 100 * settings.animationIntensity;
             return {
+                kind: 'bouncing-logo',
                 x: Math.random() * (canvas.width - size),
                 y: Math.random() * (canvas.height - size),
                 dx: (2 + Math.random() * 2) * settings.animationSpeed,
@@ -126,7 +140,7 @@ export const Screensaver: React.FC = () => {
             };
         };
 
-        const drawBouncingLogo = (state: any) => {
+        const drawBouncingLogo = (state: BouncingLogoState) => {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -161,8 +175,9 @@ export const Screensaver: React.FC = () => {
         };
 
         // Geometric patterns animation
-        const initGeometric = () => {
+        const initGeometric = (): GeometricState => {
             return {
+                kind: 'geometric',
                 rotation: 0,
                 shapes: Array.from({ length: Math.floor(5 * settings.animationIntensity) }, (_, i) => ({
                     size: 100 + i * 40,
@@ -172,7 +187,7 @@ export const Screensaver: React.FC = () => {
             };
         };
 
-        const drawGeometric = (state: any) => {
+        const drawGeometric = (state: GeometricState) => {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -182,7 +197,7 @@ export const Screensaver: React.FC = () => {
             ctx.save();
             ctx.translate(centerX, centerY);
 
-            state.shapes.forEach((shape: any) => {
+            state.shapes.forEach(shape => {
                 ctx.rotate(shape.speed);
                 ctx.strokeStyle = `hsla(${shape.hue}, 70%, 60%, ${settings.animationIntensity * 0.6})`;
                 ctx.lineWidth = 2;
@@ -254,11 +269,11 @@ export const Screensaver: React.FC = () => {
         };
 
         // Initialize the animation state
-        animationState = initAnimation();
+        const animationState = initAnimation();
 
         // Animation loop
         const animate = () => {
-            switch (settings.animation) {
+            switch (animationState.kind) {
                 case 'starfield':
                     drawStarfield(animationState);
                     break;

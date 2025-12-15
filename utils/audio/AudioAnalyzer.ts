@@ -311,12 +311,14 @@ export class AudioAnalyzer {
      * Calculate raw band values from frequency data
      */
     private calculateBands(): AudioBands {
-        if (!this.frequencyData || !this.audioContext) {
+        const frequencyData = this.frequencyData;
+        const audioContext = this.audioContext;
+        if (!frequencyData || !audioContext) {
             return { bass: 0, lowMid: 0, highMid: 0, treble: 0, level: 0 };
         }
 
-        const sampleRate = this.audioContext.sampleRate;
-        const binCount = this.frequencyData.length;
+        const sampleRate = audioContext.sampleRate;
+        const binCount = frequencyData.length;
         const nyquist = sampleRate / 2;
         const binWidth = nyquist / binCount;
 
@@ -330,7 +332,7 @@ export class AudioAnalyzer {
             let sum = 0;
             let count = 0;
             for (let i = minBin; i <= maxBin; i++) {
-                sum += this.frequencyData![i] ?? 0;
+                sum += frequencyData[i] ?? 0;
                 count++;
             }
 

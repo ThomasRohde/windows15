@@ -15,7 +15,7 @@ export const NotesPanel: React.FC = () => {
         () => db.notes.orderBy('updatedAt').reverse().toArray(),
         [db]
     );
-    const notes = (Array.isArray(notesRaw) ? notesRaw : []) as NoteRecord[];
+    const notes = useMemo(() => (Array.isArray(notesRaw) ? (notesRaw as NoteRecord[]) : []), [notesRaw]);
 
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [draft, setDraft] = useState<NoteDraft>({ title: '', content: '' });
@@ -25,6 +25,10 @@ export const NotesPanel: React.FC = () => {
     const notify = useNotification();
 
     const selectedNote = useMemo(() => notes.find(note => note.id === selectedId) ?? null, [notes, selectedId]);
+    const selectedNoteId = selectedNote?.id ?? null;
+    const selectedNoteTitle = selectedNote?.title ?? '';
+    const selectedNoteContent = selectedNote?.content ?? '';
+    const selectedNoteUpdatedAt = selectedNote?.updatedAt ?? 0;
 
     // Auto-select first note if none selected
     useEffect(() => {
@@ -36,22 +40,22 @@ export const NotesPanel: React.FC = () => {
 
     // Sync draft with selected note
     useEffect(() => {
-        if (!selectedNote) {
+        if (!selectedNoteId) {
             setDraft({ title: '', content: '' });
             return;
         }
-        setDraft({ title: selectedNote.title, content: selectedNote.content });
-    }, [selectedNote?.id, selectedNote?.updatedAt]);
+        setDraft({ title: selectedNoteTitle, content: selectedNoteContent });
+    }, [selectedNoteId, selectedNoteTitle, selectedNoteContent, selectedNoteUpdatedAt]);
 
     // Autosave with debounce
     useEffect(() => {
-        if (!selectedNote) return;
-        if (draft.title === selectedNote.title && draft.content === selectedNote.content) return;
+        if (!selectedNoteId) return;
+        if (draft.title === selectedNoteTitle && draft.content === selectedNoteContent) return;
 
         const timeout = globalThis.setTimeout(() => {
             const title = draft.title.trim() || 'Untitled';
             db.notes
-                .update(selectedNote.id, {
+                .update(selectedNoteId, {
                     title,
                     content: draft.content,
                     updatedAt: Date.now(),
@@ -60,7 +64,7 @@ export const NotesPanel: React.FC = () => {
         }, 350);
 
         return () => globalThis.clearTimeout(timeout);
-    }, [draft.title, draft.content, selectedNote?.id, selectedNote?.title, selectedNote?.content, db.notes]);
+    }, [draft.title, draft.content, selectedNoteId, selectedNoteTitle, selectedNoteContent, db.notes]);
 
     const createNote = async () => {
         try {

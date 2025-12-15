@@ -22,7 +22,7 @@
 /**
  * Validator function type - returns error message or null if valid
  */
-export type Validator<T = any> = (value: T) => string | null;
+export type Validator<T = unknown> = (value: T) => string | null;
 
 /**
  * Validation result for a single field
@@ -32,7 +32,7 @@ export type FieldValidation = string | null;
 /**
  * Validation result for all fields
  */
-export interface ValidationResult<T extends Record<string, any>> {
+export interface ValidationResult<T extends Record<string, unknown>> {
     valid: boolean;
     errors: Record<keyof T, string | null>;
 }
@@ -40,7 +40,7 @@ export interface ValidationResult<T extends Record<string, any>> {
 /**
  * Validators configuration object
  */
-export type ValidatorsConfig<T extends Record<string, any>> = {
+export type ValidatorsConfig<T extends Record<string, unknown>> = {
     [K in keyof T]?: Validator<T[K]> | Validator<T[K]>[];
 };
 
@@ -49,8 +49,8 @@ export type ValidatorsConfig<T extends Record<string, any>> = {
  * @param message - Custom error message (default: "This field is required")
  * @returns Validator function
  */
-export function required(message = 'This field is required'): Validator<any> {
-    return (value: any): string | null => {
+export function required(message = 'This field is required'): Validator<unknown> {
+    return (value: unknown): string | null => {
         if (value === null || value === undefined) return message;
         if (typeof value === 'string' && value.trim().length === 0) return message;
         if (Array.isArray(value) && value.length === 0) return message;
@@ -178,18 +178,23 @@ export function validateValue<T>(value: T, validators: Validator<T> | Validator<
  * @param data - Data object to validate
  * @returns Validation result with valid flag and errors object
  */
-export function validate<T extends Record<string, any>>(validators: ValidatorsConfig<T>, data: T): ValidationResult<T> {
+export function validate<T extends Record<string, unknown>>(
+    validators: ValidatorsConfig<T>,
+    data: T
+): ValidationResult<T> {
     const errors: Record<keyof T, string | null> = {} as Record<keyof T, string | null>;
     let valid = true;
 
     // Validate each field
-    for (const field in validators) {
+    for (const field of Object.keys(validators) as Array<keyof T>) {
         const fieldValidators = validators[field];
-        if (fieldValidators) {
-            const error = validateValue(data[field], fieldValidators);
-            errors[field] = error;
-            if (error) valid = false;
-        }
+        if (!fieldValidators) continue;
+        const error = validateValue(
+            data[field] as unknown,
+            fieldValidators as Validator<unknown> | Validator<unknown>[]
+        );
+        errors[field] = error;
+        if (error) valid = false;
     }
 
     return { valid, errors };

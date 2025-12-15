@@ -15,6 +15,7 @@ export const Timer = () => {
     useEffect(() => {
         if (!isRunning) return;
 
+        const intervalIds = intervalIdsRef.current;
         const token = ++runTokenRef.current;
         const intervalId = setInterval(() => {
             if (runTokenRef.current !== token) return;
@@ -30,10 +31,10 @@ export const Timer = () => {
             });
         }, 10);
 
-        intervalIdsRef.current.add(intervalId);
+        intervalIds.add(intervalId);
         return () => {
             clearInterval(intervalId);
-            intervalIdsRef.current.delete(intervalId);
+            intervalIds.delete(intervalId);
         };
     }, [isRunning, mode]);
 

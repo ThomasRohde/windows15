@@ -18,8 +18,17 @@ const isProbablyWhitelistError = (message: string) => {
     return lower.includes('whitelist') || lower.includes('origin') || lower.includes('not allowed');
 };
 
-const getUserFriendlyErrorMessage = (error: any): string => {
-    const errorMsg = error?.message || String(error);
+const getErrorMessage = (error: unknown): string => {
+    if (error instanceof Error) return error.message;
+    if (typeof error === 'string') return error;
+    if (typeof error === 'object' && error !== null && 'message' in error) {
+        return String((error as { message: unknown }).message);
+    }
+    return String(error);
+};
+
+const getUserFriendlyErrorMessage = (error: unknown): string => {
+    const errorMsg = getErrorMessage(error);
     const lowerMsg = errorMsg.toLowerCase();
 
     // Auth errors

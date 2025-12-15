@@ -3,12 +3,21 @@ import { useDb, getCloudDatabaseUrl } from '../utils/storage';
 import { debugSync } from '../utils/debugLogger';
 
 // Helper to create user-friendly error messages
-const getUserFriendlyError = (error: any, isOnline: boolean): string => {
+const getErrorMessage = (error: unknown): string => {
+    if (error instanceof Error) return error.message;
+    if (typeof error === 'string') return error;
+    if (typeof error === 'object' && error !== null && 'message' in error) {
+        return String((error as { message: unknown }).message);
+    }
+    return String(error);
+};
+
+const getUserFriendlyError = (error: unknown, isOnline: boolean): string => {
     if (!isOnline) {
         return 'No internet connection. Connect to sync your data.';
     }
 
-    const errorMsg = error?.message || String(error);
+    const errorMsg = getErrorMessage(error);
     const lowerMsg = errorMsg.toLowerCase();
 
     // Auth errors

@@ -68,6 +68,7 @@ test.describe('Desktop Icons and Windows', () => {
         // Get initial bounding box
         const initialBox = await window.boundingBox();
         expect(initialBox).toBeTruthy();
+        if (!initialBox) throw new Error('Expected initial window bounding box');
 
         // Click maximize button
         const maximizeButton = window.getByRole('button', { name: /maximize/i });
@@ -76,7 +77,8 @@ test.describe('Desktop Icons and Windows', () => {
         // Window should be maximized (wider)
         const maximizedBox = await window.boundingBox();
         expect(maximizedBox).toBeTruthy();
-        expect(maximizedBox!.width).toBeGreaterThan(initialBox!.width);
+        if (!maximizedBox) throw new Error('Expected maximized window bounding box');
+        expect(maximizedBox.width).toBeGreaterThan(initialBox.width);
 
         // Click restore
         const restoreButton = window.getByRole('button', { name: /restore/i });
@@ -85,5 +87,6 @@ test.describe('Desktop Icons and Windows', () => {
         // Window should be restored to smaller size
         const restoredBox = await window.boundingBox();
         expect(restoredBox).toBeTruthy();
+        if (!restoredBox) throw new Error('Expected restored window bounding box');
     });
 });

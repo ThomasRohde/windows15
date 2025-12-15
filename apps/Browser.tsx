@@ -119,7 +119,7 @@ export const Browser = () => {
         () => db.bookmarks.orderBy('updatedAt').reverse().toArray(),
         [db]
     );
-    const bookmarks = Array.isArray(bookmarksRaw) ? bookmarksRaw : [];
+    const bookmarks = useMemo(() => (Array.isArray(bookmarksRaw) ? bookmarksRaw : []), [bookmarksRaw]);
     const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
     const [bookmarkDraft, setBookmarkDraft] = useState<BookmarkDraft | null>(null);
     const [bookmarkSearch, setBookmarkSearch] = useState('');

@@ -62,7 +62,10 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
     }, [batterySaver]);
 
     // Determine if we have a live wallpaper active
-    const isLiveWallpaperActive = activeManifest?.type === 'shader';
+    const activeManifestType = activeManifest?.type;
+    const activeManifestEntry = activeManifest?.entry;
+    const activeManifestFallback = activeManifest?.fallback;
+    const isLiveWallpaperActive = activeManifestType === 'shader';
 
     // Detect available runtime on mount
     useEffect(() => {
@@ -110,7 +113,7 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
     // Single effect to manage entire shader runtime lifecycle
     // This handles init, render loop, and cleanup in one place to avoid race conditions
     useEffect(() => {
-        if (!isLiveWallpaperActive || !activeManifest || activeManifest.type !== 'shader') {
+        if (!isLiveWallpaperActive || !activeManifestEntry || activeManifestType !== 'shader') {
             return;
         }
 
@@ -126,8 +129,8 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
 
                 // Create runtime with shader URLs from manifest
                 runtime = await createShaderRuntime({
-                    wgslUrl: activeManifest.entry,
-                    glslUrl: activeManifest.fallback,
+                    wgslUrl: activeManifestEntry,
+                    glslUrl: activeManifestFallback,
                 });
 
                 if (!runtime) {
@@ -232,7 +235,14 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
                 runtimeRef.current = null;
             }
         };
-    }, [activeManifest?.id, isLiveWallpaperActive, runtimeType]); // Only re-run when wallpaper changes
+    }, [
+        activeManifest?.id,
+        activeManifestEntry,
+        activeManifestFallback,
+        activeManifestType,
+        isLiveWallpaperActive,
+        runtimeType,
+    ]); // Only re-run when wallpaper changes
 
     // Update runtime settings when they change (without reinitializing)
     useEffect(() => {

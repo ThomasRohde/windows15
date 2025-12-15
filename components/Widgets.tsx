@@ -46,6 +46,15 @@ const weatherCodeToInfo: Record<number, { icon: string; condition: string }> = {
     99: { icon: 'thunderstorm', condition: 'Thunderstorm' },
 };
 
+const pad2 = (value: number) => value.toString().padStart(2, '0');
+const toYmd = (date: Date) => `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+const toHm = (date: Date) => `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+const fromYmd = (ymd: string) => {
+    const [y, m, d] = ymd.split('-').map(Number);
+    if (!y || !m || !d) return new Date();
+    return new Date(y, m - 1, d);
+};
+
 export const Widgets: React.FC = () => {
     const { openWindow } = useOS();
     const { unitSystem, formatTimeShortFromHm } = useLocalization();
@@ -55,7 +64,10 @@ export const Widgets: React.FC = () => {
         () => storageService.get<CalendarEvent[]>(STORAGE_KEYS.calendarEvents),
         [STORAGE_KEYS.calendarEvents]
     );
-    const calendarEvents = Array.isArray(calendarEventsRaw) ? calendarEventsRaw : [];
+    const calendarEvents = useMemo(
+        () => (Array.isArray(calendarEventsRaw) ? calendarEventsRaw : []),
+        [calendarEventsRaw]
+    );
     const [weather, setWeather] = useState<WidgetWeather>({
         temp: 22,
         high: 24,
@@ -120,15 +132,6 @@ export const Widgets: React.FC = () => {
             fetchWeather(37.7749, -122.4194, 'San Francisco');
         }
     }, []);
-
-    const pad2 = (value: number) => value.toString().padStart(2, '0');
-    const toYmd = (date: Date) => `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
-    const toHm = (date: Date) => `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
-    const fromYmd = (ymd: string) => {
-        const [y, m, d] = ymd.split('-').map(Number);
-        if (!y || !m || !d) return new Date();
-        return new Date(y, m - 1, d);
-    };
 
     const formatTime = (hm: string) => formatTimeShortFromHm(hm);
 

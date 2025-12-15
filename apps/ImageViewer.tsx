@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useAsyncAction } from '../hooks';
+import { TextInput } from '../components/ui';
 
 interface ImageViewerProps {
     initialSrc?: string;
@@ -75,13 +76,14 @@ export const ImageViewer = ({ initialSrc }: ImageViewerProps) => {
                     <span className="material-symbols-outlined text-white/80 text-xl">fit_screen</span>
                 </button>
                 <div className="flex-1" />
-                <input
+                <TextInput
                     type="text"
                     placeholder="Enter image URL..."
                     value={urlInput}
                     onChange={e => setUrlInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="flex-1 max-w-md bg-black/30 text-white text-sm px-3 py-1.5 rounded-lg outline-none focus:ring-1 focus:ring-blue-500 placeholder-white/30"
+                    className="flex-1 max-w-md bg-black/30 focus:ring-1 focus:ring-blue-500"
+                    size="sm"
                 />
                 <button
                     onClick={handleLoadUrl}

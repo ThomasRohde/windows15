@@ -589,18 +589,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F133",
-        "description": "Create TextArea component with dark theme styling and migrate apps",
-        "status": "in-progress"
-      },
-      {
         "id": "F134",
         "description": "Create TextInput component with dark theme styling and migrate apps",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F135",
         "description": "Create Select component with dark theme styling and migrate apps",
+        "status": "not-started"
+      },
+      {
+        "id": "F136",
+        "description": "Create EmptyState component for consistent empty content placeholders",
         "status": "not-started"
       }
     ]

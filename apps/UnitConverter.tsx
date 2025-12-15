@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AppContainer, TabSwitcher, Card, Button, SectionLabel } from '../components/ui';
+import { AppContainer, TabSwitcher, Card, Button, SectionLabel, TextInput } from '../components/ui';
 
 type Category = 'length' | 'weight' | 'temperature' | 'data';
 
@@ -114,11 +114,12 @@ export const UnitConverter = () => {
                 <div className="flex flex-col gap-2">
                     <SectionLabel>From</SectionLabel>
                     <div className="flex gap-2">
-                        <input
+                        <TextInput
                             type="number"
                             value={inputValue}
                             onChange={e => setInputValue(e.target.value)}
-                            className="flex-1 bg-white/10 text-white text-xl p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            className="flex-1 text-xl focus:ring-2 focus:ring-orange-500"
+                            size="lg"
                             placeholder="Enter value"
                         />
                         <select

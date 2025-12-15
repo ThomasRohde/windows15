@@ -18,7 +18,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useDb, useDexieLiveQuery } from '../utils/storage';
 import { generateUuid, ensureArray } from '../utils';
-import { AppContainer, ErrorBanner, ConfirmDialog, Button, Checkbox, SearchInput } from '../components/ui';
+import { AppContainer, ErrorBanner, ConfirmDialog, Button, Checkbox, SearchInput, TextInput } from '../components/ui';
 import { useAsyncAction } from '../hooks';
 import { required, maxLength, validateValue } from '../utils/validation';
 
@@ -380,7 +380,7 @@ export const TodoList = () => {
 
             <div className="space-y-2">
                 <div className="flex gap-2">
-                    <input
+                    <TextInput
                         type="text"
                         value={input}
                         onChange={e => setInput(e.target.value)}
@@ -388,7 +388,7 @@ export const TodoList = () => {
                         placeholder="Add a new task..."
                         disabled={addAction.loading}
                         maxLength={500}
-                        className="flex-1 bg-black/30 text-white px-4 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 bg-black/30"
                     />
                     <Button
                         onClick={addTodo}
@@ -412,11 +412,12 @@ export const TodoList = () => {
                         <option value="high">High priority</option>
                     </select>
 
-                    <input
+                    <TextInput
                         type="date"
                         value={newTodoDueDate}
                         onChange={e => setNewTodoDueDate(e.target.value)}
-                        className="bg-black/30 text-white px-3 py-1 rounded-lg border border-white/10 focus:outline-none focus:border-blue-500 text-sm"
+                        className="bg-black/30"
+                        size="sm"
                     />
 
                     {(newTodoPriority || newTodoDueDate) && (
@@ -559,7 +560,7 @@ export const TodoList = () => {
 
                                             {editingId === todo.id ? (
                                                 <div className="flex-1 space-y-2 bg-blue-500/10 border border-blue-500/30 rounded px-3 py-2">
-                                                    <input
+                                                    <TextInput
                                                         type="text"
                                                         value={editText}
                                                         onChange={e => setEditText(e.target.value)}
@@ -569,7 +570,7 @@ export const TodoList = () => {
                                                         }}
                                                         maxLength={500}
                                                         autoFocus
-                                                        className="w-full bg-transparent text-white outline-none"
+                                                        className="bg-transparent border-none"
                                                     />
                                                     <div className="flex gap-2 flex-wrap items-center">
                                                         <select
@@ -586,11 +587,12 @@ export const TodoList = () => {
                                                             <option value="medium">Medium</option>
                                                             <option value="high">High</option>
                                                         </select>
-                                                        <input
+                                                        <TextInput
                                                             type="date"
                                                             value={editDueDate}
                                                             onChange={e => setEditDueDate(e.target.value)}
-                                                            className="bg-black/30 text-white px-2 py-1 rounded text-xs border border-white/10"
+                                                            className="bg-black/30 text-xs"
+                                                            size="sm"
                                                         />
                                                         <div className="flex gap-1 ml-auto">
                                                             <button

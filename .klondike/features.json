@@ -3639,11 +3639,21 @@
         "HashGenerator migrated to use TextArea component"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-15T19:44:33.049242",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Created TextArea component with dark theme styling. Migrated 9 apps: Base64Tool (2 textareas)",
+        "WordCounter",
+        "QrGenerator",
+        "NoteEditor",
+        "FilesPanel",
+        "Mail",
+        "JsonViewer",
+        "HashGenerator",
+        "Calendar. All tests passing (119 tests). Build successful."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-15T19:41:01.453409",
       "notes": "Implementation: Styled textarea with bg-black/20 rounded-lg resize-none border border-white/10 p-3 focus:outline-none focus:border-blue-500/50. Props: value, onChange, placeholder, readOnly, variant (default/code), rows, className. Code variant adds font-mono text-sm. Edge cases: Handle resize behavior via prop. Dependencies: None. Context: Medium effort - standardizes 5+ textarea implementations. Gotchas: Some apps use resize-y, others resize-none - add resize prop."
@@ -3663,13 +3673,13 @@
         "TodoList input migrated to use TextInput"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-15T19:44:37.344533",
       "notes": "Implementation: Styled input with bg-black/20 rounded-lg border border-white/10 px-3 py-2 focus:outline-none focus:border-blue-500/50. Props: type (text/number/email), value, onChange, placeholder, disabled, className. Edge cases: Number inputs need min/max/step support. Dependencies: None. Context: Medium effort - many apps have inline styled inputs. Gotchas: Some inputs have icon prefixes - consider adornment slots."
     },
     {
@@ -3836,8 +3846,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-15T19:33:33.116395",
+    "lastUpdated": "2025-12-15T19:44:33.049255",
     "totalFeatures": 141,
-    "passingFeatures": 132
+    "passingFeatures": 133
   }
 }

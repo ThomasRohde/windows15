@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppContainer, TabSwitcher, Card, Button, SectionLabel } from '../components/ui';
+import { AppContainer, TabSwitcher, Card, Button, SectionLabel, TextInput } from '../components/ui';
 import { useInterval } from '../hooks';
 import { formatDuration } from '../utils/timeFormatters';
 
@@ -76,7 +76,7 @@ export const Timer = () => {
 
                 {mode === 'countdown' && !isRunning && time === 0 && (
                     <div className="flex gap-2 mt-4 items-center">
-                        <input
+                        <TextInput
                             type="number"
                             min="0"
                             max="23"
@@ -87,11 +87,11 @@ export const Timer = () => {
                                     hours: Math.max(0, parseInt(e.target.value) || 0),
                                 }))
                             }
-                            className="w-16 bg-white/10 text-white text-center rounded-lg p-2"
+                            className="w-16 bg-white/10 text-center"
                             placeholder="HH"
                         />
                         <span className="text-white">:</span>
-                        <input
+                        <TextInput
                             type="number"
                             min="0"
                             max="59"
@@ -102,11 +102,11 @@ export const Timer = () => {
                                     minutes: Math.max(0, Math.min(59, parseInt(e.target.value) || 0)),
                                 }))
                             }
-                            className="w-16 bg-white/10 text-white text-center rounded-lg p-2"
+                            className="w-16 bg-white/10 text-center"
                             placeholder="MM"
                         />
                         <span className="text-white">:</span>
-                        <input
+                        <TextInput
                             type="number"
                             min="0"
                             max="59"
@@ -117,7 +117,7 @@ export const Timer = () => {
                                     seconds: Math.max(0, Math.min(59, parseInt(e.target.value) || 0)),
                                 }))
                             }
-                            className="w-16 bg-white/10 text-white text-center rounded-lg p-2"
+                            className="w-16 bg-white/10 text-center"
                             placeholder="SS"
                         />
                     </div>

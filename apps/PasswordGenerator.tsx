@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { usePersistedState } from '../hooks';
-import { AppContainer, Slider, Checkbox, Button, CopyButton } from '../components/ui';
+import { AppContainer, Slider, Checkbox, Button, CopyButton, TextInput } from '../components/ui';
 
 interface PasswordSettings {
     length: number;
@@ -65,12 +65,12 @@ export const PasswordGenerator = () => {
         <AppContainer>
             <div className="bg-black/30 p-4 rounded-lg">
                 <div className="flex items-center gap-2">
-                    <input
+                    <TextInput
                         type="text"
                         value={password}
                         readOnly
                         placeholder="Click Generate"
-                        className="flex-1 bg-transparent text-white text-lg font-mono focus:outline-none"
+                        className="flex-1 bg-transparent text-lg font-mono border-none"
                     />
                     <CopyButton
                         value={password}

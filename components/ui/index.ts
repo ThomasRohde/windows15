@@ -30,3 +30,5 @@ export { TabSwitcher } from './TabSwitcher';
 export type { TabOption } from './TabSwitcher';
 export { TextArea } from './TextArea';
 export type { TextAreaProps, TextAreaVariant, TextAreaResize } from './TextArea';
+export { TextInput } from './TextInput';
+export type { TextInputProps, TextInputType, TextInputSize } from './TextInput';

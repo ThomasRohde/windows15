@@ -56,6 +56,9 @@ const Desktop = () => {
 
     // Initialize default icons if none exist
     useEffect(() => {
+        // Skip if icons already loaded or still loading
+        if (iconsLoading || icons.length > 0) return;
+
         const initializeIcons = async () => {
             const count = await db.desktopIcons.count();
             console.log('[Desktop Icons] Count:', count, 'Icons loaded:', icons.length);
@@ -155,7 +158,7 @@ const Desktop = () => {
         initializeIcons().catch(err => {
             console.error('[Desktop Icons] Initialization error:', err);
         });
-    }, [db]);
+    }, [db, icons.length, iconsLoading]);
 
     // Handle icon position changes - memoized for DesktopIcon optimization
     const handleIconPositionChange = useCallback(

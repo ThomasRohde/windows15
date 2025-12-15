@@ -2897,12 +2897,232 @@
       "blockedBy": null,
       "lastWorkedOn": null,
       "notes": "Implementation: Store in settings, apply via CSS custom property. Lower values = more dramatic perspective. Edge cases: Values outside range. Dependencies: F087 (3D toggle). Context: Fine-tuning for different monitor sizes. Gotchas: Document what perspective means for non-technical users."
+    },
+    {
+      "id": "F109",
+      "category": "refactor",
+      "priority": 2,
+      "description": "Create useConfirmDialog hook to replace native window.confirm() with styled ConfirmDialog component",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Hook provides confirm() function returning Promise<boolean>",
+        "ConfirmDialog component renders via portal",
+        "All 10+ apps using window.confirm() migrated to hook",
+        "Dialog supports customizable title and message and confirm/cancel button text"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Create hook that manages ConfirmDialog state and returns async confirm() function. Use React portal for rendering. Pattern: const { confirm, ConfirmDialogPortal } = useConfirmDialog(); if (await confirm({title, message})) { doAction(); }. Edge cases: Handle rapid successive calls (queue or reject), cleanup on unmount. Dependencies: Existing ConfirmDialog component in components/ui/. Apps to migrate: Notepad, RecycleBin, Timer, Calendar, TodoList, Browser, WallpaperStudio, Mail. Gotchas: Must handle focus management and keyboard accessibility (Escape to cancel, Enter to confirm)."
+    },
+    {
+      "id": "F110",
+      "category": "refactor",
+      "priority": 2,
+      "description": "Create useNotification hook for consistent toast notifications across all apps",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Hook provides success/error/info/warning methods",
+        "Notifications display via existing NotificationToast component",
+        "At least 5 apps emit notifications for user feedback on actions",
+        "Notification duration is configurable with sensible defaults"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Wrap existing event bus 'notification:show' event in convenience hook. Pattern: const notify = useNotification(); notify.success('File saved!'); notify.error('Failed to load'). The event bus and NotificationToast already exist - this just provides ergonomic API. Edge cases: Handle rapid notifications (queue them), handle long messages (truncate or wrap). Dependencies: hooks/useEventBus.ts, components/NotificationToast.tsx. Context: Currently apps rely on inline error states shown in ErrorBanner - this provides unified feedback mechanism. Gotchas: Ensure notifications don't stack infinitely - implement max visible count."
+    },
+    {
+      "id": "F111",
+      "category": "refactor",
+      "priority": 3,
+      "description": "Migrate apps from duplicated error/loading state to useAsyncAction hook",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "At least 6 apps refactored to use useAsyncAction",
+        "Duplicated useState patterns for error/loading removed",
+        "Loading states properly shown during async operations",
+        "Error messages automatically extracted and displayed"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: The useAsyncAction hook already exists in hooks/useAsyncAction.ts but is underutilized. Pattern: const { execute, loading, error, clearError } = useAsyncAction<T>(); await execute(async () => { return await db.todos.add({...}); }). Target apps: TodoList (15+ setError calls), Weather (3 error states), Terminal, Base64Tool, Calendar, Mail. Edge cases: Hook prevents concurrent executions - ensure this is desired behavior. Dependencies: hooks/useAsyncAction.ts already exists. Gotchas: Some apps may need multiple async actions - consider if hook supports this pattern or needs enhancement."
+    },
+    {
+      "id": "F112",
+      "category": "refactor",
+      "priority": 3,
+      "description": "Extract shared Slider component from ColorPicker and PasswordGenerator",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Reusable Slider component created in components/ui/",
+        "ColorPicker refactored to use shared component",
+        "PasswordGenerator refactored to use shared component",
+        "Slider supports customizable colors and gradients and min/max/step values"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Both ColorPicker and PasswordGenerator have custom slider implementations. Extract to components/ui/Slider.tsx with props for value, onChange, min, max, step, gradient/color customization. Consider using native input[type=range] with custom styling or fully custom implementation for better control. Edge cases: Touch support for mobile, keyboard accessibility (arrow keys), disabled state. Dependencies: None - standalone UI component. Context: Reduces duplication and ensures consistent interaction patterns. Gotchas: Ensure gradient rendering works across browsers, handle RTL layouts."
+    },
+    {
+      "id": "F113",
+      "category": "refactor",
+      "priority": 3,
+      "description": "Standardize state persistence patterns across apps using Dexie",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Apps using storageService migrated to Dexie tables where appropriate",
+        "usePersistedState hook created for local-only preferences",
+        "Documentation added for when to use Dexie vs local storage",
+        "At least 3 apps migrated to consistent pattern"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Currently mixed approaches exist - storageService (Mail, SyncSettings), Dexie tables (TodoList, Terminal, Calendar), useLocalStorage hook (rarely used). Create usePersistedState<T>(key, defaultValue) hook for local preferences that syncs to storageService automatically. For synced data, standardize on Dexie. Pattern: const [colors, setColors] = usePersistedState('colorpicker.saved', []). Edge cases: Handle SSR/hydration mismatches, handle storage quota exceeded. Dependencies: utils/storage.ts, db.ts. Context: Inconsistent persistence makes debugging difficult and may cause data loss. Gotchas: Migration path needed for existing data in different storage mechanisms."
+    },
+    {
+      "id": "F114",
+      "category": "refactor",
+      "priority": 4,
+      "description": "Extract shared Checkbox component for consistent form controls",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Reusable Checkbox component created in components/ui/",
+        "TodoList refactored to use shared component",
+        "Checkbox supports label and checked and onChange and disabled props",
+        "Styling matches Windows 15 OS design language"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: TodoList has custom checkbox styling. Extract to components/ui/Checkbox.tsx with standard form control props. Consider both controlled and uncontrolled modes. Edge cases: Indeterminate state for parent checkboxes, keyboard accessibility (Space to toggle), focus states. Dependencies: None - standalone UI component. Context: Form controls should be consistent across OS for professional feel. Gotchas: Ensure label click toggles checkbox, ensure proper focus ring visibility."
+    },
+    {
+      "id": "F115",
+      "category": "refactor",
+      "priority": 4,
+      "description": "Add paste functionality to useCopyToClipboard hook for complete clipboard management",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "useCopyToClipboard hook extended with paste() method",
+        "paste() returns Promise<string> with clipboard contents",
+        "Apps needing paste functionality use the hook instead of raw navigator.clipboard",
+        "Error handling for clipboard permission denied"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Currently the hook only handles copy. Add paste method that wraps navigator.clipboard.readText(). Pattern: const { copy, paste, copiedText, pastedText } = useCopyToClipboard(); const text = await paste(). Apps to migrate: Terminal (uses raw readFromClipboard), SyncSettings (uses raw readFromClipboard). Edge cases: Browser may prompt for clipboard permission, handle empty clipboard, handle non-text content. Dependencies: hooks/useCopyToClipboard.ts, utils/clipboard.ts. Gotchas: Clipboard read requires user gesture in some browsers, may need fallback for older browsers."
+    },
+    {
+      "id": "F116",
+      "category": "refactor",
+      "priority": 4,
+      "description": "Create SearchInput component for consistent search UI across apps",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Reusable SearchInput component created in components/ui/",
+        "Component includes search icon and clear button and placeholder",
+        "At least 3 apps with search functionality use the component",
+        "Supports debounced onChange for performance"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Multiple apps have similar search input patterns with icons and clear buttons. Extract to components/ui/SearchInput.tsx. Props: value, onChange, placeholder, debounceMs (optional), onClear. Consider integration with useDebounce hook. Edge cases: Handle Escape key to clear, handle empty state styling, RTL support. Dependencies: hooks/useDebounce.ts for debounced input. Apps with search: FileExplorer, Mail, Settings, Browser bookmarks. Gotchas: Ensure focus management works correctly, don't trigger onChange during debounce delay on unmount."
+    },
+    {
+      "id": "F117",
+      "category": "refactor",
+      "priority": 3,
+      "description": "Implement useHotkeys in apps that display keyboard shortcuts but lack functionality",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Audit completed of all apps showing keyboard shortcuts",
+        "useHotkeys implemented in apps with documented but non-functional shortcuts",
+        "Shortcuts work consistently across focused/unfocused states",
+        "No conflicts between app-level and OS-level shortcuts"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: useHotkeys hook exists and works well. Some apps display keyboard shortcuts in menus/tooltips but don't implement them. Audit: Check Notepad menu bar shortcuts, Settings app shortcuts, FileExplorer shortcuts. Pattern: useHotkeys({'ctrl+s': handleSave, 'ctrl+n': handleNew}). Edge cases: Prevent shortcuts when in text input unless appropriate (Ctrl+S should still work), handle modifier key variations (Ctrl vs Cmd on Mac). Dependencies: hooks/useHotkeys.ts already exists and works. Gotchas: Ensure shortcuts don't interfere with browser defaults (Ctrl+D, Ctrl+P), use scope parameter to limit to focused windows."
+    },
+    {
+      "id": "F118",
+      "category": "refactor",
+      "priority": 4,
+      "description": "Create form validation utility for consistent input validation across apps",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Validation utility created in utils/ with common validators",
+        "Validators include required and maxLength and email and url patterns",
+        "At least 3 apps refactored to use validation utility",
+        "Clear error message generation for failed validations"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Create utils/validation.ts with composable validators. Pattern: const validators = { text: [required('Cannot be empty'), maxLength(500, 'Too long')] }; const result = validate(validators, { text: input }); if (!result.valid) setError(result.errors.text). Apps with validation: TodoList (required + maxLength), Mail (email validation), Calendar (event validation), Browser (URL validation). Edge cases: Async validation for uniqueness checks, field dependencies (password confirmation). Dependencies: None - pure utility. Gotchas: Don't over-engineer - keep simple and composable, avoid class-based validation that's hard to tree-shake."
     }
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-14T19:43:35.776410",
-    "totalFeatures": 108,
+    "lastUpdated": "2025-12-15T12:16:31.420841",
+    "totalFeatures": 118,
     "passingFeatures": 108
   }
 }

@@ -1,7 +1,7 @@
 {
   "projectName": "windows15",
   "startedAt": "2025-12-13T14:37:01.733884",
-  "currentStatus": "Session Ended",
+  "currentStatus": "In Progress",
   "sessions": [
     {
       "sessionNumber": 1,
@@ -341,6 +341,20 @@
         "Test 3D mode with various window configurations"
       ],
       "technicalNotes": []
+    },
+    {
+      "sessionNumber": 22,
+      "date": "2025-12-15",
+      "agent": "Coding Agent",
+      "duration": "(in progress)",
+      "focus": "F109 - Create useConfirmDialog hook",
+      "completed": [],
+      "inProgress": [
+        "Session started"
+      ],
+      "blockers": [],
+      "nextSteps": [],
+      "technicalNotes": []
     }
   ],
   "quickReference": {
@@ -351,6 +365,22 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": []
+    "priorityFeatures": [
+      {
+        "id": "F109",
+        "description": "Create useConfirmDialog hook to replace native window.confirm() with styled ConfirmDialog component",
+        "status": "not-started"
+      },
+      {
+        "id": "F110",
+        "description": "Create useNotification hook for consistent toast notifications across all apps",
+        "status": "not-started"
+      },
+      {
+        "id": "F111",
+        "description": "Migrate apps from duplicated error/loading state to useAsyncAction hook",
+        "status": "not-started"
+      }
+    ]
   }
 }

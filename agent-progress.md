@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: Session Ended
+## Current Status: In Progress
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -28,8 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID  | Description | Status |
-| --- | ----------- | ------ |
+| ID   | Description                                                                                         | Status         |
+| ---- | --------------------------------------------------------------------------------------------------- | -------------- |
+| F109 | Create useConfirmDialog hook to replace native window.confirm() with styled ConfirmDialog component | ⏳ Not started |
+| F110 | Create useNotification hook for consistent toast notifications across all apps                      | ⏳ Not started |
+| F111 | Migrate apps from duplicated error/loading state to useAsyncAction hook                             | ⏳ Not started |
 
 ---
 
@@ -655,6 +658,34 @@ klondike feature list  # List all features
 #### Recommended Next Steps
 
 1. Test 3D mode with various window configurations
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 22 - 2025-12-15
+
+**Agent**: Coding Agent
+**Duration**: (in progress)
+**Focus**: F109 - Create useConfirmDialog hook
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- Session started
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Continue implementation
 
 #### Technical Notes
 

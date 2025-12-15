@@ -231,11 +231,14 @@ const Desktop = () => {
     });
 
     // CSS perspective for 3D mode
+    // Note: We intentionally do NOT use transformStyle: 'preserve-3d' on the container
+    // because it breaks pointer event hit-testing for windows with negative translateZ.
+    // The perspective property alone creates the 3D visual effect while allowing
+    // normal z-index based hit-testing.
     const windowLayerStyle: React.CSSProperties = is3DMode
         ? {
               perspective: `${windowSpaceSettings.perspective}px`,
               perspectiveOrigin: '50% 50%',
-              transformStyle: 'preserve-3d' as const,
           }
         : {};
 

@@ -633,3 +633,31 @@ klondike feature list  # List all features
 - None
 
 ---
+
+### Session 21 - 2025-12-15
+
+**Agent**: Coding Agent
+**Duration**: ~session
+**Focus**: Fixed 3D window drag jitter and movement issues
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- None
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Test 3D mode with various window configurations
+
+#### Technical Notes
+
+- None
+
+---

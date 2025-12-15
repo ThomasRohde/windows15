@@ -327,6 +327,20 @@
         "4) Adding real WASM-4 demo games"
       ],
       "technicalNotes": []
+    },
+    {
+      "sessionNumber": 21,
+      "date": "2025-12-15",
+      "agent": "Coding Agent",
+      "duration": "~session",
+      "focus": "Fixed 3D window drag jitter and movement issues",
+      "completed": [],
+      "inProgress": [],
+      "blockers": [],
+      "nextSteps": [
+        "Test 3D mode with various window configurations"
+      ],
+      "technicalNotes": []
     }
   ],
   "quickReference": {

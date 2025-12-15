@@ -382,8 +382,6 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
               width: isResizing ? sizeRef.current.width : size.width,
               height: isResizing ? sizeRef.current.height : size.height,
               transform: buildTransform(),
-              // Ensure 3D transforms work with pointer events
-              transformStyle: is3DMode ? 'preserve-3d' : undefined,
               willChange: isDragging || isResizing ? 'transform, width, height' : undefined,
               // Smooth transition for tilt return animation (F093)
               transition: !isDragging && shouldTilt ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)' : undefined,
@@ -392,13 +390,11 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
           };
 
     const chromeStyle: React.CSSProperties | undefined = (() => {
-        if (!window.isMaximized && !isDragging && !isResizing && !shadow3D && !is3DMode) return undefined;
+        if (!window.isMaximized && !isDragging && !isResizing && !shadow3D) return undefined;
         return {
             ...(window.isMaximized ? { borderRadius: 0, boxShadow: 'none' } : {}),
             ...(isDragging || isResizing ? { backdropFilter: 'none', WebkitBackdropFilter: 'none' } : {}),
             ...(shadow3D ? { boxShadow: shadow3D } : {}),
-            // Flatten children so pointer events work correctly in 3D mode
-            ...(is3DMode && !window.isMaximized ? { transformStyle: 'flat' as const } : {}),
         };
     })();
 

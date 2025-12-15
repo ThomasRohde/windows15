@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { useCopyToClipboard } from '../hooks';
+import { useCopyToClipboard, usePersistedState } from '../hooks';
 import { Slider } from '../components/ui';
 
 interface SavedColor {
@@ -11,7 +11,7 @@ export const ColorPicker = () => {
     const [hue, setHue] = useState(200);
     const [saturation, setSaturation] = useState(70);
     const [lightness, setLightness] = useState(50);
-    const [savedColors, setSavedColors] = useState<SavedColor[]>([]);
+    const { value: savedColors, setValue: setSavedColors } = usePersistedState<SavedColor[]>('colorpicker.saved', []);
     const { copy, isCopied } = useCopyToClipboard(1500);
 
     const hslToRgb = useCallback((h: number, s: number, l: number) => {

@@ -10,6 +10,8 @@ export { useHotkey, useHotkeys, getShortcutLabel } from './useHotkeys';
 export type { UseHotkeysOptions } from './useHotkeys';
 export { useInterval, useControllableInterval } from './useInterval';
 export { useLocalStorage } from './useLocalStorage';
+export { usePersistedState } from './usePersistedState';
+export type { UsePersistedStateReturn } from './usePersistedState';
 export { useWindowDrag } from './useWindowDrag';
 export type { Position, UseWindowDragOptions, UseWindowDragResult } from './useWindowDrag';
 export { useWindowResize } from './useWindowResize';

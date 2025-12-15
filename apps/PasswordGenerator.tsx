@@ -1,15 +1,27 @@
 import React, { useState, useCallback } from 'react';
-import { useCopyToClipboard } from '../hooks';
+import { useCopyToClipboard, usePersistedState } from '../hooks';
 import { Slider } from '../components/ui';
 
+interface PasswordSettings {
+    length: number;
+    uppercase: boolean;
+    lowercase: boolean;
+    numbers: boolean;
+    symbols: boolean;
+}
+
 export const PasswordGenerator = () => {
-    const [length, setLength] = useState(16);
-    const [uppercase, setUppercase] = useState(true);
-    const [lowercase, setLowercase] = useState(true);
-    const [numbers, setNumbers] = useState(true);
-    const [symbols, setSymbols] = useState(true);
+    const { value: settings, setValue: setSettings } = usePersistedState<PasswordSettings>('passwordgen.settings', {
+        length: 16,
+        uppercase: true,
+        lowercase: true,
+        numbers: true,
+        symbols: true,
+    });
     const [password, setPassword] = useState('');
     const { copy, copied } = useCopyToClipboard();
+
+    const { length, uppercase, lowercase, numbers, symbols } = settings;
 
     const generatePassword = useCallback(() => {
         let chars = '';
@@ -104,15 +116,31 @@ export const PasswordGenerator = () => {
                     value={length}
                     min={8}
                     max={64}
-                    onChange={setLength}
+                    onChange={v => setSettings({ ...settings, length: v })}
                     rangeLabels={['8', '64']}
                 />
 
                 <div className="grid grid-cols-2 gap-3">
-                    <Checkbox checked={uppercase} onChange={() => setUppercase(!uppercase)} label="Uppercase (A-Z)" />
-                    <Checkbox checked={lowercase} onChange={() => setLowercase(!lowercase)} label="Lowercase (a-z)" />
-                    <Checkbox checked={numbers} onChange={() => setNumbers(!numbers)} label="Numbers (0-9)" />
-                    <Checkbox checked={symbols} onChange={() => setSymbols(!symbols)} label="Symbols (!@#$)" />
+                    <Checkbox
+                        checked={uppercase}
+                        onChange={() => setSettings({ ...settings, uppercase: !uppercase })}
+                        label="Uppercase (A-Z)"
+                    />
+                    <Checkbox
+                        checked={lowercase}
+                        onChange={() => setSettings({ ...settings, lowercase: !lowercase })}
+                        label="Lowercase (a-z)"
+                    />
+                    <Checkbox
+                        checked={numbers}
+                        onChange={() => setSettings({ ...settings, numbers: !numbers })}
+                        label="Numbers (0-9)"
+                    />
+                    <Checkbox
+                        checked={symbols}
+                        onChange={() => setSettings({ ...settings, symbols: !symbols })}
+                        label="Symbols (!@#$)"
+                    />
                 </div>
             </div>
 

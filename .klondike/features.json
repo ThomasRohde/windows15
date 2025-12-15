@@ -3036,13 +3036,13 @@
         "At least 3 apps migrated to consistent pattern"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-15T15:56:08.100241",
       "notes": "Implementation: Currently mixed approaches exist - storageService (Mail, SyncSettings), Dexie tables (TodoList, Terminal, Calendar), useLocalStorage hook (rarely used). Create usePersistedState<T>(key, defaultValue) hook for local preferences that syncs to storageService automatically. For synced data, standardize on Dexie. Pattern: const [colors, setColors] = usePersistedState('colorpicker.saved', []). Edge cases: Handle SSR/hydration mismatches, handle storage quota exceeded. Dependencies: utils/storage.ts, db.ts. Context: Inconsistent persistence makes debugging difficult and may cause data loss. Gotchas: Migration path needed for existing data in different storage mechanisms."
     },
     {

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDb, useDexieLiveQuery } from '../utils/storage';
 import { generateUuid } from '../utils/uuid';
 import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { usePersistedState } from '../hooks';
 
 type ViewMode = 'live' | 'reader';
 
@@ -100,7 +101,7 @@ export const Browser = () => {
     const db = useDb();
     const initialEntry: HistoryEntry = { url: 'https://thomasrohde.github.io', mode: 'live' };
 
-    const [state, setState] = useState<BrowserState>({
+    const { value: state, setValue: setState } = usePersistedState<BrowserState>('browser.state', {
         input: 'thomasrohde.github.io',
         history: [initialEntry],
         historyIndex: 0,

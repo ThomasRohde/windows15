@@ -5,6 +5,10 @@
 // Database context
 export { DbProvider, useDb } from './DbContext';
 
+// User profile context
+export { UserProfileProvider, useUserProfile } from './UserProfileContext';
+export type { UserProfile } from './UserProfileContext';
+
 // Main OS context (composition wrapper for backward compatibility)
 export { OSProvider, useOS } from './OSContext';
 

@@ -5,12 +5,13 @@ import { SyncSettings } from './settings/SyncSettings';
 import { LocalizationSettings } from './settings/LocalizationSettings';
 import { ScreensaverSettings } from './settings/ScreensaverSettings';
 import { WindowSpaceSettings } from './settings/WindowSpaceSettings';
+import { ProfileSettings } from './settings/ProfileSettings';
 
 export const Settings = () => {
     const { activeWallpaper, setWallpaper } = useOS();
     const [activeSection, setActiveSection] = useState<
-        'personalization' | 'localization' | 'sync' | 'network' | 'apps' | 'screensaver' | '3dmode'
-    >('personalization');
+        'account' | 'personalization' | 'localization' | 'sync' | 'network' | 'apps' | 'screensaver' | '3dmode'
+    >('account');
 
     return (
         <div className="h-full bg-background-dark text-white flex">
@@ -18,6 +19,19 @@ export const Settings = () => {
             <div className="w-60 bg-black/20 p-4 border-r border-white/5 hidden md:block">
                 <h2 className="text-xl font-semibold mb-6 px-2">Settings</h2>
                 <div className="flex flex-col gap-1">
+                    <button
+                        type="button"
+                        onClick={() => setActiveSection('account')}
+                        className={`p-2 rounded flex items-center gap-3 text-left ${activeSection === 'account' ? 'bg-white/10' : 'hover:bg-white/5 text-white/70'}`}
+                    >
+                        <span
+                            className={`material-symbols-outlined ${activeSection === 'account' ? 'text-primary' : ''}`}
+                        >
+                            person
+                        </span>
+                        <span className="text-sm font-medium">Account</span>
+                    </button>
+
                     <button
                         type="button"
                         onClick={() => setActiveSection('personalization')}
@@ -109,6 +123,8 @@ export const Settings = () => {
 
             {/* Content */}
             <div className="flex-1 p-8 overflow-y-auto">
+                {activeSection === 'account' && <ProfileSettings />}
+
                 {activeSection === 'personalization' && (
                     <>
                         <h1 className="text-3xl font-light mb-8">Personalization</h1>

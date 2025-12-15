@@ -13,8 +13,9 @@ import {
     InstallButton,
     Screensaver,
     WallpaperHost,
+    LoginScreen,
 } from './components';
-import { OSProvider, useOS, DbProvider, useDb, useWindowSpace } from './context';
+import { OSProvider, useOS, DbProvider, useDb, useWindowSpace, UserProfileProvider } from './context';
 import { useDexieLiveQuery } from './utils/storage/react';
 import { DesktopIconRecord } from './utils/storage/db';
 import { APP_REGISTRY } from './apps';
@@ -300,11 +301,14 @@ const Desktop = () => {
 const App: React.FC = () => {
     return (
         <DbProvider>
-            <OSProvider>
-                <AriaLiveProvider>
-                    <Desktop />
-                </AriaLiveProvider>
-            </OSProvider>
+            <UserProfileProvider>
+                <OSProvider>
+                    <AriaLiveProvider>
+                        <LoginScreen />
+                        <Desktop />
+                    </AriaLiveProvider>
+                </OSProvider>
+            </UserProfileProvider>
         </DbProvider>
     );
 };

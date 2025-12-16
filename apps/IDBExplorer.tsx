@@ -248,7 +248,7 @@ const DataDescriptionList = ({ data, level = 0 }: { data: unknown; level?: numbe
                             {typeof value === 'object' && value !== null ? (
                                 <DataDescriptionList data={value} level={level + 1} />
                             ) : (
-                                String(value)
+                                <DataDescriptionList data={value} level={level + 1} />
                             )}
                         </div>
                     </React.Fragment>

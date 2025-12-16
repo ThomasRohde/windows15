@@ -22,6 +22,7 @@ UI components are exported from `components/ui/index.ts`.
 - `StatCard` (+ `StatCardProps`)
 - `TabSwitcher` (+ `TabOption`)
 - `Icon` (+ `IconProps`, `IconSize`)
+- `Tooltip` (+ `TooltipProps`, `TooltipPosition`)
 
 ## Inputs
 

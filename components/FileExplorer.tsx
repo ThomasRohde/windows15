@@ -7,6 +7,34 @@ import { ContextMenu } from './ContextMenu';
 import { useContextMenu, useNotification } from '../hooks';
 import { readTextFromClipboard } from '../utils/clipboard';
 import { analyzeClipboardContent } from '../utils/clipboardAnalyzer';
+import { Tooltip } from './ui';
+
+/**
+ * Recursively adds a child item to a folder at the specified path
+ */
+const addChildToFolder = (items: FileSystemItem[], parentPath: string[], newItem: FileSystemItem): FileSystemItem[] => {
+    if (parentPath.length === 1) {
+        return items.map(item => {
+            if (item.id === parentPath[0]) {
+                return {
+                    ...item,
+                    children: [...(item.children || []), newItem],
+                };
+            }
+            return item;
+        });
+    }
+
+    return items.map(item => {
+        if (item.id === parentPath[0]) {
+            return {
+                ...item,
+                children: addChildToFolder(item.children || [], parentPath.slice(1), newItem),
+            };
+        }
+        return item;
+    });
+};
 
 export const FileExplorer = () => {
     const [currentPath, setCurrentPath] = useState<string[]>(['root']);
@@ -120,34 +148,6 @@ export const FileExplorer = () => {
 
     const handleContextMenu = (e: React.MouseEvent, item?: FileSystemItem) => {
         openContextMenu(e, item);
-    };
-
-    const addChildToFolder = (
-        items: FileSystemItem[],
-        parentPath: string[],
-        newItem: FileSystemItem
-    ): FileSystemItem[] => {
-        if (parentPath.length === 1) {
-            return items.map(item => {
-                if (item.id === parentPath[0]) {
-                    return {
-                        ...item,
-                        children: [...(item.children || []), newItem],
-                    };
-                }
-                return item;
-            });
-        }
-
-        return items.map(item => {
-            if (item.id === parentPath[0]) {
-                return {
-                    ...item,
-                    children: addChildToFolder(item.children || [], parentPath.slice(1), newItem),
-                };
-            }
-            return item;
-        });
     };
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -304,38 +304,46 @@ export const FileExplorer = () => {
             {/* Sidebar */}
             <div className="w-48 hidden sm:flex flex-col gap-1 p-3 border-r border-white/5 bg-black/10">
                 <div className="text-xs font-bold text-white/40 uppercase px-3 py-2">Favorites</div>
-                <button
-                    type="button"
-                    onClick={() => setCurrentPath(['root'])}
-                    className="flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors"
-                >
-                    <span className="material-symbols-outlined text-[20px] text-blue-400">home</span>
-                    Home
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setCurrentPath(['root', 'desktop'])}
-                    className="flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors"
-                >
-                    <span className="material-symbols-outlined text-[20px] text-yellow-400">star</span>
-                    Desktop
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setCurrentPath(['root', 'pictures'])}
-                    className="flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors"
-                >
-                    <span className="material-symbols-outlined text-[20px] text-pink-400">image</span>
-                    Pictures
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setCurrentPath(['root', 'documents'])}
-                    className="flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors"
-                >
-                    <span className="material-symbols-outlined text-[20px] text-orange-400">description</span>
-                    Documents
-                </button>
+                <Tooltip content="Go to Home folder" position="right">
+                    <button
+                        type="button"
+                        onClick={() => setCurrentPath(['root'])}
+                        className="flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors"
+                    >
+                        <span className="material-symbols-outlined text-[20px] text-blue-400">home</span>
+                        Home
+                    </button>
+                </Tooltip>
+                <Tooltip content="Go to Desktop folder" position="right">
+                    <button
+                        type="button"
+                        onClick={() => setCurrentPath(['root', 'desktop'])}
+                        className="flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors"
+                    >
+                        <span className="material-symbols-outlined text-[20px] text-yellow-400">star</span>
+                        Desktop
+                    </button>
+                </Tooltip>
+                <Tooltip content="Go to Pictures folder" position="right">
+                    <button
+                        type="button"
+                        onClick={() => setCurrentPath(['root', 'pictures'])}
+                        className="flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors"
+                    >
+                        <span className="material-symbols-outlined text-[20px] text-pink-400">image</span>
+                        Pictures
+                    </button>
+                </Tooltip>
+                <Tooltip content="Go to Documents folder" position="right">
+                    <button
+                        type="button"
+                        onClick={() => setCurrentPath(['root', 'documents'])}
+                        className="flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors"
+                    >
+                        <span className="material-symbols-outlined text-[20px] text-orange-400">description</span>
+                        Documents
+                    </button>
+                </Tooltip>
             </div>
 
             {/* Main Content */}
@@ -343,38 +351,43 @@ export const FileExplorer = () => {
                 {/* Toolbar */}
                 <div className="h-12 border-b border-white/5 flex items-center px-4 gap-4">
                     <div className="flex gap-2 text-white/50">
-                        <button
-                            onClick={navigateUp}
-                            disabled={currentPath.length <= 1}
-                            className="hover:text-white disabled:opacity-30"
-                        >
-                            <span className="material-symbols-outlined">arrow_upward</span>
-                        </button>
+                        <Tooltip content="Navigate up one folder" position="bottom">
+                            <button
+                                onClick={navigateUp}
+                                disabled={currentPath.length <= 1}
+                                className="hover:text-white disabled:opacity-30"
+                            >
+                                <span className="material-symbols-outlined">arrow_upward</span>
+                            </button>
+                        </Tooltip>
                     </div>
                     {/* Breadcrumbs */}
                     <div className="flex-1 flex items-center bg-black/20 rounded px-3 h-8 text-sm text-white/70">
                         {currentPath.map((p, i) => (
                             <React.Fragment key={i}>
-                                <span className="hover:bg-white/10 px-1 rounded cursor-pointer">
-                                    {p === 'root'
-                                        ? 'This PC'
-                                        : p === 'desktop'
-                                          ? 'Desktop'
-                                          : p.charAt(0).toUpperCase() + p.slice(1)}
-                                </span>
+                                <Tooltip content={`Navigate to ${p === 'root' ? 'This PC' : p}`} position="bottom">
+                                    <span className="hover:bg-white/10 px-1 rounded cursor-pointer">
+                                        {p === 'root'
+                                            ? 'This PC'
+                                            : p === 'desktop'
+                                              ? 'Desktop'
+                                              : p.charAt(0).toUpperCase() + p.slice(1)}
+                                    </span>
+                                </Tooltip>
                                 {i < currentPath.length - 1 && (
                                     <span className="material-symbols-outlined text-xs mx-1">chevron_right</span>
                                 )}
                             </React.Fragment>
                         ))}
                     </div>
-                    <button
-                        onClick={() => setShowNewFolderInput(true)}
-                        className="flex items-center gap-1 px-2 py-1 text-sm text-white/60 hover:text-white hover:bg-white/10 rounded transition-colors"
-                        title="New Folder"
-                    >
-                        <span className="material-symbols-outlined text-lg">create_new_folder</span>
-                    </button>
+                    <Tooltip content="Create a new folder" position="bottom">
+                        <button
+                            onClick={() => setShowNewFolderInput(true)}
+                            className="flex items-center gap-1 px-2 py-1 text-sm text-white/60 hover:text-white hover:bg-white/10 rounded transition-colors"
+                        >
+                            <span className="material-symbols-outlined text-lg">create_new_folder</span>
+                        </button>
+                    </Tooltip>
                 </div>
 
                 {/* New Folder Input */}
@@ -420,74 +433,75 @@ export const FileExplorer = () => {
                         {currentFolder?.children
                             ?.filter(item => item.id !== 'recycleBin')
                             .map(item => (
-                                <div
-                                    key={item.id}
-                                    onDoubleClick={() => navigateTo(item.id)}
-                                    onContextMenu={e => handleContextMenu(e, item)}
-                                    className="group flex flex-col items-center gap-2 p-2 rounded hover:bg-white/10 cursor-pointer transition-colors"
-                                >
-                                    {item.type === 'shortcut' ? (
-                                        <span
-                                            className={`material-symbols-outlined text-5xl drop-shadow-lg ${item.colorClass || 'text-blue-400'}`}
-                                        >
-                                            {item.icon || 'link'}
-                                        </span>
-                                    ) : item.type === 'folder' ? (
-                                        <span className="material-symbols-outlined text-5xl text-yellow-400 drop-shadow-lg">
-                                            folder
-                                        </span>
-                                    ) : item.type === 'image' && item.src ? (
-                                        <div
-                                            className="w-16 h-12 bg-cover bg-center rounded border border-white/20"
-                                            style={{ backgroundImage: `url(${item.src})` }}
-                                        ></div>
-                                    ) : item.type === 'link' ? (
-                                        <span
-                                            className={`material-symbols-outlined text-5xl drop-shadow-lg ${
-                                                item.linkType === 'image'
-                                                    ? 'text-green-400'
+                                <Tooltip key={item.id} content={item.name} position="bottom" delay={400}>
+                                    <div
+                                        onDoubleClick={() => navigateTo(item.id)}
+                                        onContextMenu={e => handleContextMenu(e, item)}
+                                        className="group flex flex-col items-center gap-2 p-2 rounded hover:bg-white/10 cursor-pointer transition-colors"
+                                    >
+                                        {item.type === 'shortcut' ? (
+                                            <span
+                                                className={`material-symbols-outlined text-5xl drop-shadow-lg ${item.colorClass || 'text-blue-400'}`}
+                                            >
+                                                {item.icon || 'link'}
+                                            </span>
+                                        ) : item.type === 'folder' ? (
+                                            <span className="material-symbols-outlined text-5xl text-yellow-400 drop-shadow-lg">
+                                                folder
+                                            </span>
+                                        ) : item.type === 'image' && item.src ? (
+                                            <div
+                                                className="w-16 h-12 bg-cover bg-center rounded border border-white/20"
+                                                style={{ backgroundImage: `url(${item.src})` }}
+                                            ></div>
+                                        ) : item.type === 'link' ? (
+                                            <span
+                                                className={`material-symbols-outlined text-5xl drop-shadow-lg ${
+                                                    item.linkType === 'image'
+                                                        ? 'text-green-400'
+                                                        : item.linkType === 'video'
+                                                          ? 'text-red-400'
+                                                          : item.linkType === 'audio'
+                                                            ? 'text-purple-400'
+                                                            : item.linkType === 'youtube'
+                                                              ? 'text-red-500'
+                                                              : 'text-cyan-400'
+                                                }`}
+                                            >
+                                                {item.linkType === 'image'
+                                                    ? 'image'
                                                     : item.linkType === 'video'
-                                                      ? 'text-red-400'
+                                                      ? 'movie'
                                                       : item.linkType === 'audio'
-                                                        ? 'text-purple-400'
+                                                        ? 'music_note'
                                                         : item.linkType === 'youtube'
-                                                          ? 'text-red-500'
-                                                          : 'text-cyan-400'
-                                            }`}
-                                        >
-                                            {item.linkType === 'image'
-                                                ? 'image'
-                                                : item.linkType === 'video'
-                                                  ? 'movie'
-                                                  : item.linkType === 'audio'
-                                                    ? 'music_note'
-                                                    : item.linkType === 'youtube'
-                                                      ? 'smart_display'
-                                                      : 'link'}
+                                                          ? 'smart_display'
+                                                          : 'link'}
+                                            </span>
+                                        ) : (
+                                            <span
+                                                className={`material-symbols-outlined text-5xl drop-shadow-lg
+                                            ${
+                                                item.type === 'document'
+                                                    ? 'text-blue-400'
+                                                    : item.type === 'audio'
+                                                      ? 'text-purple-400'
+                                                      : 'text-gray-400'
+                                            }
+                                        `}
+                                            >
+                                                {item.type === 'document'
+                                                    ? 'description'
+                                                    : item.type === 'audio'
+                                                      ? 'music_note'
+                                                      : 'draft'}
+                                            </span>
+                                        )}
+                                        <span className="text-xs text-white/80 text-center font-medium truncate w-full px-1">
+                                            {item.name}
                                         </span>
-                                    ) : (
-                                        <span
-                                            className={`material-symbols-outlined text-5xl drop-shadow-lg
-                                        ${
-                                            item.type === 'document'
-                                                ? 'text-blue-400'
-                                                : item.type === 'audio'
-                                                  ? 'text-purple-400'
-                                                  : 'text-gray-400'
-                                        }
-                                    `}
-                                        >
-                                            {item.type === 'document'
-                                                ? 'description'
-                                                : item.type === 'audio'
-                                                  ? 'music_note'
-                                                  : 'draft'}
-                                        </span>
-                                    )}
-                                    <span className="text-xs text-white/80 text-center font-medium truncate w-full px-1">
-                                        {item.name}
-                                    </span>
-                                </div>
+                                    </div>
+                                </Tooltip>
                             ))}
                         {(!currentFolder?.children || currentFolder.children.length === 0) && (
                             <div className="col-span-full text-center text-white/30 text-sm mt-10">Folder is empty</div>

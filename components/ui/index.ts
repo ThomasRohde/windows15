@@ -42,3 +42,5 @@ export { StatCard } from './StatCard';
 export type { StatCardProps } from './StatCard';
 export { SplitPane } from './SplitPane';
 export type { SplitPaneProps, SplitPaneDirection } from './SplitPane';
+export { Tooltip } from './Tooltip';
+export type { TooltipProps, TooltipPosition } from './Tooltip';

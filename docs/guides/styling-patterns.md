@@ -16,7 +16,7 @@ Common building blocks:
 - Inputs: `TextInput`, `TextArea`, `Checkbox`, `Select`, `Slider`
 - Actions: `Button`, `CopyButton`, `ConfirmDialog`
 - Structure: `Card`, `SectionLabel`, `AppToolbar`, `AppSidebar`, `TabSwitcher`
-- States: `LoadingState`, `EmptyState`, `ErrorBanner`
+- States: `Tooltip`, `LoadingState`, `EmptyState`, `ErrorBanner`
 
 See the full list in `reference/ui-components.md`.
 

@@ -193,14 +193,42 @@ export const FileExplorer = () => {
 
             switch (analysis.type) {
                 case 'image-url':
+                    newFile = {
+                        id: `link-${Date.now()}`,
+                        name: analysis.suggestedFileName,
+                        type: 'link',
+                        url: analysis.content,
+                        linkType: 'image',
+                        date: new Date().toLocaleDateString(),
+                    };
+                    break;
                 case 'video-url':
+                    newFile = {
+                        id: `link-${Date.now()}`,
+                        name: analysis.suggestedFileName,
+                        type: 'link',
+                        url: analysis.content,
+                        linkType: 'video',
+                        date: new Date().toLocaleDateString(),
+                    };
+                    break;
                 case 'audio-url':
+                    newFile = {
+                        id: `link-${Date.now()}`,
+                        name: analysis.suggestedFileName,
+                        type: 'link',
+                        url: analysis.content,
+                        linkType: 'audio',
+                        date: new Date().toLocaleDateString(),
+                    };
+                    break;
                 case 'web-url':
                     newFile = {
                         id: `link-${Date.now()}`,
                         name: analysis.suggestedFileName,
                         type: 'link',
                         url: analysis.content,
+                        linkType: 'web',
                         date: new Date().toLocaleDateString(),
                     };
                     break;
@@ -401,8 +429,24 @@ export const FileExplorer = () => {
                                             style={{ backgroundImage: `url(${item.src})` }}
                                         ></div>
                                     ) : item.type === 'link' ? (
-                                        <span className="material-symbols-outlined text-5xl text-cyan-400 drop-shadow-lg">
-                                            link
+                                        <span
+                                            className={`material-symbols-outlined text-5xl drop-shadow-lg ${
+                                                item.linkType === 'image'
+                                                    ? 'text-green-400'
+                                                    : item.linkType === 'video'
+                                                      ? 'text-red-400'
+                                                      : item.linkType === 'audio'
+                                                        ? 'text-purple-400'
+                                                        : 'text-cyan-400'
+                                            }`}
+                                        >
+                                            {item.linkType === 'image'
+                                                ? 'image'
+                                                : item.linkType === 'video'
+                                                  ? 'movie'
+                                                  : item.linkType === 'audio'
+                                                    ? 'music_note'
+                                                    : 'link'}
                                         </span>
                                     ) : (
                                         <span

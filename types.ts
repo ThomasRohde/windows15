@@ -39,6 +39,8 @@ export interface FileSystemItem {
     colorClass?: string;
     /** URL for link placeholder files */
     url?: string;
+    /** Type of link content (image, video, audio, web, youtube) */
+    linkType?: 'image' | 'video' | 'audio' | 'web' | 'youtube';
 }
 
 /**

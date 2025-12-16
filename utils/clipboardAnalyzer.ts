@@ -11,6 +11,7 @@ export type ClipboardContentType =
     | 'image-url' // URL ending in image extensions or from known image hosting
     | 'video-url' // URL ending in video extensions
     | 'audio-url' // URL ending in audio extensions
+    | 'youtube-url' // YouTube video URLs
     | 'web-url' // General HTTP/HTTPS URLs
     | 'json' // Valid JSON content
     | 'plain-text' // Regular text content
@@ -124,6 +125,38 @@ function isAudioUrl(url: string): boolean {
 }
 
 /**
+ * Check if a URL is a YouTube video URL
+ * Supports: youtube.com/watch, youtu.be, youtube.com/shorts, youtube.com/embed
+ */
+function isYoutubeUrl(url: string): boolean {
+    try {
+        const parsed = new URL(url);
+        const hostname = parsed.hostname.toLowerCase();
+        const pathname = parsed.pathname.toLowerCase();
+
+        // Check for youtube.com domains
+        if (hostname === 'www.youtube.com' || hostname === 'youtube.com' || hostname === 'm.youtube.com') {
+            // /watch?v=, /shorts/, /embed/
+            if (pathname.startsWith('/watch') && parsed.searchParams.has('v')) {
+                return true;
+            }
+            if (pathname.startsWith('/shorts/') || pathname.startsWith('/embed/')) {
+                return true;
+            }
+        }
+
+        // Check for youtu.be short URLs
+        if (hostname === 'youtu.be') {
+            return pathname.length > 1; // Must have a video ID
+        }
+
+        return false;
+    } catch {
+        return false;
+    }
+}
+
+/**
  * Check if text is valid JSON
  */
 function isValidJson(text: string): boolean {
@@ -212,6 +245,16 @@ export function analyzeClipboardContent(text: string): ClipboardAnalysis {
                 content: trimmed,
                 suggestedFileName: generateFileNameFromUrl(trimmed) + '.link',
                 suggestedAppId: 'browser',
+            };
+        }
+
+        // Check for YouTube URLs
+        if (isYoutubeUrl(trimmed)) {
+            return {
+                type: 'youtube-url',
+                content: trimmed,
+                suggestedFileName: generateFileNameFromUrl(trimmed) + '.link',
+                suggestedAppId: 'youtubeplayer',
             };
         }
 

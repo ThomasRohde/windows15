@@ -258,14 +258,52 @@ const Desktop = () => {
 
             switch (analysis.type) {
                 case 'image-url':
+                    newFile = {
+                        id: `link-${Date.now()}`,
+                        name: analysis.suggestedFileName,
+                        type: 'link',
+                        url: analysis.content,
+                        linkType: 'image',
+                        date: new Date().toLocaleDateString(),
+                    };
+                    break;
                 case 'video-url':
+                    newFile = {
+                        id: `link-${Date.now()}`,
+                        name: analysis.suggestedFileName,
+                        type: 'link',
+                        url: analysis.content,
+                        linkType: 'video',
+                        date: new Date().toLocaleDateString(),
+                    };
+                    break;
                 case 'audio-url':
+                    newFile = {
+                        id: `link-${Date.now()}`,
+                        name: analysis.suggestedFileName,
+                        type: 'link',
+                        url: analysis.content,
+                        linkType: 'audio',
+                        date: new Date().toLocaleDateString(),
+                    };
+                    break;
+                case 'youtube-url':
+                    newFile = {
+                        id: `link-${Date.now()}`,
+                        name: analysis.suggestedFileName,
+                        type: 'link',
+                        url: analysis.content,
+                        linkType: 'youtube',
+                        date: new Date().toLocaleDateString(),
+                    };
+                    break;
                 case 'web-url':
                     newFile = {
                         id: `link-${Date.now()}`,
                         name: analysis.suggestedFileName,
                         type: 'link',
                         url: analysis.content,
+                        linkType: 'web',
                         date: new Date().toLocaleDateString(),
                     };
                     break;
@@ -298,6 +336,8 @@ const Desktop = () => {
             // Open the appropriate app for URLs
             if (analysis.type === 'image-url') {
                 openWindow('imageviewer', { initialSrc: analysis.content });
+            } else if (analysis.type === 'youtube-url') {
+                openWindow('youtubeplayer', { initialUrl: analysis.content });
             } else if (['video-url', 'audio-url', 'web-url'].includes(analysis.type)) {
                 openWindow('browser', { initialUrl: analysis.content });
             }

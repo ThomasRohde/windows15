@@ -256,6 +256,15 @@ export const APP_REGISTRY: AppConfig[] = [
         defaultWidth: 900,
         defaultHeight: 600,
     },
+    {
+        id: 'youtubeplayer',
+        title: 'YouTube Player',
+        icon: 'smart_display',
+        color: 'bg-red-500',
+        component: React.lazy(() => import('./YoutubePlayer').then(m => ({ default: m.YoutubePlayer }))),
+        defaultWidth: 900,
+        defaultHeight: 600,
+    },
 ];
 
 /**

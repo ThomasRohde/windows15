@@ -14,7 +14,10 @@ export interface SelectOption<T = string> {
 
 export type SelectSize = 'sm' | 'md' | 'lg';
 
-export interface SelectProps<T = string> extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'size'> {
+export interface SelectProps<T extends string | number = string> extends Omit<
+    React.SelectHTMLAttributes<HTMLSelectElement>,
+    'size' | 'value' | 'onChange'
+> {
     /** Array of options */
     options: SelectOption<T>[];
     /** Current selected value */
@@ -79,7 +82,7 @@ const sizeClasses: Record<SelectSize, string> = {
  * />
  * ```
  */
-export const Select = forwardRef(
+const SelectComponent = forwardRef(
     <T extends string | number>(
         {
             options,
@@ -145,6 +148,9 @@ export const Select = forwardRef(
             </div>
         );
     }
-) as <T extends string | number>(props: SelectProps<T> & { ref?: React.Ref<HTMLSelectElement> }) => React.ReactElement;
+);
 
-Select.displayName = 'Select';
+// Type assertion for the Select component
+export const Select = SelectComponent as <T extends string | number>(
+    props: SelectProps<T> & { ref?: React.Ref<HTMLSelectElement> }
+) => React.ReactElement;

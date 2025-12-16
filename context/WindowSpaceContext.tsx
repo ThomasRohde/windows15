@@ -138,6 +138,7 @@ export const WindowSpaceProvider: React.FC<{ children: ReactNode }> = ({ childre
                 await db.kv.put({
                     key: 'windowSpaceSettings',
                     valueJson: JSON.stringify(newSettings),
+                    updatedAt: Date.now(),
                 });
             } catch (error) {
                 console.error('[WindowSpaceContext] Failed to save settings:', error);
@@ -149,8 +150,8 @@ export const WindowSpaceProvider: React.FC<{ children: ReactNode }> = ({ childre
     // Toggle 3D mode
     const toggle3DMode = useCallback(() => {
         setSettings(prev => {
-            const newMode = prev.mode === 'flat' ? '3d' : 'flat';
-            const newSettings = { ...prev, mode: newMode };
+            const newMode: WindowSpaceMode = prev.mode === 'flat' ? '3d' : 'flat';
+            const newSettings: WindowSpaceSettings = { ...prev, mode: newMode };
             void saveSettings(newSettings);
             return newSettings;
         });

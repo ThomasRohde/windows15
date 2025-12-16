@@ -151,6 +151,7 @@ export const DelayedSkeleton: React.FC<{
             return () => clearTimeout(timer);
         } else {
             setShowSkeleton(false);
+            return;
         }
     }, [isLoading, delay]);
 

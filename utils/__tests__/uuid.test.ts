@@ -36,10 +36,10 @@ describe('UUID Generation', () => {
         const parts = uuid.split('-');
 
         // Check version 4 (first char of 3rd group should be '4')
-        expect(parts[2][0]).toBe('4');
+        expect(parts[2]?.[0]).toBe('4');
 
         // Check variant (first char of 4th group should be 8, 9, a, or b)
-        expect(['8', '9', 'a', 'b']).toContain(parts[3][0].toLowerCase());
+        expect(['8', '9', 'a', 'b']).toContain(parts[3]?.[0]?.toLowerCase());
     });
 
     it('should be 36 characters long (including hyphens)', () => {

@@ -175,6 +175,8 @@ export interface AppEvents {
     'sync:status': { status: 'syncing' | 'synced' | 'offline' | 'error' };
     /** Emitted to request file open in an app */
     'file:open': { appId: string; fileId: string; fileName?: string; content?: string };
+    /** Index signature for constraint compatibility */
+    [key: string]: unknown;
 }
 
 /**

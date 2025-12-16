@@ -55,13 +55,13 @@ describe('Window', () => {
         appId: 'notepad',
         title: 'Test Window',
         icon: 'edit_note',
+        isOpen: true,
         isMinimized: false,
         isMaximized: false,
         position: { x: 100, y: 100 },
         size: { width: 400, height: 300 },
         zIndex: 10,
-        color: 'bg-yellow-500',
-        component: () => <div data-testid="window-content">Window Content</div>,
+        component: <div data-testid="window-content">Window Content</div>,
     };
 
     beforeEach(() => {

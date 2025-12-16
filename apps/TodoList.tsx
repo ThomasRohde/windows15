@@ -38,7 +38,7 @@ type SortMode = 'smart' | 'manual';
 type SortableItemRenderProps = {
     setNodeRef: (node: HTMLElement | null) => void;
     style: React.CSSProperties;
-    attributes: Record<string, unknown>;
+    attributes: React.HTMLAttributes<HTMLElement>;
     listeners: Record<string, unknown> | undefined;
     isDragging: boolean;
 };
@@ -165,7 +165,7 @@ export const TodoList = () => {
         setEditingId(id);
         setEditText(currentText);
         setEditPriority(currentPriority);
-        setEditDueDate(currentDueDate ? new Date(currentDueDate).toISOString().split('T')[0] : '');
+        setEditDueDate(currentDueDate ? (new Date(currentDueDate).toISOString().split('T')[0] ?? '') : '');
         clearError();
     };
 
@@ -310,7 +310,8 @@ export const TodoList = () => {
         await bulkAction.execute(async () => {
             await db.transaction('rw', db.todos, async () => {
                 for (let i = 0; i < newOrder.length; i++) {
-                    await db.todos.update(newOrder[i].id, { sortOrder: i, updatedAt: now });
+                    const todo = newOrder[i];
+                    if (todo) await db.todos.update(todo.id, { sortOrder: i, updatedAt: now });
                 }
             });
         });

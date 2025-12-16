@@ -27,7 +27,7 @@ type AnimationState = StarfieldState | MatrixState | BouncingLogoState | Geometr
 
 export const Screensaver: React.FC = () => {
     const { isScreensaverActive, settings } = useScreensaver();
-    const { clockFormat, dateFormat } = useLocalization();
+    const { clockFormat } = useLocalization();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const animationFrameRef = useRef<number | null>(null);
 
@@ -117,12 +117,12 @@ export const Screensaver: React.FC = () => {
 
             for (let i = 0; i < state.drops.length; i++) {
                 const text = state.chars[Math.floor(Math.random() * state.chars.length)];
-                ctx.fillText(text, i * 20, state.drops[i] * 20);
+                if (text) ctx.fillText(text, i * 20, state.drops[i]! * 20);
 
-                if (state.drops[i] * 20 > canvas.height && Math.random() > 0.975) {
+                if (state.drops[i]! * 20 > canvas.height && Math.random() > 0.975) {
                     state.drops[i] = 0;
                 }
-                state.drops[i] += settings.animationSpeed;
+                state.drops[i]! += settings.animationSpeed;
             }
         };
 
@@ -239,12 +239,8 @@ export const Screensaver: React.FC = () => {
                 const month = now.getMonth() + 1;
                 const day = now.getDate();
                 const year = now.getFullYear();
-                const dateStr =
-                    dateFormat === 'MM/DD/YYYY'
-                        ? `${month}/${day}/${year}`
-                        : dateFormat === 'DD/MM/YYYY'
-                          ? `${day}/${month}/${year}`
-                          : `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                // Use YYYY-MM-DD format for consistency in screensaver
+                const dateStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
                 lines.push(dateStr);
             }
 
@@ -258,6 +254,7 @@ export const Screensaver: React.FC = () => {
             const startY = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2;
 
             lines.forEach((line, i) => {
+                if (!ctx) return;
                 // Draw text shadow for better visibility
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
                 ctx.fillText(line, canvas.width / 2 + 2, startY + i * lineHeight + 2);
@@ -300,7 +297,7 @@ export const Screensaver: React.FC = () => {
                 cancelAnimationFrame(animationFrameRef.current);
             }
         };
-    }, [isScreensaverActive, settings, clockFormat, dateFormat]);
+    }, [isScreensaverActive, settings, clockFormat]);
 
     if (!isScreensaverActive) {
         return null;

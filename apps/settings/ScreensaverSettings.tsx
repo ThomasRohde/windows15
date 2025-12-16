@@ -39,7 +39,7 @@ const ScreensaverPreview: React.FC<{
     showDate: boolean;
 }> = ({ animation, speed, intensity, showClock, showDate }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const { clockFormat, dateFormat } = useLocalization();
+    const { clockFormat } = useLocalization();
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -104,12 +104,12 @@ const ScreensaverPreview: React.FC<{
 
             for (let i = 0; i < state.drops.length; i++) {
                 const text = state.chars[Math.floor(Math.random() * state.chars.length)];
-                ctx.fillText(text, i * 15, state.drops[i] * 15);
+                if (text) ctx.fillText(text, i * 15, state.drops[i]! * 15);
 
-                if (state.drops[i] * 15 > canvas.height && Math.random() > 0.975) {
+                if (state.drops[i]! * 15 > canvas.height && Math.random() > 0.975) {
                     state.drops[i] = 0;
                 }
-                state.drops[i] += speed;
+                state.drops[i]! += speed;
             }
         };
 
@@ -221,12 +221,8 @@ const ScreensaverPreview: React.FC<{
                 const month = now.getMonth() + 1;
                 const day = now.getDate();
                 const year = now.getFullYear();
-                const dateStr =
-                    dateFormat === 'MM/DD/YYYY'
-                        ? `${month}/${day}/${year}`
-                        : dateFormat === 'DD/MM/YYYY'
-                          ? `${day}/${month}/${year}`
-                          : `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                // Use YYYY-MM-DD format for consistency in screensaver preview
+                const dateStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
                 lines.push(dateStr);
             }
 
@@ -240,10 +236,10 @@ const ScreensaverPreview: React.FC<{
             const startY = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2;
 
             lines.forEach((line, i) => {
-                ctx.fillText(line, canvas.width / 2, startY + i * lineHeight);
+                if (ctx) ctx.fillText(line, canvas.width / 2, startY + i * lineHeight);
             });
 
-            ctx.restore();
+            if (ctx) ctx.restore();
         };
 
         const initAnimation = (): AnimationState => {
@@ -289,7 +285,7 @@ const ScreensaverPreview: React.FC<{
                 cancelAnimationFrame(animationFrameId);
             }
         };
-    }, [animation, speed, intensity, showClock, showDate, clockFormat, dateFormat]);
+    }, [animation, speed, intensity, showClock, showDate, clockFormat]);
 
     return <canvas ref={canvasRef} className="w-full h-full bg-black rounded-lg" />;
 };

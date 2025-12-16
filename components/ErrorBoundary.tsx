@@ -41,7 +41,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         return { hasError: true, error };
     }
 
-    componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    override componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
         // Log error to console with stack trace
         console.error('ErrorBoundary caught an error:', error);
         console.error('Component stack:', errorInfo.componentStack);
@@ -61,7 +61,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         this.props.onReset?.();
     };
 
-    render(): ReactNode {
+    override render(): ReactNode {
         if (this.state.hasError) {
             const { title } = this.props;
             const { error } = this.state;

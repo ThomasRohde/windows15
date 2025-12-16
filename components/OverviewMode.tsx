@@ -28,7 +28,7 @@ interface OverviewModeProps {
  */
 const getAppInfo = (appId: string) => {
     const app = APP_REGISTRY.find(a => a.id === appId);
-    return app ? { icon: app.icon, name: app.name } : { icon: 'apps', name: 'Application' };
+    return app ? { icon: app.icon, name: app.title } : { icon: 'apps', name: 'Application' };
 };
 
 /**
@@ -147,6 +147,7 @@ export const OverviewMode: React.FC<OverviewModeProps> = ({ isOpen, onClose, onS
             window.addEventListener('keydown', handleKeyDown);
             return () => window.removeEventListener('keydown', handleKeyDown);
         }
+        return;
     }, [isOpen, handleKeyDown]);
 
     // Handle click outside to close

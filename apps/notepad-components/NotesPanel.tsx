@@ -71,7 +71,12 @@ export const NotesPanel: React.FC = () => {
         try {
             const now = Date.now();
             // Let Dexie Cloud auto-generate the ID when using @id schema
-            const id = await db.notes.add({ title: 'Untitled', content: '', createdAt: now, updatedAt: now });
+            const id = await db.notes.add({
+                title: 'Untitled',
+                content: '',
+                createdAt: now,
+                updatedAt: now,
+            } as NoteRecord);
             setSelectedId(id);
             notify.success('Note created');
         } catch (error) {

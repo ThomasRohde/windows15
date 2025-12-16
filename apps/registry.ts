@@ -247,6 +247,15 @@ export const APP_REGISTRY: AppConfig[] = [
         defaultWidth: 600,
         defaultHeight: 700,
     },
+    {
+        id: 'idbexplorer',
+        title: 'IDB Explorer',
+        icon: 'storage',
+        color: 'bg-indigo-500',
+        component: React.lazy(() => import('./IDBExplorer').then(m => ({ default: m.IDBExplorer }))),
+        defaultWidth: 900,
+        defaultHeight: 600,
+    },
 ];
 
 /**

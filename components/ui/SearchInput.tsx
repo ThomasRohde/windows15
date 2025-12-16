@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useDebounce } from '../../hooks/useDebounce';
 
 export interface SearchInputProps {
@@ -101,18 +101,15 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 }) => {
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // Debounced callback if provided
-    const debouncedCallback = useCallback(
-        (val: string) => {
-            if (onDebouncedChange) {
-                onDebouncedChange(val);
-            }
-        },
-        [onDebouncedChange]
-    );
+    // Get debounced value if debouncing is enabled
+    const debouncedValue = useDebounce(value, onDebouncedChange && debounceMs > 0 ? debounceMs : 0);
 
-    // Use debounce hook only if debounced callback is provided and debounceMs > 0
-    useDebounce(value, debouncedCallback, onDebouncedChange && debounceMs > 0 ? debounceMs : 0);
+    // Call debounced callback when debounced value changes
+    React.useEffect(() => {
+        if (onDebouncedChange && debounceMs > 0) {
+            onDebouncedChange(debouncedValue);
+        }
+    }, [debouncedValue, onDebouncedChange, debounceMs]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange(e.target.value);

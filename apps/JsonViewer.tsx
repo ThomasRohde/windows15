@@ -76,7 +76,7 @@ const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level }) => {
                         <JsonNode
                             key={idx}
                             data={value}
-                            keyName={type === 'object' ? entryKey : undefined}
+                            keyName={type === 'object' ? (entryKey as string) : undefined}
                             level={level + 1}
                         />
                     ))}

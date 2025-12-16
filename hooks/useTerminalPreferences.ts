@@ -133,7 +133,7 @@ export const useTerminalPreferences = () => {
         [db]
     );
 
-    const currentTheme: TerminalTheme = TERMINAL_THEMES[preferences.theme] || TERMINAL_THEMES.classic;
+    const currentTheme: TerminalTheme = TERMINAL_THEMES[preferences.theme] ?? TERMINAL_THEMES.classic!;
 
     return {
         preferences,

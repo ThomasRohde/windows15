@@ -99,11 +99,12 @@ export const FileExplorer = () => {
             return;
         }
 
-        // Handle link type files
+        // Handle link type files - use stored linkType instead of re-analyzing
         if (target.type === 'link' && target.url) {
-            const analysis = analyzeClipboardContent(target.url);
-            if (analysis.type === 'image-url') {
+            if (target.linkType === 'image') {
                 openWindow('imageviewer', { initialSrc: target.url });
+            } else if (target.linkType === 'youtube') {
+                openWindow('youtubeplayer', { initialUrl: target.url });
             } else {
                 openWindow('browser', { initialUrl: target.url });
             }
@@ -222,6 +223,16 @@ export const FileExplorer = () => {
                         date: new Date().toLocaleDateString(),
                     };
                     break;
+                case 'youtube-url':
+                    newFile = {
+                        id: `link-${Date.now()}`,
+                        name: analysis.suggestedFileName,
+                        type: 'link',
+                        url: analysis.content,
+                        linkType: 'youtube',
+                        date: new Date().toLocaleDateString(),
+                    };
+                    break;
                 case 'web-url':
                     newFile = {
                         id: `link-${Date.now()}`,
@@ -259,6 +270,8 @@ export const FileExplorer = () => {
             // Optionally open the file immediately for URLs
             if (analysis.type === 'image-url') {
                 openWindow('imageviewer', { initialSrc: analysis.content });
+            } else if (analysis.type === 'youtube-url') {
+                openWindow('youtubeplayer', { initialUrl: analysis.content });
             } else if (['video-url', 'audio-url', 'web-url'].includes(analysis.type)) {
                 openWindow('browser', { initialUrl: analysis.content });
             }
@@ -437,7 +450,9 @@ export const FileExplorer = () => {
                                                       ? 'text-red-400'
                                                       : item.linkType === 'audio'
                                                         ? 'text-purple-400'
-                                                        : 'text-cyan-400'
+                                                        : item.linkType === 'youtube'
+                                                          ? 'text-red-500'
+                                                          : 'text-cyan-400'
                                             }`}
                                         >
                                             {item.linkType === 'image'
@@ -446,7 +461,9 @@ export const FileExplorer = () => {
                                                   ? 'movie'
                                                   : item.linkType === 'audio'
                                                     ? 'music_note'
-                                                    : 'link'}
+                                                    : item.linkType === 'youtube'
+                                                      ? 'smart_display'
+                                                      : 'link'}
                                         </span>
                                     ) : (
                                         <span

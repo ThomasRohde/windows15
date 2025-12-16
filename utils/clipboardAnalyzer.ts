@@ -157,6 +157,38 @@ function isYoutubeUrl(url: string): boolean {
 }
 
 /**
+ * Extract video ID from a YouTube URL
+ */
+function extractYoutubeVideoId(url: string): string | null {
+    try {
+        const parsed = new URL(url);
+        const hostname = parsed.hostname.toLowerCase();
+
+        if (hostname.includes('youtube.com')) {
+            // /watch?v=VIDEO_ID
+            if (parsed.searchParams.has('v')) {
+                return parsed.searchParams.get('v');
+            }
+            // /shorts/VIDEO_ID
+            const shortsMatch = parsed.pathname.match(/^\/shorts\/([a-zA-Z0-9_-]+)/);
+            if (shortsMatch) return shortsMatch[1] ?? null;
+            // /embed/VIDEO_ID
+            const embedMatch = parsed.pathname.match(/^\/embed\/([a-zA-Z0-9_-]+)/);
+            if (embedMatch) return embedMatch[1] ?? null;
+        }
+
+        // youtu.be/VIDEO_ID
+        if (hostname === 'youtu.be') {
+            return parsed.pathname.slice(1).split('?')[0] || null;
+        }
+
+        return null;
+    } catch {
+        return null;
+    }
+}
+
+/**
  * Check if text is valid JSON
  */
 function isValidJson(text: string): boolean {
@@ -250,10 +282,11 @@ export function analyzeClipboardContent(text: string): ClipboardAnalysis {
 
         // Check for YouTube URLs
         if (isYoutubeUrl(trimmed)) {
+            const videoId = extractYoutubeVideoId(trimmed);
             return {
                 type: 'youtube-url',
                 content: trimmed,
-                suggestedFileName: generateFileNameFromUrl(trimmed) + '.link',
+                suggestedFileName: videoId ? `youtube-${videoId}.link` : 'youtube-video.link',
                 suggestedAppId: 'youtubeplayer',
             };
         }

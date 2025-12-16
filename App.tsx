@@ -23,7 +23,7 @@ import { APP_REGISTRY } from './apps';
 import { useHotkeys, useContextMenu, useNotification } from './hooks';
 import { ensureArray } from './utils';
 import { readTextFromClipboard } from './utils/clipboard';
-import { analyzeClipboardContent } from './utils/clipboardAnalyzer';
+import { analyzeClipboardContent, fetchYoutubeVideoTitle } from './utils/clipboardAnalyzer';
 import { getFiles, saveFiles, addFileToFolder } from './utils/fileSystem';
 import { FileSystemItem } from './types';
 
@@ -287,16 +287,22 @@ const Desktop = () => {
                         date: new Date().toLocaleDateString(),
                     };
                     break;
-                case 'youtube-url':
+                case 'youtube-url': {
+                    // Try to fetch the actual video title from YouTube
+                    const videoTitle = await fetchYoutubeVideoTitle(analysis.content);
+                    const fileName = videoTitle
+                        ? `${videoTitle.substring(0, 50).replace(/[<>:"/\\|?*]/g, '')}.link`
+                        : analysis.suggestedFileName;
                     newFile = {
                         id: `link-${Date.now()}`,
-                        name: analysis.suggestedFileName,
+                        name: fileName,
                         type: 'link',
                         url: analysis.content,
                         linkType: 'youtube',
                         date: new Date().toLocaleDateString(),
                     };
                     break;
+                }
                 case 'web-url':
                     newFile = {
                         id: `link-${Date.now()}`,

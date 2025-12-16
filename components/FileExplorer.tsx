@@ -6,7 +6,7 @@ import { SkeletonFileSidebar, SkeletonFileGrid } from './LoadingSkeleton';
 import { ContextMenu } from './ContextMenu';
 import { useContextMenu, useNotification } from '../hooks';
 import { readTextFromClipboard } from '../utils/clipboard';
-import { analyzeClipboardContent } from '../utils/clipboardAnalyzer';
+import { analyzeClipboardContent, fetchYoutubeVideoTitle } from '../utils/clipboardAnalyzer';
 import { Tooltip } from './ui';
 
 /**
@@ -223,16 +223,22 @@ export const FileExplorer = () => {
                         date: new Date().toLocaleDateString(),
                     };
                     break;
-                case 'youtube-url':
+                case 'youtube-url': {
+                    // Try to fetch the actual video title from YouTube
+                    const videoTitle = await fetchYoutubeVideoTitle(analysis.content);
+                    const fileName = videoTitle
+                        ? `${videoTitle.substring(0, 50).replace(/[<>:"/\\|?*]/g, '')}.link`
+                        : analysis.suggestedFileName;
                     newFile = {
                         id: `link-${Date.now()}`,
-                        name: analysis.suggestedFileName,
+                        name: fileName,
                         type: 'link',
                         url: analysis.content,
                         linkType: 'youtube',
                         date: new Date().toLocaleDateString(),
                     };
                     break;
+                }
                 case 'web-url':
                     newFile = {
                         id: `link-${Date.now()}`,

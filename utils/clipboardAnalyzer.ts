@@ -157,6 +157,23 @@ function isYoutubeUrl(url: string): boolean {
 }
 
 /**
+ * Fetch YouTube video title using oEmbed API (no API key required)
+ * @param url - The YouTube video URL
+ * @returns Promise with the video title, or null if it couldn't be fetched
+ */
+export async function fetchYoutubeVideoTitle(url: string): Promise<string | null> {
+    try {
+        const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
+        const response = await fetch(oembedUrl);
+        if (!response.ok) return null;
+        const data = await response.json();
+        return data.title || null;
+    } catch {
+        return null;
+    }
+}
+
+/**
  * Extract video ID from a YouTube URL
  */
 function extractYoutubeVideoId(url: string): string | null {

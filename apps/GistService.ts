@@ -52,17 +52,8 @@ export class GistService {
             // Requirement: "Multiple file gists shows as a folder"
             // So single file gist = file.
 
-            if (files.length === 1 && files[0]) {
-                const file = files[0];
-                return {
-                    ...file, // Spread the file properties
-                    // Override ID to include Gist ID but keep file-like uniqueness?
-                    // actually the file.id 'gistfile::...' is good.
-                    // But we want the top level item to be selectable.
-                    name: gist.description || file.name, // Use description if available
-                    date: gist.updated_at,
-                };
-            }
+            // Removed single-file flattening logic to ensure consistency and fix content loading issues.
+            // All Gists should be treated as folders/containers.
 
             return {
                 id: `gistfolder::${gist.id}`,

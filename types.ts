@@ -14,7 +14,7 @@ export interface FileSystemItem {
     /** Display name of the file or folder */
     name: string;
     /** Type of the item - determines icon and behavior */
-    type: 'folder' | 'image' | 'code' | 'presentation' | 'video' | 'document' | 'cloud' | 'audio' | 'shortcut';
+    type: 'folder' | 'image' | 'code' | 'presentation' | 'video' | 'document' | 'cloud' | 'audio' | 'shortcut' | 'link';
     /** Text content for document files */
     content?: string;
     /** Source URL for media files (images, videos, audio) */
@@ -37,6 +37,8 @@ export interface FileSystemItem {
     targetPath?: string[];
     /** Tailwind color class for shortcut icon */
     colorClass?: string;
+    /** URL for link placeholder files */
+    url?: string;
 }
 
 /**

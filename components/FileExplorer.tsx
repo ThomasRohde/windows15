@@ -4,7 +4,9 @@ import { FileSystemItem } from '../types';
 import { useOS } from '../context/OSContext';
 import { SkeletonFileSidebar, SkeletonFileGrid } from './LoadingSkeleton';
 import { ContextMenu } from './ContextMenu';
-import { useContextMenu } from '../hooks';
+import { useContextMenu, useNotification } from '../hooks';
+import { readTextFromClipboard } from '../utils/clipboard';
+import { analyzeClipboardContent } from '../utils/clipboardAnalyzer';
 
 export const FileExplorer = () => {
     const [currentPath, setCurrentPath] = useState<string[]>(['root']);
@@ -14,6 +16,7 @@ export const FileExplorer = () => {
     const [newFolderName, setNewFolderName] = useState('');
     const [showNewFolderInput, setShowNewFolderInput] = useState(false);
     const { openWindow } = useOS();
+    const notify = useNotification();
 
     const {
         menu: contextMenu,
@@ -96,6 +99,17 @@ export const FileExplorer = () => {
             return;
         }
 
+        // Handle link type files
+        if (target.type === 'link' && target.url) {
+            const analysis = analyzeClipboardContent(target.url);
+            if (analysis.type === 'image-url') {
+                openWindow('imageviewer', { initialSrc: target.url });
+            } else {
+                openWindow('browser', { initialUrl: target.url });
+            }
+            return;
+        }
+
         if (target.type === 'document' && target.name.endsWith('.txt')) {
             openWindow('notepad', { initialContent: target.content });
         } else if (target.type === 'image') {
@@ -165,6 +179,69 @@ export const FileExplorer = () => {
         await moveToRecycleBin(item.id);
         closeContextMenu();
     };
+
+    const handlePaste = useCallback(async () => {
+        try {
+            const text = await readTextFromClipboard();
+            if (!text) {
+                notify.warning('Clipboard is empty');
+                return;
+            }
+
+            const analysis = analyzeClipboardContent(text);
+            let newFile: FileSystemItem;
+
+            switch (analysis.type) {
+                case 'image-url':
+                case 'video-url':
+                case 'audio-url':
+                case 'web-url':
+                    newFile = {
+                        id: `link-${Date.now()}`,
+                        name: analysis.suggestedFileName,
+                        type: 'link',
+                        url: analysis.content,
+                        date: new Date().toLocaleDateString(),
+                    };
+                    break;
+                case 'json':
+                    newFile = {
+                        id: `doc-${Date.now()}`,
+                        name: analysis.suggestedFileName,
+                        type: 'document',
+                        content: analysis.content,
+                        date: new Date().toLocaleDateString(),
+                    };
+                    break;
+                case 'plain-text':
+                default:
+                    newFile = {
+                        id: `doc-${Date.now()}`,
+                        name: analysis.suggestedFileName,
+                        type: 'document',
+                        content: analysis.content,
+                        date: new Date().toLocaleDateString(),
+                    };
+                    break;
+            }
+
+            const updatedFiles = addChildToFolder(files, currentPath, newFile);
+            await saveFiles(updatedFiles);
+
+            // Optionally open the file immediately for URLs
+            if (analysis.type === 'image-url') {
+                openWindow('imageviewer', { initialSrc: analysis.content });
+            } else if (['video-url', 'audio-url', 'web-url'].includes(analysis.type)) {
+                openWindow('browser', { initialUrl: analysis.content });
+            }
+
+            notify.success(`Pasted: ${newFile.name}`);
+        } catch (error) {
+            console.error('Paste error:', error);
+            notify.error('Failed to paste from clipboard');
+        }
+        closeContextMenu();
+    }, [files, currentPath, notify, openWindow, closeContextMenu]);
 
     if (loading) {
         return (
@@ -323,6 +400,10 @@ export const FileExplorer = () => {
                                             className="w-16 h-12 bg-cover bg-center rounded border border-white/20"
                                             style={{ backgroundImage: `url(${item.src})` }}
                                         ></div>
+                                    ) : item.type === 'link' ? (
+                                        <span className="material-symbols-outlined text-5xl text-cyan-400 drop-shadow-lg">
+                                            link
+                                        </span>
                                     ) : (
                                         <span
                                             className={`material-symbols-outlined text-5xl drop-shadow-lg
@@ -379,6 +460,10 @@ export const FileExplorer = () => {
                         </>
                     ) : (
                         <>
+                            <ContextMenu.Item icon="content_paste" onClick={handlePaste}>
+                                Paste
+                            </ContextMenu.Item>
+                            <ContextMenu.Separator />
                             <ContextMenu.Item
                                 icon="create_new_folder"
                                 onClick={() => {

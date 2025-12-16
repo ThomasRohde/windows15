@@ -385,7 +385,11 @@ export const deleteFile = async (id: string): Promise<void> => {
     dispatchSyncEvent(STORE_FILES, id);
 };
 
-const addFileToFolder = (files: FileSystemItem[], folderId: string, newFile: FileSystemItem): FileSystemItem[] => {
+export const addFileToFolder = (
+    files: FileSystemItem[],
+    folderId: string,
+    newFile: FileSystemItem
+): FileSystemItem[] => {
     return files.map(file => {
         if (file.id === folderId && file.children) {
             return {

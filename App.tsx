@@ -22,6 +22,10 @@ import { DesktopIconRecord } from './utils/storage/db';
 import { APP_REGISTRY } from './apps';
 import { useHotkeys, useContextMenu, useNotification } from './hooks';
 import { ensureArray } from './utils';
+import { readTextFromClipboard } from './utils/clipboard';
+import { analyzeClipboardContent } from './utils/clipboardAnalyzer';
+import { getFiles, saveFiles, addFileToFolder } from './utils/fileSystem';
+import { FileSystemItem } from './types';
 
 const Desktop = () => {
     const {
@@ -240,6 +244,72 @@ const Desktop = () => {
         closeDesktopMenu();
     }, [openWindow, closeDesktopMenu]);
 
+    // Desktop paste handler - creates files in desktop folder
+    const handleDesktopPaste = useCallback(async () => {
+        try {
+            const text = await readTextFromClipboard();
+            if (!text) {
+                notify.warning('Clipboard is empty');
+                return;
+            }
+
+            const analysis = analyzeClipboardContent(text);
+            let newFile: FileSystemItem;
+
+            switch (analysis.type) {
+                case 'image-url':
+                case 'video-url':
+                case 'audio-url':
+                case 'web-url':
+                    newFile = {
+                        id: `link-${Date.now()}`,
+                        name: analysis.suggestedFileName,
+                        type: 'link',
+                        url: analysis.content,
+                        date: new Date().toLocaleDateString(),
+                    };
+                    break;
+                case 'json':
+                    newFile = {
+                        id: `doc-${Date.now()}`,
+                        name: analysis.suggestedFileName,
+                        type: 'document',
+                        content: analysis.content,
+                        date: new Date().toLocaleDateString(),
+                    };
+                    break;
+                case 'plain-text':
+                default:
+                    newFile = {
+                        id: `doc-${Date.now()}`,
+                        name: analysis.suggestedFileName,
+                        type: 'document',
+                        content: analysis.content,
+                        date: new Date().toLocaleDateString(),
+                    };
+                    break;
+            }
+
+            // Add file to desktop folder in file system
+            const files = await getFiles();
+            const updatedFiles = addFileToFolder(files, 'desktop', newFile);
+            await saveFiles(updatedFiles);
+
+            // Open the appropriate app for URLs
+            if (analysis.type === 'image-url') {
+                openWindow('imageviewer', { initialSrc: analysis.content });
+            } else if (['video-url', 'audio-url', 'web-url'].includes(analysis.type)) {
+                openWindow('browser', { initialUrl: analysis.content });
+            }
+
+            notify.success(`Pasted: ${newFile.name}`);
+        } catch (error) {
+            console.error('Desktop paste error:', error);
+            notify.error('Failed to paste from clipboard');
+        }
+        closeDesktopMenu();
+    }, [notify, openWindow, closeDesktopMenu]);
+
     const handleOverviewSelect = useCallback(
         (windowId: string) => {
             focusWindow(windowId);
@@ -268,6 +338,12 @@ const Desktop = () => {
         // Overview mode (F095)
         'ctrl+tab': () => openOverview(),
         'alt+space': () => openOverview(),
+        // Desktop paste (when no window focused)
+        'ctrl+v': () => {
+            if (!focusedWindow) {
+                void handleDesktopPaste();
+            }
+        },
     });
 
     // CSS perspective for 3D mode
@@ -338,6 +414,9 @@ const Desktop = () => {
             {/* Desktop Background Context Menu */}
             {desktopMenu && (
                 <ContextMenu ref={menuRef} position={desktopMenu.position} onClose={closeDesktopMenu} {...menuProps}>
+                    <ContextMenu.Item icon="content_paste" onClick={handleDesktopPaste}>
+                        Paste
+                    </ContextMenu.Item>
                     <ContextMenu.Item icon="refresh" onClick={handleRefreshDesktop}>
                         Refresh
                     </ContextMenu.Item>

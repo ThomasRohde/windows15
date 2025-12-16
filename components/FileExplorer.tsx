@@ -503,7 +503,7 @@ export const FileExplorer = () => {
                                                       : 'draft'}
                                             </span>
                                         )}
-                                        <span className="text-xs text-white/80 text-center font-medium truncate w-full px-1">
+                                        <span className="text-xs text-white/80 text-center font-medium line-clamp-2 w-full px-1 break-words">
                                             {item.name}
                                         </span>
                                     </div>

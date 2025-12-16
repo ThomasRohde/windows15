@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState, useMemo } from 'react';
+import React, { useRef, useCallback, useState, useMemo, useEffect } from 'react';
 import { useOS } from '../context/OSContext';
 import { useStartMenu } from '../context/StartMenuContext';
 import { useUserProfile } from '../context/UserProfileContext';
@@ -14,6 +14,13 @@ export const StartMenu = () => {
     const menuRef = useRef<HTMLDivElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const [searchQuery, setSearchQuery] = useState('');
+
+    // Focus search input when start menu opens
+    useEffect(() => {
+        if (isStartMenuOpen && searchInputRef.current) {
+            searchInputRef.current.focus();
+        }
+    }, [isStartMenuOpen]);
 
     const {
         menu: contextMenu,

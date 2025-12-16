@@ -265,6 +265,15 @@ export const APP_REGISTRY: AppConfig[] = [
         defaultWidth: 900,
         defaultHeight: 600,
     },
+    {
+        id: 'gistexplorer',
+        title: 'Gist Explorer',
+        icon: 'code_blocks',
+        color: 'bg-slate-600',
+        component: React.lazy(() => import('./GistExplorer').then(m => ({ default: m.GistExplorer }))),
+        defaultWidth: 900,
+        defaultHeight: 600,
+    },
 ];
 
 /**

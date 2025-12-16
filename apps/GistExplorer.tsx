@@ -3,6 +3,10 @@ import { AppContainer } from '../components/ui/AppContainer';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { Tooltip } from '../components/ui/Tooltip';
 import { GistService } from './GistService';
+import { ContextMenu } from '../components/ContextMenu';
+import { useContextMenu } from '../hooks/useContextMenu';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { InputDialog } from '../components/ui/InputDialog';
 import { getFiles, saveFiles, subscribeToFileSystem, STORE_NAMES } from '../utils/fileSystem';
 import { FileSystemItem } from '../types';
 import { useOS } from '../context/OSContext';
@@ -14,7 +18,28 @@ export const GistExplorer = () => {
     const [items, setItems] = useState<FileSystemItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPath, setCurrentPath] = useState<string[]>([GIST_ROOT_ID]);
+
+    // Dialog State
+    const [confirmDialog, setConfirmDialog] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+    }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+
+    const [inputDialog, setInputDialog] = useState<{
+        isOpen: boolean;
+        title: string;
+        description?: string;
+        label?: string;
+        defaultValue?: string;
+        placeholder?: string;
+        isTextArea?: boolean;
+        onConfirm: (value: string) => void;
+    }>({ isOpen: false, title: '', onConfirm: () => {} });
+
     const { openWindow } = useOS();
+    const { menu, open, close, menuProps, menuRef } = useContextMenu<{ item?: FileSystemItem }>();
 
     const loadGistsFromCache = useCallback(async () => {
         const allFiles = await getFiles();
@@ -36,13 +61,53 @@ export const GistExplorer = () => {
         setItems(currentFolder?.children || []);
     }, [currentPath]);
 
+    const refreshGists = useCallback(async () => {
+        setLoading(true);
+        try {
+            const service = GistService.getInstance();
+            if (!service.isInitialized()) return;
+
+            const gists = await service.fetchGists();
+
+            // Create the disconnected tree
+            const gistRoot: FileSystemItem = {
+                id: GIST_ROOT_ID,
+                name: 'Gist Root',
+                type: 'folder',
+                children: gists,
+                // Ensure it's not deleted
+                deletedAt: undefined,
+            };
+
+            // We need to save this to IDB without overwriting existing non-gist files.
+            // getFiles() -> filter out old gist stuff -> add new gist root -> save.
+            const allFiles = await getFiles();
+            const nonGistFiles = allFiles.filter(f => !f.id.startsWith('gist'));
+
+            // Note: If we use "disconnected tree" approach where children are nested in the object,
+            // we just need to save the root object.
+            // BUT, `saveFiles` (plural) expects a flat list of ALL files if we use `store.clear()` approach
+            // inside `saveFiles`.
+            // WAIT! `fileSystem.ts`: `saveFiles` DOES generic `store.clear()` then `store.put`.
+            // So we MUST strictly preserve all other files.
+
+            const newAllFiles = [...nonGistFiles, gistRoot];
+            await saveFiles(newAllFiles);
+        } catch (error) {
+            console.error('Failed to fetch gists', error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     // Initialize/Update Service when PAT changes
     useEffect(() => {
         if (pat) {
             GistService.getInstance().initialize({ pat });
-            loadGistsFromCache();
+            // Refresh gists from GitHub immediately when PAT is available
+            refreshGists();
         }
-    }, [pat, loadGistsFromCache]);
+    }, [pat, refreshGists]);
 
     // Subscribe to file system changes for Syncing
     useEffect(() => {
@@ -103,44 +168,7 @@ export const GistExplorer = () => {
         return unsubscribe;
     }, [loadGistsFromCache]);
 
-    const refreshGists = async () => {
-        setLoading(true);
-        try {
-            const service = GistService.getInstance();
-            if (!service.isInitialized()) return;
-
-            const gists = await service.fetchGists();
-
-            // Create the disconnected tree
-            const gistRoot: FileSystemItem = {
-                id: GIST_ROOT_ID,
-                name: 'Gist Root',
-                type: 'folder',
-                children: gists,
-                // Ensure it's not deleted
-                deletedAt: undefined,
-            };
-
-            // We need to save this to IDB without overwriting existing non-gist files.
-            // getFiles() -> filter out old gist stuff -> add new gist root -> save.
-            const allFiles = await getFiles();
-            const nonGistFiles = allFiles.filter(f => !f.id.startsWith('gist'));
-
-            // Note: If we use "disconnected tree" approach where children are nested in the object,
-            // we just need to save the root object.
-            // BUT, `saveFiles` (plural) expects a flat list of ALL files if we use `store.clear()` approach
-            // inside `saveFiles`.
-            // WAIT! `fileSystem.ts`: `saveFiles` DOES generic `store.clear()` then `store.put`.
-            // So we MUST strictly preserve all other files.
-
-            const newAllFiles = [...nonGistFiles, gistRoot];
-            await saveFiles(newAllFiles);
-        } catch (error) {
-            console.error('Failed to fetch gists', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    // refreshGists hoisted above
 
     const handleNavigate = (folderId: string) => {
         setCurrentPath(prev => [...prev, folderId]);
@@ -263,7 +291,17 @@ export const GistExplorer = () => {
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-4">
+                <div
+                    className="flex-1 overflow-y-auto p-4"
+                    onContextMenu={e => {
+                        // Background context menu
+                        // Only prevent default if we sort out logic, but useContextMenu does preventDefault in 'open'
+                        // Here we open menu with no item data (undefined)
+                        // But wait, if we click on an item, that bubbles up?
+                        // useContextMenu `open` stops propagation. So if item handles it, this won't fire.
+                        open(e, {});
+                    }}
+                >
                     {items.length === 0 && !loading ? (
                         <div className="flex flex-col items-center justify-center h-full text-white/30 gap-4">
                             <span className="material-symbols-outlined text-4xl">code_off</span>
@@ -275,6 +313,7 @@ export const GistExplorer = () => {
                                 <div
                                     key={item.id}
                                     onDoubleClick={() => handleOpen(item)}
+                                    onContextMenu={e => open(e, { item })}
                                     className="group flex flex-col items-center gap-2 p-2 rounded hover:bg-white/10 cursor-pointer transition-colors"
                                 >
                                     <span
@@ -296,6 +335,275 @@ export const GistExplorer = () => {
                     <span>{items.length} items</span>
                 </div>
             </div>
+            {menu && (
+                <ContextMenu ref={menuRef} position={menu.position} onClose={close} {...menuProps}>
+                    {/* New Gist - Only at Root */}
+                    {currentPath.length === 1 && (
+                        <>
+                            <ContextMenu.Item
+                                icon="create_new_folder"
+                                onClick={() => {
+                                    close();
+                                    setInputDialog({
+                                        isOpen: true,
+                                        title: 'New Gist',
+                                        description: 'Create a new Gist (Folder)',
+                                        label: 'Description / Name',
+                                        placeholder: 'My Helpful Gist',
+                                        onConfirm: description => {
+                                            if (!description) return;
+
+                                            // Chained input for filename
+                                            setTimeout(() => {
+                                                setInputDialog({
+                                                    isOpen: true,
+                                                    title: 'New Gist File',
+                                                    description: 'Initial file for ' + description,
+                                                    label: 'Filename',
+                                                    defaultValue: 'README.md',
+                                                    onConfirm: filename => {
+                                                        if (!filename) return;
+
+                                                        // Chained input for content
+                                                        setTimeout(() => {
+                                                            setInputDialog({
+                                                                isOpen: true,
+                                                                title: 'File Content',
+                                                                label: 'Content',
+                                                                isTextArea: true,
+                                                                defaultValue: '# ' + description,
+                                                                onConfirm: async content => {
+                                                                    setInputDialog(prev => ({
+                                                                        ...prev,
+                                                                        isOpen: false,
+                                                                    }));
+                                                                    try {
+                                                                        setLoading(true);
+                                                                        await GistService.getInstance().createGist(
+                                                                            description,
+                                                                            filename,
+                                                                            content
+                                                                        );
+                                                                        await refreshGists();
+                                                                    } catch (e) {
+                                                                        console.error('Failed to create gist', e);
+                                                                        setConfirmDialog({
+                                                                            isOpen: true,
+                                                                            title: 'Error',
+                                                                            message: 'Failed to create gist',
+                                                                            onConfirm: () =>
+                                                                                setConfirmDialog(prev => ({
+                                                                                    ...prev,
+                                                                                    isOpen: false,
+                                                                                })),
+                                                                        });
+                                                                    } finally {
+                                                                        setLoading(false);
+                                                                    }
+                                                                },
+                                                            });
+                                                        }, 50);
+                                                    },
+                                                });
+                                            }, 50);
+                                        },
+                                    });
+                                }}
+                            >
+                                New Gist
+                            </ContextMenu.Item>
+                        </>
+                    )}
+
+                    {/* Rename File - Only for files, inside a gist */}
+                    {menu.data?.item && menu.data.item.type !== 'folder' && currentPath.length > 1 && (
+                        <ContextMenu.Item
+                            icon="edit"
+                            onClick={() => {
+                                close();
+                                const item = menu!.data!.item!;
+                                setInputDialog({
+                                    isOpen: true,
+                                    title: 'Rename File',
+                                    label: 'New Filename',
+                                    defaultValue: item.name,
+                                    onConfirm: async newName => {
+                                        setInputDialog(prev => ({ ...prev, isOpen: false }));
+                                        if (newName && newName !== item.name) {
+                                            try {
+                                                setLoading(true);
+                                                const parts = item.id.split('::');
+                                                if (parts.length >= 3) {
+                                                    const gistId = parts[1];
+                                                    const oldFilename = parts.slice(2).join('::');
+                                                    if (gistId && oldFilename) {
+                                                        await GistService.getInstance().renameGistFile(
+                                                            gistId,
+                                                            oldFilename,
+                                                            newName
+                                                        );
+                                                        await refreshGists();
+                                                    }
+                                                }
+                                            } catch (e) {
+                                                console.error('Failed to rename', e);
+                                            } finally {
+                                                setLoading(false);
+                                            }
+                                        }
+                                    },
+                                });
+                            }}
+                        >
+                            Rename
+                        </ContextMenu.Item>
+                    )}
+
+                    {/* Delete Gist (Folder) - Only at Root */}
+                    {menu.data?.item && menu.data.item.type === 'folder' && currentPath.length === 1 && (
+                        <ContextMenu.Item
+                            icon="delete"
+                            danger
+                            onClick={() => {
+                                close();
+                                const item = menu!.data!.item!;
+                                const gistId = item.id.split('::')[1]; // gistfolder::ID
+                                setConfirmDialog({
+                                    isOpen: true,
+                                    title: 'Delete Gist',
+                                    message: `Are you sure you want to delete "${item.name}"? This will delete all files within it.`,
+                                    onConfirm: async () => {
+                                        setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+                                        try {
+                                            setLoading(true);
+                                            // Check for undefined
+                                            if (gistId) {
+                                                await GistService.getInstance().deleteGist(gistId);
+                                                await refreshGists();
+                                            }
+                                        } catch (e) {
+                                            console.error('Failed to delete gist', e);
+                                        } finally {
+                                            setLoading(false);
+                                        }
+                                    },
+                                });
+                            }}
+                        >
+                            Delete Gist
+                        </ContextMenu.Item>
+                    )}
+
+                    {/* Delete File - Only for files, inside a gist */}
+                    {menu.data?.item && menu.data.item.type !== 'folder' && currentPath.length > 1 && (
+                        <ContextMenu.Item
+                            icon="delete"
+                            danger
+                            onClick={() => {
+                                close();
+                                const item = menu!.data!.item!;
+                                setConfirmDialog({
+                                    isOpen: true,
+                                    title: 'Delete File',
+                                    message: `Are you sure you want to delete ${item.name}? P.S. If this is the last file, the Gist will be deleted.`,
+                                    onConfirm: async () => {
+                                        setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+                                        try {
+                                            setLoading(true);
+                                            const parts = item.id.split('::');
+                                            if (parts.length >= 3) {
+                                                const gistId = parts[1];
+                                                const filename = parts.slice(2).join('::');
+
+                                                const isLastFile = items.filter(i => i.type !== 'folder').length <= 1;
+
+                                                if (isLastFile) {
+                                                    // Delete the whole gist
+                                                    if (gistId) {
+                                                        await GistService.getInstance().deleteGist(gistId);
+                                                        handleNavigateUp();
+                                                    }
+                                                } else {
+                                                    if (gistId && filename) {
+                                                        await GistService.getInstance().deleteGistFile(
+                                                            gistId,
+                                                            filename
+                                                        );
+                                                    }
+                                                }
+                                                await refreshGists();
+                                            }
+                                        } catch (e) {
+                                            console.error('Failed to delete file', e);
+                                        } finally {
+                                            setLoading(false);
+                                        }
+                                    },
+                                });
+                            }}
+                        >
+                            Delete File
+                        </ContextMenu.Item>
+                    )}
+                    {/* New File - Only inside a gist */}
+                    {currentPath.length > 1 && (
+                        <ContextMenu.Item
+                            icon="note_add"
+                            onClick={() => {
+                                close();
+                                setInputDialog({
+                                    isOpen: true,
+                                    title: 'New File',
+                                    label: 'Filename',
+                                    onConfirm: async filename => {
+                                        setInputDialog(prev => ({ ...prev, isOpen: false }));
+                                        if (filename) {
+                                            try {
+                                                setLoading(true);
+                                                const gistId = currentPath[currentPath.length - 1];
+                                                if (gistId) {
+                                                    await GistService.getInstance().createGistFile(
+                                                        gistId,
+                                                        filename,
+                                                        'New file'
+                                                    );
+                                                    await refreshGists();
+                                                }
+                                            } catch (e) {
+                                                console.error('Failed to create file', e);
+                                            } finally {
+                                                setLoading(false);
+                                            }
+                                        }
+                                    },
+                                });
+                            }}
+                        >
+                            New File
+                        </ContextMenu.Item>
+                    )}
+                </ContextMenu>
+            )}
+
+            <ConfirmDialog
+                open={confirmDialog.isOpen}
+                title={confirmDialog.title}
+                message={confirmDialog.message}
+                onConfirm={confirmDialog.onConfirm}
+                onCancel={() => setConfirmDialog(prev => ({ ...prev, isOpen: false }))}
+            />
+
+            <InputDialog
+                isOpen={inputDialog.isOpen}
+                title={inputDialog.title}
+                description={inputDialog.description}
+                label={inputDialog.label}
+                defaultValue={inputDialog.defaultValue}
+                placeholder={inputDialog.placeholder}
+                isTextArea={inputDialog.isTextArea}
+                onConfirm={inputDialog.onConfirm}
+                onCancel={() => setInputDialog(prev => ({ ...prev, isOpen: false }))}
+            />
         </AppContainer>
     );
 };

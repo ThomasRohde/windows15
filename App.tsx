@@ -25,6 +25,7 @@ import { ensureArray } from './utils';
 import { readTextFromClipboard } from './utils/clipboard';
 import { analyzeClipboardContent, fetchYoutubeVideoTitle } from './utils/clipboardAnalyzer';
 import { getFiles, saveFiles, addFileToFolder } from './utils/fileSystem';
+import { DEFAULT_ICONS } from './utils/defaults';
 import { FileSystemItem } from './types';
 
 const Desktop = () => {
@@ -70,93 +71,12 @@ const Desktop = () => {
                 console.log('[Desktop Icons] Count:', count, 'Icons loaded:', icons.length);
                 if (count === 0) {
                     console.log('[Desktop Icons] Initializing default icons...');
-                    const now = Date.now();
-                    // Dexie Cloud requires globally unique IDs - omit 'id' to let Dexie auto-generate
-                    const defaultIconsData = [
-                        {
-                            label: 'This PC',
-                            icon: 'computer',
-                            colorClass: 'text-blue-300',
-                            appId: 'explorer',
-                            position: { x: 20, y: 24 },
-                            order: 0,
-                            createdAt: now,
-                            updatedAt: now,
-                        },
-                        {
-                            label: 'Documents',
-                            icon: 'folder_open',
-                            colorClass: 'text-yellow-300',
-                            appId: 'explorer',
-                            position: { x: 20, y: 140 },
-                            order: 1,
-                            createdAt: now,
-                            updatedAt: now,
-                        },
-                        {
-                            label: 'Browser',
-                            icon: 'public',
-                            colorClass: 'text-green-300',
-                            appId: 'browser',
-                            position: { x: 20, y: 256 },
-                            order: 2,
-                            createdAt: now,
-                            updatedAt: now,
-                        },
-                        {
-                            label: 'Terminal',
-                            icon: 'terminal',
-                            colorClass: 'text-green-400',
-                            appId: 'terminal',
-                            position: { x: 20, y: 372 },
-                            order: 3,
-                            createdAt: now,
-                            updatedAt: now,
-                        },
-                        {
-                            label: 'Timer',
-                            icon: 'timer',
-                            colorClass: 'text-red-300',
-                            appId: 'timer',
-                            position: { x: 140, y: 24 },
-                            order: 4,
-                            createdAt: now,
-                            updatedAt: now,
-                        },
-                        {
-                            label: 'JSON Viewer',
-                            icon: 'data_object',
-                            colorClass: 'text-amber-300',
-                            appId: 'jsonviewer',
-                            position: { x: 140, y: 140 },
-                            order: 5,
-                            createdAt: now,
-                            updatedAt: now,
-                        },
-                        {
-                            label: 'Todo List',
-                            icon: 'checklist',
-                            colorClass: 'text-lime-300',
-                            appId: 'todolist',
-                            position: { x: 140, y: 256 },
-                            order: 6,
-                            createdAt: now,
-                            updatedAt: now,
-                        },
-                        {
-                            label: 'Recycle Bin',
-                            icon: 'delete',
-                            colorClass: 'text-gray-300',
-                            appId: 'recyclebin',
-                            position: { x: 140, y: 372 },
-                            order: 7,
-                            createdAt: now,
-                            updatedAt: now,
-                        },
-                    ];
                     // Add each icon individually to let Dexie Cloud generate unique IDs
-                    for (const iconData of defaultIconsData) {
-                        await db.desktopIcons.add(iconData as DesktopIconRecord);
+                    for (const iconData of DEFAULT_ICONS) {
+                        // Create a fresh copy with new timestamps
+                        const now = Date.now();
+                        const newIcon = { ...iconData, createdAt: now, updatedAt: now };
+                        await db.desktopIcons.add(newIcon as DesktopIconRecord);
                     }
                     console.log('[Desktop Icons] Default icons added!');
                 }
@@ -235,6 +155,64 @@ const Desktop = () => {
         notify.info('Desktop refreshed', { duration: 1500 });
         closeDesktopMenu();
     }, [notify, closeDesktopMenu]);
+
+    const handleResetIcons = useCallback(async () => {
+        try {
+            await db.transaction('rw', db.desktopIcons, async () => {
+                const allIcons = await db.desktopIcons.toArray();
+                const now = Date.now();
+
+                // 1. Restore/Reset default icons
+                for (const defaultIcon of DEFAULT_ICONS) {
+                    // Find all existing instances of this default icon
+                    const matches = allIcons.filter(
+                        i => i.label === defaultIcon.label && i.appId === defaultIcon.appId
+                    );
+
+                    if (matches.length > 1) {
+                        // DEDUPLICATION: Delete all except the first one (or oldest)
+                        // Sort by createdAt to keep the oldest
+                        matches.sort((a, b) => a.createdAt - b.createdAt);
+                        const [keep, ...remove] = matches;
+
+                        if (keep) {
+                            // Update the one we keep to default position
+                            await db.desktopIcons.update(keep.id, {
+                                ...defaultIcon,
+                                updatedAt: now,
+                            });
+                        }
+
+                        // Delete the duplicates
+                        for (const dup of remove) {
+                            if (dup) await db.desktopIcons.delete(dup.id);
+                        }
+                    } else if (matches.length === 1) {
+                        const existing = matches[0];
+                        if (existing) {
+                            // Reset existing icon to default position
+                            await db.desktopIcons.update(existing.id, {
+                                ...defaultIcon,
+                                updatedAt: now,
+                            });
+                        }
+                    } else {
+                        // Create if missing
+                        await db.desktopIcons.add({
+                            ...defaultIcon,
+                            createdAt: now,
+                            updatedAt: now,
+                        } as DesktopIconRecord);
+                    }
+                }
+            });
+            notify.success('Icons reset to default positions');
+            closeDesktopMenu();
+        } catch (error) {
+            console.error('Failed to reset icons:', error);
+            notify.error('Failed to reset icons');
+        }
+    }, [db, notify, closeDesktopMenu]);
 
     const handleOpenDisplaySettings = useCallback(() => {
         openWindow('settings');
@@ -467,6 +445,9 @@ const Desktop = () => {
                     </ContextMenu.Item>
                     <ContextMenu.Item icon="refresh" onClick={handleRefreshDesktop}>
                         Refresh
+                    </ContextMenu.Item>
+                    <ContextMenu.Item icon="restart_alt" onClick={handleResetIcons}>
+                        Reset icons
                     </ContextMenu.Item>
                     <ContextMenu.Separator />
                     <ContextMenu.Submenu icon="sort" label="Sort by">

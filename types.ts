@@ -41,6 +41,8 @@ export interface FileSystemItem {
     url?: string;
     /** Type of link content (image, video, audio, web, youtube) */
     linkType?: 'image' | 'video' | 'audio' | 'web' | 'youtube';
+    /** Whether the item (specifically for Gists) is private */
+    isPrivate?: boolean;
 }
 
 /**

@@ -66,6 +66,7 @@ export class GistService {
                     type: 'folder',
                     children: files,
                     date: gist.updated_at,
+                    isPrivate: !gist.public,
                 };
             });
     }
@@ -130,12 +131,12 @@ export class GistService {
         });
     }
 
-    public async createGist(description: string, filename: string, content: string) {
+    public async createGist(description: string, filename: string, content: string, isPublic: boolean = false) {
         if (!this.octokit) throw new Error('GistService not initialized');
 
         await this.octokit.gists.create({
             description,
-            public: false, // Default to secret for safety
+            public: isPublic,
             files: {
                 [filename]: {
                     content,

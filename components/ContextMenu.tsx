@@ -50,6 +50,8 @@ export interface ContextMenuItemProps {
     shortcut?: string;
     /** Additional class names */
     className?: string;
+    /** Custom class for the icon */
+    iconClassName?: string;
 }
 
 export interface ContextMenuSubmenuProps {
@@ -137,6 +139,7 @@ const ContextMenuItem = ({
     children,
     shortcut,
     className = '',
+    iconClassName,
 }: ContextMenuItemProps) => {
     const baseStyles = `
         w-full px-3 py-2 text-sm
@@ -161,7 +164,7 @@ const ContextMenuItem = ({
         >
             {icon && (
                 <span
-                    className={`material-symbols-outlined text-lg ${danger ? 'text-red-400' : 'text-white/60'}`}
+                    className={`material-symbols-outlined text-lg ${danger ? 'text-red-400' : iconClassName || 'text-white/60'}`}
                     aria-hidden="true"
                 >
                     {icon}

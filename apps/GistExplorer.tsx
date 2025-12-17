@@ -317,7 +317,7 @@ export const GistExplorer = () => {
                                     className="group flex flex-col items-center gap-2 p-2 rounded hover:bg-white/10 cursor-pointer transition-colors"
                                 >
                                     <span
-                                        className={`material-symbols-outlined text-4xl drop-shadow-lg ${item.type === 'folder' ? 'text-yellow-400' : 'text-blue-400'}`}
+                                        className={`material-symbols-outlined text-4xl drop-shadow-lg ${item.type === 'folder' ? (item.isPrivate ? 'text-red-500' : 'text-yellow-400') : 'text-blue-400'}`}
                                     >
                                         {item.type === 'folder' ? 'folder' : 'description'}
                                     </span>
@@ -341,13 +341,13 @@ export const GistExplorer = () => {
                     {currentPath.length === 1 && (
                         <>
                             <ContextMenu.Item
-                                icon="create_new_folder"
+                                icon="folder_open"
                                 onClick={() => {
                                     close();
                                     setInputDialog({
                                         isOpen: true,
-                                        title: 'New Gist',
-                                        description: 'Create a new Gist (Folder)',
+                                        title: 'New Public Gist',
+                                        description: 'Create a new Public Gist (Folder)',
                                         label: 'Description / Name',
                                         placeholder: 'My Helpful Gist',
                                         onConfirm: description => {
@@ -382,7 +382,8 @@ export const GistExplorer = () => {
                                                                         await GistService.getInstance().createGist(
                                                                             description,
                                                                             filename,
-                                                                            content
+                                                                            content,
+                                                                            true // isPublic
                                                                         );
                                                                         await refreshGists();
                                                                     } catch (e) {
@@ -410,7 +411,81 @@ export const GistExplorer = () => {
                                     });
                                 }}
                             >
-                                New Gist
+                                New Public Gist
+                            </ContextMenu.Item>
+                            <ContextMenu.Item
+                                icon="folder"
+                                iconClassName="text-red-500"
+                                onClick={() => {
+                                    close();
+                                    setInputDialog({
+                                        isOpen: true,
+                                        title: 'New Private Gist',
+                                        description: 'Create a new Secret Gist (Folder)',
+                                        label: 'Description / Name',
+                                        placeholder: 'My Secret Gist',
+                                        onConfirm: description => {
+                                            if (!description) return;
+
+                                            // Chained input for filename
+                                            setTimeout(() => {
+                                                setInputDialog({
+                                                    isOpen: true,
+                                                    title: 'New Gist File',
+                                                    description: 'Initial file for ' + description,
+                                                    label: 'Filename',
+                                                    defaultValue: 'secret.txt',
+                                                    onConfirm: filename => {
+                                                        if (!filename) return;
+
+                                                        // Chained input for content
+                                                        setTimeout(() => {
+                                                            setInputDialog({
+                                                                isOpen: true,
+                                                                title: 'File Content',
+                                                                label: 'Content',
+                                                                isTextArea: true,
+                                                                defaultValue: 'This is a secret',
+                                                                onConfirm: async content => {
+                                                                    setInputDialog(prev => ({
+                                                                        ...prev,
+                                                                        isOpen: false,
+                                                                    }));
+                                                                    try {
+                                                                        setLoading(true);
+                                                                        await GistService.getInstance().createGist(
+                                                                            description,
+                                                                            filename,
+                                                                            content,
+                                                                            false // isPublic (Secret)
+                                                                        );
+                                                                        await refreshGists();
+                                                                    } catch (e) {
+                                                                        console.error('Failed to create gist', e);
+                                                                        setConfirmDialog({
+                                                                            isOpen: true,
+                                                                            title: 'Error',
+                                                                            message: 'Failed to create gist',
+                                                                            onConfirm: () =>
+                                                                                setConfirmDialog(prev => ({
+                                                                                    ...prev,
+                                                                                    isOpen: false,
+                                                                                })),
+                                                                        });
+                                                                    } finally {
+                                                                        setLoading(false);
+                                                                    }
+                                                                },
+                                                            });
+                                                        }, 50);
+                                                    },
+                                                });
+                                            }, 50);
+                                        },
+                                    });
+                                }}
+                            >
+                                New Private Gist
                             </ContextMenu.Item>
                         </>
                     )}

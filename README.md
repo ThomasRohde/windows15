@@ -1,77 +1,98 @@
 <div align="center">
-  <img
-    width="1200"
-    height="475"
-    alt="Windows 15 Concept banner"
-    src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6"
-  />
+  <img src="./screenshot.png" alt="Windows 15 Concept Screenshot" width="100%" style="border-radius: 12px; box-shadow: 0 20px 60px -10px rgba(0,0,0,0.5);">
+  
+  # Windows 15 Concept
+  
+  [![CI](https://github.com/ThomasRohde/windows15/actions/workflows/ci.yml/badge.svg)](https://github.com/ThomasRohde/windows15/actions/workflows/ci.yml)
+  [![React](https://img.shields.io/badge/react-19-61dafb.svg?style=flat&logo=react)](https://react.dev)
+  [![TypeScript](https://img.shields.io/badge/typescript-5-3178c6.svg?style=flat&logo=typescript)](https://www.typescriptlang.org/)
+  [![Vite](https://img.shields.io/badge/vite-6-646cff.svg?style=flat&logo=vite)](https://vitejs.dev)
+
+**A futuristic, web-based desktop environment built with modern web technologies.**
+
+[Live Demo](https://thomasrohde.github.io/windows15/)
+
 </div>
 
-# Windows 15 Concept
+<br />
 
-[![CI](https://github.com/ThomasRohde/windows15/actions/workflows/ci.yml/badge.svg)](https://github.com/ThomasRohde/windows15/actions/workflows/ci.yml)
+## 🚀 Experience the Future Web Desktop
 
-A futuristic Windows-style desktop UI built with React + Vite: glassmorphism, draggable windows, widgets, and a handful of demo apps.
+Windows 15 is a fully functional desktop environment running entirely in your browser. It reimagines the operating system interface with glassmorphism, fluid animations, and a suite of powerful applications—all while maintaining local-first persistence.
 
-- Live demo (GitHub Pages): `https://thomasrohde.github.io/windows15/`
+## ✨ Key Features
 
-## Features
+- **🖥️ Full Desktop Environment:** Taskbar, Start Menu, System Tray, and a robust Window Manager with minimize/maximize/restore functionality.
+- **☁️ Cloud Sync & Offline First:** Built on **Dexie.js**, your data persists locally in IndexedDB. Connect your own **Dexie Cloud** database to sync seamlessly across devices.
+- **🎨 Stunning UI:** Custom-built glassmorphism design system using Tailwind CSS, featuring dark mode support and dynamic wallpapers.
+- **🖱️ Rich Interactions:** Context menus, desktop icons, drag-and-drop support, and global search.
+- **⌨️ Developer Friendly:** Includes a suite of developer tools like Terminal, IDB Explorer, and Gist Explorer.
 
-- Window manager (focus, minimize, maximize)
-- Start menu + taskbar
-- Widgets and wallpaper switching
-- Offline-first persistence (Dexie / IndexedDB)
-- Optional BYO cloud sync (Dexie Cloud)
-- Demo apps: File Explorer, Browser, Mail, Calendar, Calculator, Notepad, Settings
+## 📦 App Ecosystem
 
-## Tech Stack
+Windows 15 comes pre-loaded with a variety of applications:
 
-- React 19 + TypeScript
-- Vite
-- Dexie + Dexie Cloud (optional BYO sync)
-- Tailwind CSS (via CDN) + custom CSS
-- Material Symbols + Inter font
+### 🛠️ Developer Tools
 
-## Persistence & Sync
+- **Terminal:** Command-line interface simulation.
+- **IDB Explorer:** Inspect and manage your local IndexedDB database.
+- **Gist Explorer:** Browse, view, and manage your GitHub Gists.
+- **JSON Viewer:** Visualize and format JSON data.
+- **Hash / Base64 / QR Tools:** Essential utilities for quick conversions.
 
-- Default mode: local-only (Dexie / IndexedDB) - no setup required.
-- Optional sync mode: Settings > Sync lets you paste your own Dexie Cloud `databaseUrl` to sync `kv`, `notes`, and `bookmarks` across devices.
+### 💼 Productivity
 
-### Enable Sync (BYO Dexie Cloud)
+- **Mail, Calendar & To-Do:** Stay organized.
+- **Notepad:** A simple text editor for your thoughts.
+- **Calculator & Unit Converter:** For all your calculation needs.
 
-1. Create a Dexie Cloud database:
-    - `npx dexie-cloud create`
-2. Whitelist your app origin (copy it from Settings > Sync):
-    - `npx dexie-cloud whitelist <origin>`
-    - GitHub Pages origin is `https://thomasrohde.github.io` (no `/windows15` path).
-3. Open `dexie-cloud.json`, copy `databaseUrl`, then paste it into Settings > Sync and click Connect + Login.
+### 🎮 Media & Fun
 
-## Local Development
+- **Browser:** A browser-within-a-browser experience.
+- **Wallpaper Studio:** Customize your desktop background.
+- **YouTube Player:** Watch videos in a dedicated window.
+- **Arcade:** Play casual games.
 
-Prerequisites: Node.js 18+
+## 💻 Tech Stack
 
-```bash
-npm install
-npm run dev
-```
+- **Framework:** React 19 + TypeScript
+- **Build Tool:** Vite
+- **Styling:** Tailwind CSS + CSS Modules
+- **State/Persistence:** Dexie.js (IndexedDB) + Dexie Cloud
+- **Testing:** Vitest + Playwright
 
-## Build & Preview
+## 🏃‍♂️ Getting Started
 
-```bash
-npm run build
-npm run preview
-```
+1.  **Clone the repository**
 
-## Deploy to GitHub Pages (GitHub Actions)
+    ```bash
+    git clone https://github.com/ThomasRohde/windows15.git
+    cd windows15
+    ```
 
-This repo includes a GitHub Actions workflow (`.github/workflows/deploy-pages.yml`) that builds the Vite app and deploys `dist/` to GitHub Pages on every push to `main`/`master`.
+2.  **Install dependencies**
 
-1. In your GitHub repo: Settings > Pages > Build and deployment > Source: GitHub Actions
-2. Push to `main` or `master` (or run the workflow from the Actions tab)
-3. Your site will be available at `https://<your-username>.github.io/<your-repo>/`
+    ```bash
+    npm install
+    ```
 
-Note: The workflow sets `BASE_PATH` automatically. If you build manually for a repo page, set `BASE_PATH` to `/<repo>/`.
+3.  **Start the development server**
 
-## Notes
+    ```bash
+    npm run dev
+    ```
 
-- Dexie Cloud `databaseUrl` is stored in browser `localStorage`; auth tokens are handled internally by Dexie Cloud.
+4.  **Build for production**
+    ```bash
+    npm run build
+    ```
+
+## 🤝 Contributing
+
+Contributions are welcome! Whether it's a new app, a UI polish, or a bug fix, feel free to open a Pull Request.
+
+---
+
+<div align="center">
+  <sub>Built with ❤️ by Thomas Rohde</sub>
+</div>

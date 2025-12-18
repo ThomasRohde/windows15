@@ -85,6 +85,47 @@ export type TerminalAliasRecord = {
 // Wow Pack: Wallpapers and Arcade (F084)
 // ==========================================
 
+// ==========================================
+// Mail App (F151)
+// ==========================================
+
+export type MailFolderId = 'inbox' | 'sent' | 'drafts' | 'trash';
+
+export type EmailRecord = {
+    id: string;
+    folderId: MailFolderId;
+    from: string;
+    to: string[]; // Array of recipient emails
+    subject: string;
+    body: string;
+    date: number; // Unix timestamp
+    isRead: boolean;
+    trashedFrom?: MailFolderId; // Original folder before moving to trash
+    createdAt: number;
+    updatedAt: number;
+};
+
+export type EmailFolderRecord = {
+    id: MailFolderId;
+    name: string;
+    type: 'system' | 'custom';
+    createdAt: number;
+    updatedAt: number;
+};
+
+// ==========================================
+// App State Persistence (F152)
+// ==========================================
+
+/**
+ * Generic app state record for persisting small UI state across sessions
+ */
+export type AppStateRecord = {
+    appId: string; // Unique app identifier (e.g., 'calculator', 'weather')
+    state: string; // JSON stringified state object
+    updatedAt: number;
+};
+
 /**
  * Wallpaper manifest stored in IndexedDB
  */
@@ -147,6 +188,11 @@ export class Windows15DexieDB extends Dexie {
     $screensaverSettings!: Table<ScreensaverSettingsRecord, string>;
     $terminalSessions!: Table<TerminalSessionRecord, number>;
     $terminalAliases!: Table<TerminalAliasRecord, string>;
+    // Mail tables (cloud-synced)
+    emails!: Table<EmailRecord, string>;
+    emailFolders!: Table<EmailFolderRecord, MailFolderId>;
+    // App state (cloud-synced)
+    appState!: Table<AppStateRecord, string>;
     // Wow Pack tables (local-only, prefixed with $)
     $wallpapers!: Table<WallpaperRecord, string>;
     $wallpaperAssets!: Table<WallpaperAssetRecord, number>;
@@ -296,6 +342,47 @@ export class Windows15DexieDB extends Dexie {
                     }
                 }
             });
+
+        // Version 11: Mail app migration to Dexie (F151)
+        this.version(11).stores({
+            kv: 'key, updatedAt',
+            notes: '@id, updatedAt, createdAt',
+            bookmarks: '@id, folder, updatedAt, createdAt',
+            todos: '@id, completed, priority, dueDate, sortOrder, updatedAt, createdAt',
+            desktopIcons: '@id, order, updatedAt, createdAt',
+            $terminalHistory: '++id, executedAt',
+            $screensaverSettings: 'id, updatedAt, createdAt',
+            $terminalSessions: '++id, updatedAt, createdAt',
+            $terminalAliases: 'name, updatedAt, createdAt',
+            $wallpapers: 'id, type, installedAt, updatedAt',
+            $wallpaperAssets: '++id, wallpaperId, path, createdAt',
+            $arcadeGames: 'id, type, lastPlayedAt, createdAt, updatedAt',
+            $arcadeSaves: '++id, gameId, slot, createdAt, updatedAt',
+            // Mail tables
+            emails: '@id, folderId, date, isRead, updatedAt, createdAt',
+            emailFolders: 'id, type, updatedAt, createdAt',
+        });
+
+        // Version 12: App state persistence (F152)
+        this.version(12).stores({
+            kv: 'key, updatedAt',
+            notes: '@id, updatedAt, createdAt',
+            bookmarks: '@id, folder, updatedAt, createdAt',
+            todos: '@id, completed, priority, dueDate, sortOrder, updatedAt, createdAt',
+            desktopIcons: '@id, order, updatedAt, createdAt',
+            $terminalHistory: '++id, executedAt',
+            $screensaverSettings: 'id, updatedAt, createdAt',
+            $terminalSessions: '++id, updatedAt, createdAt',
+            $terminalAliases: 'name, updatedAt, createdAt',
+            $wallpapers: 'id, type, installedAt, updatedAt',
+            $wallpaperAssets: '++id, wallpaperId, path, createdAt',
+            $arcadeGames: 'id, type, lastPlayedAt, createdAt, updatedAt',
+            $arcadeSaves: '++id, gameId, slot, createdAt, updatedAt',
+            emails: '@id, folderId, date, isRead, updatedAt, createdAt',
+            emailFolders: 'id, type, updatedAt, createdAt',
+            // App state table
+            appState: '&appId, updatedAt',
+        });
 
         const databaseUrl = getCloudDatabaseUrl();
         if (databaseUrl) {

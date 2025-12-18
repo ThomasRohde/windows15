@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: Session Ended
+## Current Status: In Progress
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                                           | Status         |
-| ---- | ------------------------------------------------------------------------------------- | -------------- |
-| F149 | Integrate useSound hook into RecycleBin, Calculator, Timer, TodoList, and Notepad     | ⏳ Not started |
-| F150 | Integrate dynamic window titles in Notepad, Mail, TodoList, ImageViewer, and Terminal | ⏳ Not started |
-| F151 | Migrate Mail app from localStorage to DbContext with emails and folders tables        | ⏳ Not started |
+| ID   | Description                                                                                                                                | Status         |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------ | -------------- |
+| F171 | Add localization to utility apps: Base64Tool, HashGenerator, JsonViewer, PasswordGenerator, QrGenerator, UnitConverter, WordCounter, Timer | 🚫 Blocked     |
+| F172 | Add localization to core apps: Browser, Calculator, ColorPicker, ImageViewer, Mail, Notepad, RecycleBin, Settings, Arcade                  | 🚫 Blocked     |
+| F153 | Add state persistence to utility apps using useAppState hook                                                                               | ⏳ Not started |
 
 ---
 
@@ -1606,6 +1606,34 @@ klondike feature list  # List all features
 
 1. Integrate localization into apps (F171
 2. F172). Add sound integration (F149). Add dynamic window titles (F150). Continue with P2 features.
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 55 - 2025-12-18
+
+**Agent**: Coding Agent
+**Duration**: (in progress)
+**Focus**: Implement P2 features F149-F155, F171, F172 - sound integration, dynamic titles, Mail migration, useAppState, file associations, file picker, localization
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- Session started
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Continue implementation
 
 #### Technical Notes
 

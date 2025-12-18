@@ -9,6 +9,8 @@ interface FilesPanelProps {
     initialContent?: string;
     initialFileId?: string;
     initialFileName?: string;
+    /** Callback when file name or unsaved state changes */
+    onTitleChange?: (fileName: string, hasUnsaved: boolean) => void;
 }
 
 const flattenTextFiles = (items: FileSystemItem[], result: FileSystemItem[] = []): FileSystemItem[] => {
@@ -30,6 +32,7 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
     initialContent = '',
     initialFileId,
     initialFileName = 'Untitled',
+    onTitleChange,
 }) => {
     const [content, setContent] = useState(initialContent);
     const [cursorIndex, setCursorIndex] = useState(0);
@@ -53,6 +56,11 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
         setCurrentFileId(initialFileId ?? null);
         setCurrentFileName(initialFileName);
     }, [initialContent, initialFileId, initialFileName]);
+
+    // Notify parent of title changes
+    useEffect(() => {
+        onTitleChange?.(currentFileName, hasUnsavedChanges);
+    }, [currentFileName, hasUnsavedChanges, onTitleChange]);
 
     // Close menu on outside click
     useEffect(() => {

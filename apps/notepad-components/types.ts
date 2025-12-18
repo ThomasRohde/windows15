@@ -32,4 +32,6 @@ export interface NotepadProps {
     initialFileId?: string;
     /** Name of file being opened */
     initialFileName?: string;
+    /** Window ID for dynamic title updates */
+    windowId?: string;
 }

@@ -8,6 +8,7 @@ import { useContextMenu, useNotification } from '../hooks';
 import { readTextFromClipboard } from '../utils/clipboard';
 import { analyzeClipboardContent, fetchYoutubeVideoTitle } from '../utils/clipboardAnalyzer';
 import { Tooltip } from './ui';
+import { getDefaultAppForExtension, getFileExtension } from '../apps/registry';
 
 /**
  * Recursively adds a child item to a folder at the specified path
@@ -139,10 +140,25 @@ export const FileExplorer = () => {
             return;
         }
 
-        if (target.type === 'document' && target.name.endsWith('.txt')) {
-            openWindow('notepad', { initialContent: target.content });
-        } else if (target.type === 'image') {
-            window.open(target.src, '_blank');
+        // For document types, check file associations by extension
+        if (target.type === 'document') {
+            const ext = getFileExtension(target.name);
+            const defaultApp = getDefaultAppForExtension(ext);
+
+            if (defaultApp) {
+                // Pass file info to the app
+                openWindow(defaultApp.id, {
+                    initialContent: target.content,
+                    initialFileId: target.id,
+                    initialFileName: target.name,
+                });
+                return;
+            }
+        }
+
+        // For image types
+        if (target.type === 'image' && target.src) {
+            openWindow('imageviewer', { initialSrc: target.src });
         }
     };
 

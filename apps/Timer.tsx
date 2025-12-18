@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { AppContainer, TabSwitcher, Card, Button, SectionLabel, TextInput } from '../components/ui';
-import { useInterval } from '../hooks';
+import { useInterval, useSound } from '../hooks';
 import { formatDuration } from '../utils/timeFormatters';
 
 type TimerMode = 'stopwatch' | 'countdown';
@@ -11,6 +11,8 @@ export const Timer = () => {
     const [isRunning, setIsRunning] = useState(false);
     const [laps, setLaps] = useState<number[]>([]);
     const [countdownInput, setCountdownInput] = useState({ hours: 0, minutes: 5, seconds: 0 });
+    const { playSound } = useSound();
+    const hasPlayedCompleteSound = useRef(false);
 
     // Use useInterval hook with 10ms precision for smooth display
     useInterval(
@@ -19,6 +21,11 @@ export const Timer = () => {
                 if (mode === 'countdown') {
                     if (prev <= 0) {
                         setIsRunning(false);
+                        // Play completion sound when countdown reaches 0
+                        if (!hasPlayedCompleteSound.current) {
+                            playSound('complete');
+                            hasPlayedCompleteSound.current = true;
+                        }
                         return 0;
                     }
                     return prev - 10;
@@ -35,6 +42,7 @@ export const Timer = () => {
         if (mode === 'countdown' && time === 0) {
             const totalMs = (countdownInput.hours * 3600 + countdownInput.minutes * 60 + countdownInput.seconds) * 1000;
             setTime(totalMs);
+            hasPlayedCompleteSound.current = false; // Reset sound flag for new countdown
         }
         setIsRunning(true);
     };
@@ -47,6 +55,7 @@ export const Timer = () => {
         setIsRunning(false);
         setTime(0);
         setLaps([]);
+        hasPlayedCompleteSound.current = false; // Reset sound flag on reset
     };
 
     const handleLap = () => {

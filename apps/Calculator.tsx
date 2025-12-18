@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNotification, useCopyToClipboard } from '../hooks';
+import { useNotification, useCopyToClipboard, useSound } from '../hooks';
 import { AppContainer } from '../components/ui';
 
 type Operator = '+' | '-' | '*' | '/' | null;
@@ -7,6 +7,7 @@ type Operator = '+' | '-' | '*' | '/' | null;
 export const Calculator = () => {
     const notify = useNotification();
     const { copy } = useCopyToClipboard();
+    const { playSound } = useSound();
     const [display, setDisplay] = useState('0');
     const [accumulator, setAccumulator] = useState<number | null>(null);
     const [operator, setOperator] = useState<Operator>(null);
@@ -109,6 +110,7 @@ export const Calculator = () => {
         } else if (operator) {
             const result = compute(accumulator, current, operator);
             if (!Number.isFinite(result)) {
+                playSound('error');
                 setDisplay('Error');
                 setAccumulator(null);
                 setOperator(null);
@@ -132,6 +134,7 @@ export const Calculator = () => {
 
         const result = compute(accumulator, current, operator);
         if (!Number.isFinite(result)) {
+            playSound('error');
             setDisplay('Error');
             setAccumulator(null);
             setOperator(null);

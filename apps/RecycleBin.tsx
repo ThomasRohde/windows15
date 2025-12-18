@@ -9,7 +9,7 @@ import {
 } from '../utils/fileSystem';
 import { FileSystemItem } from '../types';
 import { ContextMenu } from '../components/ContextMenu';
-import { useContextMenu, useNotification } from '../hooks';
+import { useContextMenu, useNotification, useSound } from '../hooks';
 import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { Button, EmptyState } from '../components/ui';
 
@@ -18,6 +18,7 @@ export const RecycleBin = () => {
     const [loading, setLoading] = useState(true);
     const [selectedItem, setSelectedItem] = useState<FileSystemItem | null>(null);
     const notify = useNotification();
+    const { playSound } = useSound();
 
     const {
         menu: contextMenu,
@@ -66,6 +67,7 @@ export const RecycleBin = () => {
         if (!confirmed) return;
 
         await permanentlyDelete(item.id);
+        playSound('delete');
         setSelectedItem(null);
         closeContextMenu();
         notify.success(`Permanently deleted "${item.name}"`);
@@ -84,6 +86,7 @@ export const RecycleBin = () => {
         if (!confirmed) return;
 
         await emptyRecycleBin();
+        playSound('empty-trash');
         notify.success('Recycle Bin emptied');
     };
 

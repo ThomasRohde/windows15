@@ -15,6 +15,7 @@ export type {
 export { DesktopIcon } from './DesktopIcon';
 export { ErrorBoundary } from './ErrorBoundary';
 export { FileExplorer } from './FileExplorer';
+export { FilePickerModal } from './FilePickerModal';
 export { InstallButton } from './InstallButton';
 export {
     SkeletonBlock,

@@ -3,12 +3,16 @@ import { useLocalization } from '../context';
 import { useDb } from '../context/DbContext';
 import { useOS } from '../context/OSContext';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useTerminalPreferences, useContextMenu, useCopyToClipboard } from '../hooks';
+import { useTerminalPreferences, useContextMenu, useCopyToClipboard, useWindowInstance } from '../hooks';
 import { ContextMenu } from '../components/ContextMenu';
 import { TERMINAL_THEMES } from '../types/terminal';
 import { getFiles, saveFileToFolder } from '../utils/fileSystem';
 import type { FileSystemItem } from '../types';
 import { generateUuid } from '../utils/uuid';
+
+interface TerminalProps {
+    windowId?: string;
+}
 
 interface TerminalContextData {
     hasSelection: boolean;
@@ -100,10 +104,11 @@ const parsePath = (currentPath: string[], input: string): string[] => {
     return result;
 };
 
-export const Terminal = () => {
+export const Terminal: React.FC<TerminalProps> = ({ windowId }) => {
     const { formatDateLong, formatTimeLong } = useLocalization();
     const db = useDb();
     const { openWindow, apps } = useOS();
+    const { setTitle } = useWindowInstance(windowId ?? '');
     const { preferences, currentTheme, setTheme, setFontSize, setFontFamily, availableThemes, availableFonts } =
         useTerminalPreferences();
     const [input, setInput] = useState('');
@@ -296,6 +301,14 @@ export const Terminal = () => {
     const getCurrentPrompt = useCallback(() => {
         return `C:\\${currentPath.join('\\')}`;
     }, [currentPath]);
+
+    // Update window title with current directory
+    useEffect(() => {
+        if (windowId) {
+            const path = currentPath.length > 0 ? currentPath[currentPath.length - 1] : 'C:\\';
+            setTitle(`Terminal - ${path}`);
+        }
+    }, [windowId, currentPath, setTitle]);
 
     const getCommandSuggestions = useCallback((input: string): string[] => {
         const trimmed = input.trim().toLowerCase();

@@ -1,30 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { STORAGE_KEYS } from '../utils/storage';
-import { useSeededCollection } from '../hooks';
+import { useDb } from '../context/DbContext';
+import { useDexieLiveQuery } from '../utils/storage/react';
+import { useWindowInstance } from '../hooks';
 import { generateUuid } from '../utils/uuid';
 import { SearchInput, TextArea } from '../components/ui';
 import { email as emailValidator, validateValue } from '../utils/validation';
-
-type MailboxId = 'inbox' | 'sent' | 'drafts' | 'trash';
-
-type MailMessage = {
-    id: string;
-    mailbox: MailboxId;
-    from: string;
-    to: string[];
-    subject: string;
-    body: string;
-    date: string; // ISO string
-    isRead: boolean;
-    trashedFrom?: MailboxId;
-};
-
-type ComposeState = {
-    draftId?: string;
-    to: string;
-    subject: string;
-    body: string;
-};
+import type { MailFolderId, EmailRecord } from '../utils/storage/db';
 
 const USER_EMAIL = 'john.doe@windows15.local';
 
@@ -45,21 +26,22 @@ const parseRecipients = (raw: string) => {
     return recipients;
 };
 
-const formatMessageTime = (iso: string) => {
-    const date = new Date(iso);
+const formatMessageTime = (timestamp: number) => {
+    const date = new Date(timestamp);
     if (!Number.isFinite(date.getTime())) return '';
     return date.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 };
 
-const seedMessages = (): MailMessage[] => {
+// Seed data for first-time users
+const seedEmails = (): Omit<EmailRecord, 'createdAt' | 'updatedAt'>[] => {
     const now = Date.now();
-    const days = (count: number) => new Date(now - count * 24 * 60 * 60 * 1000).toISOString();
-    const hours = (count: number) => new Date(now - count * 60 * 60 * 1000).toISOString();
+    const days = (count: number) => now - count * 24 * 60 * 60 * 1000;
+    const hours = (count: number) => now - count * 60 * 60 * 1000;
 
     return [
         {
             id: generateUuid(),
-            mailbox: 'inbox',
+            folderId: 'inbox',
             from: 'Ada Lovelace <ada@analytical.engine>',
             to: [USER_EMAIL],
             subject: 'Welcome to Windows 15 Mail',
@@ -69,7 +51,7 @@ const seedMessages = (): MailMessage[] => {
         },
         {
             id: generateUuid(),
-            mailbox: 'inbox',
+            folderId: 'inbox',
             from: 'Design Team <design@contoso.com>',
             to: [USER_EMAIL],
             subject: 'Design review notes',
@@ -79,7 +61,7 @@ const seedMessages = (): MailMessage[] => {
         },
         {
             id: generateUuid(),
-            mailbox: 'sent',
+            folderId: 'sent',
             from: `John Doe <${USER_EMAIL}>`,
             to: ['alex@contoso.com'],
             subject: 'Re: Project timeline',
@@ -89,7 +71,7 @@ const seedMessages = (): MailMessage[] => {
         },
         {
             id: generateUuid(),
-            mailbox: 'drafts',
+            folderId: 'drafts',
             from: `John Doe <${USER_EMAIL}>`,
             to: ['team@contoso.com'],
             subject: 'Weekly update (draft)',
@@ -100,98 +82,156 @@ const seedMessages = (): MailMessage[] => {
     ];
 };
 
-const MAILBOX_LABELS: Record<MailboxId, string> = {
+type ComposeState = {
+    draftId?: string;
+    to: string;
+    subject: string;
+    body: string;
+};
+
+const MAILBOX_LABELS: Record<MailFolderId, string> = {
     inbox: 'Inbox',
     sent: 'Sent',
     drafts: 'Drafts',
     trash: 'Trash',
 };
 
-export const Mail = () => {
-    const { items: messages, setItems: setMessages } = useSeededCollection(STORAGE_KEYS.mailMessages, seedMessages);
+interface MailProps {
+    windowId?: string;
+}
 
-    const [activeMailbox, setActiveMailbox] = useState<MailboxId>('inbox');
+export const Mail: React.FC<MailProps> = ({ windowId }) => {
+    const db = useDb();
+    const { setTitle, setBadge } = useWindowInstance(windowId ?? '');
+
+    const [activeMailbox, setActiveMailbox] = useState<MailFolderId>('inbox');
     const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [compose, setCompose] = useState<ComposeState | null>(null);
     const [composeError, setComposeError] = useState<string | null>(null);
+    const [isSeeded, setIsSeeded] = useState(false);
+
+    // Live query for emails
+    const { value: emails = [], isLoading } = useDexieLiveQuery(
+        () => db.emails.orderBy('date').reverse().toArray(),
+        [db]
+    );
+
+    // Seed emails on first load if empty
+    useEffect(() => {
+        const seedData = async () => {
+            if (isLoading || isSeeded) return;
+
+            try {
+                const count = await db.emails.count();
+                if (count === 0) {
+                    const now = Date.now();
+                    const emailsToSeed = seedEmails().map(email => ({
+                        ...email,
+                        createdAt: now,
+                        updatedAt: now,
+                    }));
+                    await db.emails.bulkAdd(emailsToSeed);
+                }
+                setIsSeeded(true);
+            } catch (error) {
+                console.error('Failed to seed emails:', error);
+                setIsSeeded(true);
+            }
+        };
+
+        void seedData();
+    }, [db, isLoading, isSeeded]);
 
     const mailboxCounts = useMemo(() => {
-        const counts: Record<MailboxId, { total: number; unread: number }> = {
+        const counts: Record<MailFolderId, { total: number; unread: number }> = {
             inbox: { total: 0, unread: 0 },
             sent: { total: 0, unread: 0 },
             drafts: { total: 0, unread: 0 },
             trash: { total: 0, unread: 0 },
         };
 
-        for (const message of messages) {
-            const counter = counts[message.mailbox];
+        for (const email of emails) {
+            const counter = counts[email.folderId];
             counter.total += 1;
-            if (!message.isRead && message.mailbox === 'inbox') counter.unread += 1;
+            if (!email.isRead && email.folderId === 'inbox') counter.unread += 1;
         }
 
         return counts;
-    }, [messages]);
+    }, [emails]);
+
+    // Update window title and badge with unread count
+    useEffect(() => {
+        if (windowId) {
+            const unread = mailboxCounts.inbox.unread;
+            setTitle(unread > 0 ? `Mail - Inbox (${unread})` : 'Mail');
+            setBadge(unread > 0 ? unread : null);
+        }
+    }, [windowId, mailboxCounts.inbox.unread, setTitle, setBadge]);
 
     const filteredMessages = useMemo(() => {
         const query = searchQuery.trim().toLowerCase();
 
-        return messages
-            .filter(message => message.mailbox === activeMailbox)
-            .filter(message => {
+        return emails
+            .filter(email => email.folderId === activeMailbox)
+            .filter(email => {
                 if (!query) return true;
                 return (
-                    message.subject.toLowerCase().includes(query) ||
-                    message.from.toLowerCase().includes(query) ||
-                    message.to.join(',').toLowerCase().includes(query) ||
-                    message.body.toLowerCase().includes(query)
+                    email.subject.toLowerCase().includes(query) ||
+                    email.from.toLowerCase().includes(query) ||
+                    email.to.join(',').toLowerCase().includes(query) ||
+                    email.body.toLowerCase().includes(query)
                 );
-            })
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    }, [activeMailbox, messages, searchQuery]);
+            });
+    }, [activeMailbox, emails, searchQuery]);
 
     const selectedMessage = useMemo(() => {
         if (!selectedMessageId) return null;
-        return messages.find(message => message.id === selectedMessageId) ?? null;
-    }, [messages, selectedMessageId]);
+        return emails.find(email => email.id === selectedMessageId) ?? null;
+    }, [emails, selectedMessageId]);
 
     useEffect(() => {
-        if (selectedMessageId && filteredMessages.some(message => message.id === selectedMessageId)) return;
+        if (selectedMessageId && filteredMessages.some(email => email.id === selectedMessageId)) return;
         setSelectedMessageId(filteredMessages[0]?.id ?? null);
     }, [filteredMessages, selectedMessageId]);
 
-    const openMessage = (id: string) => {
+    const openMessage = async (id: string) => {
         setSelectedMessageId(id);
-        setMessages(prev => prev.map(message => (message.id === id ? { ...message, isRead: true } : message)));
+        const email = emails.find(e => e.id === id);
+        if (email && !email.isRead) {
+            await db.emails.update(id, { isRead: true, updatedAt: Date.now() });
+        }
     };
 
-    const moveToTrash = (id: string) => {
-        setMessages(prev =>
-            prev.map(message => {
-                if (message.id !== id) return message;
-                if (message.mailbox === 'trash') return message;
-                return { ...message, mailbox: 'trash', trashedFrom: message.mailbox };
-            })
-        );
+    const moveToTrash = async (id: string) => {
+        const email = emails.find(e => e.id === id);
+        if (!email || email.folderId === 'trash') return;
+
+        await db.emails.update(id, {
+            folderId: 'trash',
+            trashedFrom: email.folderId,
+            updatedAt: Date.now(),
+        });
         setSelectedMessageId(null);
     };
 
-    const restoreFromTrash = (id: string) => {
-        setMessages(prev =>
-            prev.map(message => {
-                if (message.id !== id) return message;
-                if (message.mailbox !== 'trash') return message;
-                return { ...message, mailbox: message.trashedFrom ?? 'inbox', trashedFrom: undefined };
-            })
-        );
+    const restoreFromTrash = async (id: string) => {
+        const email = emails.find(e => e.id === id);
+        if (!email || email.folderId !== 'trash') return;
+
+        await db.emails.update(id, {
+            folderId: email.trashedFrom ?? 'inbox',
+            trashedFrom: undefined,
+            updatedAt: Date.now(),
+        });
     };
 
-    const deleteForever = (id: string) => {
-        setMessages(prev => prev.filter(message => message.id !== id));
+    const deleteForever = async (id: string) => {
+        await db.emails.delete(id);
         setSelectedMessageId(null);
     };
 
-    const startCompose = (draft?: MailMessage) => {
+    const startCompose = (draft?: EmailRecord) => {
         setComposeError(null);
         if (draft) {
             setCompose({
@@ -205,9 +245,8 @@ export const Mail = () => {
         setCompose({ to: '', subject: '', body: '' });
     };
 
-    const saveDraft = () => {
+    const saveDraft = async () => {
         if (!compose) return;
-        const nowIso = new Date().toISOString();
 
         let draftRecipients: string[];
         try {
@@ -217,47 +256,43 @@ export const Mail = () => {
             return;
         }
 
-        let savedDraftId: string | undefined;
+        const now = Date.now();
 
-        setMessages(prev => {
-            if (compose.draftId) {
-                savedDraftId = compose.draftId;
-                return prev.map(message => {
-                    if (message.id !== compose.draftId) return message;
-                    return {
-                        ...message,
-                        mailbox: 'drafts',
-                        to: draftRecipients,
-                        subject: compose.subject,
-                        body: compose.body,
-                        date: nowIso,
-                    };
-                });
-            }
-
-            const newDraft: MailMessage = {
-                id: generateUuid(),
-                mailbox: 'drafts',
+        if (compose.draftId) {
+            await db.emails.update(compose.draftId, {
+                folderId: 'drafts',
+                to: draftRecipients,
+                subject: compose.subject,
+                body: compose.body,
+                date: now,
+                updatedAt: now,
+            });
+            setActiveMailbox('drafts');
+            setSelectedMessageId(compose.draftId);
+        } else {
+            const newDraftId = generateUuid();
+            await db.emails.add({
+                id: newDraftId,
+                folderId: 'drafts',
                 from: `John Doe <${USER_EMAIL}>`,
                 to: draftRecipients,
                 subject: compose.subject,
                 body: compose.body,
-                date: nowIso,
+                date: now,
                 isRead: true,
-            };
-            savedDraftId = newDraft.id;
-            return [newDraft, ...prev];
-        });
+                createdAt: now,
+                updatedAt: now,
+            });
+            setActiveMailbox('drafts');
+            setSelectedMessageId(newDraftId);
+        }
 
-        setActiveMailbox('drafts');
-        setSelectedMessageId(savedDraftId ?? null);
         setCompose(null);
     };
 
-    const sendMessage = () => {
+    const sendMessage = async () => {
         if (!compose) return;
 
-        // Validate recipient email addresses using existing emailValidator
         let recipients: string[];
         try {
             recipients = parseRecipients(compose.to);
@@ -271,45 +306,49 @@ export const Mail = () => {
             return;
         }
 
-        const nowIso = new Date().toISOString();
-        let sentId: string | undefined;
+        const now = Date.now();
 
-        setMessages(prev => {
-            if (compose.draftId) {
-                sentId = compose.draftId;
-                return prev.map(message => {
-                    if (message.id !== compose.draftId) return message;
-                    return {
-                        ...message,
-                        mailbox: 'sent',
-                        to: recipients,
-                        subject: compose.subject || '(no subject)',
-                        body: compose.body,
-                        date: nowIso,
-                        isRead: true,
-                        trashedFrom: undefined,
-                    };
-                });
-            }
-
-            const outgoing: MailMessage = {
-                id: generateUuid(),
-                mailbox: 'sent',
+        if (compose.draftId) {
+            await db.emails.update(compose.draftId, {
+                folderId: 'sent',
+                to: recipients,
+                subject: compose.subject || '(no subject)',
+                body: compose.body,
+                date: now,
+                isRead: true,
+                trashedFrom: undefined,
+                updatedAt: now,
+            });
+            setActiveMailbox('sent');
+            setSelectedMessageId(compose.draftId);
+        } else {
+            const newEmailId = generateUuid();
+            await db.emails.add({
+                id: newEmailId,
+                folderId: 'sent',
                 from: `John Doe <${USER_EMAIL}>`,
                 to: recipients,
                 subject: compose.subject || '(no subject)',
                 body: compose.body,
-                date: nowIso,
+                date: now,
                 isRead: true,
-            };
-            sentId = outgoing.id;
-            return [outgoing, ...prev];
-        });
+                createdAt: now,
+                updatedAt: now,
+            });
+            setActiveMailbox('sent');
+            setSelectedMessageId(newEmailId);
+        }
 
-        setActiveMailbox('sent');
-        setSelectedMessageId(sentId ?? null);
         setCompose(null);
     };
+
+    if (isLoading && !isSeeded) {
+        return (
+            <div className="h-full w-full bg-background-dark text-white flex items-center justify-center">
+                <div className="text-white/50">Loading...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="h-full w-full bg-background-dark text-white flex">
@@ -328,7 +367,7 @@ export const Mail = () => {
                     New mail
                 </button>
 
-                {(['inbox', 'sent', 'drafts', 'trash'] as MailboxId[]).map(mailbox => {
+                {(['inbox', 'sent', 'drafts', 'trash'] as MailFolderId[]).map(mailbox => {
                     const isActive = mailbox === activeMailbox;
                     const count = mailboxCounts[mailbox];
                     const badge = mailbox === 'inbox' ? count.unread : count.total;
@@ -380,19 +419,19 @@ export const Mail = () => {
                         {filteredMessages.length === 0 ? (
                             <div className="p-6 text-sm text-white/50">No messages found.</div>
                         ) : (
-                            filteredMessages.map(message => {
-                                const isSelected = message.id === selectedMessageId;
-                                const isUnread = !message.isRead && message.mailbox === 'inbox';
+                            filteredMessages.map(email => {
+                                const isSelected = email.id === selectedMessageId;
+                                const isUnread = !email.isRead && email.folderId === 'inbox';
                                 const preview =
-                                    message.body
+                                    email.body
                                         .split('\n')
                                         .map(line => line.trim())
                                         .find(Boolean) ?? '';
 
                                 return (
                                     <button
-                                        key={message.id}
-                                        onClick={() => openMessage(message.id)}
+                                        key={email.id}
+                                        onClick={() => void openMessage(email.id)}
                                         className={`w-full text-left px-4 py-3 border-b border-white/5 transition-colors ${isSelected ? 'bg-white/10' : 'hover:bg-white/5'}`}
                                     >
                                         <div className="flex items-start justify-between gap-3">
@@ -404,17 +443,17 @@ export const Mail = () => {
                                                     <span
                                                         className={`text-sm truncate ${isUnread ? 'font-semibold text-white' : 'text-white/80'}`}
                                                     >
-                                                        {message.subject || '(no subject)'}
+                                                        {email.subject || '(no subject)'}
                                                     </span>
                                                 </div>
                                                 <div className="mt-0.5 text-[11px] text-white/50 truncate">
-                                                    {message.mailbox === 'sent'
-                                                        ? `To: ${message.to.join(', ') || '(none)'}`
-                                                        : message.from}
+                                                    {email.folderId === 'sent'
+                                                        ? `To: ${email.to.join(', ') || '(none)'}`
+                                                        : email.from}
                                                 </div>
                                             </div>
                                             <div className="text-[10px] text-white/40 shrink-0">
-                                                {formatMessageTime(message.date)}
+                                                {formatMessageTime(email.date)}
                                             </div>
                                         </div>
                                         <div className="mt-2 text-[11px] text-white/40 truncate">{preview}</div>
@@ -430,7 +469,7 @@ export const Mail = () => {
                     <div className="h-12 shrink-0 border-b border-white/5 bg-black/20 flex items-center justify-between px-4">
                         <div className="text-sm font-medium text-white/80">{MAILBOX_LABELS[activeMailbox]}</div>
                         <div className="flex items-center gap-2">
-                            {selectedMessage?.mailbox === 'drafts' && (
+                            {selectedMessage?.folderId === 'drafts' && (
                                 <button
                                     onClick={() => startCompose(selectedMessage)}
                                     className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs text-white/90 flex items-center gap-1"
@@ -440,10 +479,10 @@ export const Mail = () => {
                                 </button>
                             )}
 
-                            {selectedMessage && selectedMessage.mailbox === 'trash' ? (
+                            {selectedMessage && selectedMessage.folderId === 'trash' ? (
                                 <>
                                     <button
-                                        onClick={() => restoreFromTrash(selectedMessage.id)}
+                                        onClick={() => void restoreFromTrash(selectedMessage.id)}
                                         className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs text-white/90 flex items-center gap-1"
                                     >
                                         <span className="material-symbols-outlined text-[16px]">
@@ -452,7 +491,7 @@ export const Mail = () => {
                                         Restore
                                     </button>
                                     <button
-                                        onClick={() => deleteForever(selectedMessage.id)}
+                                        onClick={() => void deleteForever(selectedMessage.id)}
                                         className="px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-xs text-red-100 flex items-center gap-1"
                                     >
                                         <span className="material-symbols-outlined text-[16px]">delete_forever</span>
@@ -461,7 +500,7 @@ export const Mail = () => {
                                 </>
                             ) : selectedMessage ? (
                                 <button
-                                    onClick={() => moveToTrash(selectedMessage.id)}
+                                    onClick={() => void moveToTrash(selectedMessage.id)}
                                     className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs text-white/90 flex items-center gap-1"
                                 >
                                     <span className="material-symbols-outlined text-[16px]">delete</span>
@@ -565,16 +604,16 @@ export const Mail = () => {
                         </div>
 
                         <div className="px-4 py-3 flex items-center justify-between border-t border-white/10 bg-black/20">
-                            <div className="text-[11px] text-white/50">Drafts are saved locally in your browser.</div>
+                            <div className="text-[11px] text-white/50">Emails are synced across your devices.</div>
                             <div className="flex items-center gap-2">
                                 <button
-                                    onClick={saveDraft}
+                                    onClick={() => void saveDraft()}
                                     className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs text-white/90"
                                 >
                                     Save draft
                                 </button>
                                 <button
-                                    onClick={sendMessage}
+                                    onClick={() => void sendMessage()}
                                     className="px-3 py-2 rounded-lg bg-primary hover:bg-primary/90 text-xs text-white font-medium"
                                 >
                                     Send

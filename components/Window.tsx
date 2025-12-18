@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, Suspense, memo } from 'react';
+import React, { useState, useEffect, useRef, Suspense, memo, cloneElement, isValidElement } from 'react';
 import { useOS, useWindowSpace } from '../context/OSContext';
 import { WindowState } from '../types';
 import { AppLoadingSkeleton } from './AppLoadingSkeleton';
@@ -494,7 +494,11 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
                 {/* Content */}
                 <div className="flex-1 overflow-auto relative z-40 bg-black/20">
                     <ErrorBoundary title={window.title}>
-                        <Suspense fallback={<AppLoadingSkeleton title={window.title} />}>{window.component}</Suspense>
+                        <Suspense fallback={<AppLoadingSkeleton title={window.title} />}>
+                            {isValidElement(window.component)
+                                ? cloneElement(window.component, { windowId: window.id } as Record<string, unknown>)
+                                : window.component}
+                        </Suspense>
                     </ErrorBoundary>
                 </div>
             </div>

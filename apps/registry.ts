@@ -21,6 +21,8 @@ export interface AppConfig {
     defaultWidth?: number;
     /** Default window height in pixels */
     defaultHeight?: number;
+    /** File extensions this app can open (e.g., ['.txt', '.md']) */
+    fileAssociations?: string[];
 }
 
 /**
@@ -77,6 +79,7 @@ export const APP_REGISTRY: AppConfig[] = [
         icon: 'description',
         color: 'bg-blue-300',
         component: React.lazy(() => import('./Notepad').then(m => ({ default: m.Notepad }))),
+        fileAssociations: ['.txt', '.md', '.log', '.cfg', '.ini', '.xml', '.html', '.css', '.js', '.ts'],
     },
     {
         id: 'settings',
@@ -111,6 +114,7 @@ export const APP_REGISTRY: AppConfig[] = [
         component: React.lazy(() => import('./ImageViewer').then(m => ({ default: m.ImageViewer }))),
         defaultWidth: 800,
         defaultHeight: 600,
+        fileAssociations: ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.bmp', '.ico'],
     },
     {
         id: 'timer',
@@ -156,6 +160,7 @@ export const APP_REGISTRY: AppConfig[] = [
         component: React.lazy(() => import('./JsonViewer').then(m => ({ default: m.JsonViewer }))),
         defaultWidth: 700,
         defaultHeight: 550,
+        fileAssociations: ['.json'],
     },
     {
         id: 'wordcounter',
@@ -290,4 +295,35 @@ export const APP_REGISTRY: AppConfig[] = [
  */
 export const getAppById = (id: string): AppConfig | undefined => {
     return APP_REGISTRY.find(app => app.id === id);
+};
+
+/**
+ * Get apps that can open a specific file extension
+ * @param extension - File extension including dot (e.g., '.txt')
+ * @returns Array of apps that can handle this file type
+ */
+export const getAppsForExtension = (extension: string): AppConfig[] => {
+    const ext = extension.toLowerCase();
+    return APP_REGISTRY.filter(app => app.fileAssociations?.includes(ext));
+};
+
+/**
+ * Get the default app for a file extension (first registered handler)
+ * @param extension - File extension including dot (e.g., '.txt')
+ * @returns The default app for this file type, or undefined
+ */
+export const getDefaultAppForExtension = (extension: string): AppConfig | undefined => {
+    const apps = getAppsForExtension(extension);
+    return apps[0];
+};
+
+/**
+ * Get file extension from filename
+ * @param filename - File name (e.g., 'document.txt')
+ * @returns Extension with dot (e.g., '.txt') or empty string
+ */
+export const getFileExtension = (filename: string): string => {
+    const lastDot = filename.lastIndexOf('.');
+    if (lastDot === -1 || lastDot === filename.length - 1) return '';
+    return filename.slice(lastDot).toLowerCase();
 };

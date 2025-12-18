@@ -107,7 +107,6 @@
             "years": "years"
         }
     },
-
     "arcade": {
         "title": "Arcade",
         "library": "Game Library",
@@ -128,7 +127,6 @@
         "saveFailed": "Failed to save game",
         "loadFailed": "Failed to load game"
     },
-
     "base64Tool": {
         "title": "Base64 Tool",
         "encode": "Encode",
@@ -144,7 +142,6 @@
         "fileMode": "File Mode",
         "dropFile": "Drop a file here or click to select"
     },
-
     "browser": {
         "title": "Browser",
         "addressBar": "Enter URL or search...",
@@ -166,7 +163,6 @@
         "secureConnection": "Secure connection",
         "insecureConnection": "Not secure"
     },
-
     "calculator": {
         "title": "Calculator",
         "clear": "Clear",
@@ -179,7 +175,6 @@
         "history": "History",
         "clearHistory": "Clear History"
     },
-
     "calendar": {
         "title": "Calendar",
         "today": "Today",
@@ -202,7 +197,6 @@
         "previousMonth": "Previous Month",
         "nextMonth": "Next Month"
     },
-
     "clock": {
         "title": "Clock",
         "worldClock": "World Clock",
@@ -213,7 +207,6 @@
         "localTime": "Local Time",
         "timezone": "Timezone"
     },
-
     "colorPicker": {
         "title": "Color Picker",
         "hex": "HEX",
@@ -235,7 +228,6 @@
         "value": "Value",
         "alpha": "Alpha"
     },
-
     "gistExplorer": {
         "title": "Gist Explorer",
         "myGists": "My Gists",
@@ -260,7 +252,6 @@
         "gistCreated": "Gist created",
         "gistUpdated": "Gist updated"
     },
-
     "hashGenerator": {
         "title": "Hash Generator",
         "inputText": "Input Text",
@@ -275,7 +266,6 @@
         "fileHash": "File Hash",
         "dropFile": "Drop a file to hash"
     },
-
     "idbExplorer": {
         "title": "IDB Explorer",
         "databases": "Databases",
@@ -291,7 +281,6 @@
         "keyPath": "Key Path",
         "indexes": "Indexes"
     },
-
     "imageViewer": {
         "title": "Image Viewer",
         "openImage": "Open Image",
@@ -309,7 +298,6 @@
         "dimensions": "Dimensions",
         "fileSize": "File Size"
     },
-
     "jsonViewer": {
         "title": "JSON Viewer",
         "loadJson": "Load JSON",
@@ -325,7 +313,6 @@
         "noData": "No JSON data",
         "dropFile": "Drop a JSON file here"
     },
-
     "mail": {
         "title": "Mail",
         "inbox": "Inbox",
@@ -353,7 +340,6 @@
         "messageDeleted": "Message deleted",
         "unread": "unread"
     },
-
     "notepad": {
         "title": "Notepad",
         "newNote": "New Note",
@@ -373,7 +359,6 @@
         "confirmDelete": "Delete this note?",
         "cannotUndo": "This action cannot be undone."
     },
-
     "passwordGenerator": {
         "title": "Password Generator",
         "generate": "Generate Password",
@@ -394,7 +379,6 @@
         "veryStrong": "Very Strong",
         "history": "Generated Passwords"
     },
-
     "qrGenerator": {
         "title": "QR Generator",
         "inputText": "Enter text or URL",
@@ -411,7 +395,6 @@
         "foreground": "Foreground",
         "background": "Background"
     },
-
     "recycleBin": {
         "title": "Recycle Bin",
         "empty": "Recycle Bin is empty",
@@ -429,7 +412,6 @@
         "deletedOn": "Deleted on",
         "originalLocation": "Original Location"
     },
-
     "settings": {
         "title": "Settings",
         "general": "General",
@@ -466,7 +448,6 @@
         "version": "Version",
         "buildDate": "Build Date"
     },
-
     "systemInfo": {
         "title": "System Info",
         "system": "System",
@@ -490,7 +471,6 @@
         "charging": "Charging",
         "processes": "Processes"
     },
-
     "terminal": {
         "title": "Terminal",
         "welcome": "Welcome to Windows 15 Terminal",
@@ -503,7 +483,6 @@
         "aliases": "Aliases",
         "currentDirectory": "Current Directory"
     },
-
     "thisPC": {
         "title": "This PC",
         "devices": "Devices and Drives",
@@ -521,7 +500,6 @@
         "projectInfo": "Project Information",
         "windowsVersion": "Windows 15 Version"
     },
-
     "timer": {
         "title": "Timer",
         "start": "Start",
@@ -545,7 +523,6 @@
         "setTimer": "Set Timer",
         "timerComplete": "Timer complete!"
     },
-
     "todoList": {
         "title": "Todo List",
         "addTodo": "Add Todo",
@@ -573,7 +550,6 @@
         "high": "High",
         "searchTodos": "Search todos..."
     },
-
     "unitConverter": {
         "title": "Unit Converter",
         "from": "From",
@@ -591,7 +567,6 @@
         "copyResult": "Copy Result",
         "resultCopied": "Result copied"
     },
-
     "wallpaperStudio": {
         "title": "Wallpaper Studio",
         "gallery": "Gallery",
@@ -610,7 +585,6 @@
         "shaderImported": "Shader imported",
         "invalidShader": "Invalid shader"
     },
-
     "weather": {
         "title": "Weather",
         "currentLocation": "Current Location",
@@ -631,7 +605,6 @@
         "loading": "Loading weather...",
         "lastUpdated": "Last updated"
     },
-
     "wordCounter": {
         "title": "Word Counter",
         "inputPlaceholder": "Enter or paste text here...",
@@ -645,7 +618,6 @@
         "clearText": "Clear Text",
         "copyStats": "Copy Stats"
     },
-
     "youtubePlayer": {
         "title": "YouTube Player",
         "enterUrl": "Enter YouTube URL",
@@ -658,7 +630,6 @@
         "clearRecent": "Clear Recent",
         "openInYoutube": "Open in YouTube"
     },
-
     "fileExplorer": {
         "title": "File Explorer",
         "newFolder": "New Folder",

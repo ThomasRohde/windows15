@@ -1,12 +1,14 @@
-import React, { useState, useRef } from 'react';
-import { useAsyncAction } from '../hooks';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { useAsyncAction, useWindowInstance } from '../hooks';
 import { TextInput } from '../components/ui';
 
 interface ImageViewerProps {
     initialSrc?: string;
+    windowId?: string;
 }
 
-export const ImageViewer = ({ initialSrc }: ImageViewerProps) => {
+export const ImageViewer: React.FC<ImageViewerProps> = ({ initialSrc, windowId }) => {
+    const { setTitle } = useWindowInstance(windowId ?? '');
     const [imageSrc, setImageSrc] = useState(
         initialSrc || 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1000&q=80'
     );
@@ -14,6 +16,29 @@ export const ImageViewer = ({ initialSrc }: ImageViewerProps) => {
     const [zoom, setZoom] = useState(100);
     const containerRef = useRef<HTMLDivElement>(null);
     const { execute, error: loadError } = useAsyncAction();
+
+    // Extract filename from image URL for title
+    const imageFileName = useMemo(() => {
+        try {
+            const url = new URL(imageSrc);
+            const pathname = url.pathname;
+            const filename = pathname.split('/').pop();
+            // Truncate long filenames
+            if (filename && filename.length > 40) {
+                return filename.substring(0, 37) + '...';
+            }
+            return filename || 'Image';
+        } catch {
+            return 'Image';
+        }
+    }, [imageSrc]);
+
+    // Update window title with filename
+    useEffect(() => {
+        if (windowId) {
+            setTitle(`Image Viewer - ${imageFileName}`);
+        }
+    }, [windowId, imageFileName, setTitle]);
 
     const handleZoomIn = () => {
         setZoom(prev => Math.min(prev + 25, 300));

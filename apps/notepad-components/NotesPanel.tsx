@@ -5,7 +5,7 @@ import { NotesList } from './NotesList';
 import { NoteEditor } from './NoteEditor';
 import { NoteDraft, NoteRecord } from './types';
 import { useConfirmDialog, ConfirmDialog } from '../../components/ui/ConfirmDialog';
-import { useNotification } from '../../hooks';
+import { useNotification, useSound } from '../../hooks';
 
 /**
  * NotesPanel - Cloud-synced notes view with list and editor
@@ -24,6 +24,7 @@ export const NotesPanel: React.FC = () => {
 
     const { confirm, dialogProps } = useConfirmDialog();
     const notify = useNotification();
+    const { playSound } = useSound();
 
     const selectedNote = useMemo(() => notes.find(note => note.id === selectedId) ?? null, [notes, selectedId]);
     const selectedNoteId = selectedNote?.id ?? null;
@@ -97,6 +98,7 @@ export const NotesPanel: React.FC = () => {
         });
         if (!confirmed) return;
         await db.notes.delete(id);
+        playSound('delete');
         if (selectedId === id) {
             const remaining = notes.filter(n => n.id !== id);
             setSelectedId(remaining[0]?.id ?? null);

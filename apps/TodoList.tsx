@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     DndContext,
     KeyboardSensor,
@@ -28,7 +28,7 @@ import {
     TextInput,
     Select,
 } from '../components/ui';
-import { useAsyncAction } from '../hooks';
+import { useAsyncAction, useSound, useWindowInstance } from '../hooks';
 import { required, maxLength, validateValue } from '../utils/validation';
 
 type Filter = 'all' | 'active' | 'completed';
@@ -71,8 +71,14 @@ const SortableItem = ({
     });
 };
 
-export const TodoList = () => {
+interface TodoListProps {
+    windowId?: string;
+}
+
+export const TodoList: React.FC<TodoListProps> = ({ windowId }) => {
     const db = useDb();
+    const { playSound } = useSound();
+    const { setTitle } = useWindowInstance(windowId ?? '');
     const { value: todosRaw, isLoading: loading } = useDexieLiveQuery(
         () => db.todos.orderBy('createdAt').toArray(),
         [db]
@@ -148,10 +154,16 @@ export const TodoList = () => {
                 throw new Error('Task not found');
             }
 
+            const wasCompleted = todo.completed;
             await db.todos.update(id, {
                 completed: !todo.completed,
                 updatedAt: Date.now(),
             });
+
+            // Play complete sound when marking as done
+            if (!wasCompleted) {
+                playSound('complete');
+            }
         });
     };
 
@@ -284,6 +296,13 @@ export const TodoList = () => {
 
     const activeCount = todos.filter(t => !t.completed).length;
     const completedCount = todos.length - activeCount;
+
+    // Update window title with remaining task count
+    useEffect(() => {
+        if (windowId) {
+            setTitle(activeCount > 0 ? `Todo List (${activeCount})` : 'Todo List');
+        }
+    }, [windowId, activeCount, setTitle]);
 
     const reorderEnabled = sortMode === 'manual' && filter === 'all' && !searchQuery.trim() && editingId === null;
 

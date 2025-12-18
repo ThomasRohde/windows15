@@ -8,6 +8,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { NotesPanel, FilesPanel, NotepadProps, NotepadView } from './notepad-components';
+import { useWindowInstance } from '../hooks';
 
 /**
  * Notepad application component
@@ -26,7 +27,8 @@ import { NotesPanel, FilesPanel, NotepadProps, NotepadView } from './notepad-com
  * ```
  */
 export const Notepad: React.FC<NotepadProps> = props => {
-    const { initialContent = '', initialFileId, initialFileName } = props;
+    const { initialContent = '', initialFileId, initialFileName, windowId } = props;
+    const { setTitle } = useWindowInstance(windowId ?? '');
 
     // Determine if opened from a file (vs fresh launch)
     const openedFromFile =
@@ -40,6 +42,21 @@ export const Notepad: React.FC<NotepadProps> = props => {
             setView('files');
         }
     }, [openedFromFile]);
+
+    // Callback for FilesPanel to update window title
+    const handleTitleChange = (fileName: string, hasUnsaved: boolean) => {
+        if (windowId) {
+            const title = hasUnsaved ? `Notepad - ${fileName} *` : `Notepad - ${fileName}`;
+            setTitle(title);
+        }
+    };
+
+    // Reset title when in notes view
+    useEffect(() => {
+        if (view === 'notes' && windowId) {
+            setTitle('Notepad');
+        }
+    }, [view, windowId, setTitle]);
 
     return (
         <div className="h-full flex flex-col bg-background-dark text-[#d4d4d4] relative">
@@ -73,6 +90,7 @@ export const Notepad: React.FC<NotepadProps> = props => {
                     initialContent={initialContent}
                     initialFileId={initialFileId}
                     initialFileName={initialFileName}
+                    onTitleChange={handleTitleChange}
                 />
             )}
         </div>

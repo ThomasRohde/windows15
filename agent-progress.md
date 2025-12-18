@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: In Progress
+## Current Status: Session Ended
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                                                              | Status         |
 | ---- | ---------------------------------------------------------------------------------------- | -------------- |
-| F156 | Integrate file open/save dialogs into utility apps                                       | 🔄 In progress |
 | F157 | Add notification scheduling and notification center to taskbar                           | 🚫 Blocked     |
 | F158 | Integrate scheduled notifications into Timer, Calendar, Mail, GistExplorer, and TodoList | 🚫 Blocked     |
+| F160 | Create SystemInfoContext with dynamic OS metrics                                         | ⏳ Not started |
 
 ---
 
@@ -1781,6 +1781,38 @@ klondike feature list  # List all features
 #### Recommended Next Steps
 
 1. Continue implementation
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 61 - 2025-12-18
+
+**Agent**: Coding Agent
+**Duration**: ~session
+**Focus**: Verified F156 - file dialog integration complete for all 7 utility apps (Base64Tool, HashGenerator, JsonViewer, QrGenerator, WordCounter, ColorPicker, Calendar). Build, tests, and E2E tests all pass. Project now at 94.8% completion (163/172 features).
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- None
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Priority: Unblock F157 (notification scheduling/center) which will then unblock F158. F157 requires: 1) Add schedule(time
+2. message) to useNotification
+3.  2. Integrate Web Notifications API with permission flow
+4.  3. Create notification center icon in taskbar
+5.  4. Add db.notifications table for history. Alternative: Work on P4 features (F160-F170) if notification work is out of scope.
 
 #### Technical Notes
 

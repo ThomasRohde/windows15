@@ -4307,11 +4307,21 @@
         "Calendar can import/export ICS files"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-18T10:08:15.182611",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "All 7 apps have file dialog integration: Base64Tool (open/save)",
+        "HashGenerator (open)",
+        "JsonViewer (open/save)",
+        "QrGenerator (save to Pictures)",
+        "WordCounter (open)",
+        "ColorPicker (import/export palette)",
+        "Calendar (ICS import/export). Build passes",
+        "tests pass (119 passed)",
+        "E2E tests pass (3 passed)."
+      ],
       "blockedBy": "Complex feature requiring extensive UI changes. Deferring to focus on core P3 features first.",
       "lastWorkedOn": "2025-12-18T09:47:32.669029",
       "notes": "Implementation: See AUDIT.md Phase 3.2 Apps table. Add toolbar buttons for Open/Save. Use useFilePicker hook. Edge cases: Handle unsaved changes before opening new file. Dependencies: F155 (useFilePicker hook). Gotchas: Filter file picker by relevant extensions for each app."
@@ -4735,8 +4745,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-18T09:47:23.211991",
+    "lastUpdated": "2025-12-18T10:08:15.182630",
     "totalFeatures": 172,
-    "passingFeatures": 162
+    "passingFeatures": 163
   }
 }

@@ -338,7 +338,8 @@
         "messageSent": "Message sent",
         "draftSaved": "Draft saved",
         "messageDeleted": "Message deleted",
-        "unread": "unread"
+        "unread": "unread",
+        "newMessageNotification": "You have a new message"
     },
     "notepad": {
         "title": "Notepad",

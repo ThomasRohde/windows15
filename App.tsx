@@ -16,6 +16,7 @@ import {
     LoginScreen,
     ContextMenu,
 } from './components';
+import { ClipboardHistoryViewer } from './components/ClipboardHistoryViewer';
 import {
     OSProvider,
     useOS,
@@ -24,6 +25,7 @@ import {
     useWindowSpace,
     UserProfileProvider,
     NotificationProvider,
+    useClipboard,
 } from './context';
 import { useDexieLiveQuery } from './utils/storage/react';
 import { DesktopIconRecord } from './utils/storage/db';
@@ -49,6 +51,7 @@ const Desktop = () => {
         closeStartMenu,
     } = useOS();
     const { is3DMode, settings: windowSpaceSettings, toggle3DMode } = useWindowSpace();
+    const { toggleHistory: toggleClipboardHistory } = useClipboard();
     const db = useDb();
     const notify = useNotification();
 
@@ -378,6 +381,10 @@ const Desktop = () => {
                 void handleDesktopPaste();
             }
         },
+        // Clipboard history viewer (F164)
+        'ctrl+shift+v': () => {
+            toggleClipboardHistory();
+        },
     });
 
     // CSS perspective for 3D mode
@@ -444,6 +451,7 @@ const Desktop = () => {
             <OverviewMode isOpen={isOverviewOpen} onClose={closeOverview} onSelectWindow={handleOverviewSelect} />
             <InstallButton />
             <Screensaver />
+            <ClipboardHistoryViewer />
 
             {/* Desktop Background Context Menu */}
             {desktopMenu && (

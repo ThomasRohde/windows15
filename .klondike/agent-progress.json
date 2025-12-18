@@ -976,18 +976,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F163",
-        "description": "Implement Settings Network section and Terminal network commands",
-        "status": "in-progress"
-      },
-      {
         "id": "F164",
         "description": "Create ClipboardContext with history and Ctrl+Shift+V viewer",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F168",
         "description": "Update architecture diagrams and document service dependencies",
+        "status": "not-started"
+      },
+      {
+        "id": "F170",
+        "description": "Update README.md with new feature highlights and OS Services section",
         "status": "not-started"
       }
     ]

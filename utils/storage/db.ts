@@ -197,6 +197,17 @@ export type ArcadeSaveRecord = {
     updatedAt: number;
 };
 
+/**
+ * Clipboard history item (F164)
+ */
+export type ClipboardHistoryRecord = {
+    id?: number; // Auto-incremented
+    content: string; // Text content or data URL for images
+    contentType: 'text' | 'image'; // Type of content
+    preview: string; // Truncated preview for display
+    copiedAt: number; // Timestamp when copied
+};
+
 export class Windows15DexieDB extends Dexie {
     kv!: Table<KvRecord, string>;
     notes!: Table<NoteRecord, string>;
@@ -219,6 +230,8 @@ export class Windows15DexieDB extends Dexie {
     $wallpaperAssets!: Table<WallpaperAssetRecord, number>;
     $arcadeGames!: Table<ArcadeGameRecord, string>;
     $arcadeSaves!: Table<ArcadeSaveRecord, number>;
+    // Clipboard history (F164)
+    $clipboardHistory!: Table<ClipboardHistoryRecord, number>;
 
     constructor() {
         super('windows15', { addons: [dexieCloud] });
@@ -406,7 +419,10 @@ export class Windows15DexieDB extends Dexie {
         });
 
         // Version 13: Notification center (F157)
-        this.version(13).stores({
+        this.version(13).stores({});
+
+        // Version 14: Clipboard history (F164)
+        this.version(14).stores({
             kv: 'key, updatedAt',
             notes: '@id, updatedAt, createdAt',
             bookmarks: '@id, folder, updatedAt, createdAt',
@@ -423,8 +439,9 @@ export class Windows15DexieDB extends Dexie {
             emails: '@id, folderId, date, isRead, updatedAt, createdAt',
             emailFolders: 'id, type, updatedAt, createdAt',
             appState: '&appId, updatedAt',
-            // Notification center table
             notifications: '@id, type, isRead, scheduledFor, createdAt',
+            // Clipboard history table
+            $clipboardHistory: '++id, copiedAt',
         });
 
         const databaseUrl = getCloudDatabaseUrl();

@@ -14,6 +14,7 @@ import { ScreensaverProvider } from './ScreensaverContext';
 import { WindowSpaceProvider } from './WindowSpaceContext';
 import { SystemInfoProvider } from './SystemInfoContext';
 import { NetworkProvider } from './NetworkContext';
+import { ClipboardProvider } from './ClipboardContext';
 
 /**
  * Combined interface for backward compatibility
@@ -98,9 +99,11 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                             <WindowSpaceProvider>
                                 <SystemInfoProvider>
                                     <NetworkProvider>
-                                        <WindowProvider>
-                                            <OSContextBridge>{children}</OSContextBridge>
-                                        </WindowProvider>
+                                        <ClipboardProvider>
+                                            <WindowProvider>
+                                                <OSContextBridge>{children}</OSContextBridge>
+                                            </WindowProvider>
+                                        </ClipboardProvider>
                                     </NetworkProvider>
                                 </SystemInfoProvider>
                             </WindowSpaceProvider>
@@ -122,3 +125,4 @@ export { useScreensaver } from './ScreensaverContext';
 export { useWindowSpace } from './WindowSpaceContext';
 export { useSystemInfo } from './SystemInfoContext';
 export { useNetwork } from './NetworkContext';
+export { useClipboard } from './ClipboardContext';

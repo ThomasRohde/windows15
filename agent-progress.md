@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                      | Status         |
-| ---- | ---------------------------------------------------------------- | -------------- |
-| F163 | Implement Settings Network section and Terminal network commands | 🔄 In progress |
-| F164 | Create ClipboardContext with history and Ctrl+Shift+V viewer     | ⏳ Not started |
-| F168 | Update architecture diagrams and document service dependencies   | ⏳ Not started |
+| ID   | Description                                                          | Status         |
+| ---- | -------------------------------------------------------------------- | -------------- |
+| F164 | Create ClipboardContext with history and Ctrl+Shift+V viewer         | 🔄 In progress |
+| F168 | Update architecture diagrams and document service dependencies       | ⏳ Not started |
+| F170 | Update README.md with new feature highlights and OS Services section | ⏳ Not started |
 
 ---
 

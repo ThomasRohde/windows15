@@ -625,11 +625,6 @@
       {
         "id": "F143",
         "description": "OS-level sound support with settings integration",
-        "status": "not-started"
-      },
-      {
-        "id": "F145",
-        "description": "Gist Explorer shows tooltips like File Explorer",
         "status": "in-progress"
       }
     ]

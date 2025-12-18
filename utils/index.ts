@@ -32,3 +32,7 @@ export * from './color';
 
 // UUID generation
 export { generateUuid, createId } from './uuid';
+
+// Sound service
+export { soundService } from './soundService';
+export type { SoundSettings, SystemSound } from './soundService';

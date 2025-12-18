@@ -7,6 +7,7 @@ import { LocalizationSettings } from './settings/LocalizationSettings';
 import { ScreensaverSettings } from './settings/ScreensaverSettings';
 import { WindowSpaceSettings } from './settings/WindowSpaceSettings';
 import { ProfileSettings } from './settings/ProfileSettings';
+import { SoundSettings } from './settings/SoundSettings';
 
 type SettingsSection =
     | 'account'
@@ -15,12 +16,14 @@ type SettingsSection =
     | 'sync'
     | 'network'
     | 'apps'
+    | 'sound'
     | 'screensaver'
     | '3dmode';
 
 const sidebarItems: SidebarItem<SettingsSection>[] = [
     { id: 'account', label: 'Account', icon: 'person' },
     { id: 'personalization', label: 'Personalization', icon: 'wallpaper' },
+    { id: 'sound', label: 'Sound', icon: 'volume_up' },
     { id: 'sync', label: 'Sync', icon: 'sync' },
     { id: 'localization', label: 'Time & language', icon: 'language' },
     { id: 'network', label: 'Network', icon: 'wifi' },
@@ -72,6 +75,8 @@ export const Settings = () => {
                         </section>
                     </>
                 )}
+
+                {activeSection === 'sound' && <SoundSettings />}
 
                 {activeSection === 'sync' && <SyncSettings />}
 

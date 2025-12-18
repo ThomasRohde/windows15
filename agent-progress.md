@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                                              | Status         |
-| ---- | ---------------------------------------------------------------------------------------- | -------------- |
-| F156 | Integrate file open/save dialogs into utility apps                                       | ⏳ Not started |
-| F157 | Add notification scheduling and notification center to taskbar                           | ⏳ Not started |
-| F158 | Integrate scheduled notifications into Timer, Calendar, Mail, GistExplorer, and TodoList | ⏳ Not started |
+| ID   | Description                                                                              | Status     |
+| ---- | ---------------------------------------------------------------------------------------- | ---------- |
+| F156 | Integrate file open/save dialogs into utility apps                                       | 🚫 Blocked |
+| F157 | Add notification scheduling and notification center to taskbar                           | 🚫 Blocked |
+| F158 | Integrate scheduled notifications into Timer, Calendar, Mail, GistExplorer, and TodoList | 🚫 Blocked |
 
 ---
 

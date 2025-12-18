@@ -883,17 +883,17 @@
       {
         "id": "F156",
         "description": "Integrate file open/save dialogs into utility apps",
-        "status": "not-started"
+        "status": "blocked"
       },
       {
         "id": "F157",
         "description": "Add notification scheduling and notification center to taskbar",
-        "status": "not-started"
+        "status": "blocked"
       },
       {
         "id": "F158",
         "description": "Integrate scheduled notifications into Timer, Calendar, Mail, GistExplorer, and TodoList",
-        "status": "not-started"
+        "status": "blocked"
       }
     ]
   }

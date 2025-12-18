@@ -71,6 +71,22 @@ vi.mock('../context/OSContext', () => ({
     }),
 }));
 
+// Mock WindowContext module
+vi.mock('../context/WindowContext', () => ({
+    useWindowManager: () => ({
+        windows: [],
+        openWindow: vi.fn(),
+        closeWindow: vi.fn(),
+        minimizeWindow: vi.fn(),
+        toggleMaximizeWindow: vi.fn(),
+        focusWindow: vi.fn(),
+        resizeWindow: vi.fn(),
+        updateWindowPosition: vi.fn(),
+        bringToFront: vi.fn(),
+        setWindowState: vi.fn(),
+    }),
+}));
+
 const renderTerminal = () => {
     return render(
         <DbProvider>

@@ -7,7 +7,7 @@ export const DEFAULT_ICONS: Omit<DesktopIconRecord, 'id'>[] = [
         label: 'This PC',
         icon: 'computer',
         colorClass: 'text-blue-300',
-        appId: 'explorer',
+        appId: 'thispc',
         position: { x: 20, y: 24 },
         order: 0,
         createdAt: now,

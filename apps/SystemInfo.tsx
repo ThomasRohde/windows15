@@ -15,7 +15,7 @@ export const SystemInfo = () => {
     const windowsSpecs = [
         { label: 'Edition', value: 'Windows 15 Pro' },
         { label: 'Version', value: '24H2' },
-        { label: 'Installed on', value: 'December 13, 2024' },
+        { label: 'Installed on', value: 'December 13, 2025' },
         { label: 'OS build', value: '28500.1000' },
         { label: 'Experience', value: 'Windows Feature Experience Pack 1000.28500.1000.0' },
     ];
@@ -75,7 +75,7 @@ export const SystemInfo = () => {
                         </p>
                         <div className="mt-4 pt-4 border-t border-white/10">
                             <p className="text-xs text-white/40">
-                                © 2024 Windows15 Simulation. This is a demo project and is not affiliated with Microsoft
+                                © 2025 Windows15 Simulation. This is a demo project and is not affiliated with Microsoft
                                 Corporation.
                             </p>
                         </div>

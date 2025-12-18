@@ -126,8 +126,7 @@ export const DEFAULT_DESKTOP_SHORTCUTS: FileSystemItem[] = [
         name: 'This PC',
         type: 'shortcut',
         icon: 'computer',
-        appId: 'explorer',
-        targetPath: ['root'],
+        appId: 'thispc',
         colorClass: 'text-blue-300',
     },
     {

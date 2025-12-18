@@ -9,7 +9,8 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode, useCallback } from 'react';
 import { WindowState } from '../types';
 import { getWindowStates, WindowStateRecord } from '../utils/fileSystem';
-import { storageService, soundService } from '../utils/storage';
+import { storageService } from '../utils/storage';
+import { soundService } from '../utils/soundService';
 import { useAppRegistry } from './AppRegistryContext';
 import { useStartMenu } from './StartMenuContext';
 import { Z_INDEX } from '../utils/constants';

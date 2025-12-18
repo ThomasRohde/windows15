@@ -109,7 +109,7 @@ export const Terminal = () => {
     const [input, setInput] = useState('');
     const [output, setOutput] = useState<OutputLine[]>([
         { id: 0, type: 'output', text: 'Windows15 Command Prompt [Version 15.0.28500.1000]' },
-        { id: 1, type: 'output', text: '(c) 2024 Windows15 Corporation. All rights reserved.' },
+        { id: 1, type: 'output', text: '(c) 2025 Windows15 Corporation. All rights reserved.' },
         { id: 2, type: 'output', text: '' },
     ]);
     const [historyIndex, setHistoryIndex] = useState(-1);
@@ -424,7 +424,7 @@ export const Terminal = () => {
                     }
 
                     addOutput(' Volume in drive C has no label.');
-                    addOutput(' Volume Serial Number is WIN15-2024');
+                    addOutput(' Volume Serial Number is WIN15-2025');
                     addOutput('');
                     addOutput(` Directory of ${getCurrentPrompt()}`);
                     addOutput('');

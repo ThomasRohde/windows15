@@ -185,7 +185,7 @@ export const ThisPC = () => {
                         </div>
                         <div className="mt-4 pt-4 border-t border-white/10">
                             <p className="text-xs text-white/40">
-                                © 2024 Windows15 Project. Built with React, TypeScript, and Vite. This is a
+                                © 2025 Windows15 Project. Built with React, TypeScript, and Vite. This is a
                                 demonstration project and is not affiliated with Microsoft Corporation.
                             </p>
                         </div>
@@ -194,7 +194,11 @@ export const ThisPC = () => {
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 flex-wrap">
-                    <Button variant="primary" size="sm" onClick={() => window.open('https://github.com', '_blank')}>
+                    <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => window.open('https://github.com/ThomasRohde/windows15', '_blank')}
+                    >
                         <Icon name="code" size="sm" />
                         View Source
                     </Button>

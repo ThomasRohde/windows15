@@ -285,6 +285,18 @@ export class Windows15DexieDB extends Dexie {
             $arcadeSaves: '++id, gameId, slot, createdAt, updatedAt',
         });
 
+        // Version 10: Fix This PC desktop icon to use 'thispc' app (F142)
+        this.version(10)
+            .stores({})
+            .upgrade(async tx => {
+                const icons = await tx.table('desktopIcons').toArray();
+                for (const icon of icons) {
+                    if (icon.label === 'This PC' && icon.appId === 'explorer') {
+                        await tx.table('desktopIcons').update(icon.id, { appId: 'thispc', targetPath: undefined });
+                    }
+                }
+            });
+
         const databaseUrl = getCloudDatabaseUrl();
         if (databaseUrl) {
             this.cloud.configure({

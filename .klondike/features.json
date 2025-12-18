@@ -4374,11 +4374,15 @@
         "TodoList shows notification for overdue tasks"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-18T11:03:17.594125",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "All acceptance criteria met:\n- Timer triggers notification when countdown ends (useNotification().info)\n- Calendar shows notification 5 minutes before event (interval check with notifiedEventsRef)\n- Mail shows notification on new message (prevUnreadCountRef tracking)\n- GistExplorer shows notification on sync complete/fail (success/error calls in refreshGists and file sync)\n- TodoList shows notification for overdue tasks (interval check with notifiedOverdueRef)\nBuild passes",
+        "all 119 tests pass",
+        "lint passes. Commit: 32e3881"
+      ],
       "blockedBy": "Depends on F157",
       "lastWorkedOn": "2025-12-18T10:57:02.921519",
       "notes": "Implementation: See AUDIT.md Phase 4.1 Apps table. Use useNotification().schedule() for future events. Timer notification immediate. Calendar/TodoList check at intervals. Edge cases: Don't spam - limit notification frequency. Dependencies: F157 (notification scheduling). Gotchas: GistExplorer sync is background - notification is the only feedback."
@@ -4755,8 +4759,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-18T10:55:55.926578",
+    "lastUpdated": "2025-12-18T11:03:17.594140",
     "totalFeatures": 172,
-    "passingFeatures": 164
+    "passingFeatures": 165
   }
 }

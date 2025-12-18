@@ -28,8 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID  | Description | Status |
-| --- | ----------- | ------ |
+| ID   | Description                                                                    | Status         |
+| ---- | ------------------------------------------------------------------------------ | -------------- |
+| F146 | Create locales/en.json with all app strings and implement useLocalization hook | ⏳ Not started |
+| F147 | Standardize SoundService with useSound hook and system sound types             | ⏳ Not started |
+| F148 | Extend WindowContext with setTitle, setIcon, and setBadge methods              | ⏳ Not started |
 
 ---
 

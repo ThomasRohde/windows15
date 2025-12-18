@@ -822,6 +822,22 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": []
+    "priorityFeatures": [
+      {
+        "id": "F146",
+        "description": "Create locales/en.json with all app strings and implement useLocalization hook",
+        "status": "not-started"
+      },
+      {
+        "id": "F147",
+        "description": "Standardize SoundService with useSound hook and system sound types",
+        "status": "not-started"
+      },
+      {
+        "id": "F148",
+        "description": "Extend WindowContext with setTitle, setIcon, and setBadge methods",
+        "status": "not-started"
+      }
+    ]
   }
 }

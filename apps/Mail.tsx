@@ -4,6 +4,7 @@ import { useDexieLiveQuery } from '../utils/storage/react';
 import { useWindowInstance } from '../hooks';
 import { generateUuid } from '../utils/uuid';
 import { SearchInput, TextArea } from '../components/ui';
+import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { email as emailValidator, validateValue } from '../utils/validation';
 import type { MailFolderId, EmailRecord } from '../utils/storage/db';
 import { useTranslation } from '../hooks/useTranslation';
@@ -97,6 +98,7 @@ interface MailProps {
 export const Mail: React.FC<MailProps> = ({ windowId }) => {
     const { t } = useTranslation('mail');
     const db = useDb();
+    const { confirm, dialogProps } = useConfirmDialog();
     const { setTitle, setBadge } = useWindowInstance(windowId ?? '');
 
     const [activeMailbox, setActiveMailbox] = useState<MailFolderId>('inbox');
@@ -222,6 +224,17 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
     };
 
     const deleteForever = async (id: string) => {
+        const message = await db.emails.get(id);
+        if (!message) return;
+
+        const confirmed = await confirm({
+            title: 'Permanently Delete Email',
+            message: `Are you sure you want to permanently delete "${message.subject || '(no subject)'}"? This action cannot be undone.`,
+            variant: 'danger',
+            confirmLabel: 'Delete Forever',
+        });
+        if (!confirmed) return;
+
         await db.emails.delete(id);
         setSelectedMessageId(null);
     };
@@ -618,6 +631,9 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
                     </div>
                 </div>
             )}
+
+            {/* Confirm Dialog */}
+            <ConfirmDialog {...dialogProps} />
         </div>
     );
 };

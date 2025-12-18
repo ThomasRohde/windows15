@@ -5,6 +5,7 @@ import { useLocalization } from '../context';
 import { generateUuid } from '../utils/uuid';
 import { TextArea, EmptyState, FormField } from '../components/ui';
 import { Checkbox } from '../components/ui';
+import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { required, validateValue, validateDateRange } from '../utils/validation';
 import { useSeededCollection } from '../hooks';
 import { toYmd, fromYmd, pad2, addMonths, buildMonthGrid } from '../utils/dateUtils';
@@ -84,6 +85,7 @@ const normalizeInitialDate = (value?: string) => {
 
 export const Calendar = ({ initialDate }: { initialDate?: string }) => {
     const { formatTimeShortFromHm } = useLocalization();
+    const { confirm, dialogProps } = useConfirmDialog();
     const {
         items: events,
         setItems: setEvents,
@@ -211,6 +213,17 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
     };
 
     const deleteEvent = async (id: string) => {
+        const event = events.find(e => e.id === id);
+        if (!event) return;
+
+        const confirmed = await confirm({
+            title: 'Delete Event',
+            message: `Are you sure you want to delete "${event.title}"? This action cannot be undone.`,
+            variant: 'danger',
+            confirmLabel: 'Delete',
+        });
+        if (!confirmed) return;
+
         // Update using setEvents from useSeededCollection
         const updatedEvents = events.filter(event => event.id !== id);
         setEvents(updatedEvents);
@@ -532,6 +545,9 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                     </div>
                 </div>
             )}
+
+            {/* Confirm Dialog */}
+            <ConfirmDialog {...dialogProps} />
         </div>
     );
 };

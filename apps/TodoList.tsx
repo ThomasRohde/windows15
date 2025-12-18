@@ -28,6 +28,7 @@ import {
     TextInput,
     Select,
 } from '../components/ui';
+import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import { useAsyncAction, useSound, useWindowInstance } from '../hooks';
 import { required, maxLength, validateValue } from '../utils/validation';
 
@@ -94,6 +95,7 @@ export const TodoList: React.FC<TodoListProps> = ({ windowId }) => {
     const [editPriority, setEditPriority] = useState<Priority | undefined>(undefined);
     const [editDueDate, setEditDueDate] = useState<string>('');
     const [showConfirmation, setShowConfirmation] = useState<'clear' | 'deleteAll' | null>(null);
+    const { confirm: confirmIndividual, dialogProps: confirmIndividualProps } = useConfirmDialog();
     const [newTodoPriority, setNewTodoPriority] = useState<Priority | undefined>(undefined);
     const [newTodoDueDate, setNewTodoDueDate] = useState<string>('');
 
@@ -169,6 +171,17 @@ export const TodoList: React.FC<TodoListProps> = ({ windowId }) => {
 
     const deleteTodo = async (id: string) => {
         await deleteAction.execute(async () => {
+            const todo = await db.todos.get(id);
+            if (!todo) return;
+
+            const confirmed = await confirmIndividual({
+                title: 'Delete Task',
+                message: `Are you sure you want to delete "${todo.text}"?`,
+                variant: 'danger',
+                confirmLabel: 'Delete',
+            });
+            if (!confirmed) return;
+
             await db.todos.delete(id);
         });
     };
@@ -702,6 +715,9 @@ export const TodoList: React.FC<TodoListProps> = ({ windowId }) => {
             <div className="text-white/50 text-sm">
                 {activeCount} task{activeCount !== 1 ? 's' : ''} remaining
             </div>
+
+            {/* Individual Delete Confirm Dialog */}
+            <ConfirmDialog {...confirmIndividualProps} />
         </AppContainer>
     );
 };

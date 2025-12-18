@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                 | Status         |
-| ---- | ----------------------------------------------------------- | -------------- |
-| F160 | Create SystemInfoContext with dynamic OS metrics            | 🔄 In progress |
-| F161 | Migrate SystemInfo and ThisPC apps to use SystemInfoContext | ⏳ Not started |
-| F162 | Create NetworkContext with real-time network status         | ⏳ Not started |
+| ID   | Description                                                      | Status         |
+| ---- | ---------------------------------------------------------------- | -------------- |
+| F161 | Migrate SystemInfo and ThisPC apps to use SystemInfoContext      | 🔄 In progress |
+| F162 | Create NetworkContext with real-time network status              | ⏳ Not started |
+| F163 | Implement Settings Network section and Terminal network commands | ⏳ Not started |
 
 ---
 

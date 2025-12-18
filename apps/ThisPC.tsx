@@ -7,6 +7,7 @@
 import React, { useMemo } from 'react';
 import { Icon, Button } from '../components/ui';
 import { useAppRegistry } from '../context/AppRegistryContext';
+import { useSystemInfo } from '../context';
 import { StatCard } from '../components/ui/StatCard';
 
 // Import package.json metadata
@@ -14,6 +15,17 @@ import packageJson from '../package.json';
 
 export const ThisPC = () => {
     const { apps } = useAppRegistry();
+    const {
+        cpuCores,
+        memoryTotal,
+        storageUsed,
+        storageTotal,
+        storagePercent,
+        networkStatus,
+        platform,
+        language,
+        uptimeFormatted,
+    } = useSystemInfo();
 
     // Calculate statistics
     const stats = useMemo(() => {
@@ -23,38 +35,22 @@ export const ThisPC = () => {
         // Estimate component count (rough estimate based on common patterns)
         const componentCount = Math.floor(appCount * 2.5) + 15; // Base components + app components
 
-        // Get storage usage (IndexedDB)
-        let storageUsed = 0;
-        let storageQuota = 0;
-        if ('storage' in navigator && 'estimate' in navigator.storage) {
-            navigator.storage.estimate().then(estimate => {
-                storageUsed = Math.round((estimate.usage || 0) / 1024 / 1024); // MB
-                storageQuota = Math.round((estimate.quota || 0) / 1024 / 1024); // MB
-            });
-        }
-
         return {
             appCount,
             componentCount,
             version: packageJson.version === '0.0.0' ? '0.1.0' : packageJson.version,
             projectName: packageJson.name,
-            storageUsed,
-            storageQuota,
         };
     }, [apps]);
 
-    // System info from navigator API
-    const systemInfo = useMemo(() => {
-        const nav = navigator as typeof navigator & { deviceMemory?: number };
-        return {
-            platform: navigator.platform || 'Web Platform',
-            userAgent: navigator.userAgent,
-            language: navigator.language,
-            cores: navigator.hardwareConcurrency || 'N/A',
-            memory: nav.deviceMemory ? `${nav.deviceMemory} GB` : 'N/A',
-            online: navigator.onLine ? 'Connected' : 'Offline',
-        };
-    }, []);
+    // Format bytes helper
+    const formatBytes = (bytes: number) => {
+        if (bytes === 0) return 'Calculating...';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
+    };
 
     const projectSpecs = [
         { label: 'Project Name', value: 'Windows 15' },
@@ -63,23 +59,28 @@ export const ThisPC = () => {
         { label: 'Total Components', value: `~${stats.componentCount}` },
         { label: 'Technology Stack', value: 'React 19 + TypeScript + Vite' },
         { label: 'UI Framework', value: 'Tailwind CSS' },
+        { label: 'Uptime', value: uptimeFormatted },
     ];
 
     const storageSpecs = [
         { label: 'Storage Type', value: 'IndexedDB + LocalStorage' },
-        { label: 'Used Space', value: stats.storageUsed > 0 ? `${stats.storageUsed} MB` : 'Calculating...' },
+        { label: 'Used Space', value: formatBytes(storageUsed) },
         {
             label: 'Available Quota',
-            value: stats.storageQuota > 0 ? `${stats.storageQuota} MB` : 'Calculating...',
+            value: formatBytes(storageTotal),
+        },
+        {
+            label: 'Usage',
+            value: storageTotal > 0 ? `${storagePercent}%` : 'Calculating...',
         },
     ];
 
     const browserSpecs = [
-        { label: 'Platform', value: systemInfo.platform },
-        { label: 'Language', value: systemInfo.language },
-        { label: 'CPU Cores', value: systemInfo.cores.toString() },
-        { label: 'Device Memory', value: systemInfo.memory },
-        { label: 'Network Status', value: systemInfo.online },
+        { label: 'Platform', value: platform },
+        { label: 'Language', value: language },
+        { label: 'CPU Cores', value: cpuCores.toString() },
+        { label: 'Device Memory', value: `${memoryTotal} GB` },
+        { label: 'Network Status', value: networkStatus === 'online' ? 'Connected' : 'Offline' },
     ];
 
     return (
@@ -101,7 +102,12 @@ export const ThisPC = () => {
                     <StatCard label="Applications" value={stats.appCount.toString()} icon="apps" color="blue" />
                     <StatCard label="Components" value={`~${stats.componentCount}`} icon="widgets" color="purple" />
                     <StatCard label="Version" value={`v${stats.version}`} icon="info" color="green" />
-                    <StatCard label="Status" value={systemInfo.online} icon="cloud" color="cyan" />
+                    <StatCard
+                        label="Status"
+                        value={networkStatus === 'online' ? 'Connected' : 'Offline'}
+                        icon="cloud"
+                        color="cyan"
+                    />
                 </div>
 
                 {/* Project Specifications */}

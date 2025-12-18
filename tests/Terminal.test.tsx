@@ -87,6 +87,31 @@ vi.mock('../context/WindowContext', () => ({
     }),
 }));
 
+// Mock SystemInfoContext module (F160)
+vi.mock('../context/SystemInfoContext', () => ({
+    useSystemInfo: () => ({
+        osVersion: '24H2',
+        osBuild: '28500.1000',
+        uptime: 0,
+        uptimeFormatted: '0m',
+        cpuCores: 8,
+        memoryTotal: 16,
+        memoryUsed: 8,
+        memoryPercent: 50,
+        storageUsed: 0,
+        storageTotal: 0,
+        storagePercent: 0,
+        networkStatus: 'online',
+        cpuPercent: 25,
+        platform: 'Web Platform',
+        language: 'en-US',
+        hasBattery: false,
+        batteryLevel: 100,
+        batteryCharging: false,
+        refresh: vi.fn(),
+    }),
+}));
+
 const renderTerminal = () => {
     return render(
         <DbProvider>

@@ -4430,11 +4430,21 @@
         "useSystemInfo hook available for consumption"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-18T12:24:35.656517",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Created SystemInfoContext.tsx with all required metrics: osVersion",
+        "osBuild",
+        "uptime",
+        "cpuCores",
+        "memoryTotal",
+        "memoryUsed",
+        "storageUsed",
+        "storageTotal",
+        "networkStatus. Added 30-second polling for storage/memory updates. useSystemInfo hook exported. Provider added to OSProvider composition. Build and tests pass."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-18T12:22:12.356027",
       "notes": "Implementation: See AUDIT.md Phase 5.1. Use navigator.deviceMemory, navigator.hardwareConcurrency, StorageManager API. Mock some values for consistency. Edge cases: Handle APIs not available in all browsers. Dependencies: None. Gotchas: Uptime is simulated from app start - not real system uptime."
@@ -4453,13 +4463,13 @@
         "Terminal hostname command uses SystemInfoContext"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-18T12:24:39.569487",
       "notes": "Implementation: See AUDIT.md Phase 5.1 Consumers list. Replace hardcoded values with context data. Edge cases: Show loading state while context initializes. Dependencies: F160 (SystemInfoContext). Gotchas: Ensure values are formatted consistently between apps."
     },
     {
@@ -4759,8 +4769,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-18T11:03:17.594140",
+    "lastUpdated": "2025-12-18T12:24:35.656530",
     "totalFeatures": 172,
-    "passingFeatures": 165
+    "passingFeatures": 166
   }
 }

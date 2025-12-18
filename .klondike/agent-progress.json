@@ -976,18 +976,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F160",
-        "description": "Create SystemInfoContext with dynamic OS metrics",
-        "status": "in-progress"
-      },
-      {
         "id": "F161",
         "description": "Migrate SystemInfo and ThisPC apps to use SystemInfoContext",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F162",
         "description": "Create NetworkContext with real-time network status",
+        "status": "not-started"
+      },
+      {
+        "id": "F163",
+        "description": "Implement Settings Network section and Terminal network commands",
         "status": "not-started"
       }
     ]

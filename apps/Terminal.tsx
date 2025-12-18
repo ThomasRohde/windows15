@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { useLocalization } from '../context';
+import { useLocalization, useSystemInfo } from '../context';
 import { useDb } from '../context/DbContext';
 import { useOS } from '../context/OSContext';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -108,12 +108,13 @@ export const Terminal: React.FC<TerminalProps> = ({ windowId }) => {
     const { formatDateLong, formatTimeLong } = useLocalization();
     const db = useDb();
     const { openWindow, apps } = useOS();
+    const { osBuild } = useSystemInfo();
     const { setTitle } = useWindowInstance(windowId ?? '');
     const { preferences, currentTheme, setTheme, setFontSize, setFontFamily, availableThemes, availableFonts } =
         useTerminalPreferences();
     const [input, setInput] = useState('');
-    const [output, setOutput] = useState<OutputLine[]>([
-        { id: 0, type: 'output', text: 'Windows15 Command Prompt [Version 15.0.28500.1000]' },
+    const [output, setOutput] = useState<OutputLine[]>(() => [
+        { id: 0, type: 'output', text: `Windows15 Command Prompt [Version 15.0.${osBuild}]` },
         { id: 1, type: 'output', text: '(c) 2025 Windows15 Corporation. All rights reserved.' },
         { id: 2, type: 'output', text: '' },
     ]);
@@ -657,7 +658,7 @@ export const Terminal: React.FC<TerminalProps> = ({ windowId }) => {
             }
             case 'ver':
                 addOutput('');
-                addOutput('Windows15 [Version 15.0.28500.1000]');
+                addOutput(`Windows15 [Version 15.0.${osBuild}]`);
                 break;
             case 'hostname':
                 addOutput('DESKTOP-WIN15');

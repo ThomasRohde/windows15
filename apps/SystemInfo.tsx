@@ -1,23 +1,27 @@
 import React from 'react';
 import { Icon, Button } from '../components/ui';
+import { useSystemInfo } from '../context';
 
 export const SystemInfo = () => {
+    const { osVersion, osBuild, uptimeFormatted, cpuCores, memoryTotal, networkStatus, platform } = useSystemInfo();
+
     const systemSpecs = [
         { label: 'Device name', value: 'DESKTOP-WIN15' },
-        { label: 'Processor', value: 'Intel(R) Core(TM) i9-14900K @ 6.0GHz' },
-        { label: 'Installed RAM', value: '64.0 GB (63.8 GB usable)' },
+        { label: 'Processor', value: `${cpuCores}-core processor` },
+        { label: 'Installed RAM', value: `${memoryTotal}.0 GB` },
         { label: 'Device ID', value: 'A1B2C3D4-E5F6-7890-ABCD-EF1234567890' },
         { label: 'Product ID', value: '00330-80000-00000-AA123' },
-        { label: 'System type', value: '64-bit operating system, x64-based processor' },
-        { label: 'Pen and touch', value: 'No pen or touch input is available' },
+        { label: 'System type', value: `64-bit operating system, ${platform}` },
+        { label: 'Uptime', value: uptimeFormatted },
     ];
 
     const windowsSpecs = [
         { label: 'Edition', value: 'Windows 15 Pro' },
-        { label: 'Version', value: '24H2' },
+        { label: 'Version', value: osVersion },
         { label: 'Installed on', value: 'December 13, 2025' },
-        { label: 'OS build', value: '28500.1000' },
-        { label: 'Experience', value: 'Windows Feature Experience Pack 1000.28500.1000.0' },
+        { label: 'OS build', value: osBuild },
+        { label: 'Experience', value: `Windows Feature Experience Pack 1000.${osBuild}` },
+        { label: 'Network', value: networkStatus === 'online' ? 'Connected' : 'Offline' },
     ];
 
     return (

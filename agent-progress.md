@@ -31,8 +31,7 @@ klondike feature list  # List all features
 | ID   | Description                                      | Status         |
 | ---- | ------------------------------------------------ | -------------- |
 | F143 | OS-level sound support with settings integration | ⏳ Not started |
-| F142 | This PC shows Windows 15 project information     | 🔄 In progress |
-| F145 | Gist Explorer shows tooltips like File Explorer  | ⏳ Not started |
+| F145 | Gist Explorer shows tooltips like File Explorer  | 🔄 In progress |
 
 ---
 

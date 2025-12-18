@@ -309,23 +309,40 @@ export const GistExplorer = () => {
                         </div>
                     ) : (
                         <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-4">
-                            {items.map(item => (
-                                <div
-                                    key={item.id}
-                                    onDoubleClick={() => handleOpen(item)}
-                                    onContextMenu={e => open(e, { item })}
-                                    className="group flex flex-col items-center gap-2 p-2 rounded hover:bg-white/10 cursor-pointer transition-colors"
-                                >
-                                    <span
-                                        className={`material-symbols-outlined text-4xl drop-shadow-lg ${item.type === 'folder' ? (item.isPrivate ? 'text-red-500' : 'text-yellow-400') : 'text-blue-400'}`}
-                                    >
-                                        {item.type === 'folder' ? 'folder' : 'description'}
-                                    </span>
-                                    <span className="text-xs text-white/80 text-center font-medium line-clamp-2 w-full px-1 break-words">
-                                        {item.name}
-                                    </span>
-                                </div>
-                            ))}
+                            {items.map(item => {
+                                // Build tooltip content based on item type
+                                const tooltipLines: string[] = [item.name];
+                                if (item.type === 'folder') {
+                                    const itemCount = item.children?.length || 0;
+                                    tooltipLines.push(
+                                        `${itemCount} ${itemCount === 1 ? 'item' : 'items'}${item.isPrivate ? ' (Private)' : ''}`
+                                    );
+                                } else {
+                                    if (item.size) tooltipLines.push(`Size: ${item.size}`);
+                                    tooltipLines.push(`Type: ${item.type || 'file'}`);
+                                    if (item.date) tooltipLines.push(`Modified: ${item.date}`);
+                                }
+                                const tooltipContent = tooltipLines.join('\n');
+
+                                return (
+                                    <Tooltip key={item.id} content={tooltipContent} position="bottom" delay={400}>
+                                        <div
+                                            onDoubleClick={() => handleOpen(item)}
+                                            onContextMenu={e => open(e, { item })}
+                                            className="group flex flex-col items-center gap-2 p-2 rounded hover:bg-white/10 cursor-pointer transition-colors"
+                                        >
+                                            <span
+                                                className={`material-symbols-outlined text-4xl drop-shadow-lg ${item.type === 'folder' ? (item.isPrivate ? 'text-red-500' : 'text-yellow-400') : 'text-blue-400'}`}
+                                            >
+                                                {item.type === 'folder' ? 'folder' : 'description'}
+                                            </span>
+                                            <span className="text-xs text-white/80 text-center font-medium line-clamp-2 w-full px-1 break-words">
+                                                {item.name}
+                                            </span>
+                                        </div>
+                                    </Tooltip>
+                                );
+                            })}
                         </div>
                     )}
                 </div>

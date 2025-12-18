@@ -628,14 +628,9 @@
         "status": "not-started"
       },
       {
-        "id": "F142",
-        "description": "This PC shows Windows 15 project information",
-        "status": "in-progress"
-      },
-      {
         "id": "F145",
         "description": "Gist Explorer shows tooltips like File Explorer",
-        "status": "not-started"
+        "status": "in-progress"
       }
     ]
   }

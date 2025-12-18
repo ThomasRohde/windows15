@@ -186,6 +186,9 @@ export const Tooltip: React.FC<TooltipProps> = ({
         right: 'left-[-4px] top-1/2 -translate-y-1/2 border-t-transparent border-b-transparent border-l-transparent border-r-white/20',
     };
 
+    // Determine if content has newlines for multiline support
+    const hasNewlines = typeof content === 'string' && content.includes('\n');
+
     const tooltip = isVisible
         ? createPortal(
               <div
@@ -198,7 +201,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
                       rounded-lg shadow-xl shadow-black/40
                       text-sm text-white/90
                       pointer-events-none
-                      whitespace-nowrap
+                      ${hasNewlines ? 'whitespace-pre-line' : 'whitespace-nowrap'}
                       ${className}
                   `}
                   style={{

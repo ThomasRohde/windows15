@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useTranslation } from '../hooks/useTranslation';
 import { AppContainer, TabSwitcher, Card, Button, SectionLabel, TextInput } from '../components/ui';
-import { useInterval, useSound } from '../hooks';
+import { useInterval, useSound, useNotification } from '../hooks';
 import { formatDuration } from '../utils/timeFormatters';
 
 type TimerMode = 'stopwatch' | 'countdown';
@@ -14,7 +14,9 @@ export const Timer = () => {
     const [laps, setLaps] = useState<number[]>([]);
     const [countdownInput, setCountdownInput] = useState({ hours: 0, minutes: 5, seconds: 0 });
     const { playSound } = useSound();
+    const { info } = useNotification();
     const hasPlayedCompleteSound = useRef(false);
+    const hasNotifiedRef = useRef(false);
 
     // Use useInterval hook with 10ms precision for smooth display
     useInterval(
@@ -23,10 +25,14 @@ export const Timer = () => {
                 if (mode === 'countdown') {
                     if (prev <= 0) {
                         setIsRunning(false);
-                        // Play completion sound when countdown reaches 0
+                        // Play completion sound and show notification when countdown reaches 0
                         if (!hasPlayedCompleteSound.current) {
                             playSound('complete');
                             hasPlayedCompleteSound.current = true;
+                        }
+                        if (!hasNotifiedRef.current) {
+                            info(t('timerComplete', 'Timer complete!'));
+                            hasNotifiedRef.current = true;
                         }
                         return 0;
                     }
@@ -45,6 +51,7 @@ export const Timer = () => {
             const totalMs = (countdownInput.hours * 3600 + countdownInput.minutes * 60 + countdownInput.seconds) * 1000;
             setTime(totalMs);
             hasPlayedCompleteSound.current = false; // Reset sound flag for new countdown
+            hasNotifiedRef.current = false; // Reset notification flag for new countdown
         }
         setIsRunning(true);
     };
@@ -58,6 +65,7 @@ export const Timer = () => {
         setTime(0);
         setLaps([]);
         hasPlayedCompleteSound.current = false; // Reset sound flag on reset
+        hasNotifiedRef.current = false; // Reset notification flag on reset
     };
 
     const handleLap = () => {

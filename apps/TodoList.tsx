@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
     DndContext,
     KeyboardSensor,
@@ -29,7 +29,7 @@ import {
     Select,
 } from '../components/ui';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
-import { useAsyncAction, useSound, useWindowInstance } from '../hooks';
+import { useAsyncAction, useSound, useWindowInstance, useNotification } from '../hooks';
 import { required, maxLength, validateValue } from '../utils/validation';
 
 type Filter = 'all' | 'active' | 'completed';
@@ -80,11 +80,15 @@ export const TodoList: React.FC<TodoListProps> = ({ windowId }) => {
     const db = useDb();
     const { playSound } = useSound();
     const { setTitle } = useWindowInstance(windowId ?? '');
+    const { warning } = useNotification();
     const { value: todosRaw, isLoading: loading } = useDexieLiveQuery(
         () => db.todos.orderBy('createdAt').toArray(),
         [db]
     );
     const todos = useMemo(() => ensureArray(todosRaw), [todosRaw]);
+
+    // Track which tasks we've already notified about (to avoid spam)
+    const notifiedOverdueRef = useRef<Set<string>>(new Set());
 
     const [input, setInput] = useState('');
     const [filter, setFilter] = useState<Filter>('all');
@@ -98,6 +102,32 @@ export const TodoList: React.FC<TodoListProps> = ({ windowId }) => {
     const { confirm: confirmIndividual, dialogProps: confirmIndividualProps } = useConfirmDialog();
     const [newTodoPriority, setNewTodoPriority] = useState<Priority | undefined>(undefined);
     const [newTodoDueDate, setNewTodoDueDate] = useState<string>('');
+
+    // Check for overdue tasks periodically
+    useEffect(() => {
+        const checkOverdueTasks = () => {
+            const now = Date.now();
+            const notifiedSet = notifiedOverdueRef.current;
+
+            for (const todo of todos) {
+                // Skip completed tasks or already notified
+                if (todo.completed || notifiedSet.has(todo.id)) continue;
+                // Skip tasks without due date
+                if (!todo.dueDate) continue;
+
+                // Check if overdue
+                if (todo.dueDate < now) {
+                    notifiedSet.add(todo.id);
+                    warning(`Task overdue: ${todo.text}`);
+                }
+            }
+        };
+
+        // Check immediately and then every minute
+        checkOverdueTasks();
+        const interval = setInterval(checkOverdueTasks, 60000);
+        return () => clearInterval(interval);
+    }, [todos, warning]);
 
     // Async action hooks for different operations
     const addAction = useAsyncAction({ errorPrefix: 'Failed to add task' });

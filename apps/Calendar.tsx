@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { STORAGE_KEYS } from '../utils/storage';
 import { SkeletonCalendar } from '../components/LoadingSkeleton';
 import { useLocalization } from '../context';
@@ -8,7 +8,7 @@ import { FilePickerModal } from '../components';
 import { Checkbox } from '../components/ui';
 import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { required, validateValue, validateDateRange } from '../utils/validation';
-import { useSeededCollection, useFilePicker } from '../hooks';
+import { useSeededCollection, useFilePicker, useNotification } from '../hooks';
 import { toYmd, fromYmd, pad2, addMonths, buildMonthGrid } from '../utils/dateUtils';
 import { saveFileToFolder } from '../utils/fileSystem';
 
@@ -94,6 +94,10 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
         isLoading: isLoadingEvents,
     } = useSeededCollection(STORAGE_KEYS.calendarEvents, seedEvents);
     const filePicker = useFilePicker();
+    const { info } = useNotification();
+
+    // Track which events we've already notified about (to avoid spam)
+    const notifiedEventsRef = useRef<Set<string>>(new Set());
 
     const [monthCursor, setMonthCursor] = useState(() => {
         const start = normalizeInitialDate(initialDate) ?? toYmd(new Date());
@@ -111,6 +115,37 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
         const date = fromYmd(start);
         setMonthCursor(new Date(date.getFullYear(), date.getMonth(), 1));
     }, [initialDate]);
+
+    // Check for upcoming events every minute and notify 5 minutes before
+    useEffect(() => {
+        const checkUpcomingEvents = () => {
+            const now = Date.now();
+            const fiveMinutesMs = 5 * 60 * 1000;
+            const notifiedSet = notifiedEventsRef.current;
+
+            for (const event of events) {
+                // Skip all-day events
+                if (event.allDay) continue;
+                // Skip already notified
+                if (notifiedSet.has(event.id)) continue;
+
+                const eventStart = eventStartDate(event);
+                const timeUntilEvent = eventStart.getTime() - now;
+
+                // Notify if event is within 5 minutes and hasn't started yet
+                if (timeUntilEvent > 0 && timeUntilEvent <= fiveMinutesMs) {
+                    notifiedSet.add(event.id);
+                    const timeLabel = formatTimeShortFromHm(event.startTime);
+                    info(`${event.title} at ${timeLabel}${event.location ? ` - ${event.location}` : ''}`);
+                }
+            }
+        };
+
+        // Check immediately and then every minute
+        checkUpcomingEvents();
+        const interval = setInterval(checkUpcomingEvents, 60000);
+        return () => clearInterval(interval);
+    }, [events, formatTimeShortFromHm, info]);
 
     const eventsByDate = useMemo(() => {
         const map: Record<string, CalendarEvent[]> = {};

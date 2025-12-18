@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDb } from '../context/DbContext';
 import { useDexieLiveQuery } from '../utils/storage/react';
-import { useWindowInstance } from '../hooks';
+import { useWindowInstance, useNotification } from '../hooks';
 import { generateUuid } from '../utils/uuid';
 import { SearchInput, TextArea } from '../components/ui';
 import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog';
@@ -100,6 +100,10 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
     const db = useDb();
     const { confirm, dialogProps } = useConfirmDialog();
     const { setTitle, setBadge } = useWindowInstance(windowId ?? '');
+    const { info } = useNotification();
+
+    // Track previous unread count to detect new messages
+    const prevUnreadCountRef = useRef<number | null>(null);
 
     const [activeMailbox, setActiveMailbox] = useState<MailFolderId>('inbox');
     const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
@@ -165,6 +169,24 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
             setBadge(unread > 0 ? unread : null);
         }
     }, [windowId, mailboxCounts.inbox.unread, setTitle, setBadge, t]);
+
+    // Show notification when new unread messages arrive
+    useEffect(() => {
+        const currentUnread = mailboxCounts.inbox.unread;
+        const prevUnread = prevUnreadCountRef.current;
+
+        // Only notify if count increased (not on initial load)
+        if (prevUnread !== null && currentUnread > prevUnread) {
+            const newMessages = currentUnread - prevUnread;
+            const message =
+                newMessages === 1
+                    ? t('newMessageNotification', 'You have a new message')
+                    : t('newMessagesNotification', `You have ${newMessages} new messages`);
+            info(message);
+        }
+
+        prevUnreadCountRef.current = currentUnread;
+    }, [mailboxCounts.inbox.unread, info, t]);
 
     const filteredMessages = useMemo(() => {
         const query = searchQuery.trim().toLowerCase();

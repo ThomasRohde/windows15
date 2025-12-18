@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                                                              | Status         |
 | ---- | ---------------------------------------------------------------------------------------- | -------------- |
-| F157 | Add notification scheduling and notification center to taskbar                           | 🔄 In progress |
-| F158 | Integrate scheduled notifications into Timer, Calendar, Mail, GistExplorer, and TodoList | 🚫 Blocked     |
+| F158 | Integrate scheduled notifications into Timer, Calendar, Mail, GistExplorer, and TodoList | 🔄 In progress |
 | F160 | Create SystemInfoContext with dynamic OS metrics                                         | ⏳ Not started |
+| F161 | Migrate SystemInfo and ThisPC apps to use SystemInfoContext                              | ⏳ Not started |
 
 ---
 

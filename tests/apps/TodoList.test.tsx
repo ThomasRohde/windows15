@@ -18,6 +18,22 @@ vi.mock('../../utils/storage', async importOriginal => {
     };
 });
 
+// Mock NotificationContext for TodoList tests
+vi.mock('../../context/NotificationContext', () => ({
+    useNotificationCenter: () => ({
+        notifications: [],
+        unreadCount: 0,
+        schedule: vi.fn().mockResolvedValue('mock-id'),
+        notify: vi.fn(),
+        markAsRead: vi.fn(),
+        markAllAsRead: vi.fn(),
+        dismiss: vi.fn(),
+        clearAll: vi.fn().mockResolvedValue(undefined),
+        permission: 'default' as const,
+        requestPermission: vi.fn().mockResolvedValue('default'),
+    }),
+}));
+
 import { TodoList } from '../../apps/TodoList';
 
 // Mock WindowContext module

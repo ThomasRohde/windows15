@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AppContainer } from '../components/ui/AppContainer';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useNotification } from '../hooks/useNotification';
 import { Tooltip } from '../components/ui/Tooltip';
 import { GistService } from './GistService';
 import { ContextMenu } from '../components/ContextMenu';
@@ -18,6 +19,7 @@ export const GistExplorer = () => {
     const [items, setItems] = useState<FileSystemItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPath, setCurrentPath] = useState<string[]>([GIST_ROOT_ID]);
+    const { success, error: notifyError } = useNotification();
 
     // Dialog State
     const [confirmDialog, setConfirmDialog] = useState<{
@@ -93,12 +95,14 @@ export const GistExplorer = () => {
 
             const newAllFiles = [...nonGistFiles, gistRoot];
             await saveFiles(newAllFiles);
+            success(`Synced ${gists.length} gists from GitHub`);
         } catch (error) {
             console.error('Failed to fetch gists', error);
+            notifyError('Failed to sync gists from GitHub');
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [success, notifyError]);
 
     // Initialize/Update Service when PAT changes
     useEffect(() => {
@@ -150,15 +154,14 @@ export const GistExplorer = () => {
                             // For a prototype, just fire.
                             const service = GistService.getInstance();
                             if (service.isInitialized()) {
-                                // Maybe show a toast/notification?
-                                // console.log('Syncing to GitHub...', filename);
                                 await service.updateGistFile(gistId, filename, updatedFile.content);
-                                // console.log('Synced to GitHub');
+                                success(`Synced ${filename} to GitHub`);
                             }
                         }
                     }
                 } catch (e) {
                     console.error('Sync failed', e);
+                    notifyError('Failed to sync file to GitHub');
                 }
             }
         };
@@ -166,7 +169,7 @@ export const GistExplorer = () => {
         loadGistsFromCache();
         const unsubscribe = subscribeToFileSystem(STORE_NAMES.files, handleFileSystemChange);
         return unsubscribe;
-    }, [loadGistsFromCache]);
+    }, [loadGistsFromCache, success, notifyError]);
 
     // refreshGists hoisted above
 

@@ -132,7 +132,7 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
                         createdAt: now,
                         updatedAt: now,
                     }));
-                    await db.emails.bulkAdd(emailsToSeed);
+                    await db.emails.bulkPut(emailsToSeed);
                 }
                 setIsSeeded(true);
             } catch (error) {
@@ -375,7 +375,7 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
     if (isLoading && !isSeeded) {
         return (
             <div className="h-full w-full bg-background-dark text-white flex items-center justify-center">
-                <div className="text-white/50">{t('common:status.loading')}</div>
+                <div className="text-white/50">{t('status.loading')}</div>
             </div>
         );
     }
@@ -440,8 +440,8 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
                         <SearchInput
                             value={searchQuery}
                             onChange={setSearchQuery}
-                            placeholder={t('common:actions.search')}
-                            aria-label={t('common:actions.search')}
+                            placeholder={t('actions.search')}
+                            aria-label={t('actions.search')}
                         />
                     </div>
 

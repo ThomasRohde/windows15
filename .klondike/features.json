@@ -4307,13 +4307,13 @@
         "Calendar can import/export ICS files"
       ],
       "estimatedEffort": null,
-      "status": "blocked",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": "Complex feature requiring extensive UI changes. Deferring to focus on core P3 features first.",
-      "lastWorkedOn": "2025-12-18T09:29:02.989057",
+      "lastWorkedOn": "2025-12-18T09:47:32.669029",
       "notes": "Implementation: See AUDIT.md Phase 3.2 Apps table. Add toolbar buttons for Open/Save. Use useFilePicker hook. Edge cases: Handle unsaved changes before opening new file. Dependencies: F155 (useFilePicker hook). Gotchas: Filter file picker by relevant extensions for each app."
     },
     {
@@ -4377,13 +4377,20 @@
         "All delete operations across apps reviewed"
       ],
       "estimatedEffort": null,
-      "status": "blocked",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-18T09:47:23.211973",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Added useConfirmDialog confirmations to Calendar deleteEvent",
+        "Mail deleteForever",
+        "and TodoList individual task delete. All destructive actions now prompt users with danger-variant confirmation dialogs. Verified: Arcade already uses confirmation (line 548)",
+        "Browser already uses confirmation (line 279)",
+        "Notepad already uses confirmation (NotesPanel line 89)",
+        "TodoList bulk operations already use confirmation (line 96). All acceptance criteria met."
+      ],
       "blockedBy": "Requires comprehensive audit of all apps - time intensive",
-      "lastWorkedOn": "2025-12-18T09:29:35.488590",
+      "lastWorkedOn": "2025-12-18T09:39:56.395015",
       "notes": "Implementation: See AUDIT.md Phase 4.2. Search codebase for delete/remove/clear operations. Ensure each shows confirmation dialog. Edge cases: Bulk delete should show count in message. Dependencies: useConfirm hook exists. Gotchas: Don't over-confirm - minor actions like clearing an input field don't need confirmation."
     },
     {
@@ -4728,8 +4735,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-18T09:36:01.312046",
+    "lastUpdated": "2025-12-18T09:47:23.211991",
     "totalFeatures": 172,
-    "passingFeatures": 161
+    "passingFeatures": 162
   }
 }

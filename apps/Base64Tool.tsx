@@ -1,27 +1,36 @@
-import React, { useState } from 'react';
-import { useAsyncAction, useStandardHotkeys, useCopyToClipboard } from '../hooks';
+import React from 'react';
+import { useAsyncAction, useStandardHotkeys, useCopyToClipboard, useAppState } from '../hooks';
 import { useTranslation } from '../hooks/useTranslation';
 import { TabSwitcher, ErrorBanner, SectionLabel, CopyButton, AppToolbar, TextArea } from '../components/ui';
 
+interface Base64ToolState {
+    input: string;
+    output: string;
+    mode: 'encode' | 'decode';
+}
+
 export const Base64Tool = () => {
     const { t } = useTranslation('base64Tool');
-    const [input, setInput] = useState('');
-    const [output, setOutput] = useState('');
-    const [mode, setMode] = useState<'encode' | 'decode'>('encode');
+    const [state, setState] = useAppState<Base64ToolState>('base64Tool', {
+        input: '',
+        output: '',
+        mode: 'encode',
+    });
+    const { input, output, mode } = state;
     const { execute, error, clearError } = useAsyncAction();
     const { copy } = useCopyToClipboard();
 
     const encode = async () => {
         await execute(async () => {
             const encoded = btoa(unescape(encodeURIComponent(input)));
-            setOutput(encoded);
+            await setState(prev => ({ ...prev, output: encoded }));
         });
     };
 
     const decode = async () => {
         await execute(async () => {
             const decoded = decodeURIComponent(escape(atob(input)));
-            setOutput(decoded);
+            await setState(prev => ({ ...prev, output: decoded }));
         });
     };
 
@@ -34,14 +43,12 @@ export const Base64Tool = () => {
     };
 
     const swap = () => {
-        setInput(output);
-        setOutput('');
+        void setState({ input: output, output: '', mode });
         clearError();
     };
 
     const clear = () => {
-        setInput('');
-        setOutput('');
+        void setState({ input: '', output: '', mode });
         clearError();
     };
 
@@ -60,7 +67,7 @@ export const Base64Tool = () => {
                         { value: 'decode', label: t('decode') },
                     ]}
                     value={mode}
-                    onChange={setMode}
+                    onChange={newMode => void setState(prev => ({ ...prev, mode: newMode }))}
                     variant="secondary"
                     size="sm"
                 />
@@ -82,7 +89,7 @@ export const Base64Tool = () => {
                         className="flex-1"
                         variant="code"
                         value={input}
-                        onChange={e => setInput(e.target.value)}
+                        onChange={e => void setState(prev => ({ ...prev, input: e.target.value }))}
                         placeholder={t('inputPlaceholder')}
                         spellCheck={false}
                     />

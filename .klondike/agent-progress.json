@@ -881,11 +881,6 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F153",
-        "description": "Add state persistence to utility apps using useAppState hook",
-        "status": "not-started"
-      },
-      {
         "id": "F156",
         "description": "Integrate file open/save dialogs into utility apps",
         "status": "not-started"
@@ -893,6 +888,11 @@
       {
         "id": "F157",
         "description": "Add notification scheduling and notification center to taskbar",
+        "status": "not-started"
+      },
+      {
+        "id": "F158",
+        "description": "Integrate scheduled notifications into Timer, Calendar, Mail, GistExplorer, and TodoList",
         "status": "not-started"
       }
     ]

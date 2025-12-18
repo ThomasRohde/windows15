@@ -1,11 +1,18 @@
-import React, { useState, useMemo } from 'react';
-import { useTranslation } from '../hooks/useTranslation';
+import React, { useMemo } from 'react';
+import { useTranslation, useAppState } from '../hooks';
 import { Button, TextArea, StatCard } from '../components/ui';
 import { formatReadingTime } from '../utils/timeFormatters';
 
+interface WordCounterState {
+    text: string;
+}
+
 export const WordCounter = () => {
     const { t } = useTranslation('wordCounter');
-    const [text, setText] = useState('');
+    const [state, setState] = useAppState<WordCounterState>('wordCounter', {
+        text: '',
+    });
+    const { text } = state;
 
     const stats = useMemo(() => {
         const characters = text.length;
@@ -55,7 +62,7 @@ export const WordCounter = () => {
                 <TextArea
                     className="flex-1 leading-relaxed"
                     value={text}
-                    onChange={e => setText(e.target.value)}
+                    onChange={e => void setState(prev => ({ ...prev, text: e.target.value }))}
                     placeholder={t('inputPlaceholder')}
                     spellCheck={false}
                 />
@@ -63,7 +70,7 @@ export const WordCounter = () => {
 
             <div className="px-4 py-2 bg-[#2d2d2d] text-xs text-gray-400 flex justify-between">
                 <span>{t('inputPlaceholder')}</span>
-                <Button onClick={() => setText('')} variant="danger" size="sm">
+                <Button onClick={() => void setState({ text: '' })} variant="danger" size="sm">
                     {t('clearText')}
                 </Button>
             </div>

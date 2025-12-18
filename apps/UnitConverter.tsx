@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from '../hooks/useTranslation';
+import { useTranslation, useAppState } from '../hooks';
 import { AppContainer, TabSwitcher, Card, Button, SectionLabel, TextInput, Select } from '../components/ui';
 
 type Category = 'length' | 'weight' | 'temperature' | 'data';
@@ -45,21 +45,35 @@ const units: Record<Category, UnitOption[]> = {
     ],
 };
 
+interface UnitConverterState {
+    category: Category;
+    fromUnit: number;
+    toUnit: number;
+    inputValue: string;
+}
+
 export const UnitConverter = () => {
     const { t } = useTranslation('unitConverter');
-    const [category, setCategory] = useState<Category>('length');
-    const [fromUnit, setFromUnit] = useState(0);
-    const [toUnit, setToUnit] = useState(1);
-    const [inputValue, setInputValue] = useState('1');
+    const [state, setState] = useAppState<UnitConverterState>('unitConverter', {
+        category: 'length',
+        fromUnit: 0,
+        toUnit: 1,
+        inputValue: '1',
+    });
+    const { category, fromUnit, toUnit, inputValue } = state;
     const [result, setResult] = useState('');
 
     const currentUnits = units[category];
 
     useEffect(() => {
-        setFromUnit(0);
-        setToUnit(1);
-        setInputValue('1');
-    }, [category]);
+        // Reset units when category changes
+        void setState(prev => ({
+            ...prev,
+            fromUnit: 0,
+            toUnit: 1,
+            inputValue: '1',
+        }));
+    }, [category, setState]);
 
     useEffect(() => {
         const value = parseFloat(inputValue);
@@ -87,9 +101,12 @@ export const UnitConverter = () => {
     }, [inputValue, fromUnit, toUnit, currentUnits]);
 
     const swapUnits = () => {
-        setFromUnit(toUnit);
-        setToUnit(fromUnit);
-        setInputValue(result || '1');
+        void setState(prev => ({
+            ...prev,
+            fromUnit: toUnit,
+            toUnit: fromUnit,
+            inputValue: result || '1',
+        }));
     };
 
     return (
@@ -100,7 +117,7 @@ export const UnitConverter = () => {
                     label: t(cat),
                 }))}
                 value={category}
-                onChange={setCategory}
+                onChange={newCat => void setState(prev => ({ ...prev, category: newCat }))}
                 size="sm"
                 wrap
             />
@@ -112,14 +129,14 @@ export const UnitConverter = () => {
                         <TextInput
                             type="number"
                             value={inputValue}
-                            onChange={e => setInputValue(e.target.value)}
+                            onChange={e => void setState(prev => ({ ...prev, inputValue: e.target.value }))}
                             className="flex-1 text-xl focus:ring-2 focus:ring-orange-500"
                             size="lg"
                             placeholder={t('from')}
                         />
                         <Select
                             value={fromUnit}
-                            onChange={value => setFromUnit(Number(value))}
+                            onChange={value => void setState(prev => ({ ...prev, fromUnit: Number(value) }))}
                             options={currentUnits.map((unit, index) => ({
                                 value: index,
                                 label: `${unit.label} (${unit.value})`,
@@ -142,7 +159,7 @@ export const UnitConverter = () => {
                         </div>
                         <Select
                             value={toUnit}
-                            onChange={value => setToUnit(Number(value))}
+                            onChange={value => void setState(prev => ({ ...prev, toUnit: Number(value) }))}
                             options={currentUnits.map((unit, index) => ({
                                 value: index,
                                 label: `${unit.label} (${unit.value})`,

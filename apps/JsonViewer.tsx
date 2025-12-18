@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAsyncAction } from '../hooks';
+import { useAsyncAction, useAppState } from '../hooks';
 import { useTranslation } from '../hooks/useTranslation';
 import { AppToolbar, TextArea } from '../components/ui';
 
@@ -90,11 +90,19 @@ const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level }) => {
     );
 };
 
+interface JsonViewerState {
+    input: string;
+    view: 'tree' | 'formatted';
+}
+
 export const JsonViewer = () => {
     const { t } = useTranslation('jsonViewer');
-    const [input, setInput] = useState('');
+    const [state, setState] = useAppState<JsonViewerState>('jsonViewer', {
+        input: '',
+        view: 'tree',
+    });
+    const { input, view } = state;
     const [parsedJson, setParsedJson] = useState<unknown>(null);
-    const [view, setView] = useState<'tree' | 'formatted'>('tree');
     const { execute, error } = useAsyncAction();
 
     const parseJson = async () => {
@@ -110,14 +118,14 @@ export const JsonViewer = () => {
     const formatJson = async () => {
         await execute(async () => {
             const parsed = JSON.parse(input);
-            setInput(JSON.stringify(parsed, null, 2));
+            await setState(prev => ({ ...prev, input: JSON.stringify(parsed, null, 2) }));
         });
     };
 
     const minifyJson = async () => {
         await execute(async () => {
             const parsed = JSON.parse(input);
-            setInput(JSON.stringify(parsed));
+            await setState(prev => ({ ...prev, input: JSON.stringify(parsed) }));
         });
     };
 
@@ -144,13 +152,13 @@ export const JsonViewer = () => {
                 </button>
                 <div className="flex bg-black/20 rounded overflow-hidden">
                     <button
-                        onClick={() => setView('tree')}
+                        onClick={() => void setState(prev => ({ ...prev, view: 'tree' }))}
                         className={`px-3 py-1.5 text-sm transition-colors ${view === 'tree' ? 'bg-white/20' : 'hover:bg-white/10'}`}
                     >
                         {t('expandAll')}
                     </button>
                     <button
-                        onClick={() => setView('formatted')}
+                        onClick={() => void setState(prev => ({ ...prev, view: 'formatted' }))}
                         className={`px-3 py-1.5 text-sm transition-colors ${view === 'formatted' ? 'bg-white/20' : 'hover:bg-white/10'}`}
                     >
                         {t('formatJson')}
@@ -165,7 +173,7 @@ export const JsonViewer = () => {
                         className="flex-1 bg-transparent border-none"
                         variant="code"
                         value={input}
-                        onChange={e => setInput(e.target.value)}
+                        onChange={e => void setState(prev => ({ ...prev, input: e.target.value }))}
                         placeholder='{"key": "value"}'
                         spellCheck={false}
                     />

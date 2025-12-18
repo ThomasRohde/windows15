@@ -4222,13 +4222,15 @@
         "UnitConverter persists last selected category/units"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-18T09:27:41.946790",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "State persistence implemented for all utility apps using useAppState hook"
+      ],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-18T09:22:11.577437",
       "notes": "Implementation: See AUDIT.md Phase 2.2 Apps table. Use useAppState(appId) in each app. Store minimal state needed to restore session. Edge cases: Limit history arrays to last 20 items. Dependencies: F152 (useAppState hook). Gotchas: Don't persist sensitive data like passwords from PasswordGenerator."
     },
     {
@@ -4713,8 +4715,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-18T09:19:11.590478",
+    "lastUpdated": "2025-12-18T09:27:41.946846",
     "totalFeatures": 172,
-    "passingFeatures": 156
+    "passingFeatures": 157
   }
 }

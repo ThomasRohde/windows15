@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useAsyncAction } from '../hooks';
+import React from 'react';
+import { useAsyncAction, useAppState } from '../hooks';
 import { useTranslation } from '../hooks/useTranslation';
 import { SectionLabel, CopyButton, AppToolbar, TextArea } from '../components/ui';
 
@@ -171,32 +171,46 @@ interface HashResult {
     length: number;
 }
 
+interface HashGeneratorState {
+    input: string;
+    hashes: HashResult[];
+    history: { input: string; timestamp: number }[];
+}
+
 export const HashGenerator = () => {
     const { t } = useTranslation('hashGenerator');
-    const [input, setInput] = useState('');
-    const [hashes, setHashes] = useState<HashResult[]>([]);
+    const [state, setState] = useAppState<HashGeneratorState>('hashGenerator', {
+        input: '',
+        hashes: [],
+        history: [],
+    });
+    const { input, hashes, history } = state;
     const { execute, loading } = useAsyncAction();
 
     const generateHashes = async () => {
         if (!input) {
-            setHashes([]);
+            await setState(prev => ({ ...prev, hashes: [] }));
             return;
         }
 
         await execute(async () => {
             const [sha1Hash, sha256Hash] = await Promise.all([sha1(input), sha256(input)]);
 
-            setHashes([
+            const newHashes = [
                 { name: 'MD5', value: md5(input), length: 32 },
                 { name: 'SHA-1', value: sha1Hash, length: 40 },
                 { name: 'SHA-256', value: sha256Hash, length: 64 },
-            ]);
+            ];
+
+            // Add to history, limit to last 20 items
+            const newHistory = [{ input, timestamp: Date.now() }, ...history].slice(0, 20);
+
+            await setState(prev => ({ ...prev, hashes: newHashes, history: newHistory }));
         });
     };
 
     const clear = () => {
-        setInput('');
-        setHashes([]);
+        void setState(prev => ({ ...prev, input: '', hashes: [] }));
     };
 
     return (
@@ -220,7 +234,7 @@ export const HashGenerator = () => {
                         className="h-32"
                         variant="code"
                         value={input}
-                        onChange={e => setInput(e.target.value)}
+                        onChange={e => void setState(prev => ({ ...prev, input: e.target.value }))}
                         placeholder={t('inputPlaceholder')}
                         spellCheck={false}
                     />

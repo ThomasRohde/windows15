@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAppState } from '../hooks';
 import { TextInput } from '../components/ui';
 
 interface YoutubePlayerProps {
@@ -38,22 +39,31 @@ function extractVideoId(url: string): string | null {
     }
 }
 
+interface YoutubePlayerState {
+    urlInput: string;
+    recentVideos: { url: string; videoId: string; timestamp: number }[];
+}
+
 export const YoutubePlayer = ({ initialUrl }: YoutubePlayerProps) => {
-    const [urlInput, setUrlInput] = useState(initialUrl || '');
+    const [state, setState] = useAppState<YoutubePlayerState>('youtubePlayer', {
+        urlInput: initialUrl || '',
+        recentVideos: [],
+    });
+    const { urlInput, recentVideos } = state;
     const [videoId, setVideoId] = useState<string | null>(() => (initialUrl ? extractVideoId(initialUrl) : null));
     const [error, setError] = useState<string | null>(null);
 
     // Update video ID when initialUrl prop changes
     useEffect(() => {
         if (initialUrl) {
-            setUrlInput(initialUrl);
+            void setState(prev => ({ ...prev, urlInput: initialUrl }));
             const id = extractVideoId(initialUrl);
             if (id) {
                 setVideoId(id);
                 setError(null);
             }
         }
-    }, [initialUrl]);
+    }, [initialUrl, setState]);
 
     const handleLoadVideo = () => {
         const trimmed = urlInput.trim();
@@ -66,6 +76,13 @@ export const YoutubePlayer = ({ initialUrl }: YoutubePlayerProps) => {
         if (id) {
             setVideoId(id);
             setError(null);
+
+            // Add to recent videos, limit to last 20
+            const newRecent = [
+                { url: trimmed, videoId: id, timestamp: Date.now() },
+                ...recentVideos.filter(v => v.videoId !== id),
+            ].slice(0, 20);
+            void setState(prev => ({ ...prev, recentVideos: newRecent }));
         } else {
             setError('Invalid YouTube URL. Please enter a valid YouTube video link.');
         }
@@ -86,7 +103,7 @@ export const YoutubePlayer = ({ initialUrl }: YoutubePlayerProps) => {
                     type="text"
                     placeholder="Paste YouTube video URL..."
                     value={urlInput}
-                    onChange={e => setUrlInput(e.target.value)}
+                    onChange={e => void setState(prev => ({ ...prev, urlInput: e.target.value }))}
                     onKeyDown={handleKeyDown}
                     className="flex-1 bg-black/30 focus:ring-1 focus:ring-red-500"
                     size="sm"

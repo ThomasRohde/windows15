@@ -1,20 +1,35 @@
-import React, { useState } from 'react';
-import { useTranslation } from '../hooks/useTranslation';
+import React from 'react';
+import { useTranslation, useAppState } from '../hooks';
 import { AppContainer, SectionLabel, TextArea } from '../components/ui';
 import { QRCodeCanvas } from 'qrcode.react';
 
+interface QrGeneratorState {
+    text: string;
+    qrData: string | null;
+    history: { text: string; timestamp: number }[];
+}
+
 export const QrGenerator = () => {
     const { t } = useTranslation('qrGenerator');
-    const [text, setText] = useState('');
-    const [qrData, setQrData] = useState<string | null>(null);
+    const [state, setState] = useAppState<QrGeneratorState>('qrGenerator', {
+        text: '',
+        qrData: null,
+        history: [],
+    });
+    const { text, qrData, history } = state;
 
     const generateQR = (data: string) => {
         if (!data.trim()) {
-            setQrData(null);
+            void setState(prev => ({ ...prev, qrData: null }));
             return;
         }
 
-        setQrData(data);
+        // Add to history, limit to last 20 items
+        const newHistory = [{ text: data, timestamp: Date.now() }, ...history]
+            .filter((item, index, self) => self.findIndex(i => i.text === item.text) === index)
+            .slice(0, 20);
+
+        void setState(prev => ({ ...prev, qrData: data, history: newHistory }));
     };
 
     const handleGenerate = () => {
@@ -38,7 +53,7 @@ export const QrGenerator = () => {
                 <SectionLabel>{t('inputText')}</SectionLabel>
                 <TextArea
                     value={text}
-                    onChange={e => setText(e.target.value)}
+                    onChange={e => void setState(prev => ({ ...prev, text: e.target.value }))}
                     placeholder={t('inputPlaceholder')}
                     className="bg-black/30"
                     rows={3}

@@ -9,6 +9,7 @@
  */
 import { useCallback } from 'react';
 import { useAppEmit } from './useEventBus';
+import { soundService } from '../utils';
 
 export interface NotificationOptions {
     /**
@@ -82,6 +83,7 @@ export function useNotification(): UseNotificationReturn {
 
     const success = useCallback(
         (message: string, options?: NotificationOptions) => {
+            soundService.play('success');
             emit({ message, type: 'success', duration: options?.duration });
         },
         [emit]
@@ -89,6 +91,7 @@ export function useNotification(): UseNotificationReturn {
 
     const error = useCallback(
         (message: string, options?: NotificationOptions) => {
+            soundService.play('error');
             emit({ message, type: 'error', duration: options?.duration });
         },
         [emit]
@@ -96,6 +99,7 @@ export function useNotification(): UseNotificationReturn {
 
     const info = useCallback(
         (message: string, options?: NotificationOptions) => {
+            soundService.play('notification');
             emit({ message, type: 'info', duration: options?.duration });
         },
         [emit]
@@ -103,6 +107,7 @@ export function useNotification(): UseNotificationReturn {
 
     const warning = useCallback(
         (message: string, options?: NotificationOptions) => {
+            soundService.play('notification');
             emit({ message, type: 'warning', duration: options?.duration });
         },
         [emit]

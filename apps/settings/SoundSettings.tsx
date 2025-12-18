@@ -93,22 +93,22 @@ export const SoundSettings: React.FC = () => {
                         </span>
                     </div>
 
-                    {/* Mute Toggle */}
+                    {/* Enable Toggle */}
                     <div className="flex items-center justify-between pt-4 border-t border-white/10">
                         <div>
-                            <div className="text-sm font-medium text-white/90">Mute System Sounds</div>
+                            <div className="text-sm font-medium text-white/90">Enable System Sounds</div>
                             <div className="text-xs text-white/50 mt-1">
-                                Silence all system sounds and notifications
+                                Play sounds for system events and notifications
                             </div>
                         </div>
                         <button
                             onClick={handleMuteToggle}
                             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                                ${isMuted ? 'bg-white/20' : 'bg-blue-500'}`}
+                                ${!isMuted ? 'bg-blue-500' : 'bg-white/20'}`}
                         >
                             <span
                                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform
-                                    ${isMuted ? 'translate-x-1' : 'translate-x-6'}`}
+                                    ${!isMuted ? 'translate-x-6' : 'translate-x-1'}`}
                             />
                         </button>
                     </div>

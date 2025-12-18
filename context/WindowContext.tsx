@@ -9,7 +9,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode, useCallback } from 'react';
 import { WindowState } from '../types';
 import { getWindowStates, WindowStateRecord } from '../utils/fileSystem';
-import { storageService } from '../utils/storage';
+import { storageService, soundService } from '../utils/storage';
 import { useAppRegistry } from './AppRegistryContext';
 import { useStartMenu } from './StartMenuContext';
 import { Z_INDEX } from '../utils/constants';
@@ -250,6 +250,7 @@ export const WindowProvider: React.FC<WindowProviderProps> = ({ children }) => {
 
                 const newWindows = [...prevWindows, newWindow];
                 persistWindowStates(newWindows);
+                soundService.play('open');
                 return newWindows;
             });
             closeStartMenu();
@@ -277,6 +278,7 @@ export const WindowProvider: React.FC<WindowProviderProps> = ({ children }) => {
                 }
                 const remaining = prev.filter(w => w.id !== id);
                 persistWindowStates(remaining);
+                soundService.play('close');
                 return remaining;
             });
         },
@@ -285,6 +287,7 @@ export const WindowProvider: React.FC<WindowProviderProps> = ({ children }) => {
 
     const minimizeWindow = useCallback((id: string) => {
         setWindows(prev => prev.map(w => (w.id === id ? { ...w, isMinimized: !w.isMinimized } : w)));
+        soundService.play('minimize');
     }, []);
 
     const toggleMaximizeWindow = useCallback(

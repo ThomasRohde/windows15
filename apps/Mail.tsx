@@ -35,14 +35,14 @@ const formatMessageTime = (timestamp: number) => {
 };
 
 // Seed data for first-time users
-const seedEmails = (): Omit<EmailRecord, 'createdAt' | 'updatedAt'>[] => {
+// Note: Omit 'id' field - Dexie Cloud with @id auto-generates globally unique IDs
+const seedEmails = (): Omit<EmailRecord, 'id' | 'createdAt' | 'updatedAt'>[] => {
     const now = Date.now();
     const days = (count: number) => now - count * 24 * 60 * 60 * 1000;
     const hours = (count: number) => now - count * 60 * 60 * 1000;
 
     return [
         {
-            id: generateUuid(),
             folderId: 'inbox',
             from: 'Ada Lovelace <ada@analytical.engine>',
             to: [USER_EMAIL],
@@ -52,7 +52,6 @@ const seedEmails = (): Omit<EmailRecord, 'createdAt' | 'updatedAt'>[] => {
             isRead: false,
         },
         {
-            id: generateUuid(),
             folderId: 'inbox',
             from: 'Design Team <design@contoso.com>',
             to: [USER_EMAIL],
@@ -62,7 +61,6 @@ const seedEmails = (): Omit<EmailRecord, 'createdAt' | 'updatedAt'>[] => {
             isRead: true,
         },
         {
-            id: generateUuid(),
             folderId: 'sent',
             from: `John Doe <${USER_EMAIL}>`,
             to: ['alex@contoso.com'],
@@ -72,7 +70,6 @@ const seedEmails = (): Omit<EmailRecord, 'createdAt' | 'updatedAt'>[] => {
             isRead: true,
         },
         {
-            id: generateUuid(),
             folderId: 'drafts',
             from: `John Doe <${USER_EMAIL}>`,
             to: ['team@contoso.com'],
@@ -132,7 +129,8 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
                         createdAt: now,
                         updatedAt: now,
                     }));
-                    await db.emails.bulkPut(emailsToSeed);
+                    // Use bulkAdd - Dexie Cloud @id auto-generates unique IDs
+                    await db.emails.bulkAdd(emailsToSeed);
                 }
                 setIsSeeded(true);
             } catch (error) {

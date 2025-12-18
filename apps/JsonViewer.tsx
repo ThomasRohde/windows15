@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { useAsyncAction, useAppState } from '../hooks';
+import { useAsyncAction, useAppState, useFilePicker } from '../hooks';
 import { useTranslation } from '../hooks/useTranslation';
-import { AppToolbar, TextArea } from '../components/ui';
+import { AppToolbar, TextArea, FilePickerModal } from '../components/ui';
+import { saveFileToFolder } from '../utils/fileSystem';
 
 interface JsonNodeProps {
     data: unknown;
@@ -104,6 +105,7 @@ export const JsonViewer = () => {
     const { input, view } = state;
     const [parsedJson, setParsedJson] = useState<unknown>(null);
     const { execute, error } = useAsyncAction();
+    const filePicker = useFilePicker();
 
     const parseJson = async () => {
         if (!input.trim()) {
@@ -129,9 +131,51 @@ export const JsonViewer = () => {
         });
     };
 
+    const openFile = async () => {
+        const file = await filePicker.open({
+            title: 'Open JSON File',
+            extensions: ['.json'],
+        });
+        if (file?.content) {
+            await setState(prev => ({ ...prev, input: file.content ?? '' }));
+            setParsedJson(null);
+        }
+    };
+
+    const saveFile = async () => {
+        if (!input) return;
+        const file = await filePicker.save({
+            title: 'Save JSON File',
+            content: input,
+            defaultFileName: 'data.json',
+            defaultExtension: '.json',
+        });
+        if (file) {
+            await saveFileToFolder(file.path, { name: file.name, type: 'file', content: file.content ?? '' });
+        }
+    };
+
     return (
         <div className="h-full flex flex-col bg-background-dark text-white">
             <AppToolbar>
+                <button
+                    onClick={openFile}
+                    className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors flex items-center gap-1"
+                    title="Open JSON file"
+                >
+                    <span className="material-symbols-outlined text-[16px]">folder_open</span>
+                    Open
+                </button>
+                {input && (
+                    <button
+                        onClick={saveFile}
+                        className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors flex items-center gap-1"
+                        title="Save JSON file"
+                    >
+                        <span className="material-symbols-outlined text-[16px]">save</span>
+                        Save
+                    </button>
+                )}
                 <button
                     onClick={parseJson}
                     className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded text-sm font-medium transition-colors"
@@ -200,6 +244,17 @@ export const JsonViewer = () => {
                     </div>
                 </div>
             </div>
+
+            {filePicker.state.isOpen && (
+                <FilePickerModal
+                    state={filePicker.state}
+                    onNavigateTo={filePicker.navigateTo}
+                    onSelectFile={filePicker.selectFile}
+                    onSetFileName={filePicker.setFileName}
+                    onConfirm={filePicker.confirm}
+                    onCancel={filePicker.cancel}
+                />
+            )}
         </div>
     );
 };

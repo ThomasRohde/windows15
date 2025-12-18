@@ -1,7 +1,16 @@
 import React from 'react';
-import { useAsyncAction, useStandardHotkeys, useCopyToClipboard, useAppState } from '../hooks';
+import { useAsyncAction, useStandardHotkeys, useCopyToClipboard, useAppState, useFilePicker } from '../hooks';
 import { useTranslation } from '../hooks/useTranslation';
-import { TabSwitcher, ErrorBanner, SectionLabel, CopyButton, AppToolbar, TextArea } from '../components/ui';
+import {
+    TabSwitcher,
+    ErrorBanner,
+    SectionLabel,
+    CopyButton,
+    AppToolbar,
+    TextArea,
+    FilePickerModal,
+} from '../components/ui';
+import { saveFileToFolder } from '../utils/fileSystem';
 
 interface Base64ToolState {
     input: string;
@@ -19,6 +28,7 @@ export const Base64Tool = () => {
     const { input, output, mode } = state;
     const { execute, error, clearError } = useAsyncAction();
     const { copy } = useCopyToClipboard();
+    const filePicker = useFilePicker();
 
     const encode = async () => {
         await execute(async () => {
@@ -52,6 +62,30 @@ export const Base64Tool = () => {
         clearError();
     };
 
+    const openFile = async () => {
+        const file = await filePicker.open({
+            title: 'Open File to Encode',
+            extensions: ['.txt', '.json', '.md', '.csv', '.log', '.xml'],
+        });
+        if (file?.content) {
+            await setState(prev => ({ ...prev, input: file.content ?? '', output: '' }));
+            clearError();
+        }
+    };
+
+    const saveOutput = async () => {
+        if (!output) return;
+        const file = await filePicker.save({
+            title: mode === 'encode' ? 'Save Encoded Base64' : 'Save Decoded Text',
+            content: output,
+            defaultFileName: mode === 'encode' ? 'encoded.txt' : 'decoded.txt',
+            defaultExtension: '.txt',
+        });
+        if (file) {
+            await saveFileToFolder(file.path, { name: file.name, type: 'file', content: file.content ?? '' });
+        }
+    };
+
     // Keyboard shortcuts (F140)
     useStandardHotkeys({
         onCopy: output ? () => void copy(output) : undefined,
@@ -71,6 +105,24 @@ export const Base64Tool = () => {
                     variant="secondary"
                     size="sm"
                 />
+                <button
+                    onClick={openFile}
+                    className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors flex items-center gap-1"
+                    title="Open file to encode/decode"
+                >
+                    <span className="material-symbols-outlined text-[16px]">folder_open</span>
+                    Open
+                </button>
+                {output && (
+                    <button
+                        onClick={saveOutput}
+                        className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors flex items-center gap-1"
+                        title="Save output"
+                    >
+                        <span className="material-symbols-outlined text-[16px]">save</span>
+                        Save
+                    </button>
+                )}
                 <button
                     onClick={clear}
                     className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors"
@@ -130,6 +182,17 @@ export const Base64Tool = () => {
                     />
                 </div>
             </div>
+
+            {filePicker.state.isOpen && (
+                <FilePickerModal
+                    state={filePicker.state}
+                    onNavigateTo={filePicker.navigateTo}
+                    onSelectFile={filePicker.selectFile}
+                    onSetFileName={filePicker.setFileName}
+                    onConfirm={filePicker.confirm}
+                    onCancel={filePicker.cancel}
+                />
+            )}
         </div>
     );
 };

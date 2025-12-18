@@ -3,12 +3,13 @@ import { STORAGE_KEYS } from '../utils/storage';
 import { SkeletonCalendar } from '../components/LoadingSkeleton';
 import { useLocalization } from '../context';
 import { generateUuid } from '../utils/uuid';
-import { TextArea, EmptyState, FormField } from '../components/ui';
+import { TextArea, EmptyState, FormField, FilePickerModal } from '../components/ui';
 import { Checkbox } from '../components/ui';
 import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { required, validateValue, validateDateRange } from '../utils/validation';
-import { useSeededCollection } from '../hooks';
+import { useSeededCollection, useFilePicker } from '../hooks';
 import { toYmd, fromYmd, pad2, addMonths, buildMonthGrid } from '../utils/dateUtils';
+import { saveFileToFolder } from '../utils/fileSystem';
 
 type CalendarEvent = {
     id: string;
@@ -91,6 +92,7 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
         setItems: setEvents,
         isLoading: isLoadingEvents,
     } = useSeededCollection(STORAGE_KEYS.calendarEvents, seedEvents);
+    const filePicker = useFilePicker();
 
     const [monthCursor, setMonthCursor] = useState(() => {
         const start = normalizeInitialDate(initialDate) ?? toYmd(new Date());
@@ -137,6 +139,106 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
     const selectedLabel = useMemo(() => {
         return fromYmd(selectedDate).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
     }, [selectedDate]);
+
+    const exportToICS = async () => {
+        if (events.length === 0) return;
+
+        // Generate ICS content
+        const icsLines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Windows15//Calendar//EN', 'CALSCALE:GREGORIAN'];
+
+        for (const event of events) {
+            const dtstart = event.allDay
+                ? event.date.replace(/-/g, '')
+                : `${event.date.replace(/-/g, '')}T${event.startTime.replace(':', '')}00`;
+            const dtend = event.allDay
+                ? event.date.replace(/-/g, '')
+                : `${event.date.replace(/-/g, '')}T${event.endTime.replace(':', '')}00`;
+
+            icsLines.push(
+                'BEGIN:VEVENT',
+                `UID:${event.id}`,
+                `DTSTART:${dtstart}`,
+                `DTEND:${dtend}`,
+                `SUMMARY:${event.title}`,
+                event.location ? `LOCATION:${event.location}` : '',
+                event.notes ? `DESCRIPTION:${event.notes.replace(/\n/g, '\\n')}` : '',
+                'END:VEVENT'
+            );
+        }
+
+        icsLines.push('END:VCALENDAR');
+        const icsContent = icsLines.filter(Boolean).join('\r\n');
+
+        const file = await filePicker.save({
+            title: 'Export Calendar',
+            content: icsContent,
+            defaultFileName: 'calendar.ics',
+            defaultExtension: '.ics',
+        });
+        if (file) {
+            await saveFileToFolder(file.path, { name: file.name, type: 'file', content: file.content ?? '' });
+        }
+    };
+
+    const importFromICS = async () => {
+        const file = await filePicker.open({
+            title: 'Import Calendar',
+            extensions: ['.ics'],
+        });
+        if (!file?.content) return;
+
+        try {
+            const lines = file.content.split(/\r?\n/);
+            const importedEvents: CalendarEvent[] = [];
+            let currentEvent: Partial<CalendarEvent> | null = null;
+
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (trimmed === 'BEGIN:VEVENT') {
+                    currentEvent = { id: generateUuid(), allDay: false, location: '', notes: '' };
+                } else if (trimmed === 'END:VEVENT' && currentEvent) {
+                    if (currentEvent.title && currentEvent.date && currentEvent.startTime && currentEvent.endTime) {
+                        importedEvents.push(currentEvent as CalendarEvent);
+                    }
+                    currentEvent = null;
+                } else if (currentEvent && trimmed.includes(':')) {
+                    const [key, ...valueParts] = trimmed.split(':');
+                    const value = valueParts.join(':');
+                    if (key === 'SUMMARY') {
+                        currentEvent.title = value;
+                    } else if (key === 'DTSTART') {
+                        const dateStr = value.substring(0, 8);
+                        currentEvent.date = `${dateStr.substring(0, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}`;
+                        if (value.length > 8 && value.includes('T')) {
+                            const timeStr = value.substring(9, 13);
+                            currentEvent.startTime = `${timeStr.substring(0, 2)}:${timeStr.substring(2, 4)}`;
+                            currentEvent.allDay = false;
+                        } else {
+                            currentEvent.allDay = true;
+                            currentEvent.startTime = '00:00';
+                        }
+                    } else if (key === 'DTEND') {
+                        if (value.length > 8 && value.includes('T')) {
+                            const timeStr = value.substring(9, 13);
+                            currentEvent.endTime = `${timeStr.substring(0, 2)}:${timeStr.substring(2, 4)}`;
+                        } else {
+                            currentEvent.endTime = '23:59';
+                        }
+                    } else if (key === 'LOCATION') {
+                        currentEvent.location = value;
+                    } else if (key === 'DESCRIPTION') {
+                        currentEvent.notes = value.replace(/\\n/g, '\n');
+                    }
+                }
+            }
+
+            if (importedEvents.length > 0) {
+                setEvents([...events, ...importedEvents]);
+            }
+        } catch (error) {
+            console.error('Failed to import ICS:', error);
+        }
+    };
 
     const openNewEvent = (prefillDate?: string) => {
         setDraftError(null);
@@ -262,18 +364,38 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                     <div className="ml-2 text-lg font-medium text-white/90">{monthLabel}</div>
                 </div>
 
-                <button
-                    onClick={() => openNewEvent()}
-                    className="px-3 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center gap-2"
-                >
-                    <span
-                        className="material-symbols-outlined text-[18px]"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={importFromICS}
+                        className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm text-white/90 flex items-center gap-1"
+                        title="Import calendar"
                     >
-                        add
-                    </span>
-                    New event
-                </button>
+                        <span className="material-symbols-outlined text-[16px]">folder_open</span>
+                        Import
+                    </button>
+                    {events.length > 0 && (
+                        <button
+                            onClick={exportToICS}
+                            className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm text-white/90 flex items-center gap-1"
+                            title="Export calendar"
+                        >
+                            <span className="material-symbols-outlined text-[16px]">save</span>
+                            Export
+                        </button>
+                    )}
+                    <button
+                        onClick={() => openNewEvent()}
+                        className="px-3 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center gap-2"
+                    >
+                        <span
+                            className="material-symbols-outlined text-[18px]"
+                            style={{ fontVariationSettings: "'FILL' 1" }}
+                        >
+                            add
+                        </span>
+                        New event
+                    </button>
+                </div>
             </div>
 
             {/* Body */}
@@ -548,6 +670,18 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
 
             {/* Confirm Dialog */}
             <ConfirmDialog {...dialogProps} />
+
+            {/* File Picker Modal */}
+            {filePicker.state.isOpen && (
+                <FilePickerModal
+                    state={filePicker.state}
+                    onNavigateTo={filePicker.navigateTo}
+                    onSelectFile={filePicker.selectFile}
+                    onSetFileName={filePicker.setFileName}
+                    onConfirm={filePicker.confirm}
+                    onCancel={filePicker.cancel}
+                />
+            )}
         </div>
     );
 };

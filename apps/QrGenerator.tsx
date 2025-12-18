@@ -1,7 +1,8 @@
 import React from 'react';
-import { useTranslation, useAppState } from '../hooks';
-import { AppContainer, SectionLabel, TextArea } from '../components/ui';
+import { useTranslation, useAppState, useFilePicker } from '../hooks';
+import { AppContainer, SectionLabel, TextArea, FilePickerModal } from '../components/ui';
 import { QRCodeCanvas } from 'qrcode.react';
+import { saveFileToFolder } from '../utils/fileSystem';
 
 interface QrGeneratorState {
     text: string;
@@ -17,6 +18,7 @@ export const QrGenerator = () => {
         history: [],
     });
     const { text, qrData, history } = state;
+    const filePicker = useFilePicker();
 
     const generateQR = (data: string) => {
         if (!data.trim()) {
@@ -36,15 +38,22 @@ export const QrGenerator = () => {
         generateQR(text);
     };
 
-    const downloadQR = () => {
+    const saveQRToFile = async () => {
         if (!qrData) return;
         const canvas = document.getElementById('qr-canvas') as HTMLCanvasElement | null;
         if (!canvas) return;
 
-        const link = document.createElement('a');
-        link.download = 'qrcode.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        const dataURL = canvas.toDataURL('image/png');
+        const file = await filePicker.save({
+            title: 'Save QR Code',
+            content: dataURL,
+            defaultFileName: 'qrcode.png',
+            defaultExtension: '.png',
+            initialPath: ['root', 'pictures'],
+        });
+        if (file) {
+            await saveFileToFolder(file.path, { name: file.name, type: 'file', content: file.content ?? '' });
+        }
     };
 
     return (
@@ -84,10 +93,11 @@ export const QrGenerator = () => {
                         <div className="mt-4 text-center">
                             <p className="text-white/50 text-sm mb-3 max-w-[200px] truncate">{qrData}</p>
                             <button
-                                onClick={downloadQR}
-                                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-400 transition-colors text-sm"
+                                onClick={saveQRToFile}
+                                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-400 transition-colors text-sm flex items-center gap-1 mx-auto"
                             >
-                                {t('downloadQr')}
+                                <span className="material-symbols-outlined text-[16px]">save</span>
+                                Save to Pictures
                             </button>
                         </div>
                     </>
@@ -105,6 +115,17 @@ export const QrGenerator = () => {
             <div className="text-white/40 text-xs text-center">
                 Note: This generates a QR code using `qrcode.react` (library handles standards and error-correction).
             </div>
+
+            {filePicker.state.isOpen && (
+                <FilePickerModal
+                    state={filePicker.state}
+                    onNavigateTo={filePicker.navigateTo}
+                    onSelectFile={filePicker.selectFile}
+                    onSetFileName={filePicker.setFileName}
+                    onConfirm={filePicker.confirm}
+                    onCancel={filePicker.cancel}
+                />
+            )}
         </AppContainer>
     );
 };

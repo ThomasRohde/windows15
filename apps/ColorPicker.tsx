@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { usePersistedState, useStandardHotkeys, useCopyToClipboard } from '../hooks';
-import { AppContainer, Slider, Button, SectionLabel, CopyButton } from '../components/ui';
+import { usePersistedState, useStandardHotkeys, useCopyToClipboard, useFilePicker } from '../hooks';
+import { AppContainer, Slider, Button, SectionLabel, CopyButton, FilePickerModal } from '../components/ui';
 import { hslToRgb, rgbToHex, rgbToHsl } from '../utils/color';
 import { useTranslation } from '../hooks/useTranslation';
+import { saveFileToFolder } from '../utils/fileSystem';
 
 interface SavedColor {
     hex: string;
@@ -15,6 +16,7 @@ export const ColorPicker = () => {
     const [saturation, setSaturation] = useState(70);
     const [lightness, setLightness] = useState(50);
     const { value: savedColors, setValue: setSavedColors } = usePersistedState<SavedColor[]>('colorpicker.saved', []);
+    const filePicker = useFilePicker();
 
     const rgb = hslToRgb(hue, saturation, lightness);
     const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
@@ -46,6 +48,36 @@ export const ColorPicker = () => {
         setHue(hsl.h);
         setSaturation(hsl.s);
         setLightness(hsl.l);
+    };
+
+    const exportPalette = async () => {
+        if (savedColors.length === 0) return;
+        const file = await filePicker.save({
+            title: 'Export Color Palette',
+            content: JSON.stringify(savedColors, null, 2),
+            defaultFileName: 'palette.json',
+            defaultExtension: '.json',
+        });
+        if (file) {
+            await saveFileToFolder(file.path, { name: file.name, type: 'file', content: file.content ?? '' });
+        }
+    };
+
+    const importPalette = async () => {
+        const file = await filePicker.open({
+            title: 'Import Color Palette',
+            extensions: ['.json'],
+        });
+        if (file?.content) {
+            try {
+                const imported = JSON.parse(file.content) as SavedColor[];
+                if (Array.isArray(imported)) {
+                    setSavedColors(imported);
+                }
+            } catch (error) {
+                console.error('Failed to import palette:', error);
+            }
+        }
     };
 
     const ColorValue = ({ label, value, format }: { label: string; value: string; format: string }) => (
@@ -104,7 +136,27 @@ export const ColorPicker = () => {
 
             {savedColors.length > 0 && (
                 <div className="bg-black/20 p-4 rounded-lg">
-                    <SectionLabel>{t('recentColors')}</SectionLabel>
+                    <div className="flex justify-between items-center mb-3">
+                        <SectionLabel className="mb-0">{t('recentColors')}</SectionLabel>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={importPalette}
+                                className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-xs transition-colors flex items-center gap-1"
+                                title="Import palette"
+                            >
+                                <span className="material-symbols-outlined text-[14px]">folder_open</span>
+                                Import
+                            </button>
+                            <button
+                                onClick={exportPalette}
+                                className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-xs transition-colors flex items-center gap-1"
+                                title="Export palette"
+                            >
+                                <span className="material-symbols-outlined text-[14px]">save</span>
+                                Export
+                            </button>
+                        </div>
+                    </div>
                     <div className="flex flex-wrap gap-2">
                         {savedColors.map(color => (
                             <div
@@ -126,6 +178,31 @@ export const ColorPicker = () => {
                         ))}
                     </div>
                 </div>
+            )}
+
+            {savedColors.length === 0 && (
+                <div className="bg-black/20 p-4 rounded-lg text-center">
+                    <p className="text-white/50 text-sm mb-2">No saved colors</p>
+                    <button
+                        onClick={importPalette}
+                        className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors flex items-center gap-1 mx-auto"
+                        title="Import palette"
+                    >
+                        <span className="material-symbols-outlined text-[16px]">folder_open</span>
+                        Import Palette
+                    </button>
+                </div>
+            )}
+
+            {filePicker.state.isOpen && (
+                <FilePickerModal
+                    state={filePicker.state}
+                    onNavigateTo={filePicker.navigateTo}
+                    onSelectFile={filePicker.selectFile}
+                    onSetFileName={filePicker.setFileName}
+                    onConfirm={filePicker.confirm}
+                    onCancel={filePicker.cancel}
+                />
             )}
         </AppContainer>
     );

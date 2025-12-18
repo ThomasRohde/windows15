@@ -1,7 +1,7 @@
 import React from 'react';
-import { useAsyncAction, useAppState } from '../hooks';
+import { useAsyncAction, useAppState, useFilePicker } from '../hooks';
 import { useTranslation } from '../hooks/useTranslation';
-import { SectionLabel, CopyButton, AppToolbar, TextArea } from '../components/ui';
+import { SectionLabel, CopyButton, AppToolbar, TextArea, FilePickerModal } from '../components/ui';
 
 const md5 = (str: string): string => {
     const rotateLeft = (x: number, n: number) => (x << n) | (x >>> (32 - n));
@@ -186,6 +186,7 @@ export const HashGenerator = () => {
     });
     const { input, hashes, history } = state;
     const { execute, loading } = useAsyncAction();
+    const filePicker = useFilePicker();
 
     const generateHashes = async () => {
         if (!input) {
@@ -209,6 +210,16 @@ export const HashGenerator = () => {
         });
     };
 
+    const openFile = async () => {
+        const file = await filePicker.open({
+            title: 'Open File to Hash',
+            extensions: ['.txt', '.json', '.md', '.csv', '.log', '.xml'],
+        });
+        if (file?.content) {
+            await setState(prev => ({ ...prev, input: file.content ?? '', hashes: [] }));
+        }
+    };
+
     const clear = () => {
         void setState(prev => ({ ...prev, input: '', hashes: [] }));
     };
@@ -217,10 +228,18 @@ export const HashGenerator = () => {
         <div className="h-full flex flex-col bg-background-dark text-white">
             <AppToolbar title={t('title')}>
                 <button
+                    onClick={openFile}
+                    className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors flex items-center gap-1"
+                    title="Open file to hash"
+                >
+                    <span className="material-symbols-outlined text-[16px]">folder_open</span>
+                    Open
+                </button>
+                <button
                     onClick={clear}
                     className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors"
                 >
-                    {t('title')}
+                    Clear
                 </button>
             </AppToolbar>
 
@@ -282,6 +301,17 @@ export const HashGenerator = () => {
                     </div>
                 )}
             </div>
+
+            {filePicker.state.isOpen && (
+                <FilePickerModal
+                    state={filePicker.state}
+                    onNavigateTo={filePicker.navigateTo}
+                    onSelectFile={filePicker.selectFile}
+                    onSetFileName={filePicker.setFileName}
+                    onConfirm={filePicker.confirm}
+                    onCancel={filePicker.cancel}
+                />
+            )}
         </div>
     );
 };

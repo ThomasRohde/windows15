@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { useTranslation, useAppState } from '../hooks';
-import { Button, TextArea, StatCard } from '../components/ui';
+import { useTranslation, useAppState, useFilePicker } from '../hooks';
+import { Button, TextArea, StatCard, FilePickerModal } from '../components/ui';
 import { formatReadingTime } from '../utils/timeFormatters';
 
 interface WordCounterState {
@@ -13,6 +13,17 @@ export const WordCounter = () => {
         text: '',
     });
     const { text } = state;
+    const filePicker = useFilePicker();
+
+    const openFile = async () => {
+        const file = await filePicker.open({
+            title: 'Open Text File',
+            extensions: ['.txt', '.md', '.csv', '.log'],
+        });
+        if (file?.content) {
+            await setState(prev => ({ ...prev, text: file.content ?? '' }));
+        }
+    };
 
     const stats = useMemo(() => {
         const characters = text.length;
@@ -40,6 +51,17 @@ export const WordCounter = () => {
 
     return (
         <div className="h-full flex flex-col bg-background-dark text-white">
+            <div className="px-4 py-2 bg-black/20 border-b border-white/10 flex gap-2">
+                <button
+                    onClick={openFile}
+                    className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors flex items-center gap-1"
+                    title="Open text file"
+                >
+                    <span className="material-symbols-outlined text-[16px]">folder_open</span>
+                    Open
+                </button>
+            </div>
+
             <div className="grid grid-cols-4 gap-3 p-4 bg-[#2d2d2d] border-b border-white/10">
                 <StatCard label={t('characters')} value={stats.characters} subtitle={t('charactersNoSpaces')} />
                 <StatCard label={t('words')} value={stats.words} />
@@ -74,6 +96,17 @@ export const WordCounter = () => {
                     {t('clearText')}
                 </Button>
             </div>
+
+            {filePicker.state.isOpen && (
+                <FilePickerModal
+                    state={filePicker.state}
+                    onNavigateTo={filePicker.navigateTo}
+                    onSelectFile={filePicker.selectFile}
+                    onSetFileName={filePicker.setFileName}
+                    onConfirm={filePicker.confirm}
+                    onCancel={filePicker.cancel}
+                />
+            )}
         </div>
     );
 };

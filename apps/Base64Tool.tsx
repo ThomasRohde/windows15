@@ -1,15 +1,8 @@
 import React from 'react';
 import { useAsyncAction, useStandardHotkeys, useCopyToClipboard, useAppState, useFilePicker } from '../hooks';
 import { useTranslation } from '../hooks/useTranslation';
-import {
-    TabSwitcher,
-    ErrorBanner,
-    SectionLabel,
-    CopyButton,
-    AppToolbar,
-    TextArea,
-    FilePickerModal,
-} from '../components/ui';
+import { TabSwitcher, ErrorBanner, SectionLabel, CopyButton, AppToolbar, TextArea } from '../components/ui';
+import { FilePickerModal } from '../components';
 import { saveFileToFolder } from '../utils/fileSystem';
 
 interface Base64ToolState {

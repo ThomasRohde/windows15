@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useTranslation, useAppState, useFilePicker } from '../hooks';
-import { Button, TextArea, StatCard, FilePickerModal } from '../components/ui';
+import { Button, TextArea, StatCard } from '../components/ui';
+import { FilePickerModal } from '../components';
 import { formatReadingTime } from '../utils/timeFormatters';
 
 interface WordCounterState {

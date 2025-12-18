@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useAsyncAction, useAppState, useFilePicker } from '../hooks';
 import { useTranslation } from '../hooks/useTranslation';
-import { AppToolbar, TextArea, FilePickerModal } from '../components/ui';
+import { AppToolbar, TextArea } from '../components/ui';
+import { FilePickerModal } from '../components';
 import { saveFileToFolder } from '../utils/fileSystem';
 
 interface JsonNodeProps {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation, useAppState, useFilePicker } from '../hooks';
-import { AppContainer, SectionLabel, TextArea, FilePickerModal } from '../components/ui';
+import { AppContainer, SectionLabel, TextArea } from '../components/ui';
+import { FilePickerModal } from '../components';
 import { QRCodeCanvas } from 'qrcode.react';
 import { saveFileToFolder } from '../utils/fileSystem';
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { usePersistedState, useStandardHotkeys, useCopyToClipboard, useFilePicker } from '../hooks';
-import { AppContainer, Slider, Button, SectionLabel, CopyButton, FilePickerModal } from '../components/ui';
+import { AppContainer, Slider, Button, SectionLabel, CopyButton } from '../components/ui';
+import { FilePickerModal } from '../components';
 import { hslToRgb, rgbToHex, rgbToHsl } from '../utils/color';
 import { useTranslation } from '../hooks/useTranslation';
 import { saveFileToFolder } from '../utils/fileSystem';

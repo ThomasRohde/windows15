@@ -1,7 +1,8 @@
 import React from 'react';
 import { useAsyncAction, useAppState, useFilePicker } from '../hooks';
 import { useTranslation } from '../hooks/useTranslation';
-import { SectionLabel, CopyButton, AppToolbar, TextArea, FilePickerModal } from '../components/ui';
+import { SectionLabel, CopyButton, AppToolbar, TextArea } from '../components/ui';
+import { FilePickerModal } from '../components';
 
 const md5 = (str: string): string => {
     const rotateLeft = (x: number, n: number) => (x << n) | (x >>> (32 - n));

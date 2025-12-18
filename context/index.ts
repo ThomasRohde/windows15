@@ -27,3 +27,7 @@ export type { WindowSpaceMode, WindowSpaceSettings } from './WindowSpaceContext'
 // Notification center context (F157)
 export { NotificationProvider, useNotificationCenter } from './NotificationContext';
 export type { NotificationContextValue, NotificationType, ScheduleOptions } from './NotificationContext';
+
+// System info context (F160)
+export { SystemInfoProvider, useSystemInfo } from './SystemInfoContext';
+export type { SystemInfoContextValue, NetworkStatus } from './SystemInfoContext';

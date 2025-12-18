@@ -12,6 +12,7 @@ import { WindowProvider, useWindowManager } from './WindowContext';
 import { LocalizationProvider } from './LocalizationContext';
 import { ScreensaverProvider } from './ScreensaverContext';
 import { WindowSpaceProvider } from './WindowSpaceContext';
+import { SystemInfoProvider } from './SystemInfoContext';
 
 /**
  * Combined interface for backward compatibility
@@ -94,9 +95,11 @@ export const OSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                     <WallpaperProvider>
                         <ScreensaverProvider>
                             <WindowSpaceProvider>
-                                <WindowProvider>
-                                    <OSContextBridge>{children}</OSContextBridge>
-                                </WindowProvider>
+                                <SystemInfoProvider>
+                                    <WindowProvider>
+                                        <OSContextBridge>{children}</OSContextBridge>
+                                    </WindowProvider>
+                                </SystemInfoProvider>
                             </WindowSpaceProvider>
                         </ScreensaverProvider>
                     </WallpaperProvider>
@@ -114,3 +117,4 @@ export { useWindowManager } from './WindowContext';
 export { useLocalization } from './LocalizationContext';
 export { useScreensaver } from './ScreensaverContext';
 export { useWindowSpace } from './WindowSpaceContext';
+export { useSystemInfo } from './SystemInfoContext';

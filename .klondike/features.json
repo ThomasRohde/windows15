@@ -4430,13 +4430,13 @@
         "useSystemInfo hook available for consumption"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-18T12:22:12.356027",
       "notes": "Implementation: See AUDIT.md Phase 5.1. Use navigator.deviceMemory, navigator.hardwareConcurrency, StorageManager API. Mock some values for consistency. Edge cases: Handle APIs not available in all browsers. Dependencies: None. Gotchas: Uptime is simulated from app start - not real system uptime."
     },
     {

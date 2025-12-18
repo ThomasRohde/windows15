@@ -16,7 +16,15 @@ import {
     LoginScreen,
     ContextMenu,
 } from './components';
-import { OSProvider, useOS, DbProvider, useDb, useWindowSpace, UserProfileProvider } from './context';
+import {
+    OSProvider,
+    useOS,
+    DbProvider,
+    useDb,
+    useWindowSpace,
+    UserProfileProvider,
+    NotificationProvider,
+} from './context';
 import { useDexieLiveQuery } from './utils/storage/react';
 import { DesktopIconRecord } from './utils/storage/db';
 import { APP_REGISTRY } from './apps';
@@ -476,14 +484,16 @@ const Desktop = () => {
 const App: React.FC = () => {
     return (
         <DbProvider>
-            <UserProfileProvider>
-                <OSProvider>
-                    <AriaLiveProvider>
-                        <LoginScreen />
-                        <Desktop />
-                    </AriaLiveProvider>
-                </OSProvider>
-            </UserProfileProvider>
+            <NotificationProvider>
+                <UserProfileProvider>
+                    <OSProvider>
+                        <AriaLiveProvider>
+                            <LoginScreen />
+                            <Desktop />
+                        </AriaLiveProvider>
+                    </OSProvider>
+                </UserProfileProvider>
+            </NotificationProvider>
         </DbProvider>
     );
 };

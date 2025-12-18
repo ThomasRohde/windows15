@@ -29,6 +29,7 @@ export {
     DelayedSkeleton,
 } from './LoadingSkeleton';
 export { LoginScreen } from './LoginScreen';
+export { NotificationCenter } from './NotificationCenter';
 export { NotificationToast } from './NotificationToast';
 export { OverviewMode } from './OverviewMode';
 export { PWAUpdatePrompt } from './PWAUpdatePrompt';

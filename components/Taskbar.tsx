@@ -1,6 +1,7 @@
 import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
-import { useLocalization, useOS } from '../context';
+import { useLocalization, useOS, useNotificationCenter } from '../context';
 import { SyncStatus } from './SyncStatus';
+import { NotificationCenter } from './NotificationCenter';
 import { Tooltip } from './ui';
 
 // Pinned apps configuration - static list
@@ -9,6 +10,7 @@ const PINNED_APPS = ['explorer', 'browser', 'mail', 'calendar', 'notepad', 'calc
 export const Taskbar = () => {
     const { toggleStartMenu, isStartMenuOpen, apps, openWindow, windows, minimizeWindow } = useOS();
     const { formatTimeShort, formatDateShort } = useLocalization();
+    const { toggle: toggleNotifications, unreadCount, isOpen: isNotificationCenterOpen } = useNotificationCenter();
     const [time, setTime] = useState(new Date());
 
     useEffect(() => {
@@ -96,6 +98,21 @@ export const Taskbar = () => {
                         </div>
                     </Tooltip>
                     <SyncStatus />
+                    {/* Notification Center (F157) */}
+                    <Tooltip content="Notifications" position="top">
+                        <button
+                            data-notification-button
+                            onClick={toggleNotifications}
+                            className={`relative p-2 rounded-full hover:bg-white/10 text-white/70 hover:text-white transition-colors ${isNotificationCenterOpen ? 'bg-white/10 text-white' : ''}`}
+                        >
+                            <span className="material-symbols-outlined text-[18px]">notifications</span>
+                            {unreadCount > 0 && (
+                                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] px-1 flex items-center justify-center bg-red-500 text-white text-[9px] font-bold rounded-full">
+                                    {unreadCount > 99 ? '99+' : unreadCount}
+                                </span>
+                            )}
+                        </button>
+                    </Tooltip>
                     {/* Clock */}
                     <div className="flex flex-col items-end justify-center px-3 py-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer text-right min-w-[80px]">
                         <span className="text-xs font-semibold text-white leading-none mb-0.5">
@@ -111,6 +128,8 @@ export const Taskbar = () => {
                     </Tooltip>
                 </div>
             </div>
+            {/* Notification Center Panel (F157) */}
+            <NotificationCenter />
         </div>
     );
 };

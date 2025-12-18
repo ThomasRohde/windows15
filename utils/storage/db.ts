@@ -126,6 +126,25 @@ export type AppStateRecord = {
     updatedAt: number;
 };
 
+// ==========================================
+// Notification Center (F157)
+// ==========================================
+
+/**
+ * Notification record for the notification center
+ */
+export type NotificationRecord = {
+    id: string; // Unique notification ID
+    title: string; // Notification title
+    message: string; // Notification body
+    type: 'success' | 'error' | 'warning' | 'info'; // Notification type
+    appId?: string; // Source app that created the notification
+    isRead: boolean; // Whether the notification has been read
+    scheduledFor?: number; // Unix timestamp for scheduled notifications
+    triggeredAt?: number; // When the notification was actually shown
+    createdAt: number;
+};
+
 /**
  * Wallpaper manifest stored in IndexedDB
  */
@@ -193,6 +212,8 @@ export class Windows15DexieDB extends Dexie {
     emailFolders!: Table<EmailFolderRecord, MailFolderId>;
     // App state (cloud-synced)
     appState!: Table<AppStateRecord, string>;
+    // Notification center (cloud-synced) (F157)
+    notifications!: Table<NotificationRecord, string>;
     // Wow Pack tables (local-only, prefixed with $)
     $wallpapers!: Table<WallpaperRecord, string>;
     $wallpaperAssets!: Table<WallpaperAssetRecord, number>;
@@ -382,6 +403,28 @@ export class Windows15DexieDB extends Dexie {
             emailFolders: 'id, type, updatedAt, createdAt',
             // App state table
             appState: '&appId, updatedAt',
+        });
+
+        // Version 13: Notification center (F157)
+        this.version(13).stores({
+            kv: 'key, updatedAt',
+            notes: '@id, updatedAt, createdAt',
+            bookmarks: '@id, folder, updatedAt, createdAt',
+            todos: '@id, completed, priority, dueDate, sortOrder, updatedAt, createdAt',
+            desktopIcons: '@id, order, updatedAt, createdAt',
+            $terminalHistory: '++id, executedAt',
+            $screensaverSettings: 'id, updatedAt, createdAt',
+            $terminalSessions: '++id, updatedAt, createdAt',
+            $terminalAliases: 'name, updatedAt, createdAt',
+            $wallpapers: 'id, type, installedAt, updatedAt',
+            $wallpaperAssets: '++id, wallpaperId, path, createdAt',
+            $arcadeGames: 'id, type, lastPlayedAt, createdAt, updatedAt',
+            $arcadeSaves: '++id, gameId, slot, createdAt, updatedAt',
+            emails: '@id, folderId, date, isRead, updatedAt, createdAt',
+            emailFolders: 'id, type, updatedAt, createdAt',
+            appState: '&appId, updatedAt',
+            // Notification center table
+            notifications: '@id, type, isRead, scheduledFor, createdAt',
         });
 
         const databaseUrl = getCloudDatabaseUrl();

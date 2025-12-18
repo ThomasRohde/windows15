@@ -23,3 +23,7 @@ export type { TFunction } from './LocalizationContext';
 // 3D Window Space context (F087)
 export { WindowSpaceProvider, useWindowSpace } from './WindowSpaceContext';
 export type { WindowSpaceMode, WindowSpaceSettings } from './WindowSpaceContext';
+
+// Notification center context (F157)
+export { NotificationProvider, useNotificationCenter } from './NotificationContext';
+export type { NotificationContextValue, NotificationType, ScheduleOptions } from './NotificationContext';

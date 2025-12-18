@@ -86,3 +86,57 @@ export const formatReadingTime = (wordCount: number, wordsPerMinute = 200): stri
 
     return `${Math.ceil(minutes)} min`;
 };
+
+/**
+ * Format a timestamp as relative time (e.g., "2 min ago", "1 hour ago")
+ *
+ * @param timestamp - Unix timestamp in milliseconds
+ * @returns Formatted relative time string
+ *
+ * @example
+ * ```ts
+ * formatRelativeTime(Date.now() - 30000) // "Just now"
+ * formatRelativeTime(Date.now() - 120000) // "2 min ago"
+ * formatRelativeTime(Date.now() - 3600000) // "1 hour ago"
+ * formatRelativeTime(Date.now() - 86400000) // "1 day ago"
+ * ```
+ */
+export const formatRelativeTime = (timestamp: number): string => {
+    const now = Date.now();
+    const diff = now - timestamp;
+
+    // Handle future timestamps
+    if (diff < 0) {
+        return 'Just now';
+    }
+
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const weeks = Math.floor(days / 7);
+
+    if (seconds < 60) {
+        return 'Just now';
+    }
+
+    if (minutes < 60) {
+        return minutes === 1 ? '1 min ago' : `${minutes} min ago`;
+    }
+
+    if (hours < 24) {
+        return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
+    }
+
+    if (days < 7) {
+        return days === 1 ? 'Yesterday' : `${days} days ago`;
+    }
+
+    if (weeks < 4) {
+        return weeks === 1 ? '1 week ago' : `${weeks} weeks ago`;
+    }
+
+    // For older timestamps, show the date
+    const date = new Date(timestamp);
+    return date.toLocaleDateString();
+};

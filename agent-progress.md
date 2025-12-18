@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                                      | Status         |
 | ---- | ---------------------------------------------------------------- | -------------- |
-| F161 | Migrate SystemInfo and ThisPC apps to use SystemInfoContext      | 🔄 In progress |
-| F162 | Create NetworkContext with real-time network status              | ⏳ Not started |
+| F162 | Create NetworkContext with real-time network status              | 🔄 In progress |
 | F163 | Implement Settings Network section and Terminal network commands | ⏳ Not started |
+| F164 | Create ClipboardContext with history and Ctrl+Shift+V viewer     | ⏳ Not started |
 
 ---
 

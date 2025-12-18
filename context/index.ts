@@ -31,3 +31,7 @@ export type { NotificationContextValue, NotificationType, ScheduleOptions } from
 // System info context (F160)
 export { SystemInfoProvider, useSystemInfo } from './SystemInfoContext';
 export type { SystemInfoContextValue, NetworkStatus } from './SystemInfoContext';
+
+// Network context (F162)
+export { NetworkProvider, useNetwork } from './NetworkContext';
+export type { NetworkContextValue, EffectiveType } from './NetworkContext';

@@ -4463,11 +4463,22 @@
         "Terminal hostname command uses SystemInfoContext"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-18T12:27:29.577981",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "SystemInfo app uses useSystemInfo hook for dynamic osVersion",
+        "osBuild",
+        "uptime",
+        "cpuCores",
+        "memoryTotal",
+        "networkStatus. ThisPC app uses useSystemInfo hook for storage metrics",
+        "cpu cores",
+        "memory",
+        "uptime",
+        "network status. Terminal ver command uses dynamic osBuild from context. Added SystemInfoContext mock to Terminal tests. Build and tests (119) pass."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-18T12:24:39.569487",
       "notes": "Implementation: See AUDIT.md Phase 5.1 Consumers list. Replace hardcoded values with context data. Edge cases: Show loading state while context initializes. Dependencies: F160 (SystemInfoContext). Gotchas: Ensure values are formatted consistently between apps."
@@ -4485,13 +4496,13 @@
         "useNetwork hook available for consumption"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-18T12:27:33.794159",
       "notes": "Implementation: See AUDIT.md Phase 5.2. Use navigator.onLine, navigator.connection API. IP can be fetched from external service or mocked. Latency via performance.now() on fetch. Edge cases: navigator.connection not in all browsers - provide fallback. Dependencies: None. Gotchas: effectiveType may be undefined - default to '4g'."
     },
     {
@@ -4769,8 +4780,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-18T12:24:35.656530",
+    "lastUpdated": "2025-12-18T12:27:29.578010",
     "totalFeatures": 172,
-    "passingFeatures": 166
+    "passingFeatures": 167
   }
 }

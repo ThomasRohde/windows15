@@ -3867,12 +3867,103 @@
       "blockedBy": null,
       "lastWorkedOn": "2025-12-15T20:09:47.614216",
       "notes": "Implementation: Wrapper component that renders label above input children and error message below. Props: label (string), required (boolean), error (string), children (input element). Styling: label uses text-white/60 text-sm mb-1, error uses text-red-400 text-xs mt-1. Edge cases: Should work with any input component (TextInput, Select, TextArea). Dependencies: Existing validation utilities in utils/validation.ts. Context: Medium priority - improves form UX consistency. Gotchas: Use htmlFor/id connection for accessibility."
+    },
+    {
+      "id": "F142",
+      "category": "ui",
+      "priority": 3,
+      "description": "This PC shows Windows 15 project information",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "This PC displays project name and version",
+        "Shows key statistics like number of apps and components",
+        "Displays storage/system metrics relevant to the OS",
+        "Information is visually organized in a dashboard style"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Create a ThisPC component that reads from package.json for version, scans apps/registry for app count, uses navigator APIs for system info. Edge cases: Handle missing package.json gracefully, fallback values for unavailable browser APIs. Dependencies: App registry (apps/registry.ts), existing SystemInfo patterns. Context: Gives users a meaningful 'This PC' experience showing the virtual OS state. Gotchas: Don't expose sensitive system info, keep it themed to match Windows 15 aesthetic."
+    },
+    {
+      "id": "F143",
+      "category": "core",
+      "priority": 2,
+      "description": "OS-level sound support with settings integration",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "SoundService provides play/stop/volume control for system sounds",
+        "Settings app includes Sound section with master volume slider",
+        "System events can trigger sounds (notifications etc)",
+        "Sound preferences persist across sessions",
+        "Mute toggle available in settings and potentially taskbar"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Create SoundService in utils/ or a dedicated sound/ folder. Use Web Audio API or HTMLAudioElement. Store preferences in Dexie DB via existing DbContext. Edge cases: Handle browsers blocking autoplay, missing audio files, volume normalization. Dependencies: DbContext for persistence, Settings app (apps/Settings.tsx). Context: Essential OS feature - sounds provide feedback for actions. Gotchas: Respect user's system-level mute, preload sounds for responsiveness, consider bundling small sound files or using data URIs."
+    },
+    {
+      "id": "F144",
+      "category": "ui",
+      "priority": 3,
+      "description": "Window dimensions persist after resize",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Resized window dimensions are saved to storage",
+        "Next app open restores the last used dimensions",
+        "Per-app dimension storage (each app remembers its own size)",
+        "Default dimensions still apply for first-time opens",
+        "Position is also optionally persisted"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Extend WindowContext to save dimensions on resize end. Store in Dexie with app ID as key. On window open, check for saved dimensions before using defaults. Edge cases: Handle window larger than current viewport (clamp to screen), multiple instances of same app. Dependencies: WindowContext.tsx, DbContext for persistence. Context: Standard OS behavior - apps remember their size. Gotchas: Debounce save during resize to avoid excessive writes, consider separate position vs size persistence, handle monitor resolution changes."
+    },
+    {
+      "id": "F145",
+      "category": "ui",
+      "priority": 4,
+      "description": "Gist Explorer shows tooltips like File Explorer",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Gist files show tooltip on hover with file details",
+        "Tooltip displays file size and type information",
+        "Tooltip shows last modified date if available",
+        "Tooltip styling matches File Explorer tooltips",
+        "Folders/gists show item count in tooltip"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Reuse tooltip component pattern from FileExplorer. Check components/FileExplorer.tsx for existing tooltip implementation. Apply same pattern to GistExplorer file/folder items. Edge cases: Handle very long file names, missing metadata from GitHub API. Dependencies: GistExplorer.tsx, existing tooltip UI patterns. Context: Consistency across file browsing experiences. Gotchas: GitHub API may not provide all metadata - use what's available, ensure tooltip doesn't flicker on rapid mouse movement."
     }
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-15T20:16:01.506634",
-    "totalFeatures": 141,
+    "lastUpdated": "2025-12-18T05:42:53.480629",
+    "totalFeatures": 145,
     "passingFeatures": 141
   }
 }

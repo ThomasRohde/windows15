@@ -607,6 +607,22 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": []
+    "priorityFeatures": [
+      {
+        "id": "F143",
+        "description": "OS-level sound support with settings integration",
+        "status": "not-started"
+      },
+      {
+        "id": "F142",
+        "description": "This PC shows Windows 15 project information",
+        "status": "not-started"
+      },
+      {
+        "id": "F144",
+        "description": "Window dimensions persist after resize",
+        "status": "not-started"
+      }
+    ]
   }
 }

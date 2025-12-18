@@ -28,8 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID  | Description | Status |
-| --- | ----------- | ------ |
+| ID   | Description                                      | Status         |
+| ---- | ------------------------------------------------ | -------------- |
+| F143 | OS-level sound support with settings integration | ⏳ Not started |
+| F142 | This PC shows Windows 15 project information     | ⏳ Not started |
+| F144 | Window dimensions persist after resize           | ⏳ Not started |
 
 ---
 

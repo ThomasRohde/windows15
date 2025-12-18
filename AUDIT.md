@@ -333,6 +333,80 @@ interface ClipboardService {
 
 ---
 
+## Phase 6: Documentation Update (Priority: Medium)
+
+**Timeline**: 1-2 weeks (parallel with other phases)  
+**Goal**: Ensure all OS services, hooks, and APIs are thoroughly documented for developers.
+
+### 6.1 API Documentation
+
+**Status**: Partial coverage in `/docs/api/`  
+**Current Gap**: New services and hooks lack documentation
+
+**Tasks**:
+
+- [ ] Document `useLocalization()` hook with usage examples
+- [ ] Document `useSound()` hook with sound type reference
+- [ ] Document `useWindow()` methods (setTitle, setIcon, setBadge)
+- [ ] Document `useAppState()` hook for app persistence
+- [ ] Document `useFilePicker()` hook with file dialog examples
+- [ ] Document new contexts (SystemInfoContext, NetworkContext, ClipboardContext)
+- [ ] Generate TypeDoc output for all new interfaces
+
+### 6.2 Developer Guides
+
+**Location**: `/docs/guides/`
+
+**Tasks**:
+
+- [ ] Create "Building an OS-Integrated App" guide
+- [ ] Create "Migrating from localStorage to DbContext" guide
+- [ ] Create "Adding Localization to Your App" step-by-step tutorial
+- [ ] Create "File System Integration" guide with Open/Save examples
+- [ ] Update "App Registry" guide with file associations
+
+### 6.3 Reference Documentation
+
+**Location**: `/docs/reference/`
+
+**Tasks**:
+
+- [ ] Create `os-services.md` - Complete list of all OS services with descriptions
+- [ ] Create `system-sounds.md` - Reference for all available system sounds
+- [ ] Create `file-associations.md` - How to register file type handlers
+- [ ] Update `hooks.md` with all new hooks from this audit
+
+### 6.4 Architecture Documentation
+
+**Location**: `/docs/core/`
+
+**Tasks**:
+
+- [ ] Update architecture diagram to include new services
+- [ ] Document service dependency graph
+- [ ] Add data flow diagrams for DbContext and FileSystem
+- [ ] Document the notification/sound pipeline
+
+### 6.5 Inline Code Documentation
+
+**Tasks**:
+
+- [ ] Add JSDoc comments to all new hooks
+- [ ] Add JSDoc comments to all new context providers
+- [ ] Ensure all public interfaces have `@description` and `@example` tags
+- [ ] Add `@since` tags to indicate when features were added
+
+### 6.6 README Updates
+
+**Tasks**:
+
+- [ ] Update main `README.md` with new feature highlights
+- [ ] Add "OS Services" section to README
+- [ ] Update "Getting Started" with service integration basics
+- [ ] Add badges for documentation coverage
+
+---
+
 ## Implementation Checklist by App
 
 ### Utility Apps (Isolated → Integrated)
@@ -372,6 +446,7 @@ interface ClipboardService {
 | Apps using SoundService  |  2/28 (7%)  | 15/28 (54%)  |
 | Apps using WindowContext |  0/28 (0%)  | 10/28 (36%)  |
 | Apps with FileSystem     | 6/28 (21%)  | 18/28 (64%)  |
+| Documented Hooks/APIs    |     60%     |     100%     |
 
 ---
 
@@ -395,6 +470,9 @@ useFilePicker(): { open, save, getAssociatedApp }
 useSystemInfo(): SystemInfo
 useNetwork(): NetworkInfo
 useClipboard(): ClipboardService
+
+// Phase 6
+// All hooks documented in /docs/api/ with JSDoc
 ```
 
 ### Dexie Tables to Add
@@ -414,4 +492,5 @@ clipboardHistory: '++id, content, type, timestamp',
 1. **Immediate**: Start Phase 1.1 (Localization) with a pilot app (e.g., Calculator)
 2. **This Week**: Implement `useSound()` hook and integrate with RecycleBin
 3. **Next Week**: Begin Phase 2 migrations for Mail app
-4. **Ongoing**: Track progress in this document, updating checkboxes as tasks complete
+4. **Parallel**: Begin Phase 6 documentation as each phase completes
+5. **Ongoing**: Track progress in this document, updating checkboxes as tasks complete

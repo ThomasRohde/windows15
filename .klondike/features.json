@@ -4496,11 +4496,19 @@
         "useNetwork hook available for consumption"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-18T12:29:20.661102",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Created NetworkContext.tsx with isOnline",
+        "effectiveType",
+        "ip (mocked)",
+        "latency",
+        "downlink",
+        "rtt",
+        "saveData. Reactive updates via online/offline events and NetworkInformation API change listener. Latency measurement via timed fetch every 60s. useNetwork hook exported. NetworkProvider added to OSProvider. Build and tests (119) pass."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-18T12:27:33.794159",
       "notes": "Implementation: See AUDIT.md Phase 5.2. Use navigator.onLine, navigator.connection API. IP can be fetched from external service or mocked. Latency via performance.now() on fetch. Edge cases: navigator.connection not in all browsers - provide fallback. Dependencies: None. Gotchas: effectiveType may be undefined - default to '4g'."
@@ -4518,13 +4526,13 @@
         "Terminal ipconfig command shows network info"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-18T12:29:24.890694",
       "notes": "Implementation: See AUDIT.md Phase 5.2 Consumers list. Settings Network section uses useNetwork hook. Terminal commands: ping <host> shows simulated RTT, ipconfig shows IP/connection type. Edge cases: ping to invalid host shows error. Dependencies: F162 (NetworkContext). Gotchas: ping is simulated - add random jitter for realism."
     },
     {
@@ -4780,8 +4788,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-18T12:27:29.578010",
+    "lastUpdated": "2025-12-18T12:29:20.661118",
     "totalFeatures": 172,
-    "passingFeatures": 167
+    "passingFeatures": 168
   }
 }

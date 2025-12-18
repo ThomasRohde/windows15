@@ -976,18 +976,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F162",
-        "description": "Create NetworkContext with real-time network status",
-        "status": "in-progress"
-      },
-      {
         "id": "F163",
         "description": "Implement Settings Network section and Terminal network commands",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F164",
         "description": "Create ClipboardContext with history and Ctrl+Shift+V viewer",
+        "status": "not-started"
+      },
+      {
+        "id": "F168",
+        "description": "Update architecture diagrams and document service dependencies",
         "status": "not-started"
       }
     ]

@@ -112,6 +112,22 @@ vi.mock('../context/SystemInfoContext', () => ({
     }),
 }));
 
+// Mock NetworkContext module (F162)
+vi.mock('../context/NetworkContext', () => ({
+    useNetwork: () => ({
+        isOnline: true,
+        effectiveType: '4g',
+        ip: '192.168.1.100',
+        latency: 50,
+        isMeasuringLatency: false,
+        downlink: 10,
+        rtt: 50,
+        saveData: false,
+        refresh: vi.fn(),
+        measureLatency: vi.fn(),
+    }),
+}));
+
 const renderTerminal = () => {
     return render(
         <DbProvider>

@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                                      | Status         |
 | ---- | ---------------------------------------------------------------- | -------------- |
-| F162 | Create NetworkContext with real-time network status              | 🔄 In progress |
-| F163 | Implement Settings Network section and Terminal network commands | ⏳ Not started |
+| F163 | Implement Settings Network section and Terminal network commands | 🔄 In progress |
 | F164 | Create ClipboardContext with history and Ctrl+Shift+V viewer     | ⏳ Not started |
+| F168 | Update architecture diagrams and document service dependencies   | ⏳ Not started |
 
 ---
 

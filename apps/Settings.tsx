@@ -8,6 +8,7 @@ import { ScreensaverSettings } from './settings/ScreensaverSettings';
 import { WindowSpaceSettings } from './settings/WindowSpaceSettings';
 import { ProfileSettings } from './settings/ProfileSettings';
 import { SoundSettings } from './settings/SoundSettings';
+import { NetworkSettings } from './settings/NetworkSettings';
 import { useTranslation } from '../hooks/useTranslation';
 
 type SettingsSection =
@@ -32,10 +33,10 @@ export const Settings = () => {
         { id: 'sound', label: t('sound'), icon: 'volume_up' },
         { id: 'sync', label: t('sync'), icon: 'sync' },
         { id: 'localization', label: t('localization'), icon: 'language' },
-        { id: 'network', label: t('common:labels.name'), icon: 'wifi' },
-        { id: 'apps', label: t('common:labels.name'), icon: 'apps' },
-        { id: 'screensaver', label: t('common:labels.name'), icon: 'screenshot_monitor' },
-        { id: '3dmode', label: t('common:labels.name'), icon: 'view_in_ar' },
+        { id: 'network', label: 'Network', icon: 'wifi' },
+        { id: 'apps', label: 'Apps', icon: 'apps' },
+        { id: 'screensaver', label: 'Screensaver', icon: 'screenshot_monitor' },
+        { id: '3dmode', label: '3D Mode', icon: 'view_in_ar' },
     ];
 
     return (
@@ -89,12 +90,7 @@ export const Settings = () => {
 
                 {activeSection === 'localization' && <LocalizationSettings />}
 
-                {activeSection === 'network' && (
-                    <div className="max-w-2xl">
-                        <h1 className="text-3xl font-light mb-3">{t('common:labels.name')}</h1>
-                        <p className="text-sm text-white/60">Network settings are not implemented in this demo.</p>
-                    </div>
-                )}
+                {activeSection === 'network' && <NetworkSettings />}
 
                 {activeSection === 'apps' && (
                     <div className="max-w-2xl">

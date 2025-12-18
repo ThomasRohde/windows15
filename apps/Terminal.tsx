@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { useLocalization, useSystemInfo } from '../context';
+import { useLocalization, useSystemInfo, useNetwork } from '../context';
 import { useDb } from '../context/DbContext';
 import { useOS } from '../context/OSContext';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -53,6 +53,8 @@ const AVAILABLE_COMMANDS = [
     'start',
     'ver',
     'hostname',
+    'ping',
+    'ipconfig',
     'theme',
     'fontsize',
     'font',
@@ -109,6 +111,7 @@ export const Terminal: React.FC<TerminalProps> = ({ windowId }) => {
     const db = useDb();
     const { openWindow, apps } = useOS();
     const { osBuild } = useSystemInfo();
+    const { isOnline, effectiveType, ip, latency } = useNetwork();
     const { setTitle } = useWindowInstance(windowId ?? '');
     const { preferences, currentTheme, setTheme, setFontSize, setFontFamily, availableThemes, availableFonts } =
         useTerminalPreferences();
@@ -405,6 +408,8 @@ export const Terminal: React.FC<TerminalProps> = ({ windowId }) => {
                 addOutput('  start    - Launch any Windows15 app by ID');
                 addOutput('  ver      - Display OS version');
                 addOutput('  hostname - Display computer name');
+                addOutput('  ping     - Test network connectivity to a host');
+                addOutput('  ipconfig - Display network configuration');
                 break;
             case 'date':
                 addOutput(`The current date is: ${formatDateLong(new Date())}`);
@@ -663,6 +668,61 @@ export const Terminal: React.FC<TerminalProps> = ({ windowId }) => {
             case 'hostname':
                 addOutput('DESKTOP-WIN15');
                 break;
+            case 'ping': {
+                const host = args.trim();
+                if (!host) {
+                    addOutput('Usage: ping <hostname>', 'error');
+                    break;
+                }
+
+                if (!isOnline) {
+                    addOutput(
+                        `Ping request could not find host ${host}. Please check the name and try again.`,
+                        'error'
+                    );
+                    break;
+                }
+
+                addOutput('');
+                addOutput(`Pinging ${host} with 32 bytes of data:`);
+
+                // Simulate 4 ping responses with random jitter
+                const baseLatency = latency ?? 50;
+                for (let i = 0; i < 4; i++) {
+                    const jitter = Math.floor((Math.random() - 0.5) * 20);
+                    const time = Math.max(1, baseLatency + jitter);
+                    addOutput(`Reply from ${host}: bytes=32 time=${time}ms TTL=64`);
+                }
+
+                addOutput('');
+                addOutput(`Ping statistics for ${host}:`);
+                addOutput('    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)');
+                addOutput('Approximate round trip times in milli-seconds:');
+                const min = Math.max(1, baseLatency - 10);
+                const max = baseLatency + 10;
+                const avg = baseLatency;
+                addOutput(`    Minimum = ${min}ms, Maximum = ${max}ms, Average = ${avg}ms`);
+                break;
+            }
+            case 'ipconfig': {
+                addOutput('');
+                addOutput('Windows IP Configuration');
+                addOutput('');
+                addOutput('Ethernet adapter Local Area Connection:');
+                addOutput('');
+                addOutput('   Connection-specific DNS Suffix  . :');
+                addOutput(`   Link-local IPv4 Address. . . . . . : ${ip}`);
+                addOutput('   Subnet Mask . . . . . . . . . . . : 255.255.255.0');
+                addOutput('   Default Gateway . . . . . . . . . : 192.168.1.1');
+                addOutput('');
+                addOutput('Network Status:');
+                addOutput(`   Connected . . . . . . . . . . . . : ${isOnline ? 'Yes' : 'No'}`);
+                addOutput(`   Connection Type . . . . . . . . . : ${effectiveType}`);
+                if (latency !== null) {
+                    addOutput(`   Latency . . . . . . . . . . . . . : ${latency}ms`);
+                }
+                break;
+            }
             case 'theme': {
                 const themeArg = args.trim().toLowerCase();
                 if (!themeArg) {

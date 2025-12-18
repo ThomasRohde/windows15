@@ -6,6 +6,10 @@ test.describe('Window Dimension Persistence (F144)', () => {
         await page.waitForLoadState('networkidle');
 
         // Open Calculator app
+        await page.waitForSelector('[data-testid="start-menu-button"], button:has-text("Start")', {
+            timeout: 10000,
+            state: 'visible',
+        });
         await page.click('[data-testid="start-menu-button"], button:has-text("Start")');
         await page.click('text=Calculator');
 
@@ -37,6 +41,10 @@ test.describe('Window Dimension Persistence (F144)', () => {
         await page.waitForTimeout(200); // Wait for close animation
 
         // Reopen the same app
+        await page.waitForSelector('[data-testid="start-menu-button"], button:has-text("Start")', {
+            timeout: 10000,
+            state: 'visible',
+        });
         await page.click('[data-testid="start-menu-button"], button:has-text("Start")');
         await page.click('text=Calculator');
         await page.waitForSelector('[data-app-id="calculator"]', { timeout: 5000 });
@@ -52,6 +60,10 @@ test.describe('Window Dimension Persistence (F144)', () => {
         await page.waitForLoadState('networkidle');
 
         // Open and resize Calculator
+        await page.waitForSelector('[data-testid="start-menu-button"], button:has-text("Start")', {
+            timeout: 10000,
+            state: 'visible',
+        });
         await page.click('[data-testid="start-menu-button"], button:has-text("Start")');
         await page.click('text=Calculator');
         await page.waitForSelector('[data-app-id="calculator"]');
@@ -74,6 +86,10 @@ test.describe('Window Dimension Persistence (F144)', () => {
         await page.waitForTimeout(200);
 
         // Open and resize Notepad
+        await page.waitForSelector('[data-testid="start-menu-button"], button:has-text("Start")', {
+            timeout: 10000,
+            state: 'visible',
+        });
         await page.click('[data-testid="start-menu-button"], button:has-text("Start")');
         await page.click('text=Notepad');
         await page.waitForSelector('[data-app-id="notepad"]');
@@ -96,12 +112,20 @@ test.describe('Window Dimension Persistence (F144)', () => {
         await page.waitForTimeout(200);
 
         // Verify both apps restored their own dimensions
+        await page.waitForSelector('[data-testid="start-menu-button"], button:has-text("Start")', {
+            timeout: 10000,
+            state: 'visible',
+        });
         await page.click('[data-testid="start-menu-button"], button:has-text("Start")');
         await page.click('text=Calculator');
         await page.waitForSelector('[data-app-id="calculator"]');
         const calcRestored = await page.locator('[data-app-id="calculator"]').first().boundingBox();
         expect(calcRestored!.width).toBeCloseTo(calcResizedBox!.width, 5);
 
+        await page.waitForSelector('[data-testid="start-menu-button"], button:has-text("Start")', {
+            timeout: 10000,
+            state: 'visible',
+        });
         await page.click('[data-testid="start-menu-button"], button:has-text("Start")');
         await page.click('text=Notepad');
         await page.waitForSelector('[data-app-id="notepad"]');
@@ -114,6 +138,10 @@ test.describe('Window Dimension Persistence (F144)', () => {
         await page.waitForLoadState('networkidle');
 
         // Open Calculator
+        await page.waitForSelector('[data-testid="start-menu-button"], button:has-text("Start")', {
+            timeout: 10000,
+            state: 'visible',
+        });
         await page.click('[data-testid="start-menu-button"], button:has-text("Start")');
         await page.click('text=Calculator');
         await page.waitForSelector('[data-app-id="calculator"]');
@@ -136,6 +164,10 @@ test.describe('Window Dimension Persistence (F144)', () => {
         await page.click('[data-app-id="calculator"] button[aria-label="Close"]');
         await page.waitForTimeout(200);
 
+        await page.waitForSelector('[data-testid="start-menu-button"], button:has-text("Start")', {
+            timeout: 10000,
+            state: 'visible',
+        });
         await page.click('[data-testid="start-menu-button"], button:has-text("Start")');
         await page.click('text=Calculator');
         await page.waitForSelector('[data-app-id="calculator"]');

@@ -202,10 +202,6 @@ export const ThisPC = () => {
                         <Icon name="code" size="sm" />
                         View Source
                     </Button>
-                    <Button variant="secondary" size="sm">
-                        <Icon name="download" size="sm" />
-                        Export Data
-                    </Button>
                 </div>
             </div>
         </div>

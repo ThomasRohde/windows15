@@ -274,6 +274,15 @@ export const APP_REGISTRY: AppConfig[] = [
         defaultWidth: 900,
         defaultHeight: 600,
     },
+    {
+        id: 'thispc',
+        title: 'This PC',
+        icon: 'computer',
+        color: 'bg-blue-600',
+        component: React.lazy(() => import('./ThisPC').then(m => ({ default: m.ThisPC }))),
+        defaultWidth: 900,
+        defaultHeight: 650,
+    },
 ];
 
 /**

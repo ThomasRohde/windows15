@@ -1,7 +1,7 @@
 {
   "projectName": "windows15",
   "startedAt": "2025-12-13T14:37:01.733884",
-  "currentStatus": "Session Ended",
+  "currentStatus": "In Progress",
   "sessions": [
     {
       "sessionNumber": 1,
@@ -597,6 +597,20 @@
         "3) Deploy to production"
       ],
       "technicalNotes": []
+    },
+    {
+      "sessionNumber": 39,
+      "date": "2025-12-18",
+      "agent": "Coding Agent",
+      "duration": "(in progress)",
+      "focus": "Implement F142, F143, F144, F145 - complete all remaining features",
+      "completed": [],
+      "inProgress": [
+        "Session started"
+      ],
+      "blockers": [],
+      "nextSteps": [],
+      "technicalNotes": []
     }
   ],
   "quickReference": {
@@ -616,11 +630,11 @@
       {
         "id": "F142",
         "description": "This PC shows Windows 15 project information",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
-        "id": "F144",
-        "description": "Window dimensions persist after resize",
+        "id": "F145",
+        "description": "Gist Explorer shows tooltips like File Explorer",
         "status": "not-started"
       }
     ]

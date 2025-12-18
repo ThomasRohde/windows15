@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: Session Ended
+## Current Status: In Progress
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -31,8 +31,8 @@ klondike feature list  # List all features
 | ID   | Description                                      | Status         |
 | ---- | ------------------------------------------------ | -------------- |
 | F143 | OS-level sound support with settings integration | ⏳ Not started |
-| F142 | This PC shows Windows 15 project information     | ⏳ Not started |
-| F144 | Window dimensions persist after resize           | ⏳ Not started |
+| F142 | This PC shows Windows 15 project information     | 🔄 In progress |
+| F145 | Gist Explorer shows tooltips like File Explorer  | ⏳ Not started |
 
 ---
 
@@ -1152,6 +1152,34 @@ klondike feature list  # List all features
 1. All features complete! Consider: 1) Update documentation
 2.  2. Create release v1.0.0
 3.  3. Deploy to production
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 39 - 2025-12-18
+
+**Agent**: Coding Agent
+**Duration**: (in progress)
+**Focus**: Implement F142, F143, F144, F145 - complete all remaining features
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- Session started
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Continue implementation
 
 #### Technical Notes
 

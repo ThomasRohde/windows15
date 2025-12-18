@@ -27,6 +27,7 @@ export { RecycleBin } from './RecycleBin';
 export { Settings } from './Settings';
 export { SystemInfo } from './SystemInfo';
 export { Terminal } from './Terminal';
+export { ThisPC } from './ThisPC';
 export { Timer } from './Timer';
 export { TodoList } from './TodoList';
 export { UnitConverter } from './UnitConverter';

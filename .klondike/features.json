@@ -3881,13 +3881,13 @@
         "Information is visually organized in a dashboard style"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-18T05:48:25.546438",
       "notes": "Implementation: Create a ThisPC component that reads from package.json for version, scans apps/registry for app count, uses navigator APIs for system info. Edge cases: Handle missing package.json gracefully, fallback values for unavailable browser APIs. Dependencies: App registry (apps/registry.ts), existing SystemInfo patterns. Context: Gives users a meaningful 'This PC' experience showing the virtual OS state. Gotchas: Don't expose sensitive system info, keep it themed to match Windows 15 aesthetic."
     },
     {
@@ -3927,13 +3927,24 @@
         "Position is also optionally persisted"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-18T05:48:14.550751",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Feature already implemented in WindowContext.tsx. The resizeWindow() and updateWindowPosition() methods call persistWindowStates() which saves to localStorage. When opening windows",
+        "openWindow() checks savedWindowStatesRef.current for saved dimensions. Code review confirms all acceptance criteria are met: dimensions saved on resize (line 306)",
+        "per-app storage with appId key (line 151)",
+        "restored on open (line 233)",
+        "default dimensions for first-time opens (line 235)",
+        "position also persisted (line 151",
+        "319). Manual verification: Open calc",
+        "resize",
+        "close",
+        "reopen - dimensions restore correctly."
+      ],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-18T05:45:24.479349",
       "notes": "Implementation: Extend WindowContext to save dimensions on resize end. Store in Dexie with app ID as key. On window open, check for saved dimensions before using defaults. Edge cases: Handle window larger than current viewport (clamp to screen), multiple instances of same app. Dependencies: WindowContext.tsx, DbContext for persistence. Context: Standard OS behavior - apps remember their size. Gotchas: Debounce save during resize to avoid excessive writes, consider separate position vs size persistence, handle monitor resolution changes."
     },
     {
@@ -3962,8 +3973,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-18T05:42:53.480629",
+    "lastUpdated": "2025-12-18T05:48:14.550792",
     "totalFeatures": 145,
-    "passingFeatures": 141
+    "passingFeatures": 142
   }
 }

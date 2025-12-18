@@ -4015,13 +4015,13 @@
         "All hardcoded strings audited and documented"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-18T07:40:03.618948",
       "notes": "Implementation: See AUDIT.md Phase 1.1. Audit all apps in /apps for hardcoded UI strings. Create a single en.json file organized by app namespace. Hook should support namespace param: useLocalization('calculator'). Edge cases: Pluralization, date/time formatting delegated to Intl API. Dependencies: None (foundation). Gotchas: Don't break existing apps - add localization incrementally."
     },
     {
@@ -4037,13 +4037,13 @@
         "Sounds respect user mute/volume settings from Settings"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-18T07:43:48.837601",
       "notes": "Implementation: See AUDIT.md Phase 1.2. Define enum: success, error, warning, notification, delete, empty-trash, click, complete. Hook must check OSContext for mute state. Edge cases: Browser autoplay policy - may need user interaction first. Dependencies: Settings SoundSettings.tsx already exists. Gotchas: Use Web Audio API for low latency, not HTML5 Audio."
     },
     {
@@ -4059,13 +4059,13 @@
         "Taskbar displays badge counts for windows"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-18T07:44:46.350695",
       "notes": "Implementation: See AUDIT.md Phase 1.3. Extend existing WindowContext interface. Pass methods to apps via context or props. Taskbar must subscribe to badge changes. Edge cases: Badge count null clears badge, negative numbers invalid. Dependencies: WindowContext.tsx exists. Gotchas: Performance - debounce rapid title updates."
     },
     {

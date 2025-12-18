@@ -1,5 +1,7 @@
 /**
- * LocalizationContext - Handles user locale preferences (units, clock format)
+ * LocalizationContext - Handles user locale preferences (units, clock format) and translations
+ *
+ * @module context/LocalizationContext
  */
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
 import { storageService, STORAGE_KEYS } from '../utils/storage';
@@ -15,19 +17,83 @@ import {
     resolveClockFormat,
     resolveUnitSystem,
 } from '../utils/localization';
+import enLocale from '../locales/en.json';
+
+/**
+ * Translation strings organized by namespace
+ */
+type TranslationStrings = typeof enLocale;
+type Namespace = keyof TranslationStrings;
+
+/**
+ * Get nested value from object using dot-notation path
+ */
+const getNestedValue = (obj: Record<string, unknown>, path: string): string | undefined => {
+    const keys = path.split('.');
+    let current: unknown = obj;
+
+    for (const key of keys) {
+        if (current === null || current === undefined || typeof current !== 'object') {
+            return undefined;
+        }
+        current = (current as Record<string, unknown>)[key];
+    }
+
+    return typeof current === 'string' ? current : undefined;
+};
+
+/**
+ * Interpolate variables in a translation string
+ * Supports {{variable}} syntax
+ */
+const interpolate = (str: string, vars?: Record<string, string | number>): string => {
+    if (!vars) return str;
+    return str.replace(/\{\{(\w+)\}\}/g, (_, key) => {
+        const value = vars[key];
+        return value !== undefined ? String(value) : `{{${key}}}`;
+    });
+};
+
+/**
+ * Translation function type
+ */
+export type TFunction = (key: string, vars?: Record<string, string | number>) => string;
 
 interface LocalizationContextType {
+    /** Current browser locale */
     locale: string;
+    /** Resolved unit system (metric or imperial) */
     unitSystem: UnitSystem;
+    /** Resolved clock format (12h or 24h) */
     clockFormat: ClockFormat;
+    /** Raw preferences from storage */
     preferences: LocalizationPreferences;
+    /** Update unit system preference */
     setUnitSystemPreference: (next: UnitSystemPreference) => void;
+    /** Update clock format preference */
     setClockFormatPreference: (next: ClockFormatPreference) => void;
+    /** Format time as short string (e.g., "3:45 PM") */
     formatTimeShort: (date: Date) => string;
+    /** Format time as long string (e.g., "3:45:30 PM") */
     formatTimeLong: (date: Date) => string;
+    /** Format date as short string (e.g., "12/18/2025") */
     formatDateShort: (date: Date) => string;
+    /** Format date as long string (e.g., "Thursday, December 18, 2025") */
     formatDateLong: (date: Date) => string;
+    /** Format time from HH:mm string */
     formatTimeShortFromHm: (hm: string) => string;
+    /**
+     * Get translation function for a namespace
+     * @param namespace - The app/module namespace (e.g., 'calculator', 'common')
+     * @returns Translation function that takes a key and optional variables
+     */
+    getTranslation: (namespace: Namespace) => TFunction;
+    /**
+     * Direct translation with full dot-notation path
+     * @param key - Full key path (e.g., 'calculator.title', 'common.actions.save')
+     * @param vars - Optional interpolation variables
+     */
+    t: TFunction;
 }
 
 const LocalizationContext = createContext<LocalizationContextType | undefined>(undefined);
@@ -141,6 +207,40 @@ export const LocalizationProvider: React.FC<{ children: ReactNode }> = ({ childr
         [timeFormatterShort]
     );
 
+    /**
+     * Get translation function for a specific namespace
+     */
+    const getTranslation = useCallback((namespace: Namespace): TFunction => {
+        const namespaceStrings = enLocale[namespace] as Record<string, unknown>;
+
+        return (key: string, vars?: Record<string, string | number>): string => {
+            const value = getNestedValue(namespaceStrings, key);
+            if (value === undefined) {
+                // Fall back to common namespace
+                const commonValue = getNestedValue(enLocale.common as Record<string, unknown>, key);
+                if (commonValue !== undefined) {
+                    return interpolate(commonValue, vars);
+                }
+                // Return key as fallback for debugging
+                console.warn(`Translation missing: ${namespace}.${key}`);
+                return key;
+            }
+            return interpolate(value, vars);
+        };
+    }, []);
+
+    /**
+     * Direct translation with full dot-notation path
+     */
+    const t = useCallback((key: string, vars?: Record<string, string | number>): string => {
+        const value = getNestedValue(enLocale as unknown as Record<string, unknown>, key);
+        if (value === undefined) {
+            console.warn(`Translation missing: ${key}`);
+            return key;
+        }
+        return interpolate(value, vars);
+    }, []);
+
     const value: LocalizationContextType = {
         locale,
         unitSystem,
@@ -153,6 +253,8 @@ export const LocalizationProvider: React.FC<{ children: ReactNode }> = ({ childr
         formatDateShort,
         formatDateLong,
         formatTimeShortFromHm,
+        getTranslation,
+        t,
     };
 
     return <LocalizationContext.Provider value={value}>{children}</LocalizationContext.Provider>;

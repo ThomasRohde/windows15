@@ -72,6 +72,21 @@ export interface WindowState {
     position: { x: number; y: number };
     /** Window dimensions in pixels */
     size: { width: number; height: number };
+    /**
+     * Dynamic title set by the app (overrides default title)
+     * Set to null to revert to default app title
+     */
+    dynamicTitle?: string | null;
+    /**
+     * Dynamic icon set by the app (overrides default icon)
+     * Set to null to revert to default app icon
+     */
+    dynamicIcon?: string | null;
+    /**
+     * Badge count to display on taskbar icon
+     * Set to null or 0 to hide badge
+     */
+    badge?: number | null;
 }
 
 /**

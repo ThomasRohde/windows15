@@ -65,6 +65,24 @@ interface WindowContextType {
      * @param position - New position coordinates
      */
     updateWindowPosition: (id: string, position: { x: number; y: number }) => void;
+    /**
+     * Set dynamic title for a window (F148)
+     * @param id - The window instance ID
+     * @param title - New title or null to revert to default
+     */
+    setWindowTitle: (id: string, title: string | null) => void;
+    /**
+     * Set dynamic icon for a window (F148)
+     * @param id - The window instance ID
+     * @param icon - New icon name or null to revert to default
+     */
+    setWindowIcon: (id: string, icon: string | null) => void;
+    /**
+     * Set badge count for a window (F148)
+     * @param id - The window instance ID
+     * @param count - Badge count or null to clear
+     */
+    setWindowBadge: (id: string, count: number | null) => void;
 }
 
 const WindowContext = createContext<WindowContextType | undefined>(undefined);
@@ -330,6 +348,20 @@ export const WindowProvider: React.FC<WindowProviderProps> = ({ children }) => {
         [persistWindowStates]
     );
 
+    const setWindowTitle = useCallback((id: string, title: string | null) => {
+        setWindows(prev => prev.map(w => (w.id === id ? { ...w, dynamicTitle: title } : w)));
+    }, []);
+
+    const setWindowIcon = useCallback((id: string, icon: string | null) => {
+        setWindows(prev => prev.map(w => (w.id === id ? { ...w, dynamicIcon: icon } : w)));
+    }, []);
+
+    const setWindowBadge = useCallback((id: string, count: number | null) => {
+        // Validate count: must be null, 0, or positive integer
+        const validCount = count === null || count <= 0 ? null : Math.floor(count);
+        setWindows(prev => prev.map(w => (w.id === id ? { ...w, badge: validCount } : w)));
+    }, []);
+
     return (
         <WindowContext.Provider
             value={{
@@ -341,6 +373,9 @@ export const WindowProvider: React.FC<WindowProviderProps> = ({ children }) => {
                 focusWindow,
                 resizeWindow,
                 updateWindowPosition,
+                setWindowTitle,
+                setWindowIcon,
+                setWindowBadge,
             }}
         >
             {children}

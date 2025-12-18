@@ -28,6 +28,9 @@ const areWindowPropsEqual = (prevProps: WindowProps, nextProps: WindowProps): bo
         prev.zIndex === next.zIndex &&
         prev.title === next.title &&
         prev.icon === next.icon &&
+        prev.dynamicTitle === next.dynamicTitle &&
+        prev.dynamicIcon === next.dynamicIcon &&
+        prev.badge === next.badge &&
         prev.position.x === next.position.x &&
         prev.position.y === next.position.y &&
         prev.size.width === next.size.width &&
@@ -435,10 +438,10 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
                             className="material-symbols-outlined text-white/70 text-[18px] flex-shrink-0"
                             aria-hidden="true"
                         >
-                            {window.icon}
+                            {window.dynamicIcon ?? window.icon}
                         </span>
                         <span id={titleId} className="text-sm font-medium text-white/80 truncate">
-                            {window.title}
+                            {window.dynamicTitle ?? window.title}
                         </span>
                     </div>
                     <div

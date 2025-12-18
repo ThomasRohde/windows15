@@ -57,19 +57,23 @@ export const Taskbar = () => {
                     {PINNED_APPS.map(id => {
                         const app = apps.find(a => a.id === id);
                         if (!app) return null;
-                        const isOpen = windows.some(w => w.appId === id && !w.isMinimized);
-                        const isRunning = windows.some(w => w.appId === id);
+                        const appWindow = windows.find(w => w.appId === id);
+                        const isOpen = appWindow && !appWindow.isMinimized;
+                        const isRunning = !!appWindow;
+                        // Get badge count from the window state (F148)
+                        const badge = appWindow?.badge ?? null;
 
                         return (
                             <TaskbarIcon
                                 key={id}
-                                icon={app.icon}
-                                title={app.title}
+                                icon={appWindow?.dynamicIcon ?? app.icon}
+                                title={appWindow?.dynamicTitle ?? app.title}
                                 colorClass={app.color.replace('bg-', 'text-')}
                                 active={isOpen}
                                 running={isRunning}
                                 onClick={openWindowHandlers[id]}
                                 filled={true}
+                                badge={badge}
                             />
                         );
                     })}
@@ -119,6 +123,8 @@ interface TaskbarIconProps {
     onClick?: () => void;
     colorClass?: string;
     filled?: boolean;
+    /** Badge count to display (F148) */
+    badge?: number | null;
 }
 
 /**
@@ -133,7 +139,11 @@ const TaskbarIcon: React.FC<TaskbarIconProps> = memo(function TaskbarIcon({
     onClick,
     colorClass = 'text-white',
     filled,
+    badge,
 }) {
+    // Format badge count for display (99+ for large numbers)
+    const badgeText = badge && badge > 0 ? (badge > 99 ? '99+' : String(badge)) : null;
+
     return (
         <Tooltip content={title || 'App'} position="top">
             <button
@@ -151,6 +161,12 @@ const TaskbarIcon: React.FC<TaskbarIconProps> = memo(function TaskbarIcon({
                         className="absolute -bottom-1 w-1 h-1 bg-white/80 rounded-full transition-all duration-300"
                         style={{ width: active ? '16px' : '4px', borderRadius: active ? '2px' : '50%' }}
                     ></div>
+                )}
+                {/* Badge (F148) */}
+                {badgeText && (
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full shadow-lg">
+                        {badgeText}
+                    </span>
                 )}
             </button>
         </Tooltip>

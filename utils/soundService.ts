@@ -24,7 +24,22 @@ export interface SoundSettings {
     muted: boolean;
 }
 
-export type SystemSound = 'notification' | 'error' | 'success' | 'click' | 'open' | 'close' | 'minimize';
+/**
+ * Standard system sounds available throughout the OS.
+ * Each sound has a distinct purpose and audio characteristics.
+ */
+export type SystemSound =
+    | 'success' // Positive confirmation (task complete, save successful)
+    | 'error' // Error or failure notification
+    | 'warning' // Warning or alert
+    | 'notification' // General notification
+    | 'delete' // Item deleted
+    | 'empty-trash' // Recycle bin emptied
+    | 'click' // Button click feedback
+    | 'complete' // Task/timer completion
+    | 'open' // Window opened
+    | 'close' // Window closed
+    | 'minimize'; // Window minimized
 
 /**
  * Sound definitions using data URIs for small sound effects
@@ -37,8 +52,12 @@ const SOUND_DATA: Record<
 > = {
     notification: { frequency: 800, duration: 0.15, type: 'sine' },
     error: { frequency: 300, duration: 0.2, type: 'sawtooth' },
+    warning: { frequency: 400, duration: 0.18, type: 'triangle' },
     success: { frequency: 600, duration: 0.12, type: 'sine' },
     click: { frequency: 1000, duration: 0.05, type: 'sine' },
+    complete: { frequency: 700, duration: 0.25, type: 'sine' },
+    delete: { frequency: 350, duration: 0.1, type: 'sawtooth' },
+    'empty-trash': { frequency: 250, duration: 0.3, type: 'sawtooth' },
     open: { frequency: 600, duration: 0.08, type: 'sine' },
     close: { frequency: 500, duration: 0.08, type: 'sine' },
     minimize: { frequency: 400, duration: 0.06, type: 'sine' },

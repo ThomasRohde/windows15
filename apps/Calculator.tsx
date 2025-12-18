@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNotification, useCopyToClipboard, useSound } from '../hooks';
 import { AppContainer } from '../components/ui';
+import { useTranslation } from '../hooks/useTranslation';
 
 type Operator = '+' | '-' | '*' | '/' | null;
 
 export const Calculator = () => {
+    const { t } = useTranslation('calculator');
     const notify = useNotification();
     const { copy } = useCopyToClipboard();
     const { playSound } = useSound();
@@ -18,19 +20,19 @@ export const Calculator = () => {
         setAccumulator(null);
         setOperator(null);
         setAwaitingNext(true);
-        notify.info('Cleared');
+        notify.info(t('cleared'));
     };
 
     const copyResult = async () => {
         if (display === 'Error') {
-            notify.error('Cannot copy error');
+            notify.error(t('cannotCopyError'));
             return;
         }
         try {
             await copy(display);
-            notify.success('Copied to clipboard');
+            notify.success(t('copied'));
         } catch {
-            notify.error('Failed to copy');
+            notify.error(t('common:errors.copyFailed'));
         }
     };
 
@@ -178,10 +180,10 @@ export const Calculator = () => {
                     <button
                         onClick={copyResult}
                         className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 transition-colors flex items-center gap-1 text-sm text-white/70 hover:text-white"
-                        title="Copy result"
+                        title={t('copyResult')}
                     >
                         <span className="material-symbols-outlined text-base">content_copy</span>
-                        Copy
+                        {t('common:actions.copy')}
                     </button>
                 </div>
                 <div className="flex-1 flex items-end justify-end">

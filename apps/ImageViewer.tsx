@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useAsyncAction, useWindowInstance } from '../hooks';
 import { TextInput } from '../components/ui';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface ImageViewerProps {
     initialSrc?: string;
@@ -8,6 +9,7 @@ interface ImageViewerProps {
 }
 
 export const ImageViewer: React.FC<ImageViewerProps> = ({ initialSrc, windowId }) => {
+    const { t } = useTranslation('imageViewer');
     const { setTitle } = useWindowInstance(windowId ?? '');
     const [imageSrc, setImageSrc] = useState(
         initialSrc || 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1000&q=80'
@@ -80,7 +82,7 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({ initialSrc, windowId }
                 <button
                     onClick={handleZoomOut}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                    title="Zoom Out"
+                    title={t('zoomOut')}
                 >
                     <span className="material-symbols-outlined text-white/80 text-xl">zoom_out</span>
                 </button>
@@ -88,7 +90,7 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({ initialSrc, windowId }
                 <button
                     onClick={handleZoomIn}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                    title="Zoom In"
+                    title={t('zoomIn')}
                 >
                     <span className="material-symbols-outlined text-white/80 text-xl">zoom_in</span>
                 </button>
@@ -96,14 +98,14 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({ initialSrc, windowId }
                 <button
                     onClick={handleFitToWindow}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                    title="Fit to Window"
+                    title={t('fitToWindow')}
                 >
                     <span className="material-symbols-outlined text-white/80 text-xl">fit_screen</span>
                 </button>
                 <div className="flex-1" />
                 <TextInput
                     type="text"
-                    placeholder="Enter image URL..."
+                    placeholder={t('openImage')}
                     value={urlInput}
                     onChange={e => setUrlInput(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -114,7 +116,7 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({ initialSrc, windowId }
                     onClick={handleLoadUrl}
                     className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-lg transition-colors"
                 >
-                    Load
+                    {t('common:actions.open')}
                 </button>
             </div>
 
@@ -142,7 +144,9 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({ initialSrc, windowId }
 
             <div className="flex items-center justify-between px-3 py-1.5 bg-black/30 text-white/60 text-xs">
                 <span className="truncate max-w-md">{imageSrc}</span>
-                <span>Zoom: {zoom}%</span>
+                <span>
+                    {t('zoomIn')}: {zoom}%
+                </span>
             </div>
         </div>
     );

@@ -6,6 +6,7 @@ import { generateUuid } from '../utils/uuid';
 import { SearchInput, TextArea } from '../components/ui';
 import { email as emailValidator, validateValue } from '../utils/validation';
 import type { MailFolderId, EmailRecord } from '../utils/storage/db';
+import { useTranslation } from '../hooks/useTranslation';
 
 const USER_EMAIL = 'john.doe@windows15.local';
 
@@ -89,18 +90,12 @@ type ComposeState = {
     body: string;
 };
 
-const MAILBOX_LABELS: Record<MailFolderId, string> = {
-    inbox: 'Inbox',
-    sent: 'Sent',
-    drafts: 'Drafts',
-    trash: 'Trash',
-};
-
 interface MailProps {
     windowId?: string;
 }
 
 export const Mail: React.FC<MailProps> = ({ windowId }) => {
+    const { t } = useTranslation('mail');
     const db = useDb();
     const { setTitle, setBadge } = useWindowInstance(windowId ?? '');
 
@@ -164,10 +159,10 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
     useEffect(() => {
         if (windowId) {
             const unread = mailboxCounts.inbox.unread;
-            setTitle(unread > 0 ? `Mail - Inbox (${unread})` : 'Mail');
+            setTitle(unread > 0 ? `${t('title')} - ${t('inbox')} (${unread})` : t('title'));
             setBadge(unread > 0 ? unread : null);
         }
-    }, [windowId, mailboxCounts.inbox.unread, setTitle, setBadge]);
+    }, [windowId, mailboxCounts.inbox.unread, setTitle, setBadge, t]);
 
     const filteredMessages = useMemo(() => {
         const query = searchQuery.trim().toLowerCase();
@@ -302,7 +297,7 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
         }
 
         if (recipients.length === 0) {
-            setComposeError('Add at least one recipient.');
+            setComposeError(t('to'));
             return;
         }
 
@@ -345,7 +340,7 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
     if (isLoading && !isSeeded) {
         return (
             <div className="h-full w-full bg-background-dark text-white flex items-center justify-center">
-                <div className="text-white/50">Loading...</div>
+                <div className="text-white/50">{t('common:status.loading')}</div>
             </div>
         );
     }
@@ -364,7 +359,7 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
                     >
                         edit
                     </span>
-                    New mail
+                    {t('compose')}
                 </button>
 
                 {(['inbox', 'sent', 'drafts', 'trash'] as MailFolderId[]).map(mailbox => {
@@ -388,7 +383,7 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
                                             ? 'draft'
                                             : 'delete'}
                                 </span>
-                                {MAILBOX_LABELS[mailbox]}
+                                {t(mailbox)}
                             </span>
                             {badge > 0 && (
                                 <span
@@ -410,14 +405,14 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
                         <SearchInput
                             value={searchQuery}
                             onChange={setSearchQuery}
-                            placeholder="Search mail"
-                            aria-label="Search mail"
+                            placeholder={t('common:actions.search')}
+                            aria-label={t('common:actions.search')}
                         />
                     </div>
 
                     <div className="flex-1 overflow-y-auto">
                         {filteredMessages.length === 0 ? (
-                            <div className="p-6 text-sm text-white/50">No messages found.</div>
+                            <div className="p-6 text-sm text-white/50">{t('noMessages')}</div>
                         ) : (
                             filteredMessages.map(email => {
                                 const isSelected = email.id === selectedMessageId;
@@ -467,7 +462,7 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
                 {/* Reader */}
                 <div className="flex-1 min-w-0 flex flex-col">
                     <div className="h-12 shrink-0 border-b border-white/5 bg-black/20 flex items-center justify-between px-4">
-                        <div className="text-sm font-medium text-white/80">{MAILBOX_LABELS[activeMailbox]}</div>
+                        <div className="text-sm font-medium text-white/80">{t(activeMailbox)}</div>
                         <div className="flex items-center gap-2">
                             {selectedMessage?.folderId === 'drafts' && (
                                 <button
@@ -475,7 +470,7 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
                                     className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs text-white/90 flex items-center gap-1"
                                 >
                                     <span className="material-symbols-outlined text-[16px]">edit</span>
-                                    Edit
+                                    {t('common:actions.edit')}
                                 </button>
                             )}
 
@@ -488,14 +483,14 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
                                         <span className="material-symbols-outlined text-[16px]">
                                             restore_from_trash
                                         </span>
-                                        Restore
+                                        {t('common:actions.restore')}
                                     </button>
                                     <button
                                         onClick={() => void deleteForever(selectedMessage.id)}
                                         className="px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-xs text-red-100 flex items-center gap-1"
                                     >
                                         <span className="material-symbols-outlined text-[16px]">delete_forever</span>
-                                        Delete
+                                        {t('delete')}
                                     </button>
                                 </>
                             ) : selectedMessage ? (
@@ -504,7 +499,7 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
                                     className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs text-white/90 flex items-center gap-1"
                                 >
                                     <span className="material-symbols-outlined text-[16px]">delete</span>
-                                    Trash
+                                    {t('trash')}
                                 </button>
                             ) : null}
                         </div>
@@ -513,7 +508,7 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
                     <div className="flex-1 overflow-y-auto p-6">
                         {!selectedMessage ? (
                             <div className="h-full flex items-center justify-center text-sm text-white/50">
-                                Select a message to read.
+                                {t('noMessages')}
                             </div>
                         ) : (
                             <div className="max-w-3xl">
@@ -525,14 +520,14 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
                                         <span className="material-symbols-outlined text-[16px] text-white/40">
                                             person
                                         </span>
-                                        <span className="truncate">From: {selectedMessage.from}</span>
+                                        <span className="truncate">{selectedMessage.from}</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <span className="material-symbols-outlined text-[16px] text-white/40">
                                             mail
                                         </span>
                                         <span className="truncate">
-                                            To: {selectedMessage.to.join(', ') || '(none)'}
+                                            {t('to')}: {selectedMessage.to.join(', ') || '(none)'}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -557,12 +552,12 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
                     <div className="w-full max-w-2xl glass-panel rounded-xl overflow-hidden shadow-2xl">
                         <div className="h-12 px-4 flex items-center justify-between border-b border-white/10 bg-black/20">
                             <div className="text-sm font-medium text-white/90">
-                                {compose.draftId ? 'Edit draft' : 'New message'}
+                                {compose.draftId ? t('drafts') : t('compose')}
                             </div>
                             <button
                                 onClick={() => setCompose(null)}
                                 className="w-8 h-8 rounded-lg hover:bg-white/10 text-white/70 flex items-center justify-center"
-                                title="Close"
+                                title={t('common:actions.close')}
                             >
                                 <span className="material-symbols-outlined text-[18px]">close</span>
                             </button>
@@ -576,7 +571,7 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
 
                         <div className="p-4 flex flex-col gap-3">
                             <label className="flex items-center gap-3">
-                                <span className="text-xs text-white/60 w-10">To</span>
+                                <span className="text-xs text-white/60 w-10">{t('to')}</span>
                                 <input
                                     value={compose.to}
                                     onChange={e => setCompose(prev => (prev ? { ...prev, to: e.target.value } : prev))}
@@ -585,21 +580,21 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
                                 />
                             </label>
                             <label className="flex items-center gap-3">
-                                <span className="text-xs text-white/60 w-10">Subject</span>
+                                <span className="text-xs text-white/60 w-10">{t('subject')}</span>
                                 <input
                                     value={compose.subject}
                                     onChange={e =>
                                         setCompose(prev => (prev ? { ...prev, subject: e.target.value } : prev))
                                     }
                                     className="flex-1 h-9 px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
-                                    placeholder="(no subject)"
+                                    placeholder={t('subject')}
                                 />
                             </label>
                             <TextArea
                                 value={compose.body}
                                 onChange={e => setCompose(prev => (prev ? { ...prev, body: e.target.value } : prev))}
                                 className="h-56 bg-black/30 focus:border-primary/60 focus:ring-1 focus:ring-primary/30 whitespace-pre-wrap"
-                                placeholder="Write your message…"
+                                placeholder={t('body')}
                             />
                         </div>
 
@@ -610,13 +605,13 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
                                     onClick={() => void saveDraft()}
                                     className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs text-white/90"
                                 >
-                                    Save draft
+                                    {t('saveDraft')}
                                 </button>
                                 <button
                                     onClick={() => void sendMessage()}
                                     className="px-3 py-2 rounded-lg bg-primary hover:bg-primary/90 text-xs text-white font-medium"
                                 >
-                                    Send
+                                    {t('send')}
                                 </button>
                             </div>
                         </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { usePersistedState, useStandardHotkeys, useCopyToClipboard } from '../hooks';
 import { AppContainer, Slider, Button, SectionLabel, CopyButton } from '../components/ui';
 import { hslToRgb, rgbToHex, rgbToHsl } from '../utils/color';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface SavedColor {
     hex: string;
@@ -9,6 +10,7 @@ interface SavedColor {
 }
 
 export const ColorPicker = () => {
+    const { t } = useTranslation('colorPicker');
     const [hue, setHue] = useState(200);
     const [saturation, setSaturation] = useState(70);
     const [lightness, setLightness] = useState(50);
@@ -63,13 +65,13 @@ export const ColorPicker = () => {
                 style={{ backgroundColor: hex }}
             >
                 <Button onClick={saveColor} variant="ghost" className="bg-black/30 backdrop-blur hover:bg-black/40">
-                    Save Color
+                    {t('common:actions.save')}
                 </Button>
             </div>
 
             <div className="bg-black/20 p-4 rounded-lg space-y-4">
                 <Slider
-                    label="Hue"
+                    label={t('hue')}
                     value={hue}
                     min={0}
                     max={360}
@@ -77,7 +79,7 @@ export const ColorPicker = () => {
                     gradient="linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)"
                 />
                 <Slider
-                    label="Saturation"
+                    label={t('saturation')}
                     value={saturation}
                     min={0}
                     max={100}
@@ -85,7 +87,7 @@ export const ColorPicker = () => {
                     gradient={`linear-gradient(to right, hsl(${hue}, 0%, ${lightness}%), hsl(${hue}, 100%, ${lightness}%))`}
                 />
                 <Slider
-                    label="Lightness"
+                    label={t('lightness')}
                     value={lightness}
                     min={0}
                     max={100}
@@ -102,7 +104,7 @@ export const ColorPicker = () => {
 
             {savedColors.length > 0 && (
                 <div className="bg-black/20 p-4 rounded-lg">
-                    <SectionLabel>Saved Colors</SectionLabel>
+                    <SectionLabel>{t('recentColors')}</SectionLabel>
                     <div className="flex flex-wrap gap-2">
                         {savedColors.map(color => (
                             <div

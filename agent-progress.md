@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                                                                                                | Status         |
-| ---- | ------------------------------------------------------------------------------------------------------------------------------------------ | -------------- |
-| F171 | Add localization to utility apps: Base64Tool, HashGenerator, JsonViewer, PasswordGenerator, QrGenerator, UnitConverter, WordCounter, Timer | 🔄 In progress |
-| F172 | Add localization to core apps: Browser, Calculator, ColorPicker, ImageViewer, Mail, Notepad, RecycleBin, Settings, Arcade                  | 🚫 Blocked     |
-| F153 | Add state persistence to utility apps using useAppState hook                                                                               | ⏳ Not started |
+| ID   | Description                                                                                                               | Status         |
+| ---- | ------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| F172 | Add localization to core apps: Browser, Calculator, ColorPicker, ImageViewer, Mail, Notepad, RecycleBin, Settings, Arcade | 🔄 In progress |
+| F153 | Add state persistence to utility apps using useAppState hook                                                              | ⏳ Not started |
+| F156 | Integrate file open/save dialogs into utility apps                                                                        | ⏳ Not started |
 
 ---
 

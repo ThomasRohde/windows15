@@ -9,6 +9,7 @@
 import React, { useState, useEffect } from 'react';
 import { NotesPanel, FilesPanel, NotepadProps, NotepadView } from './notepad-components';
 import { useWindowInstance } from '../hooks';
+import { useTranslation } from '../hooks/useTranslation';
 
 /**
  * Notepad application component
@@ -27,6 +28,7 @@ import { useWindowInstance } from '../hooks';
  * ```
  */
 export const Notepad: React.FC<NotepadProps> = props => {
+    const { t } = useTranslation('notepad');
     const { initialContent = '', initialFileId, initialFileName, windowId } = props;
     const { setTitle } = useWindowInstance(windowId ?? '');
 
@@ -54,9 +56,9 @@ export const Notepad: React.FC<NotepadProps> = props => {
     // Reset title when in notes view
     useEffect(() => {
         if (view === 'notes' && windowId) {
-            setTitle('Notepad');
+            setTitle(t('title'));
         }
-    }, [view, windowId, setTitle]);
+    }, [view, windowId, setTitle, t]);
 
     return (
         <div className="h-full flex flex-col bg-background-dark text-[#d4d4d4] relative">
@@ -69,7 +71,7 @@ export const Notepad: React.FC<NotepadProps> = props => {
                     }`}
                 >
                     <span className="material-symbols-outlined text-[16px]">note_stack</span>
-                    Notes
+                    {t('allNotes')}
                 </button>
                 <button
                     onClick={() => setView('files')}
@@ -78,7 +80,7 @@ export const Notepad: React.FC<NotepadProps> = props => {
                     }`}
                 >
                     <span className="material-symbols-outlined text-[16px]">description</span>
-                    Files
+                    {t('common:fileExplorer.title')}
                 </button>
             </div>
 

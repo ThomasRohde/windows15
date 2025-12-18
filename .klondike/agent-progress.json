@@ -867,18 +867,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F171",
-        "description": "Add localization to utility apps: Base64Tool, HashGenerator, JsonViewer, PasswordGenerator, QrGenerator, UnitConverter, WordCounter, Timer",
-        "status": "in-progress"
-      },
-      {
         "id": "F172",
         "description": "Add localization to core apps: Browser, Calculator, ColorPicker, ImageViewer, Mail, Notepad, RecycleBin, Settings, Arcade",
-        "status": "blocked"
+        "status": "in-progress"
       },
       {
         "id": "F153",
         "description": "Add state persistence to utility apps using useAppState hook",
+        "status": "not-started"
+      },
+      {
+        "id": "F156",
+        "description": "Integrate file open/save dialogs into utility apps",
         "status": "not-started"
       }
     ]

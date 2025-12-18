@@ -12,8 +12,10 @@ import { ContextMenu } from '../components/ContextMenu';
 import { useContextMenu, useNotification, useSound } from '../hooks';
 import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { Button, EmptyState } from '../components/ui';
+import { useTranslation } from '../hooks/useTranslation';
 
 export const RecycleBin = () => {
+    const { t } = useTranslation('recycleBin');
     const [items, setItems] = useState<FileSystemItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedItem, setSelectedItem] = useState<FileSystemItem | null>(null);
@@ -53,16 +55,16 @@ export const RecycleBin = () => {
         await restoreFromRecycleBin(item.id);
         setSelectedItem(null);
         closeContextMenu();
-        notify.success(`Restored "${item.name}"`);
+        notify.success(t('itemRestored'));
     };
 
     const handlePermanentDelete = async (item: FileSystemItem) => {
         const confirmed = await confirm({
-            title: 'Permanently Delete',
-            message: `Are you sure you want to permanently delete "${item.name}"? This cannot be undone.`,
+            title: t('permanentDelete'),
+            message: `${t('confirmDelete')} ${t('cannotUndo')}`,
             variant: 'danger',
-            confirmLabel: 'Delete',
-            cancelLabel: 'Cancel',
+            confirmLabel: t('common:actions.delete'),
+            cancelLabel: t('common:actions.cancel'),
         });
         if (!confirmed) return;
 
@@ -70,24 +72,24 @@ export const RecycleBin = () => {
         playSound('delete');
         setSelectedItem(null);
         closeContextMenu();
-        notify.success(`Permanently deleted "${item.name}"`);
+        notify.success(t('itemDeleted'));
     };
 
     const handleEmptyRecycleBin = async () => {
         if (items.length === 0) return;
 
         const confirmed = await confirm({
-            title: 'Empty Recycle Bin',
-            message: 'Are you sure you want to permanently delete all items in the Recycle Bin? This cannot be undone.',
+            title: t('emptyBin'),
+            message: `${t('confirmEmpty')} ${t('cannotUndo')}`,
             variant: 'danger',
-            confirmLabel: 'Empty Recycle Bin',
-            cancelLabel: 'Cancel',
+            confirmLabel: t('emptyBin'),
+            cancelLabel: t('common:actions.cancel'),
         });
         if (!confirmed) return;
 
         await emptyRecycleBin();
         playSound('empty-trash');
-        notify.success('Recycle Bin emptied');
+        notify.success(t('binEmptied'));
     };
 
     const handleContextMenu = (e: React.MouseEvent, item?: FileSystemItem) => {
@@ -98,7 +100,7 @@ export const RecycleBin = () => {
     };
 
     const formatDeletedDate = (dateString?: string) => {
-        if (!dateString) return 'Unknown';
+        if (!dateString) return t('common:status.notFound');
         const date = new Date(dateString);
         return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
@@ -124,7 +126,7 @@ export const RecycleBin = () => {
             <div className="flex h-full w-full items-center justify-center bg-transparent">
                 <div className="text-white/60 flex items-center gap-2">
                     <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                    Loading...
+                    {t('common:status.loading')}
                 </div>
             </div>
         );
@@ -136,7 +138,7 @@ export const RecycleBin = () => {
             <div className="h-12 border-b border-white/5 flex items-center px-4 gap-4">
                 <div className="flex items-center gap-2 text-white/70">
                     <span className="material-symbols-outlined text-gray-400">delete</span>
-                    <span className="text-sm font-medium">Recycle Bin</span>
+                    <span className="text-sm font-medium">{t('title')}</span>
                     <span className="text-xs text-white/40">({items.length} items)</span>
                 </div>
                 <div className="flex-1" />
@@ -148,19 +150,14 @@ export const RecycleBin = () => {
                     icon="delete_forever"
                     iconPosition="left"
                 >
-                    Empty Recycle Bin
+                    {t('emptyBin')}
                 </Button>
             </div>
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-4">
                 {items.length === 0 ? (
-                    <EmptyState
-                        icon="delete_outline"
-                        title="Recycle Bin is empty"
-                        variant="minimal"
-                        className="h-full"
-                    />
+                    <EmptyState icon="delete_outline" title={t('empty')} variant="minimal" className="h-full" />
                 ) : (
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-4">
                         {items.map(item => (
@@ -207,14 +204,14 @@ export const RecycleBin = () => {
                         className="flex items-center gap-1 px-3 py-1 text-sm text-green-400 hover:bg-green-500/20 rounded transition-colors"
                     >
                         <span className="material-symbols-outlined text-lg">restore</span>
-                        Restore
+                        {t('restore')}
                     </button>
                     <button
                         onClick={() => handlePermanentDelete(selectedItem)}
                         className="flex items-center gap-1 px-3 py-1 text-sm text-red-400 hover:bg-red-500/20 rounded transition-colors"
                     >
                         <span className="material-symbols-outlined text-lg">delete_forever</span>
-                        Delete
+                        {t('permanentDelete')}
                     </button>
                 </div>
             )}
@@ -226,7 +223,7 @@ export const RecycleBin = () => {
                         icon="restore"
                         onClick={() => contextMenu.data && handleRestore(contextMenu.data)}
                     >
-                        Restore
+                        {t('restore')}
                     </ContextMenu.Item>
                     <ContextMenu.Separator />
                     <ContextMenu.Item
@@ -234,7 +231,7 @@ export const RecycleBin = () => {
                         danger
                         onClick={() => contextMenu.data && handlePermanentDelete(contextMenu.data)}
                     >
-                        Delete Permanently
+                        {t('permanentDelete')}
                     </ContextMenu.Item>
                 </ContextMenu>
             )}

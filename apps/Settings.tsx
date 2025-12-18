@@ -8,6 +8,7 @@ import { ScreensaverSettings } from './settings/ScreensaverSettings';
 import { WindowSpaceSettings } from './settings/WindowSpaceSettings';
 import { ProfileSettings } from './settings/ProfileSettings';
 import { SoundSettings } from './settings/SoundSettings';
+import { useTranslation } from '../hooks/useTranslation';
 
 type SettingsSection =
     | 'account'
@@ -20,27 +21,33 @@ type SettingsSection =
     | 'screensaver'
     | '3dmode';
 
-const sidebarItems: SidebarItem<SettingsSection>[] = [
-    { id: 'account', label: 'Account', icon: 'person' },
-    { id: 'personalization', label: 'Personalization', icon: 'wallpaper' },
-    { id: 'sound', label: 'Sound', icon: 'volume_up' },
-    { id: 'sync', label: 'Sync', icon: 'sync' },
-    { id: 'localization', label: 'Time & language', icon: 'language' },
-    { id: 'network', label: 'Network', icon: 'wifi' },
-    { id: 'apps', label: 'Apps', icon: 'apps' },
-    { id: 'screensaver', label: 'Screensaver', icon: 'screenshot_monitor' },
-    { id: '3dmode', label: '3D Window Space', icon: 'view_in_ar' },
-];
-
 export const Settings = () => {
+    const { t } = useTranslation('settings');
     const { activeWallpaper, setWallpaper } = useOS();
     const [activeSection, setActiveSection] = useState<SettingsSection>('account');
+
+    const sidebarItems: SidebarItem<SettingsSection>[] = [
+        { id: 'account', label: t('general'), icon: 'person' },
+        { id: 'personalization', label: t('personalization'), icon: 'wallpaper' },
+        { id: 'sound', label: t('sound'), icon: 'volume_up' },
+        { id: 'sync', label: t('sync'), icon: 'sync' },
+        { id: 'localization', label: t('localization'), icon: 'language' },
+        { id: 'network', label: t('common:labels.name'), icon: 'wifi' },
+        { id: 'apps', label: t('common:labels.name'), icon: 'apps' },
+        { id: 'screensaver', label: t('common:labels.name'), icon: 'screenshot_monitor' },
+        { id: '3dmode', label: t('common:labels.name'), icon: 'view_in_ar' },
+    ];
 
     return (
         <div className="h-full bg-background-dark text-white flex">
             {/* Sidebar */}
             <div className="hidden md:block">
-                <AppSidebar title="Settings" items={sidebarItems} active={activeSection} onChange={setActiveSection} />
+                <AppSidebar
+                    title={t('title')}
+                    items={sidebarItems}
+                    active={activeSection}
+                    onChange={setActiveSection}
+                />
             </div>
 
             {/* Content */}
@@ -49,18 +56,18 @@ export const Settings = () => {
 
                 {activeSection === 'personalization' && (
                     <>
-                        <h1 className="text-3xl font-light mb-8">Personalization</h1>
+                        <h1 className="text-3xl font-light mb-8">{t('personalization')}</h1>
                         <section className="mb-8">
-                            <h3 className="text-lg font-medium mb-4">Background</h3>
+                            <h3 className="text-lg font-medium mb-4">{t('wallpaper')}</h3>
                             <div className="aspect-video w-full max-w-2xl rounded-xl overflow-hidden mb-6 shadow-2xl ring-1 ring-white/10">
                                 <img
                                     src={activeWallpaper}
                                     className="w-full h-full object-cover"
-                                    alt="Current Wallpaper"
+                                    alt={t('wallpaper')}
                                 />
                             </div>
 
-                            <h4 className="text-sm text-white/60 mb-3">Choose your background</h4>
+                            <h4 className="text-sm text-white/60 mb-3">{t('wallpaper')}</h4>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl">
                                 {WALLPAPERS.map(wp => (
                                     <button
@@ -84,14 +91,14 @@ export const Settings = () => {
 
                 {activeSection === 'network' && (
                     <div className="max-w-2xl">
-                        <h1 className="text-3xl font-light mb-3">Network</h1>
+                        <h1 className="text-3xl font-light mb-3">{t('common:labels.name')}</h1>
                         <p className="text-sm text-white/60">Network settings are not implemented in this demo.</p>
                     </div>
                 )}
 
                 {activeSection === 'apps' && (
                     <div className="max-w-2xl">
-                        <h1 className="text-3xl font-light mb-3">Apps</h1>
+                        <h1 className="text-3xl font-light mb-3">{t('common:labels.name')}</h1>
                         <p className="text-sm text-white/60">App management is not implemented in this demo.</p>
                     </div>
                 )}

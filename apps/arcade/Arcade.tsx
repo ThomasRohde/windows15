@@ -29,6 +29,7 @@ import {
 } from './Wasm4Runtime';
 import type { Wasm4State } from './Wasm4Runtime';
 import { useConfirmDialog, ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { useTranslation } from '../../hooks/useTranslation';
 
 /**
  * View modes for the arcade app
@@ -146,6 +147,7 @@ const GameCard: React.FC<{
  * Arcade App Component
  */
 export const Arcade: React.FC = () => {
+    const { t } = useTranslation('arcade');
     const db = useDb();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const runtimeRef = useRef<Wasm4Runtime | null>(null);
@@ -446,13 +448,13 @@ export const Arcade: React.FC = () => {
                 await loadSaveSlots();
             } catch (error) {
                 console.error('[Arcade] Save failed:', error);
-                alert(`Save failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                alert(`${t('saveFailed')}: ${error instanceof Error ? error.message : 'Unknown error'}`);
             } finally {
                 setIsSaving(false);
                 setShowSaveModal(false);
             }
         },
-        [db, selectedGame, runtimeState, loadSaveSlots]
+        [db, selectedGame, runtimeState, loadSaveSlots, t]
     );
 
     /**
@@ -466,22 +468,22 @@ export const Arcade: React.FC = () => {
                 const save = await db.$arcadeSaves.where(['gameId', 'slot']).equals([selectedGame.id, slot]).first();
 
                 if (!save) {
-                    alert('No save in this slot');
+                    alert(t('loadFailed'));
                     return;
                 }
 
                 const success = await runtimeRef.current.importState(save.dataBlob);
                 if (!success) {
-                    throw new Error('Failed to restore game state');
+                    throw new Error(t('loadFailed'));
                 }
 
                 setShowSaveModal(false);
             } catch (error) {
                 console.error('[Arcade] Load failed:', error);
-                alert(`Load failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                alert(`${t('loadFailed')}: ${error instanceof Error ? error.message : 'Unknown error'}`);
             }
         },
-        [db, selectedGame]
+        [db, selectedGame, t]
     );
 
     /**
@@ -526,14 +528,14 @@ export const Arcade: React.FC = () => {
                 await db.$arcadeGames.add(gameRecord);
             } catch (error) {
                 console.error('[Arcade] Import failed:', error);
-                alert(`Failed to import cartridge: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                alert(`${t('gameImported')}: ${error instanceof Error ? error.message : 'Unknown error'}`);
             } finally {
                 setIsImporting(false);
             }
         };
 
         input.click();
-    }, [db]);
+    }, [db, t]);
 
     /**
      * Delete a game from the library
@@ -543,11 +545,11 @@ export const Arcade: React.FC = () => {
             if (!db || gameId === DEMO_CART_ID) return;
 
             const confirmed = await confirm({
-                title: 'Delete Game',
-                message: 'Delete this game from your library?',
+                title: t('deleteGame'),
+                message: t('deleteGame'),
                 variant: 'danger',
-                confirmLabel: 'Delete',
-                cancelLabel: 'Cancel',
+                confirmLabel: t('common:actions.delete'),
+                cancelLabel: t('common:actions.cancel'),
             });
             if (!confirmed) return;
 
@@ -557,7 +559,7 @@ export const Arcade: React.FC = () => {
                 console.error('[Arcade] Delete failed:', error);
             }
         },
-        [db, confirm]
+        [db, confirm, t]
     );
 
     /**
@@ -586,7 +588,7 @@ export const Arcade: React.FC = () => {
                 <div className="flex items-center justify-between p-4 border-b border-gray-700">
                     <div className="flex items-center gap-3">
                         <span className="material-symbols-outlined text-purple-400">sports_esports</span>
-                        <h1 className="text-xl font-bold">Arcade</h1>
+                        <h1 className="text-xl font-bold">{t('title')}</h1>
                     </div>
                     <button
                         onClick={importCartridge}
@@ -594,7 +596,7 @@ export const Arcade: React.FC = () => {
                         className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg disabled:opacity-50"
                     >
                         <span className="material-symbols-outlined text-sm">add</span>
-                        {isImporting ? 'Importing...' : 'Import Game'}
+                        {isImporting ? t('common:status.loading') : t('importGame')}
                     </button>
                 </div>
 
@@ -603,8 +605,8 @@ export const Arcade: React.FC = () => {
                     {!games || games.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full text-gray-400">
                             <span className="material-symbols-outlined text-6xl mb-4">videogame_asset_off</span>
-                            <p className="text-lg mb-2">No games installed</p>
-                            <p className="text-sm">Import a WASM-4 cartridge (.wasm) to get started</p>
+                            <p className="text-lg mb-2">{t('noGames')}</p>
+                            <p className="text-sm">{t('importHint')}</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -653,7 +655,7 @@ export const Arcade: React.FC = () => {
                         className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded text-white text-sm"
                     >
                         <span className="material-symbols-outlined text-sm">arrow_back</span>
-                        Library
+                        {t('library')}
                     </button>
 
                     <span className="text-white font-medium">{selectedGame?.title}</span>
@@ -662,7 +664,7 @@ export const Arcade: React.FC = () => {
                         <button
                             onClick={togglePause}
                             className="p-2 bg-gray-700 hover:bg-gray-600 rounded text-white"
-                            title={runtimeState?.isPaused ? 'Resume' : 'Pause'}
+                            title={runtimeState?.isPaused ? t('resume') : t('pause')}
                         >
                             <span className="material-symbols-outlined text-sm">
                                 {runtimeState?.isPaused ? 'play_arrow' : 'pause'}
@@ -672,7 +674,7 @@ export const Arcade: React.FC = () => {
                         <button
                             onClick={resetGame}
                             className="p-2 bg-gray-700 hover:bg-gray-600 rounded text-white"
-                            title="Reset"
+                            title={t('common:actions.reset')}
                         >
                             <span className="material-symbols-outlined text-sm">refresh</span>
                         </button>
@@ -680,7 +682,7 @@ export const Arcade: React.FC = () => {
                         <button
                             onClick={toggleFullscreen}
                             className="p-2 bg-gray-700 hover:bg-gray-600 rounded text-white"
-                            title="Fullscreen"
+                            title={t('fullscreen')}
                         >
                             <span className="material-symbols-outlined text-sm">fullscreen</span>
                         </button>
@@ -688,7 +690,7 @@ export const Arcade: React.FC = () => {
                         <button
                             onClick={panicStop}
                             className="p-2 bg-red-700 hover:bg-red-600 rounded text-white"
-                            title="Panic Stop (Escape hung game)"
+                            title={t('common:actions.reset')}
                         >
                             <span className="material-symbols-outlined text-sm">emergency</span>
                         </button>
@@ -698,7 +700,7 @@ export const Arcade: React.FC = () => {
                         <button
                             onClick={() => setShowSaveModal(true)}
                             className="p-2 bg-blue-700 hover:bg-blue-600 rounded text-white"
-                            title="Save/Load"
+                            title={t('saveGame')}
                             disabled={isSaving}
                         >
                             <span className="material-symbols-outlined text-sm">save</span>
@@ -712,7 +714,7 @@ export const Arcade: React.FC = () => {
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
                     <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-xl font-bold text-white">Save / Load</h2>
+                            <h2 className="text-xl font-bold text-white">{t('saveGame')}</h2>
                             <button onClick={() => setShowSaveModal(false)} className="p-1 hover:bg-gray-700 rounded">
                                 <span className="material-symbols-outlined text-gray-400">close</span>
                             </button>
@@ -727,13 +729,17 @@ export const Arcade: React.FC = () => {
                                         className="flex items-center justify-between p-3 bg-gray-700 rounded-lg"
                                     >
                                         <div className="flex-1">
-                                            <p className="text-white font-medium">Slot {slot}</p>
+                                            <p className="text-white font-medium">
+                                                {t('saveSlot')} {slot}
+                                            </p>
                                             {slotInfo && slotInfo.timestamp ? (
                                                 <p className="text-gray-400 text-sm">
                                                     {new Date(slotInfo.timestamp).toLocaleString()}
                                                 </p>
                                             ) : (
-                                                <p className="text-gray-500 text-sm italic">Empty</p>
+                                                <p className="text-gray-500 text-sm italic">
+                                                    {t('common:status.empty')}
+                                                </p>
                                             )}
                                         </div>
                                         <div className="flex gap-2">
@@ -742,14 +748,14 @@ export const Arcade: React.FC = () => {
                                                 disabled={isSaving}
                                                 className="px-3 py-1 bg-green-600 hover:bg-green-500 rounded text-white text-sm disabled:opacity-50"
                                             >
-                                                {isSaving ? '...' : 'Save'}
+                                                {isSaving ? '...' : t('common:actions.save')}
                                             </button>
                                             <button
                                                 onClick={() => loadGame(slot)}
                                                 disabled={!slotInfo}
                                                 className="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded text-white text-sm disabled:opacity-50"
                                             >
-                                                Load
+                                                {t('loadGame')}
                                             </button>
                                         </div>
                                     </div>
@@ -814,14 +820,14 @@ export const Arcade: React.FC = () => {
                 {isLoadingCartridge && (
                     <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center">
                         <div className="animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full mb-3"></div>
-                        <span className="text-white text-sm">Loading cartridge...</span>
+                        <span className="text-white text-sm">{t('common:status.loading')}</span>
                     </div>
                 )}
 
                 {/* Paused Overlay */}
                 {runtimeState?.isPaused && !isLoadingCartridge && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <span className="text-white text-2xl font-bold">PAUSED</span>
+                        <span className="text-white text-2xl font-bold">{t('pause').toUpperCase()}</span>
                     </div>
                 )}
 
@@ -834,7 +840,7 @@ export const Arcade: React.FC = () => {
                             onClick={stopGame}
                             className="mt-4 px-4 py-2 bg-white/20 hover:bg-white/30 rounded text-white text-sm"
                         >
-                            Back to Library
+                            {t('library')}
                         </button>
                     </div>
                 )}
@@ -889,7 +895,7 @@ export const Arcade: React.FC = () => {
             {/* Controls Help */}
             {!isFullscreen && (
                 <div className="mt-4 text-gray-500 text-xs text-center">
-                    <p>Keyboard: Arrow keys / WASD to move, X/Space = Button 1, Z/C = Button 2</p>
+                    <p>{t('controls')}</p>
                 </div>
             )}
 

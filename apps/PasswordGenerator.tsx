@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { usePersistedState, useStandardHotkeys, useCopyToClipboard } from '../hooks';
+import { useTranslation } from '../hooks/useTranslation';
 import { AppContainer, Slider, Checkbox, Button, CopyButton, TextInput } from '../components/ui';
 
 interface PasswordSettings {
@@ -11,6 +12,7 @@ interface PasswordSettings {
 }
 
 export const PasswordGenerator = () => {
+    const { t } = useTranslation('passwordGenerator');
     const { value: settings, setValue: setSettings } = usePersistedState<PasswordSettings>('passwordgen.settings', {
         length: 16,
         uppercase: true,
@@ -30,7 +32,7 @@ export const PasswordGenerator = () => {
         if (symbols) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
 
         if (!chars) {
-            setPassword('Select at least one option');
+            setPassword(t('strength'));
             return;
         }
 
@@ -39,10 +41,10 @@ export const PasswordGenerator = () => {
             result += chars.charAt(Math.floor(Math.random() * chars.length));
         }
         setPassword(result);
-    }, [length, uppercase, lowercase, numbers, symbols]);
+    }, [length, uppercase, lowercase, numbers, symbols, t]);
 
     const getStrength = () => {
-        if (!password || password === 'Select at least one option') return { label: '', color: '', width: '0%' };
+        if (!password || password === t('strength')) return { label: '', color: '', width: '0%' };
 
         let score = 0;
         if (password.length >= 12) score++;
@@ -53,10 +55,10 @@ export const PasswordGenerator = () => {
         if (numbers) score++;
         if (symbols) score++;
 
-        if (score <= 2) return { label: 'Weak', color: 'bg-red-500', width: '25%' };
-        if (score <= 4) return { label: 'Fair', color: 'bg-yellow-500', width: '50%' };
-        if (score <= 6) return { label: 'Good', color: 'bg-blue-500', width: '75%' };
-        return { label: 'Strong', color: 'bg-green-500', width: '100%' };
+        if (score <= 2) return { label: t('weak'), color: 'bg-red-500', width: '25%' };
+        if (score <= 4) return { label: t('fair'), color: 'bg-yellow-500', width: '50%' };
+        if (score <= 6) return { label: t('good'), color: 'bg-blue-500', width: '75%' };
+        return { label: t('strong'), color: 'bg-green-500', width: '100%' };
     };
 
     const strength = getStrength();
@@ -64,7 +66,7 @@ export const PasswordGenerator = () => {
 
     // Keyboard shortcuts (F140)
     useStandardHotkeys({
-        onCopy: password && password !== 'Select at least one option' ? () => void copy(password) : undefined,
+        onCopy: password && password !== t('strength') ? () => void copy(password) : undefined,
     });
 
     return (
@@ -75,19 +77,15 @@ export const PasswordGenerator = () => {
                         type="text"
                         value={password}
                         readOnly
-                        placeholder="Click Generate"
+                        placeholder={t('generate')}
                         className="flex-1 bg-transparent text-lg font-mono border-none"
                     />
-                    <CopyButton
-                        value={password}
-                        disabled={!password || password === 'Select at least one option'}
-                        size="sm"
-                    />
+                    <CopyButton value={password} disabled={!password || password === t('strength')} size="sm" />
                 </div>
-                {password && password !== 'Select at least one option' && (
+                {password && password !== t('strength') && (
                     <div className="mt-3">
                         <div className="flex justify-between text-xs text-white/60 mb-1">
-                            <span>Strength</span>
+                            <span>{t('strength')}</span>
                             <span>{strength.label}</span>
                         </div>
                         <div className="h-2 bg-black/40 rounded-full overflow-hidden">
@@ -102,7 +100,7 @@ export const PasswordGenerator = () => {
 
             <div className="bg-black/20 p-4 rounded-lg space-y-4">
                 <Slider
-                    label="Password Length"
+                    label={t('length')}
                     value={length}
                     min={8}
                     max={64}
@@ -114,32 +112,32 @@ export const PasswordGenerator = () => {
                     <Checkbox
                         checked={uppercase}
                         onChange={v => setSettings({ ...settings, uppercase: v })}
-                        label="Uppercase (A-Z)"
+                        label={t('uppercase')}
                         size="sm"
                     />
                     <Checkbox
                         checked={lowercase}
                         onChange={v => setSettings({ ...settings, lowercase: v })}
-                        label="Lowercase (a-z)"
+                        label={t('lowercase')}
                         size="sm"
                     />
                     <Checkbox
                         checked={numbers}
                         onChange={v => setSettings({ ...settings, numbers: v })}
-                        label="Numbers (0-9)"
+                        label={t('numbers')}
                         size="sm"
                     />
                     <Checkbox
                         checked={symbols}
                         onChange={v => setSettings({ ...settings, symbols: v })}
-                        label="Symbols (!@#$)"
+                        label={t('symbols')}
                         size="sm"
                     />
                 </div>
             </div>
 
             <Button onClick={generatePassword} variant="primary" size="lg" wide>
-                Generate Password
+                {t('generate')}
             </Button>
         </AppContainer>
     );

@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useTranslation } from '../hooks/useTranslation';
 import { AppContainer, TabSwitcher, Card, Button, SectionLabel, TextInput } from '../components/ui';
 import { useInterval, useSound } from '../hooks';
 import { formatDuration } from '../utils/timeFormatters';
@@ -6,6 +7,7 @@ import { formatDuration } from '../utils/timeFormatters';
 type TimerMode = 'stopwatch' | 'countdown';
 
 export const Timer = () => {
+    const { t } = useTranslation('timer');
     const [mode, setMode] = useState<TimerMode>('stopwatch');
     const [time, setTime] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
@@ -73,8 +75,8 @@ export const Timer = () => {
         <AppContainer>
             <TabSwitcher
                 options={[
-                    { value: 'stopwatch', label: 'Stopwatch' },
-                    { value: 'countdown', label: 'Countdown' },
+                    { value: 'stopwatch', label: t('stopwatch') },
+                    { value: 'countdown', label: t('timer') },
                 ]}
                 value={mode}
                 onChange={switchMode}
@@ -135,20 +137,22 @@ export const Timer = () => {
 
             <div className="flex gap-2 justify-center">
                 {!isRunning ? (
-                    <Button label="Start" onClick={handleStart} variant="primary" size="lg" />
+                    <Button label={t('start')} onClick={handleStart} variant="primary" size="lg" />
                 ) : (
-                    <Button label="Stop" onClick={handleStop} variant="danger" size="lg" />
+                    <Button label={t('stop')} onClick={handleStop} variant="danger" size="lg" />
                 )}
-                <Button label="Reset" onClick={handleReset} size="lg" />
-                {mode === 'stopwatch' && <Button label="Lap" onClick={handleLap} size="lg" />}
+                <Button label={t('reset')} onClick={handleReset} size="lg" />
+                {mode === 'stopwatch' && <Button label={t('lap')} onClick={handleLap} size="lg" />}
             </div>
 
             {laps.length > 0 && (
                 <Card className="max-h-32 overflow-y-auto">
-                    <SectionLabel>Laps</SectionLabel>
+                    <SectionLabel>{t('laps')}</SectionLabel>
                     {laps.map((lap, index) => (
                         <div key={index} className="flex justify-between text-white py-1 border-b border-white/10">
-                            <span>Lap {index + 1}</span>
+                            <span>
+                                {t('lap')} {index + 1}
+                            </span>
                             <span className="font-mono">{formatTime(lap)}</span>
                         </div>
                     ))}

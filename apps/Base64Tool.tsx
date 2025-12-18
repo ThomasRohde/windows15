@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useAsyncAction, useStandardHotkeys, useCopyToClipboard } from '../hooks';
+import { useTranslation } from '../hooks/useTranslation';
 import { TabSwitcher, ErrorBanner, SectionLabel, CopyButton, AppToolbar, TextArea } from '../components/ui';
 
 export const Base64Tool = () => {
+    const { t } = useTranslation('base64Tool');
     const [input, setInput] = useState('');
     const [output, setOutput] = useState('');
     const [mode, setMode] = useState<'encode' | 'decode'>('encode');
@@ -54,8 +56,8 @@ export const Base64Tool = () => {
             <AppToolbar>
                 <TabSwitcher
                     options={[
-                        { value: 'encode', label: 'Encode' },
-                        { value: 'decode', label: 'Decode' },
+                        { value: 'encode', label: t('encode') },
+                        { value: 'decode', label: t('decode') },
                     ]}
                     value={mode}
                     onChange={setMode}
@@ -66,16 +68,14 @@ export const Base64Tool = () => {
                     onClick={clear}
                     className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors"
                 >
-                    Clear All
+                    {t('clearAll')}
                 </button>
             </AppToolbar>
 
             <div className="flex-1 flex flex-col min-h-0 p-4 gap-4">
                 <div className="flex-1 flex flex-col min-h-0">
                     <div className="flex justify-between items-center mb-2">
-                        <SectionLabel className="mb-0">
-                            {mode === 'encode' ? 'Text to Encode' : 'Base64 to Decode'}
-                        </SectionLabel>
+                        <SectionLabel className="mb-0">{mode === 'encode' ? t('textMode') : 'Base64'}</SectionLabel>
                         <span className="text-xs text-gray-500">{input.length} characters</span>
                     </div>
                     <TextArea
@@ -83,7 +83,7 @@ export const Base64Tool = () => {
                         variant="code"
                         value={input}
                         onChange={e => setInput(e.target.value)}
-                        placeholder={mode === 'encode' ? 'Enter text to encode...' : 'Enter Base64 string to decode...'}
+                        placeholder={t('inputPlaceholder')}
                         spellCheck={false}
                     />
                 </div>
@@ -93,7 +93,7 @@ export const Base64Tool = () => {
                         onClick={handleAction}
                         className="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                     >
-                        {mode === 'encode' ? '↓ Encode' : '↓ Decode'}
+                        {mode === 'encode' ? `↓ ${t('encode')}` : `↓ ${t('decode')}`}
                     </button>
                     <button
                         onClick={swap}
@@ -108,9 +108,7 @@ export const Base64Tool = () => {
 
                 <div className="flex-1 flex flex-col min-h-0">
                     <div className="flex justify-between items-center mb-2">
-                        <SectionLabel className="mb-0">
-                            {mode === 'encode' ? 'Encoded Base64' : 'Decoded Text'}
-                        </SectionLabel>
+                        <SectionLabel className="mb-0">{t('outputLabel')}</SectionLabel>
                         <div className="flex items-center gap-2">
                             <span className="text-xs text-gray-500">{output.length} characters</span>
                             {output && <CopyButton value={output} size="sm" className="!text-xs !px-2 !py-1" />}
@@ -121,7 +119,7 @@ export const Base64Tool = () => {
                         variant="code"
                         value={output}
                         readOnly
-                        placeholder="Output will appear here..."
+                        placeholder={t('outputLabel')}
                     />
                 </div>
             </div>

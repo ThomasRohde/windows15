@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAsyncAction } from '../hooks';
+import { useTranslation } from '../hooks/useTranslation';
 import { AppToolbar, TextArea } from '../components/ui';
 
 interface JsonNodeProps {
@@ -64,8 +65,8 @@ const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level }) => {
                 {collapsed && (
                     <span className="text-gray-500">
                         {type === 'array'
-                            ? `${(data as unknown[]).length} items`
-                            : `${Object.keys(data as Record<string, unknown>).length} keys`}
+                            ? `${(data as unknown[]).length} ${(data as unknown[]).length === 1 ? 'item' : 'items'}`
+                            : `${Object.keys(data as Record<string, unknown>).length} ${Object.keys(data as Record<string, unknown>).length === 1 ? 'key' : 'keys'}`}
                     </span>
                 )}
                 {collapsed && <span className="text-white">{bracket[1]}</span>}
@@ -90,6 +91,7 @@ const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level }) => {
 };
 
 export const JsonViewer = () => {
+    const { t } = useTranslation('jsonViewer');
     const [input, setInput] = useState('');
     const [parsedJson, setParsedJson] = useState<unknown>(null);
     const [view, setView] = useState<'tree' | 'formatted'>('tree');
@@ -97,7 +99,7 @@ export const JsonViewer = () => {
 
     const parseJson = async () => {
         if (!input.trim()) {
-            throw new Error('Please enter JSON to parse');
+            throw new Error(t('invalidJson'));
         }
         await execute(async () => {
             const parsed = JSON.parse(input);
@@ -126,39 +128,39 @@ export const JsonViewer = () => {
                     onClick={parseJson}
                     className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded text-sm font-medium transition-colors"
                 >
-                    Parse
+                    {t('loadJson')}
                 </button>
                 <button
                     onClick={formatJson}
                     className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm font-medium transition-colors"
                 >
-                    Format
+                    {t('formatJson')}
                 </button>
                 <button
                     onClick={minifyJson}
                     className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm font-medium transition-colors"
                 >
-                    Minify
+                    {t('minifyJson')}
                 </button>
                 <div className="flex bg-black/20 rounded overflow-hidden">
                     <button
                         onClick={() => setView('tree')}
                         className={`px-3 py-1.5 text-sm transition-colors ${view === 'tree' ? 'bg-white/20' : 'hover:bg-white/10'}`}
                     >
-                        Tree
+                        {t('expandAll')}
                     </button>
                     <button
                         onClick={() => setView('formatted')}
                         className={`px-3 py-1.5 text-sm transition-colors ${view === 'formatted' ? 'bg-white/20' : 'hover:bg-white/10'}`}
                     >
-                        Formatted
+                        {t('formatJson')}
                     </button>
                 </div>
             </AppToolbar>
 
             <div className="flex-1 flex min-h-0">
                 <div className="w-1/2 flex flex-col border-r border-white/10">
-                    <div className="px-3 py-2 text-xs text-gray-400 bg-black/20">Input JSON</div>
+                    <div className="px-3 py-2 text-xs text-gray-400 bg-black/20">{t('pasteJson')}</div>
                     <TextArea
                         className="flex-1 bg-transparent border-none"
                         variant="code"
@@ -170,11 +172,11 @@ export const JsonViewer = () => {
                 </div>
 
                 <div className="w-1/2 flex flex-col min-h-0">
-                    <div className="px-3 py-2 text-xs text-gray-400 bg-black/20">Output</div>
+                    <div className="px-3 py-2 text-xs text-gray-400 bg-black/20">{t('validJson')}</div>
                     <div className="flex-1 overflow-auto p-3 font-mono text-sm">
                         {error && (
                             <div className="bg-red-500/20 border border-red-500/50 rounded p-3 text-red-400">
-                                <div className="font-medium mb-1">Parse Error</div>
+                                <div className="font-medium mb-1">{t('invalidJson')}</div>
                                 <div className="text-xs">{error}</div>
                             </div>
                         )}

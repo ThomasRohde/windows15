@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from '../hooks/useTranslation';
 import { AppContainer, TabSwitcher, Card, Button, SectionLabel, TextInput, Select } from '../components/ui';
 
 type Category = 'length' | 'weight' | 'temperature' | 'data';
@@ -44,14 +45,8 @@ const units: Record<Category, UnitOption[]> = {
     ],
 };
 
-const categoryLabels: Record<Category, string> = {
-    length: 'Length',
-    weight: 'Weight',
-    temperature: 'Temperature',
-    data: 'Data/Storage',
-};
-
 export const UnitConverter = () => {
+    const { t } = useTranslation('unitConverter');
     const [category, setCategory] = useState<Category>('length');
     const [fromUnit, setFromUnit] = useState(0);
     const [toUnit, setToUnit] = useState(1);
@@ -102,7 +97,7 @@ export const UnitConverter = () => {
             <TabSwitcher
                 options={(Object.keys(units) as Category[]).map(cat => ({
                     value: cat,
-                    label: categoryLabels[cat],
+                    label: t(cat),
                 }))}
                 value={category}
                 onChange={setCategory}
@@ -112,7 +107,7 @@ export const UnitConverter = () => {
 
             <Card className="flex-1 flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
-                    <SectionLabel>From</SectionLabel>
+                    <SectionLabel>{t('from')}</SectionLabel>
                     <div className="flex gap-2">
                         <TextInput
                             type="number"
@@ -120,7 +115,7 @@ export const UnitConverter = () => {
                             onChange={e => setInputValue(e.target.value)}
                             className="flex-1 text-xl focus:ring-2 focus:ring-orange-500"
                             size="lg"
-                            placeholder="Enter value"
+                            placeholder={t('from')}
                         />
                         <Select
                             value={fromUnit}
@@ -140,7 +135,7 @@ export const UnitConverter = () => {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                    <SectionLabel>To</SectionLabel>
+                    <SectionLabel>{t('to')}</SectionLabel>
                     <div className="flex gap-2">
                         <div className="flex-1 bg-white/5 text-white text-xl p-3 rounded-lg border border-white/10">
                             {result || '—'}
@@ -159,14 +154,14 @@ export const UnitConverter = () => {
                 </div>
 
                 <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
-                    <SectionLabel>Conversion</SectionLabel>
+                    <SectionLabel>{t('result')}</SectionLabel>
                     <div className="text-white text-lg mt-1">
                         {inputValue && result ? (
                             <>
                                 {inputValue} {currentUnits[fromUnit]?.value} = {result} {currentUnits[toUnit]?.value}
                             </>
                         ) : (
-                            'Enter a value to convert'
+                            t('from')
                         )}
                     </div>
                 </div>

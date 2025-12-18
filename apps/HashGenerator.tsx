@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAsyncAction } from '../hooks';
+import { useTranslation } from '../hooks/useTranslation';
 import { SectionLabel, CopyButton, AppToolbar, TextArea } from '../components/ui';
 
 const md5 = (str: string): string => {
@@ -171,6 +172,7 @@ interface HashResult {
 }
 
 export const HashGenerator = () => {
+    const { t } = useTranslation('hashGenerator');
     const [input, setInput] = useState('');
     const [hashes, setHashes] = useState<HashResult[]>([]);
     const { execute, loading } = useAsyncAction();
@@ -199,19 +201,19 @@ export const HashGenerator = () => {
 
     return (
         <div className="h-full flex flex-col bg-background-dark text-white">
-            <AppToolbar title="Hash Generator">
+            <AppToolbar title={t('title')}>
                 <button
                     onClick={clear}
                     className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors"
                 >
-                    Clear
+                    {t('title')}
                 </button>
             </AppToolbar>
 
             <div className="flex-1 flex flex-col min-h-0 p-4 gap-4">
                 <div className="flex flex-col gap-2">
                     <div className="flex justify-between items-center">
-                        <SectionLabel>Input Text</SectionLabel>
+                        <SectionLabel>{t('inputText')}</SectionLabel>
                         <span className="text-xs text-gray-500">{input.length} characters</span>
                     </div>
                     <TextArea
@@ -219,7 +221,7 @@ export const HashGenerator = () => {
                         variant="code"
                         value={input}
                         onChange={e => setInput(e.target.value)}
-                        placeholder="Enter text to generate hashes..."
+                        placeholder={t('inputPlaceholder')}
                         spellCheck={false}
                     />
                     <button
@@ -227,13 +229,13 @@ export const HashGenerator = () => {
                         disabled={loading || !input}
                         className="self-start px-6 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/50 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors"
                     >
-                        {loading ? 'Generating...' : 'Generate Hashes'}
+                        {loading ? t('inputPlaceholder') : t('title')}
                     </button>
                 </div>
 
                 {hashes.length > 0 && (
                     <div className="flex-1 flex flex-col gap-3 overflow-auto">
-                        <SectionLabel>Generated Hashes</SectionLabel>
+                        <SectionLabel>{t('hashResult')}</SectionLabel>
                         {hashes.map(hash => (
                             <div key={hash.name} className="bg-black/20 rounded-lg p-4 border border-white/10">
                                 <div className="flex justify-between items-center mb-2">

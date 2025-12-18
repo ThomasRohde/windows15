@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useTranslation } from '../hooks/useTranslation';
 import { AppContainer, SectionLabel, TextArea } from '../components/ui';
 import { QRCodeCanvas } from 'qrcode.react';
 
 export const QrGenerator = () => {
+    const { t } = useTranslation('qrGenerator');
     const [text, setText] = useState('');
     const [qrData, setQrData] = useState<string | null>(null);
 
@@ -33,11 +35,11 @@ export const QrGenerator = () => {
     return (
         <AppContainer>
             <div className="bg-black/20 p-4 rounded-lg space-y-3">
-                <SectionLabel>Enter text or URL</SectionLabel>
+                <SectionLabel>{t('inputText')}</SectionLabel>
                 <TextArea
                     value={text}
                     onChange={e => setText(e.target.value)}
-                    placeholder="https://example.com or any text..."
+                    placeholder={t('inputPlaceholder')}
                     className="bg-black/30"
                     rows={3}
                 />
@@ -46,7 +48,7 @@ export const QrGenerator = () => {
                     disabled={!text.trim()}
                     className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-400 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    Generate QR Code
+                    {t('title')}
                 </button>
             </div>
 
@@ -70,7 +72,7 @@ export const QrGenerator = () => {
                                 onClick={downloadQR}
                                 className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-400 transition-colors text-sm"
                             >
-                                Download PNG
+                                {t('downloadQr')}
                             </button>
                         </div>
                     </>
@@ -79,8 +81,8 @@ export const QrGenerator = () => {
                         <div className="w-32 h-32 border-2 border-dashed border-white/20 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-4xl">📱</span>
                         </div>
-                        <p>Enter text and click Generate</p>
-                        <p className="text-sm mt-1">to create a QR code</p>
+                        <p>{t('inputText')}</p>
+                        <p className="text-sm mt-1">{t('title')}</p>
                     </div>
                 )}
             </div>

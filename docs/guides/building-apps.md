@@ -14,15 +14,16 @@ Create your app component in `apps/MyApp.tsx`:
 
 ```typescript
 import React from 'react';
-import { useTranslation, useWindow, useSound, useAppState } from '../hooks';
+import { useTranslation, useWindowInstance, useSound, useAppState } from '../hooks';
 
 interface MyAppState {
   count: number;
 }
 
-export const MyApp = () => {
+// App receives windowId as a prop from the Window component
+export const MyApp: React.FC<{ windowId: string }> = ({ windowId }) => {
   const { t } = useTranslation('myApp');
-  const { setTitle, setBadge } = useWindow();
+  const { setTitle, setBadge } = useWindowInstance(windowId);
   const { play } = useSound();
   const [state, setState] = useAppState<MyAppState>('myApp', { count: 0 });
 
@@ -105,10 +106,10 @@ export { MyApp } from './MyApp';
 
 ### Window Management
 
-Control your window dynamically:
+Control your window dynamically (requires `windowId` prop):
 
 ```typescript
-const { setTitle, setIcon, setBadge, close } = useWindow();
+const { setTitle, setIcon, setBadge } = useWindowInstance(windowId);
 
 // Update title based on state
 useEffect(() => {
@@ -118,16 +119,15 @@ useEffect(() => {
 // Show notification badge
 setBadge(unreadCount);
 
-// Custom close handler
-const handleClose = () => {
+// For close handling, use useConfirmDialog from components/ui
+const { confirm, dialogProps } = useConfirmDialog();
+
+const handleClose = async () => {
     if (isDirty) {
-        // Use useConfirmDialog for better UX
-        if (confirm('Unsaved changes. Close anyway?')) {
-            close();
-        }
-    } else {
-        close();
+        const confirmed = await confirm('Unsaved changes. Close anyway?');
+        if (!confirmed) return;
     }
+    // Close via window manager context
 };
 ```
 

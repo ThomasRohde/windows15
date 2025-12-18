@@ -32,6 +32,7 @@ UI components are exported from `components/ui/index.ts`.
 - `Select` (+ `SelectProps`, `SelectOption`, `SelectSize`)
 - `Slider` (+ `SliderProps`)
 - `SearchInput` (+ `SearchInputProps`)
+- `FormField` (+ `FormFieldProps`) - wrapper for form fields with label/error support
 
 ## Actions
 

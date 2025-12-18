@@ -13,6 +13,7 @@ This repo exposes hooks via `hooks/index.ts`.
 - `usePersistedState(key, defaultValue)` → Dexie/IndexedDB-backed state (preferred for durable settings)
 - `useLocalStorage(key, defaultValue)` → localStorage-backed state
 - `useSeededCollection(...)` → collection state with optional seeding (see source)
+- `useAppState(appId, defaultState)` / `useAppStateValue(appId)` → per-app persistent state
 
 ## Hotkeys
 
@@ -22,7 +23,19 @@ This repo exposes hooks via `hooks/index.ts`.
 
 ## Notifications
 
-- `useNotification()` → `success/info/error` toast helpers
+- `useNotification()` → `success/info/error/warning` toast helpers
+
+## Sounds
+
+- `useSound()` → play system sounds (`success`, `error`, `notification`, etc.)
+
+## Localization
+
+- `useTranslation(namespace)` → localized strings via `t(key)`
+
+## Files
+
+- `useFilePicker()` → file open/save dialogs
 
 ## Async and timing
 
@@ -37,6 +50,7 @@ These exist, but most apps should rely on OS/window contexts rather than impleme
 - `useWindowDrag(...)`
 - `useWindowResize(...)`
 - `useWindowPersistence(...)`
+- `useWindowInstance(windowId)` → control current window (setTitle, setBadge, setIcon)
 
 ## UX helpers
 
@@ -44,6 +58,7 @@ These exist, but most apps should rely on OS/window contexts rather than impleme
 - `useContextMenu(...)` → right-click menus
 - `useSearchFilter(items, config)` → search/filter helper
 - `useEventBus()` / `useAppEvent()` / `useAppEmit()` → event pub/sub
+- `useTerminalPreferences()` → terminal-specific settings
 
 ## Source of truth
 

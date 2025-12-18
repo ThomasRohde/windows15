@@ -23,11 +23,22 @@ Contexts live in `context/`.
     - `useWallpaper()` — `context/WallpaperContext.tsx`
     - `useLocalization()` — `context/LocalizationContext.tsx`
     - `useWindowSpace()` — `context/WindowSpaceContext.tsx` (3D mode)
+    - `useScreensaver()` — `context/ScreensaverContext.tsx`
 
 ## Data & profile
 
 - `useDb()` — `context/DbContext.tsx` (Dexie database access)
 - `useUserProfile()` — `context/UserProfileContext.tsx`
+
+## Notifications
+
+- `useNotificationCenter()` — `context/NotificationContext.tsx` (scheduled notifications, notification history)
+
+## System info
+
+- `useSystemInfo()` — `context/SystemInfoContext.tsx` (browser/runtime info, network status)
+- `useNetwork()` — `context/NetworkContext.tsx` (online/offline, connection type)
+- `useClipboard()` — `context/ClipboardContext.tsx` (clipboard history, paste)
 
 ## Screensaver
 

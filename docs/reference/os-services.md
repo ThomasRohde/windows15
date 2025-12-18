@@ -4,18 +4,22 @@ Quick reference for all OS-level services and contexts available in Windows 15.
 
 ## Core Contexts
 
-| Service                 | Hook                 | Purpose                                 |
-| ----------------------- | -------------------- | --------------------------------------- |
-| **DbContext**           | `useDb()`            | Access Dexie database instance          |
-| **OSContext**           | `useOS()`            | OS-level state and configuration        |
-| **WindowContext**       | `useWindowContext()` | Window management (open/close/focus)    |
-| **LocalizationContext** | `useTranslation()`   | Localization and translations           |
-| **WallpaperContext**    | `useWallpaper()`     | Wallpaper settings and management       |
-| **ScreensaverContext**  | `useScreensaver()`   | Screensaver configuration               |
-| **AppRegistryContext**  | `useAppRegistry()`   | Access app registry                     |
-| **WindowSpaceContext**  | `useWindowSpace()`   | Window space/virtual desktop management |
-| **StartMenuContext**    | `useStartMenu()`     | Start menu state control                |
-| **UserProfileContext**  | `useUserProfile()`   | User profile and authentication         |
+| Service                 | Hook                      | Purpose                                         |
+| ----------------------- | ------------------------- | ----------------------------------------------- |
+| **DbContext**           | `useDb()`                 | Access Dexie database instance                  |
+| **OSContext**           | `useOS()`                 | OS-level state and configuration                |
+| **WindowContext**       | `useWindowManager()`      | Window management (open/close/focus)            |
+| **LocalizationContext** | `useLocalization()`       | Localization settings                           |
+| **WallpaperContext**    | `useWallpaper()`          | Wallpaper settings and management               |
+| **ScreensaverContext**  | `useScreensaver()`        | Screensaver configuration                       |
+| **AppRegistryContext**  | `useAppRegistry()`        | Access app registry                             |
+| **WindowSpaceContext**  | `useWindowSpace()`        | Window space/virtual desktop management         |
+| **StartMenuContext**    | `useStartMenu()`          | Start menu state control                        |
+| **UserProfileContext**  | `useUserProfile()`        | User profile and authentication                 |
+| **NotificationContext** | `useNotificationCenter()` | Notification center and scheduled notifications |
+| **SystemInfoContext**   | `useSystemInfo()`         | Browser/runtime and network status              |
+| **NetworkContext**      | `useNetwork()`            | Online/offline, connection type                 |
+| **ClipboardContext**    | `useClipboard()`          | Clipboard history and management                |
 
 ## Hook Reference
 
@@ -40,12 +44,12 @@ const { config, updateConfig, restartOS } = useOS();
 const theme = config.theme;
 ```
 
-### useWindowContext()
+### useWindowManager()
 
 Manage windows programmatically.
 
 ```typescript
-const { openWindow, closeWindow, focusWindow, windows } = useWindowContext();
+const { openWindow, closeWindow, focusWindow, windows } = useWindowManager();
 
 openWindow({
     appId: 'notepad',
@@ -55,18 +59,16 @@ openWindow({
 });
 ```
 
-### useWindow()
+### useWindowInstance()
 
-Control current window (use within app components).
+Control current window (use within app components, requires windowId prop).
 
 ```typescript
-const { setTitle, setIcon, setBadge, close } = useWindow();
+const { setTitle, setIcon, setBadge, window } = useWindowInstance(windowId);
 
 setTitle('My Document.txt');
 setBadge(5);
 ```
-
-See: [useWindow API](../api/hooks/useWindow.md)
 
 ### useTranslation()
 
@@ -155,7 +157,7 @@ const emit = useAppEmit('my-event');
 emit({ data: 'value' });
 
 // Listen
-useAppListen('my-event', payload => {
+useAppEvent('my-event', payload => {
     console.log(payload);
 });
 ```
@@ -172,22 +174,23 @@ useAppListen('my-event', payload => {
 
 ## Utility Hooks
 
-| Hook                  | Purpose                           |
-| --------------------- | --------------------------------- |
-| `useAsyncAction`      | Handle async with loading/error   |
-| `useConfirmDialog`    | Show confirmation dialogs         |
-| `useCopyToClipboard`  | Copy with feedback                |
-| `useDebounce`         | Debounce values                   |
-| `useThrottle`         | Throttle functions                |
-| `useHotkeys`          | Keyboard shortcuts                |
-| `useStandardHotkeys`  | Standard shortcuts (Ctrl+S, etc.) |
-| `useInterval`         | Declarative intervals             |
-| `useTimeout`          | Declarative timeouts              |
-| `useOnMount`          | Run on mount only                 |
-| `useOnUnmount`        | Run on unmount only               |
-| `usePersistedState`   | localStorage-backed state         |
-| `useLocalStorage`     | Direct localStorage               |
-| `useSeededCollection` | Managed seed data                 |
+| Hook                      | Purpose                                          |
+| ------------------------- | ------------------------------------------------ |
+| `useAsyncAction`          | Handle async with loading/error                  |
+| `useConfirmDialog`        | Show confirmation dialogs (from `components/ui`) |
+| `useCopyToClipboard`      | Copy with feedback                               |
+| `useDebounce`             | Debounce values                                  |
+| `useHotkeys`              | Keyboard shortcuts                               |
+| `useStandardHotkeys`      | Standard shortcuts (Ctrl+S, etc.)                |
+| `useInterval`             | Declarative intervals                            |
+| `useControllableInterval` | Controllable interval with pause/resume          |
+| `usePersistedState`       | Dexie/IndexedDB-backed state                     |
+| `useLocalStorage`         | Direct localStorage                              |
+| `useSeededCollection`     | Managed seed data                                |
+| `useSearchFilter`         | Search and filter helper                         |
+| `useContextMenu`          | Right-click context menus                        |
+| `useSound`                | Play system sounds                               |
+| `useTranslation`          | Localized strings                                |
 
 ## See Also
 

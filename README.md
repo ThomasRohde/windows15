@@ -7,6 +7,7 @@
   [![React](https://img.shields.io/badge/react-19-61dafb.svg?style=flat&logo=react)](https://react.dev)
   [![TypeScript](https://img.shields.io/badge/typescript-5-3178c6.svg?style=flat&logo=typescript)](https://www.typescriptlang.org/)
   [![Vite](https://img.shields.io/badge/vite-6-646cff.svg?style=flat&logo=vite)](https://vitejs.dev)
+  [![Docs](https://img.shields.io/badge/docs-typedoc-blue.svg?style=flat)](https://thomasrohde.github.io/windows15/docs/)
 
 **A futuristic, web-based desktop environment built with modern web technologies.**
 
@@ -25,8 +26,29 @@ Windows 15 is a fully functional desktop environment running entirely in your br
 - **🖥️ Full Desktop Environment:** Taskbar, Start Menu, System Tray, and a robust Window Manager with minimize/maximize/restore functionality.
 - **☁️ Cloud Sync & Offline First:** Built on **Dexie.js**, your data persists locally in IndexedDB. Connect your own **Dexie Cloud** database to sync seamlessly across devices.
 - **🎨 Stunning UI:** Custom-built glassmorphism design system using Tailwind CSS, featuring dark mode support and dynamic wallpapers.
+- **� Notification Center:** Schedule and manage notifications with browser notification support and sound alerts.
+- **📋 Clipboard History:** Access your clipboard history with **Ctrl+Shift+V** (up to 25 items).
+- **🌐 Internationalization:** Full i18n support with 8 languages via LocalizationContext.
 - **🖱️ Rich Interactions:** Context menus, desktop icons, drag-and-drop support, and global search.
 - **⌨️ Developer Friendly:** Includes a suite of developer tools like Terminal, IDB Explorer, and Gist Explorer.
+
+## 🔧 OS Services
+
+Windows 15 provides a rich set of OS-level services through React contexts:
+
+| Service            | Hook                 | Description                                           |
+| ------------------ | -------------------- | ----------------------------------------------------- |
+| **Window Manager** | `useWindowManager()` | Window lifecycle, geometry, z-order management        |
+| **System Info**    | `useSystemInfo()`    | OS version, CPU cores, memory usage, storage metrics  |
+| **Network Status** | `useNetwork()`       | Online status, connection type, latency measurement   |
+| **Clipboard**      | `useClipboard()`     | Copy/paste with persistent history                    |
+| **Notifications**  | `useNotifications()` | Scheduled and immediate notifications with sound      |
+| **Localization**   | `useLocalization()`  | Date/time formatting, number formatting, translations |
+| **Sound**          | `soundService`       | System sounds with volume control                     |
+| **Screensaver**    | `useScreensaver()`   | Animated screensavers with customizable settings      |
+| **Wallpaper**      | `useWallpaper()`     | Dynamic wallpaper management including shaders        |
+
+See the [API documentation](https://thomasrohde.github.io/windows15/docs/) for detailed usage.
 
 ## 📦 App Ecosystem
 
@@ -86,6 +108,41 @@ Windows 15 comes pre-loaded with a variety of applications:
     ```bash
     npm run build
     ```
+
+### Using OS Services
+
+All OS services are available through React hooks. Wrap your app with `OSProvider` (already done in App.tsx) and use the hooks:
+
+```tsx
+import { useSystemInfo, useNetwork, useClipboard } from './context';
+
+function MyApp() {
+    const { memoryPercent, cpuCores } = useSystemInfo();
+    const { isOnline, effectiveType } = useNetwork();
+    const { copy, paste } = useClipboard();
+
+    // Use the services...
+}
+```
+
+For localization, use the `useLocalization` hook or the `useTranslation` hook from react-i18next:
+
+```tsx
+import { useLocalization } from './context';
+
+function MyApp() {
+    const { formatDate, formatNumber } = useLocalization();
+    return <span>{formatDate(new Date())}</span>;
+}
+```
+
+For system sounds, use the singleton `soundService`:
+
+```tsx
+import { soundService } from './utils';
+
+soundService.play('notification');
+```
 
 ## 🤝 Contributing
 

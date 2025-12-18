@@ -13,15 +13,33 @@ load_when: You’re deciding where to store data, how to access OS features, or 
 
 ## OS contexts (what they do)
 
-Key contexts in `context/` include:
+### Core Contexts
 
-- `WindowContext` → window lifecycle and geometry
-- `AppRegistryContext` → registered apps + lookup
-- `StartMenuContext` → start menu open/close
-- `WallpaperContext` → active wallpaper
-- `LocalizationContext` → formatting helpers
-- `ScreensaverContext` → screensaver behavior
-- `WindowSpaceContext` → 3D/window-space settings
+| Context               | Hook                 | Purpose                             |
+| --------------------- | -------------------- | ----------------------------------- |
+| `WindowContext`       | `useWindowManager()` | Window lifecycle, geometry, z-order |
+| `AppRegistryContext`  | `useAppRegistry()`   | Registered apps + lookup            |
+| `StartMenuContext`    | `useStartMenu()`     | Start menu open/close state         |
+| `WallpaperContext`    | `useWallpaper()`     | Active wallpaper selection          |
+| `LocalizationContext` | `useLocalization()`  | i18n, date/time formatting          |
+| `ScreensaverContext`  | `useScreensaver()`   | Screensaver behavior and settings   |
+| `WindowSpaceContext`  | `useWindowSpace()`   | 3D/window-space settings            |
+
+### OS Service Contexts
+
+| Context               | Hook                 | Purpose                                  |
+| --------------------- | -------------------- | ---------------------------------------- |
+| `SystemInfoContext`   | `useSystemInfo()`    | OS version, CPU, memory, storage metrics |
+| `NetworkContext`      | `useNetwork()`       | Online status, latency, connection type  |
+| `ClipboardContext`    | `useClipboard()`     | Copy/paste with history (max 25 items)   |
+| `NotificationContext` | `useNotifications()` | Scheduled and immediate notifications    |
+
+### Data Contexts
+
+| Context              | Hook               | Purpose                       |
+| -------------------- | ------------------ | ----------------------------- |
+| `DbContext`          | `useDb()`          | Dexie database instance       |
+| `UserProfileContext` | `useUserProfile()` | User settings and preferences |
 
 ### The `useOS()` convenience wrapper
 
@@ -50,5 +68,6 @@ OS persistence is done through utilities under `utils/` (e.g., `storageService`)
 
 ## Next
 
+- Data flow diagrams: `core/data-flow.md`
 - Hook lookup: `reference/hooks.md`
 - Context lookup: `reference/contexts.md`

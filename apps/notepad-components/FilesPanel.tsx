@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { getFiles, saveFileToFolder } from '../../utils/fileSystem';
 import { FileSystemItem } from '../../types';
 import { useConfirmDialog, ConfirmDialog } from '../../components/ui/ConfirmDialog';
-import { useStandardHotkeys, useHotkeys } from '../../hooks';
+import { useStandardHotkeys } from '../../hooks';
 import { TextArea } from '../../components/ui';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -228,7 +228,6 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
         View: [
             {
                 label: showPreview ? 'Hide Markdown Preview' : 'Markdown Preview',
-                shortcut: 'Ctrl+Shift+V',
                 action: () => setShowPreview(!showPreview),
                 disabled: !isMarkdownFile,
             },
@@ -242,17 +241,6 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
         onNew: () => void handleNew(),
         onOpen: () => void handleOpen(),
     });
-
-    // Add markdown preview toggle shortcut (Ctrl+Shift+V)
-    useHotkeys(
-        'ctrl+shift+v',
-        () => {
-            if (isMarkdownFile) {
-                setShowPreview(!showPreview);
-            }
-        },
-        [isMarkdownFile, showPreview]
-    );
 
     return (
         <>

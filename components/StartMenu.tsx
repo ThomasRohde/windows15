@@ -14,6 +14,7 @@ export const StartMenu = () => {
     const menuRef = useRef<HTMLDivElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedIndex, setSelectedIndex] = useState(0);
 
     // Focus search input when start menu opens
     useEffect(() => {
@@ -21,6 +22,11 @@ export const StartMenu = () => {
             searchInputRef.current.focus();
         }
     }, [isStartMenuOpen]);
+
+    // Reset selected index when search results change
+    useEffect(() => {
+        setSelectedIndex(0);
+    }, [searchResults]);
 
     const {
         menu: contextMenu,
@@ -38,6 +44,29 @@ export const StartMenu = () => {
             }
         },
         [toggleStartMenu]
+    );
+
+    const handleSearchKeyDown = useCallback(
+        (e: React.KeyboardEvent) => {
+            // Only handle navigation when search results are visible
+            if (!searchResults || searchResults.length === 0) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setSelectedIndex(prev => (prev + 1) % searchResults.length);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setSelectedIndex(prev => (prev - 1 + searchResults.length) % searchResults.length);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                const selectedApp = searchResults[selectedIndex];
+                if (selectedApp) {
+                    openWindow(selectedApp.id);
+                    setSearchQuery('');
+                }
+            }
+        },
+        [searchResults, selectedIndex, openWindow]
     );
 
     const handleContextMenu = useCallback(
@@ -98,6 +127,7 @@ export const StartMenu = () => {
                         aria-label="Search apps"
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
+                        onKeyDown={handleSearchKeyDown}
                         className="bg-transparent border-none text-white text-sm focus:outline-none w-full placeholder:text-white/30"
                         placeholder="Type here to search..."
                     />
@@ -122,7 +152,7 @@ export const StartMenu = () => {
                     </div>
                     {searchResults.length > 0 ? (
                         <div className="flex flex-col gap-1" role="group" aria-label="Search results">
-                            {searchResults.map(app => (
+                            {searchResults.map((app, index) => (
                                 <button
                                     key={app.id}
                                     data-testid={`app-${app.id}`}
@@ -132,7 +162,9 @@ export const StartMenu = () => {
                                         setSearchQuery('');
                                     }}
                                     onContextMenu={e => handleContextMenu(e, app.id)}
-                                    className="flex items-center gap-3 p-2 rounded hover:bg-white/10 group transition-colors text-left"
+                                    className={`flex items-center gap-3 p-2 rounded hover:bg-white/10 group transition-colors text-left ${
+                                        index === selectedIndex ? 'bg-white/10 ring-2 ring-blue-400/50' : ''
+                                    }`}
                                 >
                                     <div
                                         className={`w-8 h-8 rounded-lg flex items-center justify-center ${app.color} bg-opacity-20 text-xl`}

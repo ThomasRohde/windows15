@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                              | Status         |
-| ---- | -------------------------------------------------------- | -------------- |
-| F177 | Spreadsheet app uses AppContainer for consistent styling | ⏳ Not started |
-| F178 | Spreadsheet app has proper cleanup on unmount            | ⏳ Not started |
-| F181 | Spreadsheet app supports cell selection and editing      | ⏳ Not started |
+| ID   | Description                                                | Status         |
+| ---- | ---------------------------------------------------------- | -------------- |
+| F176 | Spreadsheet app supports file associations for .xlsx files | ⏳ Not started |
+| F179 | Spreadsheet app supports formula calculations              | ⏳ Not started |
+| F180 | Spreadsheet app includes toolbar with formatting options   | ⏳ Not started |
 
 ---
 

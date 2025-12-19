@@ -1004,18 +1004,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F177",
-        "description": "Spreadsheet app uses AppContainer for consistent styling",
+        "id": "F176",
+        "description": "Spreadsheet app supports file associations for .xlsx files",
         "status": "not-started"
       },
       {
-        "id": "F178",
-        "description": "Spreadsheet app has proper cleanup on unmount",
+        "id": "F179",
+        "description": "Spreadsheet app supports formula calculations",
         "status": "not-started"
       },
       {
-        "id": "F181",
-        "description": "Spreadsheet app supports cell selection and editing",
+        "id": "F180",
+        "description": "Spreadsheet app includes toolbar with formatting options",
         "status": "not-started"
       }
     ]

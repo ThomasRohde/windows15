@@ -28,9 +28,8 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                                 | Status         |
-| ---- | --------------------------------------------------------------------------- | -------------- |
-| F188 | Spreadsheet app imports all worksheets when opening multi-sheet Excel files | 🔄 In progress |
+| ID  | Description | Status |
+| --- | ----------- | ------ |
 
 ---
 

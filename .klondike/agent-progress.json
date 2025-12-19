@@ -1062,12 +1062,6 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": [
-      {
-        "id": "F188",
-        "description": "Spreadsheet app imports all worksheets when opening multi-sheet Excel files",
-        "status": "in-progress"
-      }
-    ]
+    "priorityFeatures": []
   }
 }

@@ -5196,11 +5196,15 @@
         "Sheet tabs are visible and navigable in Univer UI"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-19T11:41:12.289333",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Implemented multi-sheet Excel import for Spreadsheet app. Created excelWorkbookToUniverData helper that iterates workbook.worksheets array and generates proper Univer workbook data with sheetOrder array and sheets object. Sheet names preserved using worksheet.name. Both file drop and file picker now import all sheets. Tested in browser - sheet tabs visible and navigable. All acceptance criteria met. Pre-commit checks passed (lint",
+        "format",
+        "tests). Committed in 5047f72."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-19T11:39:10.723316",
       "notes": "Current implementation in Spreadsheet.tsx line 207-208 only gets first worksheet. Need to iterate workbook.worksheets and create sheets in Univer workbook data with proper sheetOrder array. Each sheet needs unique ID in sheets object. Use ExcelJS worksheet.name for sheet naming."
@@ -5208,8 +5212,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-19T11:38:49.612347",
+    "lastUpdated": "2025-12-19T11:41:12.289351",
     "totalFeatures": 188,
-    "passingFeatures": 187
+    "passingFeatures": 188
   }
 }

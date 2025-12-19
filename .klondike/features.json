@@ -5162,11 +5162,23 @@
         "Open dialog shows available spreadsheet files (.xlsx .xls .csv)"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-19T11:38:49.612323",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Implemented menu bar with File menu (New",
+        "Open",
+        "Save",
+        "Save As) for Spreadsheet app. All acceptance criteria met: menu styling consistent with Notepad",
+        "keyboard shortcuts working (Ctrl+N/O/S/Shift+S via useStandardHotkeys)",
+        "Save exports workbook data via JSON snapshot",
+        "Open dialog filters spreadsheet files (.xlsx/.xls/.csv). Tested in browser - menu displays",
+        "dialogs open",
+        "file operations work. All pre-commit checks passed (lint",
+        "format",
+        "tests). Committed in ab66436."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-19T11:34:26.925274",
       "notes": "Look at Notepad FilesPanel.tsx for menu implementation pattern. Use useStandardHotkeys for keyboard shortcuts. Need to serialize Univer workbook data for saving - check univerAPI.exportXLSXBySnapshotAsync or univerAPI.getActiveWorkbook().getSnapshot(). For opening, load from virtual file system and recreate workbook."
@@ -5196,8 +5208,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-19T11:31:53.078112",
+    "lastUpdated": "2025-12-19T11:38:49.612347",
     "totalFeatures": 188,
-    "passingFeatures": 186
+    "passingFeatures": 187
   }
 }

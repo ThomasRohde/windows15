@@ -28,10 +28,9 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                                               | Status         |
-| ---- | ----------------------------------------------------------------------------------------- | -------------- |
-| F187 | Spreadsheet app has standard windows15 menu bar with File menu (New, Open, Save, Save As) | 🔄 In progress |
-| F188 | Spreadsheet app imports all worksheets when opening multi-sheet Excel files               | ⏳ Not started |
+| ID   | Description                                                                 | Status         |
+| ---- | --------------------------------------------------------------------------- | -------------- |
+| F188 | Spreadsheet app imports all worksheets when opening multi-sheet Excel files | ⏳ Not started |
 
 ---
 

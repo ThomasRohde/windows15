@@ -66,7 +66,8 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
     // Notify parent of title changes
     useEffect(() => {
         onTitleChange?.(currentFileName, hasUnsavedChanges);
-    }, [currentFileName, hasUnsavedChanges, onTitleChange]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentFileName, hasUnsavedChanges]);
 
     // Close menu on outside click
     useEffect(() => {

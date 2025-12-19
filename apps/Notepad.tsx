@@ -6,7 +6,7 @@
  *
  * @module apps/Notepad
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { NotesPanel, FilesPanel, NotepadProps, NotepadView } from './notepad-components';
 import { useWindowInstance } from '../hooks';
 import { useTranslation } from '../hooks/useTranslation';
@@ -46,12 +46,15 @@ export const Notepad: React.FC<NotepadProps> = props => {
     }, [openedFromFile]);
 
     // Callback for FilesPanel to update window title
-    const handleTitleChange = (fileName: string, hasUnsaved: boolean) => {
-        if (windowId) {
-            const title = hasUnsaved ? `Notepad - ${fileName} *` : `Notepad - ${fileName}`;
-            setTitle(title);
-        }
-    };
+    const handleTitleChange = useCallback(
+        (fileName: string, hasUnsaved: boolean) => {
+            if (windowId) {
+                const title = hasUnsaved ? `Notepad - ${fileName} *` : `Notepad - ${fileName}`;
+                setTitle(title);
+            }
+        },
+        [windowId, setTitle]
+    );
 
     // Reset title when in notes view
     useEffect(() => {

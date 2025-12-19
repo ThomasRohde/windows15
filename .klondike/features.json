@@ -5095,11 +5095,19 @@
         "Preview can be toggled on/off while editing"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-19T08:55:22.973759",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Implemented markdown preview with: react-markdown + GFM + syntax highlighting",
+        "smart markdown detection (extension + heuristics)",
+        "View menu with toggle",
+        "split-pane layout",
+        "Ctrl+Shift+V shortcut",
+        "disabled state for non-markdown files. Build succeeds",
+        "no new lint warnings."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-19T08:50:51.058477",
       "notes": "Implementation: Add react-markdown with remark-gfm plugin for GFM support. Use rehype-highlight or prism for code blocks. Detect Markdown by: 1) file extension (.md, .markdown), 2) content heuristics (starts with # heading or contains Markdown patterns). Add split-pane view or overlay toggle. Edge cases: Handle empty content, mixed content detection, very long documents (virtualize if needed). Dependencies: Existing FilesPanel menu system, TextArea component. Context: Users editing README files or documentation need preview. Gotchas: Ensure sanitization with rehype-sanitize to prevent XSS. Performance: debounce preview updates for large documents."
@@ -5137,8 +5145,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-19T08:50:46.437182",
+    "lastUpdated": "2025-12-19T08:55:22.973776",
     "totalFeatures": 186,
-    "passingFeatures": 185
+    "passingFeatures": 186
   }
 }

@@ -392,6 +392,7 @@ const Desktop = () => {
                     } else if (result.suggestedAppId === 'spreadsheet') {
                         openWindow('spreadsheet', {
                             initialContent: file.content,
+                            initialFileId: file.id,
                             initialFileName: file.name,
                         });
                     } else {

@@ -15,6 +15,8 @@ import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog'
 interface SpreadsheetProps {
     /** Initial CSV content to load */
     initialContent?: string;
+    /** Initial file ID for saving back to the same file */
+    initialFileId?: string;
     /** Initial filename for window title */
     initialFileName?: string;
     /** Window ID for dynamic title updates */
@@ -202,7 +204,12 @@ function excelWorkbookToUniverData(workbook: ExcelJS.Workbook) {
     };
 }
 
-export const Spreadsheet: React.FC<SpreadsheetProps> = ({ initialContent, initialFileName, windowId }) => {
+export const Spreadsheet: React.FC<SpreadsheetProps> = ({
+    initialContent,
+    initialFileId,
+    initialFileName,
+    windowId,
+}) => {
     const { t: _t } = useTranslation('spreadsheet');
     const { setTitle } = useWindowInstance(windowId ?? '');
     const containerRef = useRef<HTMLDivElement>(null);
@@ -211,7 +218,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({ initialContent, initia
 
     // Menu and file state
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
-    const [currentFileId, setCurrentFileId] = useState<string | null>(null);
+    const [currentFileId, setCurrentFileId] = useState<string | null>(initialFileId || null);
     const [currentFileName, setCurrentFileName] = useState<string>(initialFileName || 'Untitled');
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [showOpenDialog, setShowOpenDialog] = useState(false);
@@ -304,47 +311,58 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({ initialContent, initia
                 const workbookData = csvToWorkbookData(csvData, sheetName);
                 univerAPI.createUniverSheet(workbookData);
             } else if (['.xlsx', '.xls', '.xlsm', '.xlsb', '.ods'].includes(ext)) {
-                // Handle Excel files
-                (async () => {
+                // Check if content is a Univer JSON snapshot (saved from this app)
+                if (content.startsWith('{') && content.includes('"sheets"')) {
                     try {
-                        const workbook = new ExcelJS.Workbook();
-                        let arrayBuffer: ArrayBuffer;
+                        const snapshot = JSON.parse(content);
+                        univerAPI.createUniverSheet(snapshot);
+                    } catch (error) {
+                        console.error('Failed to parse Univer snapshot:', error);
+                        univerAPI.createUniverSheet({});
+                    }
+                } else {
+                    // Handle binary Excel files
+                    (async () => {
+                        try {
+                            const workbook = new ExcelJS.Workbook();
+                            let arrayBuffer: ArrayBuffer;
 
-                        if (content.startsWith('data:')) {
-                            const base64Data = content.split(',')[1];
-                            if (base64Data) {
-                                const binaryString = atob(base64Data);
+                            if (content.startsWith('data:')) {
+                                const base64Data = content.split(',')[1];
+                                if (base64Data) {
+                                    const binaryString = atob(base64Data);
+                                    const bytes = new Uint8Array(binaryString.length);
+                                    for (let i = 0; i < binaryString.length; i++) {
+                                        bytes[i] = binaryString.charCodeAt(i);
+                                    }
+                                    arrayBuffer = bytes.buffer;
+                                } else {
+                                    throw new Error('Invalid data URL format');
+                                }
+                            } else {
+                                const binaryString = atob(content);
                                 const bytes = new Uint8Array(binaryString.length);
                                 for (let i = 0; i < binaryString.length; i++) {
                                     bytes[i] = binaryString.charCodeAt(i);
                                 }
                                 arrayBuffer = bytes.buffer;
+                            }
+
+                            await workbook.xlsx.load(arrayBuffer);
+
+                            if (workbook.worksheets.length > 0) {
+                                // Import all worksheets
+                                const workbookData = excelWorkbookToUniverData(workbook);
+                                univerAPI.createUniverSheet(workbookData);
                             } else {
-                                throw new Error('Invalid data URL format');
+                                univerAPI.createUniverSheet({});
                             }
-                        } else {
-                            const binaryString = atob(content);
-                            const bytes = new Uint8Array(binaryString.length);
-                            for (let i = 0; i < binaryString.length; i++) {
-                                bytes[i] = binaryString.charCodeAt(i);
-                            }
-                            arrayBuffer = bytes.buffer;
-                        }
-
-                        await workbook.xlsx.load(arrayBuffer);
-
-                        if (workbook.worksheets.length > 0) {
-                            // Import all worksheets
-                            const workbookData = excelWorkbookToUniverData(workbook);
-                            univerAPI.createUniverSheet(workbookData);
-                        } else {
+                        } catch (error) {
+                            console.error('Failed to parse Excel file:', error);
                             univerAPI.createUniverSheet({});
                         }
-                    } catch (error) {
-                        console.error('Failed to parse Excel file:', error);
-                        univerAPI.createUniverSheet({});
-                    }
-                })();
+                    })();
+                }
             }
         }
 
@@ -447,7 +465,15 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({ initialContent, initia
 
         // Default to .xlsx extension
         const fileName = saveFileName.match(/\.(xlsx|xls|csv)$/i) ? saveFileName : `${saveFileName}.xlsx`;
-        const fileId = `spreadsheet-${Date.now()}`;
+
+        // Check if a file with this name already exists
+        const existingFiles = await getFiles();
+        const existingFile = existingFiles.find(
+            f => f.type === 'document' && f.name.toLowerCase() === fileName.toLowerCase()
+        );
+
+        // Use existing file ID if found, otherwise create new
+        const fileId = existingFile?.id || `spreadsheet-${Date.now()}`;
 
         await saveCurrentWorkbook(fileName, fileId);
         setShowSaveDialog(false);
@@ -504,50 +530,61 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({ initialContent, initia
                 const workbookData = csvToWorkbookData(csvData, sheetName);
                 univerAPI.createUniverSheet(workbookData);
             } else if (['.xlsx', '.xls', '.xlsm', '.xlsb', '.ods'].includes(ext)) {
-                // Parse Excel files using ExcelJS
-                (async () => {
+                // Check if content is a Univer JSON snapshot (saved from this app)
+                if (initialContent.startsWith('{') && initialContent.includes('"sheets"')) {
                     try {
-                        const workbook = new ExcelJS.Workbook();
+                        const snapshot = JSON.parse(initialContent);
+                        univerAPI.createUniverSheet(snapshot);
+                    } catch (error) {
+                        console.error('Failed to parse Univer snapshot:', error);
+                        univerAPI.createUniverSheet({});
+                    }
+                } else {
+                    // Parse binary Excel files using ExcelJS
+                    (async () => {
+                        try {
+                            const workbook = new ExcelJS.Workbook();
 
-                        // Convert content to ArrayBuffer
-                        let arrayBuffer: ArrayBuffer;
-                        if (initialContent.startsWith('data:')) {
-                            // Extract base64 data from data URL
-                            const base64Data = initialContent.split(',')[1];
-                            if (base64Data) {
-                                const binaryString = atob(base64Data);
+                            // Convert content to ArrayBuffer
+                            let arrayBuffer: ArrayBuffer;
+                            if (initialContent.startsWith('data:')) {
+                                // Extract base64 data from data URL
+                                const base64Data = initialContent.split(',')[1];
+                                if (base64Data) {
+                                    const binaryString = atob(base64Data);
+                                    const bytes = new Uint8Array(binaryString.length);
+                                    for (let i = 0; i < binaryString.length; i++) {
+                                        bytes[i] = binaryString.charCodeAt(i);
+                                    }
+                                    arrayBuffer = bytes.buffer;
+                                } else {
+                                    throw new Error('Invalid data URL format');
+                                }
+                            } else {
+                                // Assume it's raw base64
+                                const binaryString = atob(initialContent);
                                 const bytes = new Uint8Array(binaryString.length);
                                 for (let i = 0; i < binaryString.length; i++) {
                                     bytes[i] = binaryString.charCodeAt(i);
                                 }
                                 arrayBuffer = bytes.buffer;
+                            }
+
+                            await workbook.xlsx.load(arrayBuffer);
+
+                            if (workbook.worksheets.length > 0) {
+                                // Import all worksheets
+                                const workbookData = excelWorkbookToUniverData(workbook);
+                                univerAPI.createUniverSheet(workbookData);
                             } else {
-                                throw new Error('Invalid data URL format');
+                                univerAPI.createUniverSheet({});
                             }
-                        } else {
-                            // Assume it's raw base64
-                            const binaryString = atob(initialContent);
-                            const bytes = new Uint8Array(binaryString.length);
-                            for (let i = 0; i < binaryString.length; i++) {
-                                bytes[i] = binaryString.charCodeAt(i);
-                            }
-                            arrayBuffer = bytes.buffer;
-                        }
-
-                        await workbook.xlsx.load(arrayBuffer);
-
-                        if (workbook.worksheets.length > 0) {
-                            // Import all worksheets
-                            const workbookData = excelWorkbookToUniverData(workbook);
-                            univerAPI.createUniverSheet(workbookData);
-                        } else {
+                        } catch (error) {
+                            console.error('Failed to parse Excel file:', error);
                             univerAPI.createUniverSheet({});
                         }
-                    } catch (error) {
-                        console.error('Failed to parse Excel file:', error);
-                        univerAPI.createUniverSheet({});
-                    }
-                })();
+                    })();
+                }
             } else {
                 // For other formats, create empty sheet
                 univerAPI.createUniverSheet({});

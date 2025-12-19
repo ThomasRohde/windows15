@@ -1004,18 +1004,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F173",
-        "description": "Create Spreadsheet app using Univer library with basic spreadsheet UI",
+        "id": "F177",
+        "description": "Spreadsheet app uses AppContainer for consistent styling",
         "status": "not-started"
       },
       {
-        "id": "F174",
-        "description": "Spreadsheet app supports creating new workbooks",
+        "id": "F178",
+        "description": "Spreadsheet app has proper cleanup on unmount",
         "status": "not-started"
       },
       {
-        "id": "F175",
-        "description": "Spreadsheet app has localization support",
+        "id": "F181",
+        "description": "Spreadsheet app supports cell selection and editing",
         "status": "not-started"
       }
     ]

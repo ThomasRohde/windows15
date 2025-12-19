@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                           | Status         |
-| ---- | --------------------------------------------------------------------- | -------------- |
-| F173 | Create Spreadsheet app using Univer library with basic spreadsheet UI | ⏳ Not started |
-| F174 | Spreadsheet app supports creating new workbooks                       | ⏳ Not started |
-| F175 | Spreadsheet app has localization support                              | ⏳ Not started |
+| ID   | Description                                              | Status         |
+| ---- | -------------------------------------------------------- | -------------- |
+| F177 | Spreadsheet app uses AppContainer for consistent styling | ⏳ Not started |
+| F178 | Spreadsheet app has proper cleanup on unmount            | ⏳ Not started |
+| F181 | Spreadsheet app supports cell selection and editing      | ⏳ Not started |
 
 ---
 

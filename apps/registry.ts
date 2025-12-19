@@ -96,6 +96,7 @@ export const APP_REGISTRY: AppConfig[] = [
         component: React.lazy(() => import('./Spreadsheet').then(m => ({ default: m.Spreadsheet }))),
         defaultWidth: 1100,
         defaultHeight: 700,
+        fileAssociations: ['.xlsx', '.xls', '.csv'],
     },
     {
         id: 'terminal',

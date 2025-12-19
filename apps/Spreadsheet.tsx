@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { createUniver, defaultTheme, LocaleType } from '@univerjs/presets';
 import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core';
 import UniverPresetSheetsCoreEnUS from '@univerjs/preset-sheets-core/locales/en-US';
@@ -6,8 +6,11 @@ import '@univerjs/presets/lib/styles/preset-sheets-core.css';
 import ExcelJS from 'exceljs';
 import { AppContainer } from '../components/ui';
 import { useTranslation } from '../hooks/useTranslation';
-import { useWindowInstance } from '../hooks';
+import { useWindowInstance, useStandardHotkeys } from '../hooks';
 import { getFileExtension } from './registry';
+import { getFiles, saveFileToFolder } from '../utils/fileSystem';
+import { FileSystemItem } from '../types';
+import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog';
 
 interface SpreadsheetProps {
     /** Initial CSV content to load */
@@ -132,20 +135,302 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({ initialContent, initia
     const { setTitle } = useWindowInstance(windowId ?? '');
     const containerRef = useRef<HTMLDivElement>(null);
     const univerRef = useRef<ReturnType<typeof createUniver> | null>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
 
-    // Update window title with filename
+    // Menu and file state
+    const [activeMenu, setActiveMenu] = useState<string | null>(null);
+    const [currentFileId, setCurrentFileId] = useState<string | null>(null);
+    const [currentFileName, setCurrentFileName] = useState<string>(initialFileName || 'Untitled');
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+    const [showOpenDialog, setShowOpenDialog] = useState(false);
+    const [showSaveDialog, setShowSaveDialog] = useState(false);
+    const [saveFileName, setSaveFileName] = useState('');
+    const [files, setFiles] = useState<FileSystemItem[]>([]);
+
+    const { confirm, dialogProps } = useConfirmDialog();
+
+    // Close menu on outside click
     useEffect(() => {
-        if (windowId && initialFileName) {
-            setTitle(`Spreadsheet - ${initialFileName}`);
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setActiveMenu(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    // Update window title with filename and unsaved indicator
+    useEffect(() => {
+        if (windowId) {
+            const title = hasUnsavedChanges ? `Spreadsheet - ${currentFileName}*` : `Spreadsheet - ${currentFileName}`;
+            setTitle(title);
         }
-    }, [windowId, initialFileName, setTitle]);
+    }, [windowId, currentFileName, hasUnsavedChanges, setTitle]);
+
+    const loadFiles = useCallback(async () => {
+        const allFiles = await getFiles();
+        // Filter for spreadsheet files (stored as documents with spreadsheet extensions)
+        const spreadsheetFiles = allFiles.filter(
+            item => item.type === 'document' && /\.(xlsx|xls|csv|xlsm|xlsb|ods)$/i.test(item.name)
+        );
+        setFiles(spreadsheetFiles);
+    }, []);
+
+    const handleNew = async () => {
+        if (hasUnsavedChanges) {
+            const confirmed = await confirm({
+                title: 'Unsaved Changes',
+                message: 'You have unsaved changes. Create a new spreadsheet anyway?',
+                variant: 'warning',
+                confirmLabel: 'Continue',
+                cancelLabel: 'Cancel',
+            });
+            if (!confirmed) return;
+        }
+
+        // Create new empty workbook
+        if (univerRef.current?.univerAPI) {
+            const { univerAPI } = univerRef.current;
+            univerAPI.createUniverSheet({});
+        }
+
+        setCurrentFileId(null);
+        setCurrentFileName('Untitled');
+        setHasUnsavedChanges(false);
+        setActiveMenu(null);
+    };
+
+    const handleOpen = async () => {
+        await loadFiles();
+        setShowOpenDialog(true);
+        setActiveMenu(null);
+    };
+
+    const handleOpenFile = async (file: FileSystemItem) => {
+        if (hasUnsavedChanges) {
+            const confirmed = await confirm({
+                title: 'Unsaved Changes',
+                message: 'You have unsaved changes. Open a different file anyway?',
+                variant: 'warning',
+                confirmLabel: 'Continue',
+                cancelLabel: 'Cancel',
+            });
+            if (!confirmed) return;
+        }
+
+        // Load file content and recreate workbook
+        const content = file.content || '';
+        const ext = getFileExtension(file.name).toLowerCase();
+
+        if (univerRef.current?.univerAPI) {
+            const { univerAPI } = univerRef.current;
+
+            if (ext === '.csv') {
+                const csvData = parseCSV(content);
+                const sheetName = file.name.replace(/\.[^/.]+$/, '');
+                const workbookData = csvToWorkbookData(csvData, sheetName);
+                univerAPI.createUniverSheet(workbookData);
+            } else if (['.xlsx', '.xls', '.xlsm', '.xlsb', '.ods'].includes(ext)) {
+                // Handle Excel files
+                (async () => {
+                    try {
+                        const workbook = new ExcelJS.Workbook();
+                        let arrayBuffer: ArrayBuffer;
+
+                        if (content.startsWith('data:')) {
+                            const base64Data = content.split(',')[1];
+                            if (base64Data) {
+                                const binaryString = atob(base64Data);
+                                const bytes = new Uint8Array(binaryString.length);
+                                for (let i = 0; i < binaryString.length; i++) {
+                                    bytes[i] = binaryString.charCodeAt(i);
+                                }
+                                arrayBuffer = bytes.buffer;
+                            } else {
+                                throw new Error('Invalid data URL format');
+                            }
+                        } else {
+                            const binaryString = atob(content);
+                            const bytes = new Uint8Array(binaryString.length);
+                            for (let i = 0; i < binaryString.length; i++) {
+                                bytes[i] = binaryString.charCodeAt(i);
+                            }
+                            arrayBuffer = bytes.buffer;
+                        }
+
+                        await workbook.xlsx.load(arrayBuffer);
+                        const worksheet = workbook.worksheets[0];
+
+                        if (worksheet) {
+                            const jsonData: (string | number | boolean | null)[][] = [];
+                            worksheet.eachRow((row, _rowNumber) => {
+                                const rowData: (string | number | boolean | null)[] = [];
+                                row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                                    while (rowData.length < colNumber - 1) {
+                                        rowData.push(null);
+                                    }
+                                    const value = cell.value;
+                                    if (value === null || value === undefined) {
+                                        rowData.push(null);
+                                    } else if (typeof value === 'object') {
+                                        if ('result' in value) {
+                                            rowData.push(value.result as string | number | boolean | null);
+                                        } else if ('richText' in value) {
+                                            rowData.push(
+                                                (value.richText as Array<{ text: string }>).map(rt => rt.text).join('')
+                                            );
+                                        } else {
+                                            rowData.push(String(value));
+                                        }
+                                    } else {
+                                        rowData.push(value as string | number | boolean);
+                                    }
+                                });
+                                jsonData.push(rowData);
+                            });
+
+                            const sheetName = file.name.replace(/\.[^/.]+$/, '');
+                            const workbookData = csvToWorkbookData(jsonData, sheetName);
+                            univerAPI.createUniverSheet(workbookData);
+                        }
+                    } catch (error) {
+                        console.error('Failed to parse Excel file:', error);
+                        univerAPI.createUniverSheet({});
+                    }
+                })();
+            }
+        }
+
+        setCurrentFileId(file.id);
+        setCurrentFileName(file.name);
+        setHasUnsavedChanges(false);
+        setShowOpenDialog(false);
+    };
+
+    const handleSave = async () => {
+        if (currentFileId) {
+            // Save to existing file
+            await saveCurrentWorkbook();
+        } else {
+            // Trigger Save As
+            handleSaveAs();
+        }
+        setActiveMenu(null);
+    };
+
+    const handleSaveAs = () => {
+        setSaveFileName(currentFileName === 'Untitled' ? '' : currentFileName.replace(/\.(xlsx|xls|csv)$/i, ''));
+        setShowSaveDialog(true);
+        setActiveMenu(null);
+    };
+
+    const saveCurrentWorkbook = async (fileName?: string, fileId?: string) => {
+        if (!univerRef.current?.univerAPI) return;
+
+        const { univerAPI } = univerRef.current;
+        const targetFileName = fileName || currentFileName;
+        const targetFileId = fileId || currentFileId || `spreadsheet-${Date.now()}`;
+
+        try {
+            // Export workbook as XLSX
+            const workbook = univerAPI.getActiveWorkbook();
+            if (!workbook) {
+                console.error('No active workbook found');
+                return;
+            }
+
+            // Get snapshot for serialization
+            const snapshot = workbook.getSnapshot();
+            const snapshotJson = JSON.stringify(snapshot);
+
+            // For CSV, convert first sheet only
+            let content = snapshotJson;
+            if (targetFileName.endsWith('.csv')) {
+                // Convert to CSV format
+                const firstSheet = Object.values(snapshot.sheets || {})[0];
+                if (firstSheet?.cellData) {
+                    const csvRows: string[] = [];
+                    const cellData = firstSheet.cellData;
+                    const maxRow = Math.max(...Object.keys(cellData).map(Number));
+
+                    for (let r = 0; r <= maxRow; r++) {
+                        const row = cellData[r];
+                        if (!row) {
+                            csvRows.push('');
+                            continue;
+                        }
+                        const maxCol = Math.max(...Object.keys(row).map(Number));
+                        const cells: string[] = [];
+
+                        for (let c = 0; c <= maxCol; c++) {
+                            const cell = row[c];
+                            const value = cell?.v?.toString() || '';
+                            // Escape CSV values
+                            if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+                                cells.push(`"${value.replace(/"/g, '""')}"`);
+                            } else {
+                                cells.push(value);
+                            }
+                        }
+                        csvRows.push(cells.join(','));
+                    }
+                    content = csvRows.join('\n');
+                }
+            }
+
+            const file: FileSystemItem = {
+                id: targetFileId,
+                name: targetFileName,
+                type: 'document',
+                content: content,
+                date: new Date().toISOString().split('T')[0],
+            };
+
+            await saveFileToFolder(file, 'documents');
+            setCurrentFileId(targetFileId);
+            setCurrentFileName(targetFileName);
+            setHasUnsavedChanges(false);
+        } catch (error) {
+            console.error('Failed to save workbook:', error);
+        }
+    };
+
+    const handleSaveAsConfirm = async () => {
+        if (!saveFileName.trim()) return;
+
+        // Default to .xlsx extension
+        const fileName = saveFileName.match(/\.(xlsx|xls|csv)$/i) ? saveFileName : `${saveFileName}.xlsx`;
+        const fileId = `spreadsheet-${Date.now()}`;
+
+        await saveCurrentWorkbook(fileName, fileId);
+        setShowSaveDialog(false);
+        setSaveFileName('');
+    };
+
+    // Keyboard shortcuts
+    useStandardHotkeys({
+        onSave: () => void handleSave(),
+        onSaveAs: () => void handleSaveAs(),
+        onNew: () => void handleNew(),
+        onOpen: () => void handleOpen(),
+    });
+
+    const menuItems = {
+        File: [
+            { label: 'New', shortcut: 'Ctrl+N', action: handleNew },
+            { label: 'Open...', shortcut: 'Ctrl+O', action: handleOpen },
+            { label: 'Save', shortcut: 'Ctrl+S', action: handleSave },
+            { label: 'Save As...', shortcut: 'Ctrl+Shift+S', action: handleSaveAs },
+        ],
+    };
 
     // Initialize Univer
     useEffect(() => {
         if (!containerRef.current) return;
 
         // Initialize Univer with sheets preset
-        const { univerAPI } = createUniver({
+        const univerInstance = createUniver({
             locale: LocaleType.EN_US,
             locales: {
                 [LocaleType.EN_US]: UniverPresetSheetsCoreEnUS,
@@ -159,7 +444,8 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({ initialContent, initia
             ],
         });
 
-        univerRef.current = { univerAPI };
+        univerRef.current = univerInstance;
+        const { univerAPI } = univerInstance;
 
         // Check if we have initial content to load
         if (initialContent && initialFileName) {
@@ -271,7 +557,110 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({ initialContent, initia
 
     return (
         <AppContainer>
-            <div ref={containerRef} className="w-full h-full" style={{ minHeight: '500px' }} />
+            {/* Menu Bar */}
+            <div ref={menuRef} className="flex text-xs px-2 py-1 bg-[#2d2d2d] gap-4 select-none relative">
+                {Object.keys(menuItems).map(menu => (
+                    <div key={menu} className="relative">
+                        <span
+                            className={`hover:text-white cursor-pointer px-2 py-0.5 rounded ${activeMenu === menu ? 'bg-[#3d3d3d] text-white' : ''}`}
+                            onClick={() => setActiveMenu(activeMenu === menu ? null : menu)}
+                        >
+                            {menu}
+                        </span>
+                        {activeMenu === menu && menuItems[menu as keyof typeof menuItems] && (
+                            <div className="absolute top-full left-0 mt-1 bg-[#2d2d2d] border border-[#3d3d3d] rounded shadow-lg min-w-[200px] z-50">
+                                {menuItems[menu as keyof typeof menuItems].map((item, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="px-4 py-2 flex justify-between items-center hover:bg-[#3d3d3d] cursor-pointer"
+                                        onClick={item.action}
+                                    >
+                                        <span>{item.label}</span>
+                                        <span className="text-[#888] text-[10px]">{item.shortcut}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+
+            {/* Spreadsheet Container */}
+            <div ref={containerRef} className="w-full flex-1" style={{ minHeight: '500px' }} />
+
+            {/* Open File Dialog */}
+            {showOpenDialog && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-[#2d2d2d] rounded-lg p-4 w-[400px] max-h-[400px] flex flex-col">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-white font-medium">Open Spreadsheet</h3>
+                            <button onClick={() => setShowOpenDialog(false)} className="text-white/60 hover:text-white">
+                                ✕
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-auto">
+                            {files.length === 0 ? (
+                                <p className="text-white/60 text-sm">No spreadsheet files found</p>
+                            ) : (
+                                files.map(file => (
+                                    <div
+                                        key={file.id}
+                                        className="px-3 py-2 hover:bg-[#3d3d3d] cursor-pointer rounded flex items-center gap-2"
+                                        onClick={() => handleOpenFile(file)}
+                                    >
+                                        <span className="material-symbols-outlined text-sm text-green-400">
+                                            table_chart
+                                        </span>
+                                        <span className="text-white text-sm">{file.name}</span>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Save As Dialog */}
+            {showSaveDialog && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-[#2d2d2d] rounded-lg p-4 w-[350px]">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-white font-medium">Save As</h3>
+                            <button onClick={() => setShowSaveDialog(false)} className="text-white/60 hover:text-white">
+                                ✕
+                            </button>
+                        </div>
+                        <input
+                            type="text"
+                            value={saveFileName}
+                            onChange={e => setSaveFileName(e.target.value)}
+                            placeholder="Enter file name (e.g., budget.xlsx)"
+                            className="w-full bg-[#1e1e1e] border border-[#3d3d3d] rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 mb-4"
+                            autoFocus
+                            onKeyDown={e => {
+                                if (e.key === 'Enter') handleSaveAsConfirm();
+                            }}
+                        />
+                        <div className="flex justify-end gap-2">
+                            <button
+                                onClick={() => setShowSaveDialog(false)}
+                                className="px-4 py-1.5 text-sm text-white/80 hover:text-white"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSaveAsConfirm}
+                                className="px-4 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded"
+                            >
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Confirm Dialog */}
+            <ConfirmDialog {...dialogProps} />
         </AppContainer>
     );
 };

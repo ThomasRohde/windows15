@@ -1004,18 +1004,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F176",
-        "description": "Spreadsheet app supports file associations for .xlsx files",
+        "id": "F182",
+        "description": "Spreadsheet app supports copy/paste operations",
         "status": "not-started"
       },
       {
-        "id": "F179",
-        "description": "Spreadsheet app supports formula calculations",
+        "id": "F183",
+        "description": "Spreadsheet app supports column and row resizing",
         "status": "not-started"
       },
       {
-        "id": "F180",
-        "description": "Spreadsheet app includes toolbar with formatting options",
+        "id": "F184",
+        "description": "Spreadsheet app supports multiple sheets/tabs",
         "status": "not-started"
       }
     ]

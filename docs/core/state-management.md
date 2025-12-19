@@ -27,12 +27,12 @@ load_when: You’re deciding where to store data, how to access OS features, or 
 
 ### OS Service Contexts
 
-| Context               | Hook                 | Purpose                                  |
-| --------------------- | -------------------- | ---------------------------------------- |
-| `SystemInfoContext`   | `useSystemInfo()`    | OS version, CPU, memory, storage metrics |
-| `NetworkContext`      | `useNetwork()`       | Online status, latency, connection type  |
-| `ClipboardContext`    | `useClipboard()`     | Copy/paste with history (max 25 items)   |
-| `NotificationContext` | `useNotifications()` | Scheduled and immediate notifications    |
+| Context               | Hook                      | Purpose                                  |
+| --------------------- | ------------------------- | ---------------------------------------- |
+| `SystemInfoContext`   | `useSystemInfo()`         | OS version, CPU, memory, storage metrics |
+| `NetworkContext`      | `useNetwork()`            | Online status, latency, connection type  |
+| `ClipboardContext`    | `useClipboard()`          | Copy/paste with history (max 25 items)   |
+| `NotificationContext` | `useNotificationCenter()` | Scheduled and immediate notifications    |
 
 ### Data Contexts
 

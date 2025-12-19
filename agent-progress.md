@@ -28,10 +28,9 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                                     | Status         |
-| ---- | ------------------------------------------------------------------------------- | -------------- |
-| F185 | Notepad View menu includes Markdown Preview option with smart detection         | ⏳ Not started |
-| F186 | Start Menu search results support keyboard navigation with arrow keys and Enter | ⏳ Not started |
+| ID   | Description                                                             | Status         |
+| ---- | ----------------------------------------------------------------------- | -------------- |
+| F185 | Notepad View menu includes Markdown Preview option with smart detection | 🔄 In progress |
 
 ---
 

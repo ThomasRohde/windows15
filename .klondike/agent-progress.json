@@ -1036,12 +1036,7 @@
       {
         "id": "F185",
         "description": "Notepad View menu includes Markdown Preview option with smart detection",
-        "status": "not-started"
-      },
-      {
-        "id": "F186",
-        "description": "Start Menu search results support keyboard navigation with arrow keys and Enter",
-        "status": "not-started"
+        "status": "in-progress"
       }
     ]
   }

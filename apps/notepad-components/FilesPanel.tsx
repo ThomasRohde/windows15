@@ -2,8 +2,13 @@ import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { getFiles, saveFileToFolder } from '../../utils/fileSystem';
 import { FileSystemItem } from '../../types';
 import { useConfirmDialog, ConfirmDialog } from '../../components/ui/ConfirmDialog';
-import { useStandardHotkeys } from '../../hooks';
+import { useStandardHotkeys, useHotkeys } from '../../hooks';
 import { TextArea } from '../../components/ui';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
+import rehypeSanitize from 'rehype-sanitize';
+import 'highlight.js/styles/github-dark.css';
 
 interface FilesPanelProps {
     initialContent?: string;
@@ -44,6 +49,7 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
     const [showSaveDialog, setShowSaveDialog] = useState(false);
     const [saveFileName, setSaveFileName] = useState('');
     const [files, setFiles] = useState<FileSystemItem[]>([]);
+    const [showPreview, setShowPreview] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
     const { confirm, dialogProps } = useConfirmDialog();
@@ -87,6 +93,31 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
         const column = safeCursorIndex - lastNewlineIndex;
         return { line, column };
     }, [content, cursorIndex]);
+
+    const isMarkdownFile = useMemo(() => {
+        // Check file extension
+        const hasMarkdownExtension = /\.(md|markdown)$/i.test(currentFileName);
+        if (hasMarkdownExtension) return true;
+
+        // Check content heuristics (starts with # heading or contains markdown patterns)
+        const trimmed = content.trim();
+        if (!trimmed) return false;
+
+        const markdownPatterns = [
+            /^#{1,6}\s+/m, // Headings
+            /^[-*]\s+/m, // Unordered lists
+            /^\d+\.\s+/m, // Ordered lists
+            /\[.+\]\(.+\)/, // Links
+            /^```/m, // Code blocks
+            /^>\s+/m, // Blockquotes
+            /\*\*.+\*\*/, // Bold
+            /__.+__/, // Bold
+            /\*.+\*/, // Italic
+            /_.+_/, // Italic
+        ];
+
+        return markdownPatterns.some(pattern => pattern.test(trimmed));
+    }, [currentFileName, content]);
 
     const handleNew = async () => {
         if (hasUnsavedChanges) {
@@ -193,6 +224,14 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
             { label: 'Copy', shortcut: 'Ctrl+C', action: () => document.execCommand('copy') },
             { label: 'Paste', shortcut: 'Ctrl+V', action: () => document.execCommand('paste') },
         ],
+        View: [
+            {
+                label: showPreview ? 'Hide Markdown Preview' : 'Markdown Preview',
+                shortcut: 'Ctrl+Shift+V',
+                action: () => setShowPreview(!showPreview),
+                disabled: !isMarkdownFile,
+            },
+        ],
     };
 
     // Implement keyboard shortcuts using useStandardHotkeys (F140)
@@ -202,6 +241,17 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
         onNew: () => void handleNew(),
         onOpen: () => void handleOpen(),
     });
+
+    // Add markdown preview toggle shortcut (Ctrl+Shift+V)
+    useHotkeys(
+        'ctrl+shift+v',
+        () => {
+            if (isMarkdownFile) {
+                setShowPreview(!showPreview);
+            }
+        },
+        [isMarkdownFile, showPreview]
+    );
 
     return (
         <>
@@ -220,8 +270,12 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
                                 {menuItems[menu as keyof typeof menuItems].map((item, idx) => (
                                     <div
                                         key={idx}
-                                        className="px-4 py-2 hover:bg-[#3d3d3d] cursor-pointer flex justify-between items-center"
-                                        onClick={item.action}
+                                        className={`px-4 py-2 flex justify-between items-center ${
+                                            item.disabled
+                                                ? 'text-[#666] cursor-not-allowed'
+                                                : 'hover:bg-[#3d3d3d] cursor-pointer'
+                                        }`}
+                                        onClick={item.disabled ? undefined : item.action}
                                     >
                                         <span>{item.label}</span>
                                         <span className="text-[#888] text-[10px]">{item.shortcut}</span>
@@ -233,18 +287,50 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
                 ))}
             </div>
 
-            {/* Text Area */}
-            <TextArea
-                className="flex-1 bg-transparent border-none font-mono leading-relaxed selection:bg-blue-500/40"
-                variant="code"
-                value={content}
-                onChange={handleContentChange}
-                onSelect={e => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
-                onKeyUp={e => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
-                onClick={e => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
-                spellCheck={false}
-                placeholder="Start typing..."
-            />
+            {/* Text Area / Preview Split */}
+            {showPreview ? (
+                <div className="flex-1 flex overflow-hidden">
+                    {/* Editor Pane */}
+                    <div className="flex-1 flex flex-col border-r border-[#3d3d3d]">
+                        <TextArea
+                            className="flex-1 bg-transparent border-none font-mono leading-relaxed selection:bg-blue-500/40"
+                            variant="code"
+                            value={content}
+                            onChange={handleContentChange}
+                            onSelect={e => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
+                            onKeyUp={e => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
+                            onClick={e => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
+                            spellCheck={false}
+                            placeholder="Start typing..."
+                        />
+                    </div>
+                    {/* Preview Pane */}
+                    <div className="flex-1 overflow-auto p-4 bg-[#1e1e1e] prose prose-invert max-w-none">
+                        {content.trim() ? (
+                            <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
+                                rehypePlugins={[rehypeHighlight, rehypeSanitize]}
+                            >
+                                {content}
+                            </ReactMarkdown>
+                        ) : (
+                            <div className="text-[#666] italic">Preview will appear here...</div>
+                        )}
+                    </div>
+                </div>
+            ) : (
+                <TextArea
+                    className="flex-1 bg-transparent border-none font-mono leading-relaxed selection:bg-blue-500/40"
+                    variant="code"
+                    value={content}
+                    onChange={handleContentChange}
+                    onSelect={e => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
+                    onKeyUp={e => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
+                    onClick={e => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
+                    spellCheck={false}
+                    placeholder="Start typing..."
+                />
+            )}
 
             {/* Status Bar */}
             <div className="bg-primary px-3 py-1 text-xs text-white flex justify-between">

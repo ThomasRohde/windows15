@@ -38,6 +38,7 @@ export const Taskbar = () => {
                 {/* Start Button */}
                 <Tooltip content="Start Menu" position="top">
                     <button
+                        data-testid="start-menu-button"
                         onClick={toggleStartMenu}
                         className={`w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-all active:scale-95 group relative ml-1 ${isStartMenuOpen ? 'bg-white/10' : ''}`}
                     >

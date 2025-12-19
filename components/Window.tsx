@@ -412,6 +412,7 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
             role="dialog"
             aria-labelledby={titleId}
             aria-modal="false"
+            data-app-id={window.appId}
             className="absolute"
             style={{
                 ...outerStyle,

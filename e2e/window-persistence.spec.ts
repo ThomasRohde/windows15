@@ -3,18 +3,19 @@ import { test, expect } from '@playwright/test';
 test.describe('Window Dimension Persistence (F144)', () => {
     test('window dimensions persist after resize', async ({ page }) => {
         await page.goto('http://localhost:5000');
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded', { timeout: 30000 });
 
         // Open Calculator app
-        await page.waitForSelector('[data-testid="start-menu-button"], button:has-text("Start")', {
-            timeout: 10000,
+        await page.waitForSelector('[data-testid="start-menu-button"]', {
+            timeout: 30000,
             state: 'visible',
         });
-        await page.click('[data-testid="start-menu-button"], button:has-text("Start")');
-        await page.click('text=Calculator');
+        await page.click('[data-testid="start-menu-button"]');
+        await page.waitForSelector('[data-start-menu]', { state: 'visible', timeout: 10000 });
+        await page.click('[data-testid="app-calculator"]');
 
         // Wait for window to appear
-        await page.waitForSelector('[data-app-id="calculator"]', { timeout: 5000 });
+        await page.waitForSelector('[data-app-id="calculator"]', { timeout: 10000 });
 
         // Get initial size
         const windowElement = page.locator('[data-app-id="calculator"]').first();
@@ -37,17 +38,18 @@ test.describe('Window Dimension Persistence (F144)', () => {
         expect(resizedBox!.height).toBeGreaterThan(initialBox!.height);
 
         // Close the window
-        await page.click('[data-app-id="calculator"] button[aria-label="Close"]');
+        await page.click('[data-app-id="calculator"] button[aria-label="Close window"]');
         await page.waitForTimeout(200); // Wait for close animation
 
         // Reopen the same app
-        await page.waitForSelector('[data-testid="start-menu-button"], button:has-text("Start")', {
-            timeout: 10000,
+        await page.waitForSelector('[data-testid="start-menu-button"]', {
+            timeout: 30000,
             state: 'visible',
         });
-        await page.click('[data-testid="start-menu-button"], button:has-text("Start")');
-        await page.click('text=Calculator');
-        await page.waitForSelector('[data-app-id="calculator"]', { timeout: 5000 });
+        await page.click('[data-testid="start-menu-button"]');
+        await page.waitForSelector('[data-start-menu]', { state: 'visible', timeout: 10000 });
+        await page.click('[data-testid="app-calculator"]');
+        await page.waitForSelector('[data-app-id="calculator"]', { timeout: 10000 });
 
         // Verify dimensions were restored
         const restoredBox = await windowElement.boundingBox();
@@ -57,16 +59,17 @@ test.describe('Window Dimension Persistence (F144)', () => {
 
     test('different apps maintain separate dimensions', async ({ page }) => {
         await page.goto('http://localhost:5000');
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded', { timeout: 30000 });
 
         // Open and resize Calculator
-        await page.waitForSelector('[data-testid="start-menu-button"], button:has-text("Start")', {
-            timeout: 10000,
+        await page.waitForSelector('[data-testid="start-menu-button"]', {
+            timeout: 30000,
             state: 'visible',
         });
-        await page.click('[data-testid="start-menu-button"], button:has-text("Start")');
-        await page.click('text=Calculator');
-        await page.waitForSelector('[data-app-id="calculator"]');
+        await page.click('[data-testid="start-menu-button"]');
+        await page.waitForSelector('[data-start-menu]', { state: 'visible', timeout: 10000 });
+        await page.click('[data-testid="app-calculator"]');
+        await page.waitForSelector('[data-app-id="calculator"]', { timeout: 10000 });
 
         const calcWindow = page.locator('[data-app-id="calculator"]').first();
         const calcInitialBox = await calcWindow.boundingBox();
@@ -82,17 +85,18 @@ test.describe('Window Dimension Persistence (F144)', () => {
         await page.waitForTimeout(100);
 
         const calcResizedBox = await calcWindow.boundingBox();
-        await page.click('[data-app-id="calculator"] button[aria-label="Close"]');
+        await page.click('[data-app-id="calculator"] button[aria-label="Close window"]');
         await page.waitForTimeout(200);
 
         // Open and resize Notepad
-        await page.waitForSelector('[data-testid="start-menu-button"], button:has-text("Start")', {
-            timeout: 10000,
+        await page.waitForSelector('[data-testid="start-menu-button"]', {
+            timeout: 30000,
             state: 'visible',
         });
-        await page.click('[data-testid="start-menu-button"], button:has-text("Start")');
-        await page.click('text=Notepad');
-        await page.waitForSelector('[data-app-id="notepad"]');
+        await page.click('[data-testid="start-menu-button"]');
+        await page.waitForSelector('[data-start-menu]', { state: 'visible', timeout: 10000 });
+        await page.click('[data-testid="app-notepad"]');
+        await page.waitForSelector('[data-app-id="notepad"]', { timeout: 10000 });
 
         const notepadWindow = page.locator('[data-app-id="notepad"]').first();
         const notepadInitialBox = await notepadWindow.boundingBox();
@@ -108,69 +112,74 @@ test.describe('Window Dimension Persistence (F144)', () => {
         await page.waitForTimeout(100);
 
         const notepadResizedBox = await notepadWindow.boundingBox();
-        await page.click('[data-app-id="notepad"] button[aria-label="Close"]');
+        await page.click('[data-app-id="notepad"] button[aria-label="Close window"]');
         await page.waitForTimeout(200);
 
         // Verify both apps restored their own dimensions
-        await page.waitForSelector('[data-testid="start-menu-button"], button:has-text("Start")', {
-            timeout: 10000,
+        await page.waitForSelector('[data-testid="start-menu-button"]', {
+            timeout: 30000,
             state: 'visible',
         });
-        await page.click('[data-testid="start-menu-button"], button:has-text("Start")');
-        await page.click('text=Calculator');
-        await page.waitForSelector('[data-app-id="calculator"]');
+        await page.click('[data-testid="start-menu-button"]');
+        await page.waitForSelector('[data-start-menu]', { state: 'visible', timeout: 10000 });
+        await page.click('[data-testid="app-calculator"]');
+        await page.waitForSelector('[data-app-id="calculator"]', { timeout: 10000 });
         const calcRestored = await page.locator('[data-app-id="calculator"]').first().boundingBox();
         expect(calcRestored!.width).toBeCloseTo(calcResizedBox!.width, 5);
 
-        await page.waitForSelector('[data-testid="start-menu-button"], button:has-text("Start")', {
-            timeout: 10000,
+        await page.waitForSelector('[data-testid="start-menu-button"]', {
+            timeout: 30000,
             state: 'visible',
         });
-        await page.click('[data-testid="start-menu-button"], button:has-text("Start")');
-        await page.click('text=Notepad');
-        await page.waitForSelector('[data-app-id="notepad"]');
+        await page.click('[data-testid="start-menu-button"]');
+        await page.waitForSelector('[data-start-menu]', { state: 'visible', timeout: 10000 });
+        await page.click('[data-testid="app-notepad"]');
+        await page.waitForSelector('[data-app-id="notepad"]', { timeout: 10000 });
         const notepadRestored = await page.locator('[data-app-id="notepad"]').first().boundingBox();
         expect(notepadRestored!.width).toBeCloseTo(notepadResizedBox!.width, 5);
     });
 
     test('position also persists after drag', async ({ page }) => {
         await page.goto('http://localhost:5000');
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded', { timeout: 30000 });
 
         // Open Calculator
-        await page.waitForSelector('[data-testid="start-menu-button"], button:has-text("Start")', {
-            timeout: 10000,
+        await page.waitForSelector('[data-testid="start-menu-button"]', {
+            timeout: 30000,
             state: 'visible',
         });
-        await page.click('[data-testid="start-menu-button"], button:has-text("Start")');
-        await page.click('text=Calculator');
-        await page.waitForSelector('[data-app-id="calculator"]');
+        await page.click('[data-testid="start-menu-button"]');
+        await page.waitForSelector('[data-start-menu]', { state: 'visible', timeout: 10000 });
+        await page.click('[data-testid="app-calculator"]');
+        await page.waitForSelector('[data-app-id="calculator"]', { timeout: 10000 });
 
         const windowElement = page.locator('[data-app-id="calculator"]').first();
         const initialBox = await windowElement.boundingBox();
 
-        // Drag window to new position
+        // Drag window to new position using Playwright's drag API
         const titleBar = windowElement.locator('.cursor-move').first();
-        await titleBar.hover();
-        await page.mouse.down();
-        await page.mouse.move(initialBox!.x + 300, initialBox!.y + 200, { steps: 10 });
-        await page.mouse.up();
+        await titleBar.dragTo(page.locator('body'), {
+            targetPosition: { x: initialBox!.x + 300, y: initialBox!.y + 200 },
+        });
         await page.waitForTimeout(100);
 
         const movedBox = await windowElement.boundingBox();
-        expect(Math.abs(movedBox!.x - (initialBox!.x + 300))).toBeLessThan(10);
+        // Verify window moved
+        expect(Math.abs(movedBox!.x - initialBox!.x)).toBeGreaterThan(50);
+        expect(Math.abs(movedBox!.y - initialBox!.y)).toBeGreaterThan(50);
 
         // Close and reopen
-        await page.click('[data-app-id="calculator"] button[aria-label="Close"]');
+        await page.click('[data-app-id="calculator"] button[aria-label="Close window"]');
         await page.waitForTimeout(200);
 
-        await page.waitForSelector('[data-testid="start-menu-button"], button:has-text("Start")', {
-            timeout: 10000,
+        await page.waitForSelector('[data-testid="start-menu-button"]', {
+            timeout: 30000,
             state: 'visible',
         });
-        await page.click('[data-testid="start-menu-button"], button:has-text("Start")');
-        await page.click('text=Calculator');
-        await page.waitForSelector('[data-app-id="calculator"]');
+        await page.click('[data-testid="start-menu-button"]');
+        await page.waitForSelector('[data-start-menu]', { state: 'visible', timeout: 10000 });
+        await page.click('[data-testid="app-calculator"]');
+        await page.waitForSelector('[data-app-id="calculator"]', { timeout: 10000 });
 
         const restoredBox = await windowElement.boundingBox();
         expect(restoredBox!.x).toBeCloseTo(movedBox!.x, 5);

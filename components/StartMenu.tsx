@@ -125,6 +125,7 @@ export const StartMenu = () => {
                             {searchResults.map(app => (
                                 <button
                                     key={app.id}
+                                    data-testid={`app-${app.id}`}
                                     role="menuitem"
                                     onClick={() => {
                                         openWindow(app.id);
@@ -189,6 +190,7 @@ export const StartMenu = () => {
                                 {displayApps.map(app => (
                                     <button
                                         key={app.id}
+                                        data-testid={`app-${app.id}`}
                                         role="menuitem"
                                         onClick={() => openWindow(app.id)}
                                         onContextMenu={e => handleContextMenu(e, app.id)}
@@ -219,6 +221,7 @@ export const StartMenu = () => {
                                 {displayApps.map(app => (
                                     <button
                                         key={app.id}
+                                        data-testid={`app-${app.id}`}
                                         role="menuitem"
                                         onClick={() => openWindow(app.id)}
                                         onContextMenu={e => handleContextMenu(e, app.id)}

@@ -83,6 +83,8 @@ export default defineConfig({
                 ],
             },
             workbox: {
+                // Allow large chunks (Spreadsheet with Univer is ~10MB)
+                maximumFileSizeToCacheInBytes: 15 * 1024 * 1024, // 15 MiB
                 globPatterns: [
                     '**/*.{js,css,html,ico,png,svg,woff2}',
                     // Include wallpaper shader files (F101)

@@ -35,6 +35,7 @@ import { ensureArray } from './utils';
 import { readTextFromClipboard } from './utils/clipboard';
 import { analyzeClipboardContent, fetchYoutubeVideoTitle } from './utils/clipboardAnalyzer';
 import { getFiles, saveFiles, addFileToFolder } from './utils/fileSystem';
+import { processDroppedFiles, hasFiles } from './utils/fileDropHandler';
 import { DEFAULT_ICONS } from './utils/defaults';
 import { FileSystemItem } from './types';
 
@@ -57,6 +58,9 @@ const Desktop = () => {
 
     // Overview mode state (F095)
     const [isOverviewOpen, setIsOverviewOpen] = useState(false);
+
+    // File drag state for desktop drop handling
+    const [isDraggingFile, setIsDraggingFile] = useState(false);
 
     // Calculate max z-index for 3D depth calculations
     const maxZIndex = useMemo(() => {
@@ -278,6 +282,16 @@ const Desktop = () => {
                         date: new Date().toLocaleDateString(),
                     };
                     break;
+                case 'spreadsheet-url':
+                    newFile = {
+                        id: `link-${Date.now()}`,
+                        name: analysis.suggestedFileName,
+                        type: 'link',
+                        url: analysis.content,
+                        linkType: 'web',
+                        date: new Date().toLocaleDateString(),
+                    };
+                    break;
                 case 'youtube-url': {
                     // Try to fetch the actual video title from YouTube
                     const videoTitle = await fetchYoutubeVideoTitle(analysis.content);
@@ -347,6 +361,84 @@ const Desktop = () => {
         closeDesktopMenu();
     }, [notify, openWindow, closeDesktopMenu]);
 
+    // Desktop file drop handler - creates files from dropped files
+    const handleDesktopDrop = useCallback(
+        async (e: React.DragEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsDraggingFile(false);
+
+            if (!e.dataTransfer?.files?.length) return;
+
+            try {
+                const results = await processDroppedFiles(e.dataTransfer.files);
+                const files = await getFiles();
+                let updatedFiles = files;
+
+                for (const result of results) {
+                    updatedFiles = addFileToFolder(updatedFiles, 'desktop', result.file);
+                }
+
+                await saveFiles(updatedFiles);
+
+                // Open the first file with its suggested app
+                if (results.length === 1 && results[0]?.suggestedAppId) {
+                    const result = results[0];
+                    const file = result.file;
+
+                    // Pass appropriate props based on file type
+                    if (file.type === 'image' && file.src) {
+                        openWindow(result.suggestedAppId, { initialSrc: file.src });
+                    } else if (result.suggestedAppId === 'spreadsheet') {
+                        openWindow('spreadsheet', {
+                            initialContent: file.content,
+                            initialFileName: file.name,
+                        });
+                    } else {
+                        openWindow(result.suggestedAppId, {
+                            initialContent: file.content,
+                            initialFileId: file.id,
+                            initialFileName: file.name,
+                        });
+                    }
+                }
+
+                const fileCount = results.length;
+                notify.success(`Added ${fileCount} file${fileCount > 1 ? 's' : ''} to desktop`);
+            } catch (error) {
+                console.error('Desktop drop error:', error);
+                notify.error('Failed to add dropped files');
+            }
+        },
+        [notify, openWindow]
+    );
+
+    const handleDesktopDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (hasFiles(e.nativeEvent)) {
+            setIsDraggingFile(true);
+        }
+    }, []);
+
+    const handleDesktopDragLeave = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // Only set to false if we're leaving the desktop area entirely
+        const relatedTarget = e.relatedTarget as HTMLElement | null;
+        if (!relatedTarget || !e.currentTarget.contains(relatedTarget)) {
+            setIsDraggingFile(false);
+        }
+    }, []);
+
+    const handleDesktopDragEnter = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (hasFiles(e.nativeEvent)) {
+            setIsDraggingFile(true);
+        }
+    }, []);
+
     const handleOverviewSelect = useCallback(
         (windowId: string) => {
             focusWindow(windowId);
@@ -401,8 +493,12 @@ const Desktop = () => {
 
     return (
         <div
-            className="relative h-screen w-screen overflow-hidden select-none"
+            className={`relative h-screen w-screen overflow-hidden select-none ${isDraggingFile ? 'ring-4 ring-inset ring-blue-500/50' : ''}`}
             onContextMenu={handleDesktopContextMenu}
+            onDrop={handleDesktopDrop}
+            onDragOver={handleDesktopDragOver}
+            onDragEnter={handleDesktopDragEnter}
+            onDragLeave={handleDesktopDragLeave}
             onPointerDown={e => {
                 if (!isStartMenuOpen) return;
                 const target = e.target as HTMLElement;
@@ -411,6 +507,16 @@ const Desktop = () => {
                 closeStartMenu();
             }}
         >
+            {/* File drop overlay indicator */}
+            {isDraggingFile && (
+                <div className="absolute inset-0 z-[9999] pointer-events-none flex items-center justify-center bg-blue-500/10 backdrop-blur-sm">
+                    <div className="glass-card p-8 flex flex-col items-center gap-4">
+                        <span className="material-symbols-outlined text-6xl text-blue-400">upload_file</span>
+                        <span className="text-white text-lg font-medium">Drop files here</span>
+                    </div>
+                </div>
+            )}
+
             {/* Wallpaper Layer - WallpaperHost handles both static and live wallpapers */}
             <WallpaperHost fallbackImage={activeWallpaper} />
 

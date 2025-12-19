@@ -11,6 +11,7 @@ export type ClipboardContentType =
     | 'image-url' // URL ending in image extensions or from known image hosting
     | 'video-url' // URL ending in video extensions
     | 'audio-url' // URL ending in audio extensions
+    | 'spreadsheet-url' // URL ending in spreadsheet extensions
     | 'youtube-url' // YouTube video URLs
     | 'web-url' // General HTTP/HTTPS URLs
     | 'json' // Valid JSON content
@@ -32,13 +33,16 @@ export interface ClipboardAnalysis {
 }
 
 // Image file extensions
-const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.ico', '.avif'];
+export const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.ico', '.avif'];
 
 // Video file extensions
-const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.ogv'];
+export const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.ogv'];
 
 // Audio file extensions
-const AUDIO_EXTENSIONS = ['.mp3', '.wav', '.ogg', '.m4a', '.flac', '.aac'];
+export const AUDIO_EXTENSIONS = ['.mp3', '.wav', '.ogg', '.m4a', '.flac', '.aac'];
+
+// Spreadsheet file extensions
+export const SPREADSHEET_EXTENSIONS = ['.xlsx', '.xls', '.csv', '.ods', '.xlsm', '.xlsb'];
 
 // Known image hosting domains
 const IMAGE_HOSTS = [
@@ -119,6 +123,19 @@ function isAudioUrl(url: string): boolean {
         const parsed = new URL(url);
         const pathname = parsed.pathname.toLowerCase();
         return AUDIO_EXTENSIONS.some(ext => pathname.endsWith(ext));
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Check if a URL points to a spreadsheet file
+ */
+function isSpreadsheetUrl(url: string): boolean {
+    try {
+        const parsed = new URL(url);
+        const pathname = parsed.pathname.toLowerCase();
+        return SPREADSHEET_EXTENSIONS.some(ext => pathname.endsWith(ext));
     } catch {
         return false;
     }
@@ -294,6 +311,16 @@ export function analyzeClipboardContent(text: string): ClipboardAnalysis {
                 content: trimmed,
                 suggestedFileName: generateFileNameFromUrl(trimmed) + '.link',
                 suggestedAppId: 'browser',
+            };
+        }
+
+        // Check for spreadsheet URLs
+        if (isSpreadsheetUrl(trimmed)) {
+            return {
+                type: 'spreadsheet-url',
+                content: trimmed,
+                suggestedFileName: generateFileNameFromUrl(trimmed) + '.link',
+                suggestedAppId: 'spreadsheet',
             };
         }
 

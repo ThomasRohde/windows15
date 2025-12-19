@@ -47,6 +47,7 @@ export type TranslationNamespace =
     | 'qrGenerator'
     | 'recycleBin'
     | 'settings'
+    | 'spreadsheet'
     | 'systemInfo'
     | 'terminal'
     | 'thisPC'

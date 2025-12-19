@@ -28,6 +28,8 @@
         "@dnd-kit/utilities": "^3.2.2",
         "@octokit/rest": "^22.0.1",
         "@rolldown/pluginutils": "^1.0.0-beta.54",
+        "@univerjs/preset-sheets-core": "^0.13.0",
+        "@univerjs/presets": "^0.13.0",
         "@vitest/pretty-format": "^4.0.15",
         "dexie": "^4.2.1",
         "dexie-cloud-addon": "^4.2.4",

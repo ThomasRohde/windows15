@@ -449,6 +449,9 @@
         "version": "Version",
         "buildDate": "Build Date"
     },
+    "spreadsheet": {
+        "title": "Spreadsheet"
+    },
     "systemInfo": {
         "title": "System Info",
         "system": "System",

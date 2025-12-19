@@ -89,6 +89,15 @@ export const APP_REGISTRY: AppConfig[] = [
         component: React.lazy(() => import('./Settings').then(m => ({ default: m.Settings }))),
     },
     {
+        id: 'spreadsheet',
+        title: 'Spreadsheet',
+        icon: 'grid_on',
+        color: 'bg-green-500',
+        component: React.lazy(() => import('./Spreadsheet').then(m => ({ default: m.Spreadsheet }))),
+        defaultWidth: 1100,
+        defaultHeight: 700,
+    },
+    {
         id: 'terminal',
         title: 'Terminal',
         icon: 'terminal',

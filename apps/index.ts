@@ -25,6 +25,7 @@ export { PasswordGenerator } from './PasswordGenerator';
 export { QrGenerator } from './QrGenerator';
 export { RecycleBin } from './RecycleBin';
 export { Settings } from './Settings';
+export { Spreadsheet } from './Spreadsheet';
 export { SystemInfo } from './SystemInfo';
 export { Terminal } from './Terminal';
 export { ThisPC } from './ThisPC';

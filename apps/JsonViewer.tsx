@@ -3,7 +3,6 @@ import { useAsyncAction, useAppState, useFilePicker } from '../hooks';
 import { useTranslation } from '../hooks/useTranslation';
 import { AppToolbar, TextArea } from '../components/ui';
 import { FilePickerModal } from '../components';
-import { saveFileToFolder } from '../utils/fileSystem';
 
 interface JsonNodeProps {
     data: unknown;
@@ -145,15 +144,12 @@ export const JsonViewer = () => {
 
     const saveFile = async () => {
         if (!input) return;
-        const file = await filePicker.save({
+        await filePicker.save({
             title: 'Save JSON File',
             content: input,
             defaultFileName: 'data.json',
             defaultExtension: '.json',
         });
-        if (file) {
-            await saveFileToFolder(file.path, { name: file.name, type: 'file', content: file.content ?? '' });
-        }
     };
 
     return (

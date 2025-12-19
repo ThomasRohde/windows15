@@ -3,7 +3,6 @@ import { useAsyncAction, useStandardHotkeys, useCopyToClipboard, useAppState, us
 import { useTranslation } from '../hooks/useTranslation';
 import { TabSwitcher, ErrorBanner, SectionLabel, CopyButton, AppToolbar, TextArea } from '../components/ui';
 import { FilePickerModal } from '../components';
-import { saveFileToFolder } from '../utils/fileSystem';
 
 interface Base64ToolState {
     input: string;
@@ -68,15 +67,12 @@ export const Base64Tool = () => {
 
     const saveOutput = async () => {
         if (!output) return;
-        const file = await filePicker.save({
+        await filePicker.save({
             title: mode === 'encode' ? 'Save Encoded Base64' : 'Save Decoded Text',
             content: output,
             defaultFileName: mode === 'encode' ? 'encoded.txt' : 'decoded.txt',
             defaultExtension: '.txt',
         });
-        if (file) {
-            await saveFileToFolder(file.path, { name: file.name, type: 'file', content: file.content ?? '' });
-        }
     };
 
     // Keyboard shortcuts (F140)

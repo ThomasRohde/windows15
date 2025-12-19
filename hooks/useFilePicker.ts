@@ -96,10 +96,12 @@ export function useFilePicker(): UseFilePickerReturn {
 
     // Promise resolvers for async open/save
     const resolveRef = useRef<((value: FilePickerFile | null) => void) | null>(null);
+    const selectedFileRef = useRef<FilePickerFile | null>(null);
 
     const open = useCallback((options: FilePickerOpenOptions = {}): Promise<FilePickerFile | null> => {
         return new Promise(resolve => {
             resolveRef.current = resolve;
+            selectedFileRef.current = null;
             setState({
                 isOpen: true,
                 mode: 'open',
@@ -114,6 +116,7 @@ export function useFilePicker(): UseFilePickerReturn {
     const save = useCallback((options: FilePickerSaveOptions): Promise<FilePickerFile | null> => {
         return new Promise(resolve => {
             resolveRef.current = resolve;
+            selectedFileRef.current = null;
             setState({
                 isOpen: true,
                 mode: 'save',
@@ -126,10 +129,12 @@ export function useFilePicker(): UseFilePickerReturn {
     }, []);
 
     const navigateTo = useCallback((path: string[]) => {
+        selectedFileRef.current = null;
         setState(prev => ({ ...prev, currentPath: path, selectedFile: null }));
     }, []);
 
     const selectFile = useCallback((file: FilePickerFile) => {
+        selectedFileRef.current = file;
         setState(prev => ({
             ...prev,
             selectedFile: file,
@@ -142,7 +147,8 @@ export function useFilePicker(): UseFilePickerReturn {
     }, []);
 
     const confirm = useCallback(() => {
-        const { mode, selectedFile, fileName, currentPath, options } = state;
+        const { mode, fileName, currentPath, options } = state;
+        const selectedFile = selectedFileRef.current ?? state.selectedFile;
 
         if (mode === 'open' && selectedFile) {
             resolveRef.current?.(selectedFile);
@@ -159,6 +165,7 @@ export function useFilePicker(): UseFilePickerReturn {
         }
 
         resolveRef.current = null;
+        selectedFileRef.current = null;
         setState({
             isOpen: false,
             mode: null,
@@ -172,6 +179,7 @@ export function useFilePicker(): UseFilePickerReturn {
     const cancel = useCallback(() => {
         resolveRef.current?.(null);
         resolveRef.current = null;
+        selectedFileRef.current = null;
         setState({
             isOpen: false,
             mode: null,

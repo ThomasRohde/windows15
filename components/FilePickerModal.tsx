@@ -10,6 +10,7 @@ import type {
     FilePickerSaveOptions,
 } from '../hooks/useFilePicker';
 import { getFileExtension } from '../apps/registry';
+import { AUDIO_EXTENSIONS, IMAGE_EXTENSIONS, VIDEO_EXTENSIONS } from '../utils/clipboardAnalyzer';
 import { TextInput, Button } from './ui';
 
 interface FilePickerModalProps {
@@ -129,6 +130,36 @@ export const FilePickerModal: React.FC<FilePickerModalProps> = ({
         }
     };
 
+    const getSaveType = (fileName: string) => {
+        const ext = getFileExtension(fileName);
+        if (IMAGE_EXTENSIONS.includes(ext)) return { type: 'image' as const, usesSrc: true };
+        if (AUDIO_EXTENSIONS.includes(ext)) return { type: 'audio' as const, usesSrc: true };
+        if (VIDEO_EXTENSIONS.includes(ext)) return { type: 'video' as const, usesSrc: true };
+        return { type: 'document' as const, usesSrc: false };
+    };
+
+    const buildSavedFile = (base: FileSystemItem | null, fileName: string, content: string): FileSystemItem => {
+        const { type, usesSrc } = getSaveType(fileName);
+        const next: FileSystemItem = {
+            ...(base ?? { id: generateUuid() }),
+            name: fileName,
+            type,
+            date: new Date().toISOString(),
+        };
+
+        if (usesSrc) {
+            next.src = content;
+            delete next.content;
+            delete next.size;
+        } else {
+            next.content = content;
+            next.size = `${content.length} chars`;
+            delete next.src;
+        }
+
+        return next;
+    };
+
     // Handle save with creating/updating file
     const handleSave = async () => {
         if (!state.fileName.trim()) return;
@@ -139,38 +170,24 @@ export const FilePickerModal: React.FC<FilePickerModalProps> = ({
 
         // Check if file already exists
         const existingFile = currentFolder?.children?.find(c => c.name.toLowerCase() === fileName.toLowerCase());
+        if (existingFile && existingFile.type === 'folder') return;
 
-        if (existingFile) {
-            // Update existing file - would need saveFiles implementation
-            // For now, just confirm with existing file
-            onSelectFile({
-                id: existingFile.id,
-                name: existingFile.name,
-                content,
-                path: state.currentPath,
-            });
-        } else {
-            // Create new file
-            const newFile: FileSystemItem = {
-                id: generateUuid(),
-                name: fileName,
-                type: 'document',
-                content,
-                size: `${content.length} chars`,
-                date: new Date().toISOString(),
-            };
+        const savedFile = buildSavedFile(existingFile ?? null, fileName, content);
+        const parentId = state.currentPath[state.currentPath.length - 1] ?? 'root';
 
-            // Get parent folder ID
-            const parentId = state.currentPath[state.currentPath.length - 1];
-            await saveFileToFolder(newFile, parentId ?? 'root');
-
-            onSelectFile({
-                id: newFile.id,
-                name: newFile.name,
-                content,
-                path: state.currentPath,
-            });
+        try {
+            await saveFileToFolder(savedFile, parentId);
+        } catch (error) {
+            console.error('Failed to save file:', error);
+            return;
         }
+
+        onSelectFile({
+            id: savedFile.id,
+            name: savedFile.name,
+            content,
+            path: state.currentPath,
+        });
 
         onConfirm();
     };

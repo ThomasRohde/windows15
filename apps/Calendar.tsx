@@ -10,7 +10,6 @@ import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { required, validateValue, validateDateRange } from '../utils/validation';
 import { useSeededCollection, useFilePicker, useNotification } from '../hooks';
 import { toYmd, fromYmd, pad2, addMonths, buildMonthGrid } from '../utils/dateUtils';
-import { saveFileToFolder } from '../utils/fileSystem';
 
 type CalendarEvent = {
     id: string;
@@ -205,15 +204,12 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
         icsLines.push('END:VCALENDAR');
         const icsContent = icsLines.filter(Boolean).join('\r\n');
 
-        const file = await filePicker.save({
+        await filePicker.save({
             title: 'Export Calendar',
             content: icsContent,
             defaultFileName: 'calendar.ics',
             defaultExtension: '.ics',
         });
-        if (file) {
-            await saveFileToFolder(file.path, { name: file.name, type: 'file', content: file.content ?? '' });
-        }
     };
 
     const importFromICS = async () => {

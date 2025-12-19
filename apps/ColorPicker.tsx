@@ -4,7 +4,6 @@ import { AppContainer, Slider, Button, SectionLabel, CopyButton } from '../compo
 import { FilePickerModal } from '../components';
 import { hslToRgb, rgbToHex, rgbToHsl } from '../utils/color';
 import { useTranslation } from '../hooks/useTranslation';
-import { saveFileToFolder } from '../utils/fileSystem';
 
 interface SavedColor {
     hex: string;
@@ -53,15 +52,12 @@ export const ColorPicker = () => {
 
     const exportPalette = async () => {
         if (savedColors.length === 0) return;
-        const file = await filePicker.save({
+        await filePicker.save({
             title: 'Export Color Palette',
             content: JSON.stringify(savedColors, null, 2),
             defaultFileName: 'palette.json',
             defaultExtension: '.json',
         });
-        if (file) {
-            await saveFileToFolder(file.path, { name: file.name, type: 'file', content: file.content ?? '' });
-        }
     };
 
     const importPalette = async () => {

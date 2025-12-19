@@ -3,7 +3,6 @@ import { useTranslation, useAppState, useFilePicker } from '../hooks';
 import { AppContainer, SectionLabel, TextArea } from '../components/ui';
 import { FilePickerModal } from '../components';
 import { QRCodeCanvas } from 'qrcode.react';
-import { saveFileToFolder } from '../utils/fileSystem';
 
 interface QrGeneratorState {
     text: string;
@@ -45,16 +44,13 @@ export const QrGenerator = () => {
         if (!canvas) return;
 
         const dataURL = canvas.toDataURL('image/png');
-        const file = await filePicker.save({
+        await filePicker.save({
             title: 'Save QR Code',
             content: dataURL,
             defaultFileName: 'qrcode.png',
             defaultExtension: '.png',
             initialPath: ['root', 'pictures'],
         });
-        if (file) {
-            await saveFileToFolder(file.path, { name: file.name, type: 'file', content: file.content ?? '' });
-        }
     };
 
     return (

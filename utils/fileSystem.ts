@@ -20,6 +20,14 @@ const FS_SYNC_EVENT = 'windows15:fs-sync';
 
 type FsSyncDetail = { store: string; key?: string };
 
+const SYSTEM_FOLDER_NAMES: Record<string, string> = {
+    desktop: 'Desktop',
+    documents: 'Documents',
+    pictures: 'Pictures',
+    music: 'Music',
+    recycleBin: 'Recycle Bin',
+};
+
 let dbInstance: IDBDatabase | null = null;
 
 /**
@@ -157,6 +165,48 @@ const findFileById = (files: FileSystemItem[], id: string): FileSystemItem | nul
         }
     }
     return null;
+};
+
+const ensureSystemFolder = (files: FileSystemItem[], folderId: string): FileSystemItem[] => {
+    const folderName = SYSTEM_FOLDER_NAMES[folderId];
+    if (!folderName) return files;
+
+    const existing = findFileById(files, folderId);
+    if (existing) return files;
+
+    const rootIndex = files.findIndex(file => file.id === 'root' && file.type === 'folder');
+    const root: FileSystemItem =
+        rootIndex === -1
+            ? {
+                  id: 'root',
+                  name: 'Root',
+                  type: 'folder',
+                  children: [],
+              }
+            : (files[rootIndex] ?? {
+                  id: 'root',
+                  name: 'Root',
+                  type: 'folder',
+                  children: [],
+              });
+
+    const rootChildren = root.children ?? [];
+    const newFolder: FileSystemItem = {
+        id: folderId,
+        name: folderName,
+        type: 'folder',
+        children: [],
+    };
+    const nextRoot: FileSystemItem = {
+        ...root,
+        children: [...rootChildren, newFolder],
+    };
+
+    if (rootIndex === -1) {
+        return [...files, nextRoot];
+    }
+
+    return files.map((file, index) => (index === rootIndex ? nextRoot : file));
 };
 
 const updateFileInTree = (files: FileSystemItem[], id: string, updatedFile: FileSystemItem): FileSystemItem[] => {
@@ -391,10 +441,11 @@ export const addFileToFolder = (
     newFile: FileSystemItem
 ): FileSystemItem[] => {
     return files.map(file => {
-        if (file.id === folderId && file.children) {
+        if (file.id === folderId && file.type === 'folder') {
+            const children = file.children ?? [];
             return {
                 ...file,
-                children: [...file.children, newFile],
+                children: [...children, newFile],
             };
         }
         if (file.children) {
@@ -415,7 +466,16 @@ export const saveFileToFolder = async (file: FileSystemItem, folderId: string = 
     if (existingFile) {
         updatedFiles = updateFileInTree(files, file.id, file);
     } else {
-        updatedFiles = addFileToFolder(files, folderId, file);
+        const baseFiles = ensureSystemFolder(files, folderId);
+        updatedFiles = addFileToFolder(baseFiles, folderId, file);
+        if (!findFileById(updatedFiles, file.id)) {
+            const fallbackRoot = baseFiles.find(item => item.id === 'root' && item.type === 'folder');
+            const fallbackId = fallbackRoot?.id ?? 'root';
+            updatedFiles = addFileToFolder(updatedFiles, fallbackId, file);
+            if (!findFileById(updatedFiles, file.id)) {
+                updatedFiles = [...updatedFiles, file];
+            }
+        }
     }
 
     await saveFiles(updatedFiles);

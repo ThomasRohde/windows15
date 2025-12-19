@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: Session Ended
+## Current Status: In Progress
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -28,8 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID  | Description | Status |
-| --- | ----------- | ------ |
+| ID   | Description                                                           | Status         |
+| ---- | --------------------------------------------------------------------- | -------------- |
+| F173 | Create Spreadsheet app using Univer library with basic spreadsheet UI | ⏳ Not started |
+| F174 | Spreadsheet app supports creating new workbooks                       | ⏳ Not started |
+| F175 | Spreadsheet app has localization support                              | ⏳ Not started |
 
 ---
 
@@ -1894,6 +1897,34 @@ klondike feature list  # List all features
 #### Recommended Next Steps
 
 1. Documentation is now accurate. Consider regenerating TypeDoc API docs if needed.
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 65 - 2025-12-19
+
+**Agent**: Coding Agent
+**Duration**: (in progress)
+**Focus**: F173-F175 - Implement Spreadsheet app using Univer library
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- Session started
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Continue implementation
 
 #### Technical Notes
 

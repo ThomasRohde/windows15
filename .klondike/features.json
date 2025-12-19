@@ -4811,12 +4811,245 @@
       "blockedBy": "Requires string replacement across core apps - locales/en.json already contains all required translation strings. Apps need to import useLocalization and replace hardcoded strings with t() calls.",
       "lastWorkedOn": "2025-12-18T09:10:33.891601",
       "notes": "Implementation: See AUDIT.md Phase 1.1 Affected Apps list. These are larger apps with more strings. Organize by section within app namespace. Edge cases: Settings has many subsections - use nested keys. Dependencies: F146 (localization foundation). Gotchas: Some apps already use LocalizationContext - extend existing usage."
+    },
+    {
+      "id": "F173",
+      "category": "apps",
+      "priority": 2,
+      "description": "Create Spreadsheet app using Univer library with basic spreadsheet UI",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "App appears in start menu and can be launched"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Use @univerjs/presets package for easier integration. Install with: npm install @univerjs/presets @univerjs/preset-sheets-core. Use useRef/useEffect pattern for React integration: createUniver() in useEffect, pass containerRef.current to preset, call univerAPI.dispose() in cleanup. Component renders a div with containerRef and full height. Default window size 1100x700 for spreadsheet comfort. Icon: grid_on, color: bg-green-500"
+    },
+    {
+      "id": "F174",
+      "category": "apps",
+      "priority": 2,
+      "description": "Spreadsheet app supports creating new workbooks",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Workbook has default sheet named Sheet1"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Use univerAPI.createWorkbook({}) to create an empty workbook on initialization. This is the standard pattern from Univer docs."
+    },
+    {
+      "id": "F175",
+      "category": "apps",
+      "priority": 2,
+      "description": "Spreadsheet app has localization support",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Translation strings added to locales/en.json under spreadsheet namespace"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Import UniverPresetSheetsCoreEnUS from @univerjs/preset-sheets-core/locales/en-US. Pass to createUniver with LocaleType.EN_US. Add spreadsheet.title and other UI strings to locales/en.json."
+    },
+    {
+      "id": "F176",
+      "category": "apps",
+      "priority": 3,
+      "description": "Spreadsheet app supports file associations for .xlsx files",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Double-clicking .xlsx files in File Explorer opens Spreadsheet app"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Add fileAssociations: ['.xlsx', '.xls', '.csv'] to APP_REGISTRY entry. Univer supports XLSX import/export via facade API."
+    },
+    {
+      "id": "F177",
+      "category": "apps",
+      "priority": 2,
+      "description": "Spreadsheet app uses AppContainer for consistent styling",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Styling is consistent with other Windows 15 apps"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Import AppContainer from components/ui. Wrap Univer container div inside AppContainer. Ensure container div has h-full w-full for proper sizing."
+    },
+    {
+      "id": "F178",
+      "category": "apps",
+      "priority": 2,
+      "description": "Spreadsheet app has proper cleanup on unmount",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "No memory leaks when closing and reopening app"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Critical for React integration. The cleanup function in useEffect must call univerAPI.dispose() to properly destroy the Univer instance and free resources."
+    },
+    {
+      "id": "F179",
+      "category": "apps",
+      "priority": 3,
+      "description": "Spreadsheet app supports formula calculations",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Basic formulas like SUM",
+        "AVERAGE",
+        "COUNT work correctly"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Univer includes formula support via @univerjs/preset-sheets-core. The UniverSheetsCorePreset includes formula engine by default. No additional configuration needed for basic formulas."
+    },
+    {
+      "id": "F180",
+      "category": "apps",
+      "priority": 3,
+      "description": "Spreadsheet app includes toolbar with formatting options",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Users can format cells (bold",
+        "italic",
+        "text color",
+        "background)"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "UniverSheetsCorePreset includes the toolbar by default. Formatting tools are part of the core preset. Consider using @univerjs/preset-sheets-advanced for additional features if needed."
+    },
+    {
+      "id": "F181",
+      "category": "apps",
+      "priority": 2,
+      "description": "Spreadsheet app supports cell selection and editing",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Tab and Enter navigate between cells"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Cell selection and editing are core Univer features included in UniverSheetsCorePreset. No additional configuration needed."
+    },
+    {
+      "id": "F182",
+      "category": "apps",
+      "priority": 3,
+      "description": "Spreadsheet app supports copy/paste operations",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Clipboard integration works within the spreadsheet"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Copy/paste is built into Univer's core functionality. Works with both internal clipboard and system clipboard for cell data."
+    },
+    {
+      "id": "F183",
+      "category": "apps",
+      "priority": 3,
+      "description": "Spreadsheet app supports column and row resizing",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Users can drag row borders to resize height"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Column and row resizing is a core Univer feature. Works by dragging the borders between column headers or row numbers."
+    },
+    {
+      "id": "F184",
+      "category": "apps",
+      "priority": 3,
+      "description": "Spreadsheet app supports multiple sheets/tabs",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Users can switch between sheets"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Multi-sheet support is included in UniverSheetsCorePreset. Sheet tabs appear at the bottom. Right-click context menu allows adding/renaming/deleting sheets."
     }
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-18T12:43:03.287420",
-    "totalFeatures": 172,
+    "lastUpdated": "2025-12-19T05:33:20.795117",
+    "totalFeatures": 184,
     "passingFeatures": 172
   }
 }

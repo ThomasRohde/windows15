@@ -1034,6 +1034,17 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": []
+    "priorityFeatures": [
+      {
+        "id": "F187",
+        "description": "Spreadsheet app has standard windows15 menu bar with File menu (New, Open, Save, Save As)",
+        "status": "not-started"
+      },
+      {
+        "id": "F188",
+        "description": "Spreadsheet app imports all worksheets when opening multi-sheet Excel files",
+        "status": "not-started"
+      }
+    ]
   }
 }

@@ -5141,12 +5141,63 @@
       "blockedBy": null,
       "lastWorkedOn": "2025-12-19T08:36:48.246959",
       "notes": "Implementation: Add selectedIndex state starting at 0. Add onKeyDown handler to search input for ArrowUp/ArrowDown/Enter. Use useEffect to reset selectedIndex when searchResults changes. Apply focus ring CSS class to selected item. Edge cases: Handle empty results (disable navigation), handle single result. Dependencies: None - self-contained in StartMenu.tsx. Context: Improves keyboard accessibility and power user experience. Gotchas: Ensure Enter still works on search input for first result, prevent default on arrow keys to avoid cursor movement in input."
+    },
+    {
+      "id": "F187",
+      "category": "apps",
+      "priority": 2,
+      "description": "Spreadsheet app has standard windows15 menu bar with File menu (New, Open, Save, Save As)",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Menu styling consistent with Notepad app",
+        "File menu includes New",
+        "Open",
+        "Save",
+        "Save As options",
+        "Keyboard shortcuts work (Ctrl+N",
+        "Ctrl+O",
+        "Ctrl+S",
+        "Ctrl+Shift+S)",
+        "Save exports workbook data to virtual file system",
+        "Open dialog shows available spreadsheet files (.xlsx .xls .csv)"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": "2025-12-19T11:32:40.656681",
+      "notes": "Look at Notepad FilesPanel.tsx for menu implementation pattern. Use useStandardHotkeys for keyboard shortcuts. Need to serialize Univer workbook data for saving - check univerAPI.exportXLSXBySnapshotAsync or univerAPI.getActiveWorkbook().getSnapshot(). For opening, load from virtual file system and recreate workbook."
+    },
+    {
+      "id": "F188",
+      "category": "apps",
+      "priority": 2,
+      "description": "Spreadsheet app imports all worksheets when opening multi-sheet Excel files",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Sheet names are preserved from source file",
+        "Dropping multi-sheet .xlsx file imports all sheets not just the first",
+        "Opening multi-sheet file from file picker imports all sheets",
+        "Sheet tabs are visible and navigable in Univer UI"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": "2025-12-19T11:32:45.885951",
+      "notes": "Current implementation in Spreadsheet.tsx line 207-208 only gets first worksheet. Need to iterate workbook.worksheets and create sheets in Univer workbook data with proper sheetOrder array. Each sheet needs unique ID in sheets object. Use ExcelJS worksheet.name for sheet naming."
     }
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-19T08:55:22.973776",
-    "totalFeatures": 186,
+    "lastUpdated": "2025-12-19T11:31:53.078112",
+    "totalFeatures": 188,
     "passingFeatures": 186
   }
 }

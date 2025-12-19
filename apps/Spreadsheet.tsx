@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { createUniver, defaultTheme, LocaleType } from '@univerjs/presets';
+import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core';
 import UniverPresetSheetsCoreEnUS from '@univerjs/preset-sheets-core/locales/en-US';
 import '@univerjs/presets/lib/styles/preset-sheets-core.css';
 import { AppContainer } from '../components/ui';
@@ -13,19 +14,24 @@ export const Spreadsheet: React.FC = () => {
     useEffect(() => {
         if (!containerRef.current) return;
 
-        // Initialize Univer
+        // Initialize Univer with sheets preset
         const { univerAPI } = createUniver({
             locale: LocaleType.EN_US,
             locales: {
                 [LocaleType.EN_US]: UniverPresetSheetsCoreEnUS,
             },
             theme: defaultTheme,
+            presets: [
+                UniverSheetsCorePreset({
+                    container: containerRef.current,
+                }),
+            ],
         });
 
         univerRef.current = { univerAPI } as any;
 
-        // Render the spreadsheet to the container
-        univerAPI.createWorkbook({});
+        // Create a default workbook
+        univerAPI.createUniverSheet({});
 
         // Cleanup on unmount
         return () => {

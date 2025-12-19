@@ -16,6 +16,7 @@
 import { storageService } from './storage';
 
 const SOUND_SETTINGS_KEY = 'windows15.os.soundSettings';
+const isTestEnv = typeof import.meta !== 'undefined' && import.meta.env?.MODE === 'test';
 
 export interface SoundSettings {
     /** Master volume level (0.0 to 1.0) */
@@ -132,7 +133,9 @@ class SoundService {
             this.initializeAudioContext();
 
             if (!this.audioContext) {
-                console.warn('AudioContext not available');
+                if (!isTestEnv) {
+                    console.warn('AudioContext not available');
+                }
                 return;
             }
 
@@ -143,7 +146,9 @@ class SoundService {
 
             const soundDef = SOUND_DATA[sound];
             if (!soundDef) {
-                console.warn(`Unknown sound: ${sound}`);
+                if (!isTestEnv) {
+                    console.warn(`Unknown sound: ${sound}`);
+                }
                 return;
             }
 

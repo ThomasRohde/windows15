@@ -161,7 +161,7 @@ describe('validateWallpaperManifest', () => {
 
 describe('assertValidManifest', () => {
     it('should not throw for valid manifest', () => {
-        const manifest = { id: 'test', name: 'Test', type: 'image' };
+        const manifest = { id: 'test', name: 'Test', type: 'image', preview: 'preview.jpg' };
         expect(() => assertValidManifest(manifest)).not.toThrow();
     });
 

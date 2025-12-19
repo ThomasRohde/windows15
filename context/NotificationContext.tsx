@@ -104,36 +104,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         }
     }, []);
 
-    // On mount, check for any scheduled notifications and set up timers
-    useEffect(() => {
-        const timers = scheduledTimersRef.current;
-        const setupScheduledNotifications = async () => {
-            const now = Date.now();
-            const scheduled = await db.notifications.where('scheduledFor').above(now).toArray();
-
-            for (const notification of scheduled) {
-                if (notification.scheduledFor && !notification.triggeredAt) {
-                    const delay = notification.scheduledFor - now;
-                    if (delay > 0) {
-                        const timerId = setTimeout(() => {
-                            void triggerNotification(notification);
-                        }, delay);
-                        timers.set(notification.id, timerId);
-                    }
-                }
-            }
-        };
-
-        void setupScheduledNotifications();
-
-        // Cleanup timers on unmount
-        return () => {
-            timers.forEach(timerId => clearTimeout(timerId));
-            timers.clear();
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
     // Trigger a scheduled notification
     const triggerNotification = useCallback(
         async (notification: NotificationRecord) => {
@@ -162,6 +132,39 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         },
         [db]
     );
+
+    // On mount, check for any scheduled notifications and set up timers
+    useEffect(() => {
+        const timers = scheduledTimersRef.current;
+        const setupScheduledNotifications = async () => {
+            const now = Date.now();
+            const scheduled = await db.notifications.where('scheduledFor').above(0).toArray();
+
+            for (const notification of scheduled) {
+                if (!notification.scheduledFor || notification.triggeredAt) continue;
+
+                const delay = notification.scheduledFor - now;
+                if (delay <= 0) {
+                    void triggerNotification(notification);
+                    continue;
+                }
+
+                if (timers.has(notification.id)) continue;
+                const timerId = setTimeout(() => {
+                    void triggerNotification(notification);
+                }, delay);
+                timers.set(notification.id, timerId);
+            }
+        };
+
+        void setupScheduledNotifications();
+
+        // Cleanup timers on unmount
+        return () => {
+            timers.forEach(timerId => clearTimeout(timerId));
+            timers.clear();
+        };
+    }, [db, triggerNotification]);
 
     // Request browser notification permission
     const requestPermission = useCallback(async (): Promise<BrowserNotificationPermission> => {
@@ -260,7 +263,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 
     // Mark all notifications as read
     const markAllAsRead = useCallback(async (): Promise<void> => {
-        const unread = await db.notifications.where('isRead').equals(0).toArray();
+        const unread = await db.notifications.where('isRead').equals(false).toArray();
         await Promise.all(unread.map(n => db.notifications.update(n.id, { isRead: true })));
     }, [db]);
 

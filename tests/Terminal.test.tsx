@@ -7,46 +7,53 @@ import { DbProvider } from '../context/DbContext';
 import { LocalizationProvider } from '../context/LocalizationContext';
 import { db } from '../utils/storage/db';
 
+const mockDb = vi.hoisted(() => ({
+    $terminalHistory: {
+        add: vi.fn(),
+        count: vi.fn(() => Promise.resolve(0)),
+        orderBy: vi.fn(() => ({
+            toArray: vi.fn(() => Promise.resolve([])),
+            limit: vi.fn(() => ({
+                toArray: vi.fn(() => Promise.resolve([])),
+            })),
+        })),
+        bulkDelete: vi.fn(),
+    },
+    $terminalSessions: {
+        add: vi.fn(() => Promise.resolve(1)),
+        update: vi.fn(() => Promise.resolve(1)),
+        orderBy: vi.fn(() => ({
+            reverse: vi.fn(() => ({
+                limit: vi.fn(() => ({
+                    toArray: vi.fn(() => Promise.resolve([])),
+                })),
+            })),
+        })),
+    },
+    $terminalAliases: {
+        toArray: vi.fn(() => Promise.resolve([])),
+        put: vi.fn(),
+        delete: vi.fn(),
+    },
+    kv: {
+        get: vi.fn(() => Promise.resolve(null)),
+        put: vi.fn(),
+    },
+}));
+
 // Mock the database with all required exports
 vi.mock('../utils/storage/db', async importOriginal => {
     const actual = await importOriginal<typeof import('../utils/storage/db')>();
     return {
         ...actual,
-        db: {
-            $terminalHistory: {
-                add: vi.fn(),
-                count: vi.fn(() => Promise.resolve(0)),
-                orderBy: vi.fn(() => ({
-                    toArray: vi.fn(() => Promise.resolve([])),
-                    limit: vi.fn(() => ({
-                        toArray: vi.fn(() => Promise.resolve([])),
-                    })),
-                })),
-                bulkDelete: vi.fn(),
-            },
-            $terminalSessions: {
-                add: vi.fn(() => Promise.resolve(1)),
-                update: vi.fn(() => Promise.resolve(1)),
-                orderBy: vi.fn(() => ({
-                    reverse: vi.fn(() => ({
-                        limit: vi.fn(() => ({
-                            toArray: vi.fn(() => Promise.resolve([])),
-                        })),
-                    })),
-                })),
-            },
-            $terminalAliases: {
-                toArray: vi.fn(() => Promise.resolve([])),
-                put: vi.fn(),
-                delete: vi.fn(),
-            },
-            kv: {
-                get: vi.fn(() => Promise.resolve(null)),
-                put: vi.fn(),
-            },
-        },
+        db: mockDb,
     };
 });
+
+vi.mock('../context/DbContext', () => ({
+    DbProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    useDb: () => mockDb,
+}));
 
 // Mock OSContext module
 vi.mock('../context/OSContext', () => ({
@@ -128,14 +135,18 @@ vi.mock('../context/NetworkContext', () => ({
     }),
 }));
 
-const renderTerminal = () => {
-    return render(
+const renderTerminal = async () => {
+    const result = render(
         <DbProvider>
             <LocalizationProvider>
                 <Terminal />
             </LocalizationProvider>
         </DbProvider>
     );
+    await waitFor(() => {
+        expect(db.$terminalSessions.orderBy).toHaveBeenCalled();
+    });
+    return result;
 };
 
 describe('Terminal - Command History Persistence (F076)', () => {
@@ -147,7 +158,7 @@ describe('Terminal - Command History Persistence (F076)', () => {
     // The current mocking approach doesn't work because DbProvider creates its own db instance
     it.skip('saves commands to IndexedDB when executed', async () => {
         const user = userEvent.setup();
-        renderTerminal();
+        await renderTerminal();
 
         const input = screen.getByRole('textbox');
         await user.type(input, 'help{Enter}');
@@ -178,7 +189,7 @@ describe('Terminal - Command History Persistence (F076)', () => {
         } as unknown as OrderByReturn);
 
         const user = userEvent.setup();
-        renderTerminal();
+        await renderTerminal();
 
         const input = screen.getByRole('textbox');
 
@@ -216,7 +227,7 @@ describe('Terminal - Command History Persistence (F076)', () => {
             })),
         } as unknown as OrderByReturn);
 
-        renderTerminal();
+        await renderTerminal();
 
         const input = screen.getByRole('textbox');
         await user.type(input, 'new-command{Enter}');
@@ -241,7 +252,7 @@ describe('Terminal - Command History Persistence (F076)', () => {
         } as unknown as OrderByReturn);
 
         const user = userEvent.setup();
-        renderTerminal();
+        await renderTerminal();
 
         const input = screen.getByRole('textbox');
         await user.click(input);
@@ -273,7 +284,7 @@ describe('Terminal - Command History Persistence (F076)', () => {
 
     it('does not save empty commands to history', async () => {
         const user = userEvent.setup();
-        renderTerminal();
+        await renderTerminal();
 
         const input = screen.getByRole('textbox');
         await user.type(input, '{Enter}');

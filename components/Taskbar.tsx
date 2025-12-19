@@ -29,7 +29,13 @@ export const Taskbar = () => {
 
     // Memoize minimize all handler
     const handleMinimizeAll = useCallback(() => {
-        windows.forEach(w => minimizeWindow(w.id));
+        if (windows.length === 0) return;
+        const allMinimized = windows.every(w => w.isMinimized);
+        windows.forEach(w => {
+            if (allMinimized ? w.isMinimized : !w.isMinimized) {
+                minimizeWindow(w.id);
+            }
+        });
     }, [windows, minimizeWindow]);
 
     return (

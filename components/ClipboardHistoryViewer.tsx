@@ -107,36 +107,40 @@ export const ClipboardHistoryViewer: React.FC = () => {
                         <ul className="space-y-1">
                             {history.map(item => (
                                 <li key={item.id}>
-                                    <button
-                                        onClick={() => handleItemClick(item)}
-                                        className="w-full flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors text-left group"
-                                    >
-                                        {/* Type icon */}
-                                        <div className="flex-shrink-0 mt-0.5">
-                                            <Icon
-                                                name={item.contentType === 'image' ? 'image' : 'text_snippet'}
-                                                size="sm"
-                                                className="text-white/40"
-                                            />
-                                        </div>
+                                    <div className="w-full flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors text-left group">
+                                        <button
+                                            onClick={() => handleItemClick(item)}
+                                            className="flex flex-1 items-start gap-3 text-left"
+                                        >
+                                            {/* Type icon */}
+                                            <div className="flex-shrink-0 mt-0.5">
+                                                <Icon
+                                                    name={item.contentType === 'image' ? 'image' : 'text_snippet'}
+                                                    size="sm"
+                                                    className="text-white/40"
+                                                />
+                                            </div>
 
-                                        {/* Content preview */}
-                                        <div className="flex-1 min-w-0">
-                                            {item.contentType === 'image' ? (
-                                                <div className="flex items-center gap-2">
-                                                    <img
-                                                        src={item.content}
-                                                        alt="Clipboard image"
-                                                        className="h-12 max-w-full rounded border border-white/10 object-cover"
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <p className="text-sm text-white/80 truncate font-mono">
-                                                    {item.preview}
+                                            {/* Content preview */}
+                                            <div className="flex-1 min-w-0">
+                                                {item.contentType === 'image' ? (
+                                                    <div className="flex items-center gap-2">
+                                                        <img
+                                                            src={item.content}
+                                                            alt="Clipboard image"
+                                                            className="h-12 max-w-full rounded border border-white/10 object-cover"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-sm text-white/80 truncate font-mono">
+                                                        {item.preview}
+                                                    </p>
+                                                )}
+                                                <p className="text-xs text-white/40 mt-1">
+                                                    {formatTime(item.copiedAt)}
                                                 </p>
-                                            )}
-                                            <p className="text-xs text-white/40 mt-1">{formatTime(item.copiedAt)}</p>
-                                        </div>
+                                            </div>
+                                        </button>
 
                                         {/* Remove button */}
                                         <button
@@ -146,7 +150,7 @@ export const ClipboardHistoryViewer: React.FC = () => {
                                         >
                                             <Icon name="close" size="sm" className="text-white/40" />
                                         </button>
-                                    </button>
+                                    </div>
                                 </li>
                             ))}
                         </ul>

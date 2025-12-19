@@ -31,7 +31,7 @@
  * - Frequently changing values (can cause excessive IndexedDB writes)
  * - Large objects (> 1MB) - consider breaking into smaller keys
  */
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { storageService } from '../utils/storage';
 
 export interface UsePersistedStateReturn<T> {
@@ -43,7 +43,6 @@ export interface UsePersistedStateReturn<T> {
 export function usePersistedState<T>(key: string, defaultValue: T): UsePersistedStateReturn<T> {
     const [value, setValueInternal] = useState<T>(defaultValue);
     const [isLoading, setIsLoading] = useState(true);
-    const isInitialized = useRef(false);
 
     // Load initial value from storage
     useEffect(() => {
@@ -55,14 +54,12 @@ export function usePersistedState<T>(key: string, defaultValue: T): UsePersisted
                 if (!cancelled) {
                     setValueInternal(stored ?? defaultValue);
                     setIsLoading(false);
-                    isInitialized.current = true;
                 }
             } catch (error) {
                 console.warn(`[usePersistedState] Error loading key "${key}":`, error);
                 if (!cancelled) {
                     setValueInternal(defaultValue);
                     setIsLoading(false);
-                    isInitialized.current = true;
                 }
             }
         };
@@ -76,7 +73,7 @@ export function usePersistedState<T>(key: string, defaultValue: T): UsePersisted
 
     // Subscribe to changes (from other tabs/components)
     useEffect(() => {
-        if (!isInitialized.current) return;
+        if (isLoading) return;
 
         const unsubscribe = storageService.subscribe<T>(key, newValue => {
             if (newValue !== undefined) {
@@ -85,7 +82,7 @@ export function usePersistedState<T>(key: string, defaultValue: T): UsePersisted
         });
 
         return unsubscribe;
-    }, [key]);
+    }, [key, isLoading]);
 
     // Persist value to storage
     const setValue = useCallback(

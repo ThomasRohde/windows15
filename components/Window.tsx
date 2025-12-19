@@ -405,6 +405,11 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
     const handleSize = 8;
 
     const titleId = `window-title-${window.id}`;
+    const renderContent = () => {
+        if (!isValidElement(window.component)) return window.component;
+        if (typeof window.component.type === 'string') return window.component;
+        return cloneElement(window.component, { windowId: window.id } as Record<string, unknown>);
+    };
 
     return (
         <div
@@ -496,11 +501,7 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
                 {/* Content */}
                 <div className="flex-1 overflow-auto relative z-40 bg-black/20">
                     <ErrorBoundary title={window.title}>
-                        <Suspense fallback={<AppLoadingSkeleton title={window.title} />}>
-                            {isValidElement(window.component)
-                                ? cloneElement(window.component, { windowId: window.id } as Record<string, unknown>)
-                                : window.component}
-                        </Suspense>
+                        <Suspense fallback={<AppLoadingSkeleton title={window.title} />}>{renderContent()}</Suspense>
                     </ErrorBoundary>
                 </div>
             </div>

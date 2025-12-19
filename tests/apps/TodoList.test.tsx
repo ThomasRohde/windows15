@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Dexie } from 'dexie';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Windows15DexieDB } from '../../utils/storage/db';
+import { Windows15DexieDB, db as globalDb } from '../../utils/storage/db';
 
 const dbRef: { current: Windows15DexieDB | null } = { current: null };
 
@@ -34,6 +34,65 @@ vi.mock('../../context/NotificationContext', () => ({
     }),
 }));
 
+vi.mock('../../hooks', async importOriginal => {
+    const actual = await importOriginal<typeof import('../../hooks')>();
+    return {
+        ...actual,
+        useSound: () => ({
+            playSound: vi.fn(),
+            isEnabled: true,
+            isMuted: false,
+            volume: 0.5,
+            setVolume: vi.fn(),
+            toggleMute: vi.fn(),
+            setMuted: vi.fn(),
+        }),
+    };
+});
+
+vi.mock('@dnd-kit/core', () => ({
+    DndContext: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    KeyboardSensor: function KeyboardSensor() {
+        return null;
+    },
+    PointerSensor: function PointerSensor() {
+        return null;
+    },
+    closestCenter: () => null,
+    useSensor: () => ({}),
+    useSensors: (...sensors: unknown[]) => sensors,
+}));
+
+vi.mock('@dnd-kit/sortable', () => ({
+    SortableContext: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    useSortable: () => ({
+        attributes: {},
+        listeners: {},
+        setNodeRef: () => undefined,
+        transform: null,
+        transition: undefined,
+        isDragging: false,
+    }),
+    arrayMove: <T,>(items: T[], from: number, to: number) => {
+        const copy = items.slice();
+        const [moved] = copy.splice(from, 1);
+        if (moved !== undefined) {
+            copy.splice(to, 0, moved);
+        }
+        return copy;
+    },
+    sortableKeyboardCoordinates: () => null,
+    verticalListSortingStrategy: () => null,
+}));
+
+vi.mock('@dnd-kit/utilities', () => ({
+    CSS: {
+        Transform: {
+            toString: () => '',
+        },
+    },
+}));
+
 import { TodoList } from '../../apps/TodoList';
 
 // Mock WindowContext module
@@ -54,11 +113,15 @@ vi.mock('../../context/WindowContext', () => ({
 
 describe('TodoList persistence and filtering', () => {
     beforeEach(async () => {
+        dbRef.current?.close();
+        dbRef.current = null;
+        globalDb.close();
         await Dexie.delete('windows15');
         dbRef.current = new Windows15DexieDB();
     });
 
     afterEach(async () => {
+        dbRef.current?.close();
         await dbRef.current?.delete();
         dbRef.current = null;
     });

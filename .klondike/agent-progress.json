@@ -1066,7 +1066,7 @@
       {
         "id": "F188",
         "description": "Spreadsheet app imports all worksheets when opening multi-sheet Excel files",
-        "status": "not-started"
+        "status": "in-progress"
       }
     ]
   }

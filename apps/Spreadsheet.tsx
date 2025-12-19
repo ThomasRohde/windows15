@@ -73,14 +73,13 @@ function parseCSV(csvContent: string): string[][] {
 }
 
 /**
- * Convert parsed CSV data to Univer workbook data format
- * Accepts array of arrays with mixed types (strings, numbers, etc.)
+ * Convert worksheet data to cell data format for Univer
  */
-function csvToWorkbookData(csvData: (string | number | boolean | null | undefined)[][], sheetName: string = 'Sheet1') {
+function worksheetToCellData(worksheetData: (string | number | boolean | null | undefined)[][]) {
     const cellData: Record<number, Record<number, { v: string | number; t?: number }>> = {};
 
-    for (let rowIdx = 0; rowIdx < csvData.length; rowIdx++) {
-        const row = csvData[rowIdx];
+    for (let rowIdx = 0; rowIdx < worksheetData.length; rowIdx++) {
+        const row = worksheetData[rowIdx];
         if (!row) continue;
 
         cellData[rowIdx] = {};
@@ -109,6 +108,16 @@ function csvToWorkbookData(csvData: (string | number | boolean | null | undefine
         }
     }
 
+    return cellData;
+}
+
+/**
+ * Convert parsed CSV data to Univer workbook data format
+ * Accepts array of arrays with mixed types (strings, numbers, etc.)
+ */
+function csvToWorkbookData(csvData: (string | number | boolean | null | undefined)[][], sheetName: string = 'Sheet1') {
+    const cellData = worksheetToCellData(csvData);
+
     const rowCount = Math.max(1000, csvData.length + 100);
     const columnCount = Math.max(26, Math.max(...csvData.map(r => r?.length ?? 0)) + 10);
 
@@ -127,6 +136,69 @@ function csvToWorkbookData(csvData: (string | number | boolean | null | undefine
                 defaultRowHeight: 24,
             },
         },
+    };
+}
+
+/**
+ * Convert ExcelJS workbook to Univer workbook data format with multiple sheets
+ */
+function excelWorkbookToUniverData(workbook: ExcelJS.Workbook) {
+    const sheets: Record<string, any> = {};
+    const sheetOrder: string[] = [];
+
+    workbook.worksheets.forEach((worksheet, index) => {
+        const sheetId = `sheet-${String(index + 1).padStart(2, '0')}`;
+        sheetOrder.push(sheetId);
+
+        // Convert worksheet to array of arrays
+        const jsonData: (string | number | boolean | null)[][] = [];
+        worksheet.eachRow((row, _rowNumber) => {
+            const rowData: (string | number | boolean | null)[] = [];
+            row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                // Pad with nulls if needed
+                while (rowData.length < colNumber - 1) {
+                    rowData.push(null);
+                }
+                // Get cell value
+                const value = cell.value;
+                if (value === null || value === undefined) {
+                    rowData.push(null);
+                } else if (typeof value === 'object') {
+                    // Handle rich text, formulas, etc.
+                    if ('result' in value) {
+                        rowData.push(value.result as string | number | boolean | null);
+                    } else if ('richText' in value) {
+                        rowData.push((value.richText as Array<{ text: string }>).map(rt => rt.text).join(''));
+                    } else {
+                        rowData.push(String(value));
+                    }
+                } else {
+                    rowData.push(value as string | number | boolean);
+                }
+            });
+            jsonData.push(rowData);
+        });
+
+        const cellData = worksheetToCellData(jsonData);
+        const rowCount = Math.max(1000, jsonData.length + 100);
+        const columnCount = Math.max(26, Math.max(...jsonData.map(r => r?.length ?? 0)) + 10);
+
+        sheets[sheetId] = {
+            id: sheetId,
+            name: worksheet.name || `Sheet${index + 1}`,
+            cellData,
+            rowCount,
+            columnCount,
+            defaultColumnWidth: 88,
+            defaultRowHeight: 24,
+        };
+    });
+
+    return {
+        id: `workbook-${Date.now()}`,
+        name: 'Workbook',
+        sheetOrder,
+        sheets,
     };
 }
 
@@ -260,39 +332,13 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({ initialContent, initia
                         }
 
                         await workbook.xlsx.load(arrayBuffer);
-                        const worksheet = workbook.worksheets[0];
 
-                        if (worksheet) {
-                            const jsonData: (string | number | boolean | null)[][] = [];
-                            worksheet.eachRow((row, _rowNumber) => {
-                                const rowData: (string | number | boolean | null)[] = [];
-                                row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-                                    while (rowData.length < colNumber - 1) {
-                                        rowData.push(null);
-                                    }
-                                    const value = cell.value;
-                                    if (value === null || value === undefined) {
-                                        rowData.push(null);
-                                    } else if (typeof value === 'object') {
-                                        if ('result' in value) {
-                                            rowData.push(value.result as string | number | boolean | null);
-                                        } else if ('richText' in value) {
-                                            rowData.push(
-                                                (value.richText as Array<{ text: string }>).map(rt => rt.text).join('')
-                                            );
-                                        } else {
-                                            rowData.push(String(value));
-                                        }
-                                    } else {
-                                        rowData.push(value as string | number | boolean);
-                                    }
-                                });
-                                jsonData.push(rowData);
-                            });
-
-                            const sheetName = file.name.replace(/\.[^/.]+$/, '');
-                            const workbookData = csvToWorkbookData(jsonData, sheetName);
+                        if (workbook.worksheets.length > 0) {
+                            // Import all worksheets
+                            const workbookData = excelWorkbookToUniverData(workbook);
                             univerAPI.createUniverSheet(workbookData);
+                        } else {
+                            univerAPI.createUniverSheet({});
                         }
                     } catch (error) {
                         console.error('Failed to parse Excel file:', error);
@@ -490,46 +536,9 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({ initialContent, initia
 
                         await workbook.xlsx.load(arrayBuffer);
 
-                        // Get the first worksheet
-                        const worksheet = workbook.worksheets[0];
-                        if (worksheet) {
-                            // Convert to array of arrays
-                            const jsonData: (string | number | boolean | null)[][] = [];
-                            worksheet.eachRow((row, rowNumber) => {
-                                const rowData: (string | number | boolean | null)[] = [];
-                                row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-                                    // Pad with nulls if needed
-                                    while (rowData.length < colNumber - 1) {
-                                        rowData.push(null);
-                                    }
-                                    // Get cell value
-                                    const value = cell.value;
-                                    if (value === null || value === undefined) {
-                                        rowData.push(null);
-                                    } else if (typeof value === 'object') {
-                                        // Handle rich text, formulas, etc.
-                                        if ('result' in value) {
-                                            rowData.push(value.result as string | number | boolean | null);
-                                        } else if ('richText' in value) {
-                                            rowData.push(
-                                                (value.richText as Array<{ text: string }>).map(rt => rt.text).join('')
-                                            );
-                                        } else {
-                                            rowData.push(String(value));
-                                        }
-                                    } else {
-                                        rowData.push(value as string | number | boolean);
-                                    }
-                                });
-                                // Pad jsonData array if rows are skipped
-                                while (jsonData.length < rowNumber - 1) {
-                                    jsonData.push([]);
-                                }
-                                jsonData.push(rowData);
-                            });
-
-                            const sheetName = initialFileName.replace(/\.[^/.]+$/, '');
-                            const workbookData = csvToWorkbookData(jsonData, sheetName);
+                        if (workbook.worksheets.length > 0) {
+                            // Import all worksheets
+                            const workbookData = excelWorkbookToUniverData(workbook);
                             univerAPI.createUniverSheet(workbookData);
                         } else {
                             univerAPI.createUniverSheet({});

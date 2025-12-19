@@ -5196,13 +5196,13 @@
         "Sheet tabs are visible and navigable in Univer UI"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": "2025-12-19T11:32:45.885951",
+      "lastWorkedOn": "2025-12-19T11:39:10.723316",
       "notes": "Current implementation in Spreadsheet.tsx line 207-208 only gets first worksheet. Need to iterate workbook.worksheets and create sheets in Univer workbook data with proper sheetOrder array. Each sheet needs unique ID in sheets object. Use ExcelJS worksheet.name for sheet naming."
     }
   ],

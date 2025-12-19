@@ -30,7 +30,7 @@ klondike feature list  # List all features
 
 | ID   | Description                                                                 | Status         |
 | ---- | --------------------------------------------------------------------------- | -------------- |
-| F188 | Spreadsheet app imports all worksheets when opening multi-sheet Excel files | ⏳ Not started |
+| F188 | Spreadsheet app imports all worksheets when opening multi-sheet Excel files | 🔄 In progress |
 
 ---
 

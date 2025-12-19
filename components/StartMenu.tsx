@@ -16,6 +16,21 @@ export const StartMenu = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(0);
 
+    const {
+        menu: contextMenu,
+        open: openContextMenu,
+        close: closeContextMenu,
+        menuProps,
+        menuRef: contextMenuRef,
+    } = useContextMenu<string>();
+
+    // Search filter
+    const searchResults = useMemo(() => {
+        if (!searchQuery.trim()) return null;
+        const query = searchQuery.toLowerCase();
+        return apps.filter(app => app.title.toLowerCase().includes(query));
+    }, [apps, searchQuery]);
+
     // Focus search input when start menu opens
     useEffect(() => {
         if (isStartMenuOpen && searchInputRef.current) {
@@ -27,14 +42,6 @@ export const StartMenu = () => {
     useEffect(() => {
         setSelectedIndex(0);
     }, [searchResults]);
-
-    const {
-        menu: contextMenu,
-        open: openContextMenu,
-        close: closeContextMenu,
-        menuProps,
-        menuRef: contextMenuRef,
-    } = useContextMenu<string>();
 
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent) => {
@@ -87,13 +94,6 @@ export const StartMenu = () => {
         },
         [isPinned, pinApp, unpinApp, closeContextMenu]
     );
-
-    // Search filter
-    const searchResults = useMemo(() => {
-        if (!searchQuery.trim()) return null;
-        const query = searchQuery.toLowerCase();
-        return apps.filter(app => app.title.toLowerCase().includes(query));
-    }, [apps, searchQuery]);
 
     // Filter apps based on current view (only used when not searching)
     const displayApps = useMemo(() => {

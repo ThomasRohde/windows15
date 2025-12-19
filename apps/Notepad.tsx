@@ -80,7 +80,7 @@ export const Notepad: React.FC<NotepadProps> = props => {
                     }`}
                 >
                     <span className="material-symbols-outlined text-[16px]">description</span>
-                    {t('common:fileExplorer.title')}
+                    {t('files')}
                 </button>
             </div>
 

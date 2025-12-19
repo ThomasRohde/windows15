@@ -1002,22 +1002,6 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": [
-      {
-        "id": "F182",
-        "description": "Spreadsheet app supports copy/paste operations",
-        "status": "not-started"
-      },
-      {
-        "id": "F183",
-        "description": "Spreadsheet app supports column and row resizing",
-        "status": "not-started"
-      },
-      {
-        "id": "F184",
-        "description": "Spreadsheet app supports multiple sheets/tabs",
-        "status": "not-started"
-      }
-    ]
+    "priorityFeatures": []
   }
 }

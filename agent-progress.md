@@ -28,11 +28,8 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                      | Status         |
-| ---- | ------------------------------------------------ | -------------- |
-| F182 | Spreadsheet app supports copy/paste operations   | ⏳ Not started |
-| F183 | Spreadsheet app supports column and row resizing | ⏳ Not started |
-| F184 | Spreadsheet app supports multiple sheets/tabs    | ⏳ Not started |
+| ID  | Description | Status |
+| --- | ----------- | ------ |
 
 ---
 

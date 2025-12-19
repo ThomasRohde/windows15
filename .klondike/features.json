@@ -5080,12 +5080,59 @@
       "blockedBy": null,
       "lastWorkedOn": null,
       "notes": "Multi-sheet support is included in UniverSheetsCorePreset. Sheet tabs appear at the bottom. Right-click context menu allows adding/renaming/deleting sheets."
+    },
+    {
+      "id": "F185",
+      "category": "apps",
+      "priority": 3,
+      "description": "Notepad View menu includes Markdown Preview option with smart detection",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "View menu shows Markdown Preview option",
+        "Preview is disabled/greyed when file is not Markdown (.md/.markdown or detected)",
+        "Preview renders GitHub-flavored Markdown with code highlighting and proper styling",
+        "Preview shows live updates as user types",
+        "Preview can be toggled on/off while editing"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Add react-markdown with remark-gfm plugin for GFM support. Use rehype-highlight or prism for code blocks. Detect Markdown by: 1) file extension (.md, .markdown), 2) content heuristics (starts with # heading or contains Markdown patterns). Add split-pane view or overlay toggle. Edge cases: Handle empty content, mixed content detection, very long documents (virtualize if needed). Dependencies: Existing FilesPanel menu system, TextArea component. Context: Users editing README files or documentation need preview. Gotchas: Ensure sanitization with rehype-sanitize to prevent XSS. Performance: debounce preview updates for large documents."
+    },
+    {
+      "id": "F186",
+      "category": "ui",
+      "priority": 3,
+      "description": "Start Menu search results support keyboard navigation with arrow keys and Enter",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Arrow Down moves focus to next search result",
+        "Arrow Up moves focus to previous search result",
+        "Enter opens the focused search result and closes menu",
+        "Visual focus indicator shows which result is selected",
+        "Navigation wraps from last to first and vice versa",
+        "Focus resets to first result when search query changes"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Add selectedIndex state starting at 0. Add onKeyDown handler to search input for ArrowUp/ArrowDown/Enter. Use useEffect to reset selectedIndex when searchResults changes. Apply focus ring CSS class to selected item. Edge cases: Handle empty results (disable navigation), handle single result. Dependencies: None - self-contained in StartMenu.tsx. Context: Improves keyboard accessibility and power user experience. Gotchas: Ensure Enter still works on search input for first result, prevent default on arrow keys to avoid cursor movement in input."
     }
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-19T05:55:33.114786",
-    "totalFeatures": 184,
+    "lastUpdated": "2025-12-19T08:34:46.760996",
+    "totalFeatures": 186,
     "passingFeatures": 184
   }
 }

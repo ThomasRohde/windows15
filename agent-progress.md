@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: Session Ended
+## Current Status: In Progress
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -28,8 +28,10 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID  | Description | Status |
-| --- | ----------- | ------ |
+| ID   | Description                                                                     | Status         |
+| ---- | ------------------------------------------------------------------------------- | -------------- |
+| F185 | Notepad View menu includes Markdown Preview option with smart detection         | ⏳ Not started |
+| F186 | Start Menu search results support keyboard navigation with arrow keys and Enter | ⏳ Not started |
 
 ---
 
@@ -1952,6 +1954,34 @@ klondike feature list  # List all features
 #### Recommended Next Steps
 
 1. All window persistence tests passing. Consider addressing test flakiness when running full suite in parallel.
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 67 - 2025-12-19
+
+**Agent**: Coding Agent
+**Duration**: (in progress)
+**Focus**: F186 - Start Menu keyboard navigation
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- Session started
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Continue implementation
 
 #### Technical Notes
 

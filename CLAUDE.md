@@ -143,6 +143,24 @@ If you skip verification and a build/test fails after commit:
 2. Amend the commit or create a fix commit
 3. Never leave the repository in a broken state
 
+## Agent Skills
+
+This project includes a Claude Code skill for Windows 15 app development:
+
+**`.claude/skills/windows15-app-development/`** - Comprehensive guide for building and modifying apps in the Windows 15 desktop environment. Claude automatically uses this skill when working with:
+
+- Creating new apps in `apps/`
+- Window management, persistence, hotkeys, notifications
+- UI components and styling patterns
+- OS contexts and hooks
+
+The skill contains progressive-loading documentation:
+
+- **Core**: App architecture, window lifecycle, state management
+- **Guides**: Step-by-step tutorials for common tasks
+- **Reference**: API documentation for hooks, contexts, UI components
+- **Examples**: Walkthroughs of existing apps
+
 ## Custom Slash Commands
 
 This project includes custom slash commands in `.claude/commands/`:

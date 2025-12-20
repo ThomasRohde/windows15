@@ -314,7 +314,7 @@ export const Handoff: React.FC = () => {
     };
 
     // Compose Panel Component (used in both split and tabbed layouts)
-    const ComposePanel = () => (
+    const composePanel = (
         <div className="h-full flex flex-col p-4 md:p-4 bg-white/5 md:border-r border-white/10">
             <div className="mb-4">
                 <h2 className="text-sm font-bold uppercase tracking-wider text-white/50 mb-1">{t('composer.title')}</h2>
@@ -420,7 +420,7 @@ export const Handoff: React.FC = () => {
     );
 
     // Inbox Panel Component (used in both split and tabbed layouts)
-    const InboxPanel = () => (
+    const inboxPanel = (
         <div className="h-full overflow-y-auto touch-scroll p-4">
             {!items || items.length === 0 ? (
                 <div className="h-full flex items-center justify-center">
@@ -507,7 +507,7 @@ export const Handoff: React.FC = () => {
 
                         {/* Tab Content */}
                         <div className="flex-1 overflow-hidden">
-                            {activeTab === 'compose' ? <ComposePanel /> : <InboxPanel />}
+                            {activeTab === 'compose' ? composePanel : inboxPanel}
                         </div>
                     </div>
                 ) : (
@@ -516,8 +516,8 @@ export const Handoff: React.FC = () => {
                         <SplitPane
                             direction="horizontal"
                             primarySize="350px"
-                            primary={<ComposePanel />}
-                            secondary={<InboxPanel />}
+                            primary={composePanel}
+                            secondary={inboxPanel}
                         />
                     </div>
                 )}

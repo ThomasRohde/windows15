@@ -7,11 +7,14 @@
  */
 import React, { useEffect, useCallback, useRef } from 'react';
 import { useClipboard } from '../context/ClipboardContext';
+import { useHandoff, useNotification } from '../hooks';
 import { Icon, Button } from './ui';
 import { ClipboardHistoryRecord } from '../utils/storage/db';
 
 export const ClipboardHistoryViewer: React.FC = () => {
     const { history, isHistoryOpen, closeHistory, pasteFromHistory, clearHistory, removeFromHistory } = useClipboard();
+    const { send } = useHandoff();
+    const { success, error } = useNotification();
     const modalRef = useRef<HTMLDivElement>(null);
 
     // Close on Escape key
@@ -41,6 +44,26 @@ export const ClipboardHistoryViewer: React.FC = () => {
         e.stopPropagation();
         if (id !== undefined) {
             await removeFromHistory(id);
+        }
+    };
+
+    const handleSendToHandoff = async (e: React.MouseEvent, item: ClipboardHistoryRecord) => {
+        e.stopPropagation();
+        try {
+            const content = item.content.trim();
+            const isUrl = /^https?:\/\//.test(content);
+
+            await send({
+                kind: isUrl ? 'url' : 'text',
+                target: isUrl ? content : '',
+                text: content,
+                targetCategory: 'any',
+                title: isUrl ? new URL(content).hostname : undefined,
+            });
+            success('Sent to Handoff');
+        } catch (err) {
+            console.error('Handoff send error:', err);
+            error('Failed to send to Handoff');
         }
     };
 
@@ -142,14 +165,25 @@ export const ClipboardHistoryViewer: React.FC = () => {
                                             </div>
                                         </button>
 
-                                        {/* Remove button */}
-                                        <button
-                                            onClick={e => handleRemove(e, item.id)}
-                                            className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/10 rounded"
-                                            title="Remove"
-                                        >
-                                            <Icon name="close" size="sm" className="text-white/40" />
-                                        </button>
+                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            {/* Handoff button */}
+                                            <button
+                                                onClick={e => handleSendToHandoff(e, item)}
+                                                className="p-1 hover:bg-white/10 rounded"
+                                                title="Send to Handoff"
+                                            >
+                                                <Icon name="sync_alt" size="sm" className="text-indigo-400" />
+                                            </button>
+
+                                            {/* Remove button */}
+                                            <button
+                                                onClick={e => handleRemove(e, item.id)}
+                                                className="p-1 hover:bg-white/10 rounded"
+                                                title="Remove"
+                                            >
+                                                <Icon name="close" size="sm" className="text-white/40" />
+                                            </button>
+                                        </div>
                                     </div>
                                 </li>
                             ))}

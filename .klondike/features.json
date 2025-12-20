@@ -5222,13 +5222,15 @@
         "HandoffItem supports optional title/openedAt/doneAt/isSensitive/cipherText/nonce fields"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-20T04:54:02.288034",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Defined HandoffItem type in types.ts and added handoffItems table to Dexie schema in utils/storage/db.ts (Version 15). Verified with unit tests."
+      ],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-20T04:53:12.977461",
       "notes": "Implementation: Add type to types.ts, extend Windows15DexieDB schema in utils/storage/db.ts. Use @id for cloud-synced primary key per Dexie Cloud best practices. HandoffKind = 'url' | 'text', HandoffStatus = 'new' | 'opened' | 'done' | 'archived'. Edge cases: Handle schema migration if user has existing data. Dependencies: Dexie Cloud already configured. Gotchas: Keep sensitive fields optional for MVP - encryption comes later."
     },
     {
@@ -5245,13 +5247,19 @@
         "Device ID and label retrieved from user profile or generated on first use"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-20T04:55:29.887876",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Created useHandoff hook in hooks/useHandoff.ts with send",
+        "markOpened",
+        "markDone",
+        "archive",
+        "and remove operations. Added useHandoffItems reactive hook. Verified with unit tests."
+      ],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-20T04:54:10.536946",
       "notes": "Implementation: Create hooks/useHandoff.ts following pattern of other hooks like useAppState. Use useLiveQuery from dexie-react-hooks for reactive updates. Edge cases: Handle offline mode gracefully - items queue locally and sync when online. Dependencies: F189 (Dexie table). Context: This is the core service that Handoff app and integrations will use. Gotchas: Don't auto-sync clipboard - all sends must be explicit via this hook."
     },
     {
@@ -5269,11 +5277,15 @@
         "Bulk actions for Clear Done and Clear Expired items"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-20T04:56:50.815343",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Created Handoff app in apps/Handoff.tsx with inbox view",
+        "status filters",
+        "and quick actions. Registered app in registry.ts. Verified with manual smoke test and existing unit tests."
+      ],
       "blockedBy": null,
       "lastWorkedOn": null,
       "notes": "Implementation: Create apps/Handoff.tsx using AppContainer pattern. Use useHandoff hook for data. Use SplitPane for inbox+composer layout. Edge cases: Handle empty states for each filter. Dependencies: F189, F190. Context: Primary interface for receiving and managing handoff items. Gotchas: Show device labels prominently (e.g. 'from WORK') to prevent confusion about item source."
@@ -5559,8 +5571,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-20T04:50:34.728994",
+    "lastUpdated": "2025-12-20T04:56:50.815359",
     "totalFeatures": 203,
-    "passingFeatures": 188
+    "passingFeatures": 191
   }
 }

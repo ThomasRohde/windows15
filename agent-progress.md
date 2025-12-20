@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: Session Ended
+## Current Status: In Progress
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -28,8 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID  | Description | Status |
-| --- | ----------- | ------ |
+| ID   | Description                                                                  | Status         |
+| ---- | ---------------------------------------------------------------------------- | -------------- |
+| F204 | Window resize handles are larger on touch devices for easy grip              | ⏳ Not started |
+| F205 | Visual resize indicators show on touch with corner grips and edge highlights | ⏳ Not started |
+| F207 | Long-press context menu works on touch devices throughout the OS             | ⏳ Not started |
 
 ---
 
@@ -2125,6 +2128,34 @@ klondike feature list  # List all features
 #### Recommended Next Steps
 
 1. The project is now 100% feature-complete (203/203). Next steps could include a final end-to-end smoke test of all major features or preparing for a release.
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 73 - 2025-12-20
+
+**Agent**: Coding Agent
+**Duration**: (in progress)
+**Focus**: Add touch/iPad support features for better tablet experience
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- Session started
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Continue implementation
 
 #### Technical Notes
 

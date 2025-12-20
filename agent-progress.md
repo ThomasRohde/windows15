@@ -28,10 +28,8 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                       | Status         |
-| ---- | ------------------------------------------------- | -------------- |
-| F230 | App content scrolls when exceeding phone viewport | ⏳ Not started |
-| F229 | Mobile app switcher with horizontal card carousel | ⏳ Not started |
+| ID  | Description | Status |
+| --- | ----------- | ------ |
 
 ---
 

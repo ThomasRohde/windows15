@@ -11,6 +11,7 @@
  */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useOS, useWindowSpace } from '../context';
+import { usePhoneMode } from '../hooks';
 import { WindowState } from '../types';
 import { APP_REGISTRY } from '../apps';
 
@@ -88,6 +89,7 @@ const WindowCard: React.FC<{
 export const OverviewMode: React.FC<OverviewModeProps> = ({ isOpen, onClose, onSelectWindow }) => {
     const { windows } = useOS();
     const { is3DMode } = useWindowSpace();
+    const isPhone = usePhoneMode();
     const [selectedIndex, setSelectedIndex] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -184,27 +186,52 @@ export const OverviewMode: React.FC<OverviewModeProps> = ({ isOpen, onClose, onS
                 </p>
             </div>
 
-            {/* Window Grid */}
+            {/* Window Grid/Carousel */}
             {visibleWindows.length > 0 ? (
-                <div
-                    className="grid gap-6 p-8 max-w-5xl"
-                    style={{
-                        gridTemplateColumns: `repeat(auto-fit, minmax(200px, 1fr))`,
-                        transformStyle: is3DMode ? 'preserve-3d' : undefined,
-                    }}
-                >
-                    {visibleWindows.map((win, index) => (
-                        <WindowCard
-                            key={win.id}
-                            window={win}
-                            isSelected={index === selectedIndex}
-                            is3DMode={is3DMode}
-                            index={index}
-                            onClick={() => handleWindowSelect(win.id)}
-                            onMouseEnter={() => setSelectedIndex(index)}
-                        />
-                    ))}
-                </div>
+                isPhone ? (
+                    // Phone: horizontal scrollable carousel (F229)
+                    <div
+                        className="flex gap-4 overflow-x-auto px-4 py-8 w-full snap-x snap-mandatory touch-scroll"
+                        style={{
+                            paddingTop: 'var(--safe-area-inset-top)',
+                            paddingBottom: 'calc(var(--safe-area-inset-bottom) + 2rem)',
+                        }}
+                    >
+                        {visibleWindows.map((win, index) => (
+                            <div key={win.id} className="flex-shrink-0 w-[80vw] snap-center">
+                                <WindowCard
+                                    window={win}
+                                    isSelected={index === selectedIndex}
+                                    is3DMode={false}
+                                    index={index}
+                                    onClick={() => handleWindowSelect(win.id)}
+                                    onMouseEnter={() => setSelectedIndex(index)}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    // Desktop: grid layout
+                    <div
+                        className="grid gap-6 p-8 max-w-5xl"
+                        style={{
+                            gridTemplateColumns: `repeat(auto-fit, minmax(200px, 1fr))`,
+                            transformStyle: is3DMode ? 'preserve-3d' : undefined,
+                        }}
+                    >
+                        {visibleWindows.map((win, index) => (
+                            <WindowCard
+                                key={win.id}
+                                window={win}
+                                isSelected={index === selectedIndex}
+                                is3DMode={is3DMode}
+                                index={index}
+                                onClick={() => handleWindowSelect(win.id)}
+                                onMouseEnter={() => setSelectedIndex(index)}
+                            />
+                        ))}
+                    </div>
+                )
             ) : (
                 <div className="text-center p-8">
                     <span className="material-symbols-outlined text-6xl text-white/20 mb-4">select_window</span>

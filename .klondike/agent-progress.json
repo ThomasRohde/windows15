@@ -1185,17 +1185,6 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": [
-      {
-        "id": "F230",
-        "description": "App content scrolls when exceeding phone viewport",
-        "status": "not-started"
-      },
-      {
-        "id": "F229",
-        "description": "Mobile app switcher with horizontal card carousel",
-        "status": "not-started"
-      }
-    ]
+    "priorityFeatures": []
   }
 }

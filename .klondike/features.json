@@ -6221,13 +6221,15 @@
         "Switcher respects safe-area insets"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-20T08:10:12.052372",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "OverviewMode.tsx now has phone-specific carousel layout with horizontal scroll and snap points. Uses 80vw cards with CSS scroll-snap for smooth swiping. Respects safe-area insets. Cards show app icon and window preview. Tapping a card switches to that window. Desktop grid layout preserved."
+      ],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-20T08:09:17.832994",
       "notes": "Implementation: Enhance OverviewMode.tsx with phone-specific carousel layout using CSS scroll-snap. Trigger via touch gesture on taskbar or dedicated button. Edge cases: Single window should still show switcher (allows closing). No windows should show empty state. Dependencies: F224 (usePhoneMode), F223 (safe-area), F226 (auto-maximize). Context: Standard iOS/Android app switcher pattern users expect. Gotchas: Window previews may need to be simplified thumbnails for performance."
     },
     {
@@ -6244,20 +6246,22 @@
         "Virtual keyboard appearance shifts content appropriately"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-20T08:09:12.562550",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Window.tsx content area already has overflow-auto and touch-scroll classes (line 623). Window header/title bar is positioned separately and remains fixed. Virtual keyboard awareness already implemented via useVirtualKeyboard hook in Window.tsx. Apps can scroll within maximized windows on phone."
+      ],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-20T08:08:52.759243",
       "notes": "Implementation: Ensure Window.tsx content wrapper has overflow-auto and touch-scroll class. Apps should not set fixed height on outermost container. Edge cases: Apps with internal scroll areas need to not double-scroll. Dependencies: F226 (auto-maximize), F217 (virtual keyboard awareness). Context: Apps designed for desktop (e.g. 1100x700) need to work on 375x667 phone screens. Gotchas: Some apps may need refactoring to use flex/grid instead of fixed dimensions."
     }
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-20T08:06:48.855704",
+    "lastUpdated": "2025-12-20T08:10:12.052426",
     "totalFeatures": 230,
-    "passingFeatures": 228
+    "passingFeatures": 230
   }
 }

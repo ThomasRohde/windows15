@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: Session Ended
+## Current Status: In Progress
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -28,8 +28,9 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID  | Description | Status |
-| --- | ----------- | ------ |
+| ID   | Description                                                            | Status         |
+| ---- | ---------------------------------------------------------------------- | -------------- |
+| F231 | Mobile-optimized Handoff and Settings apps with touch-friendly layouts | ⏳ Not started |
 
 ---
 
@@ -2275,6 +2276,34 @@ klondike feature list  # List all features
 1. All features complete. Consider manual testing on actual mobile devices
 2. performance optimization
 3. or documentation updates.
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 78 - 2025-12-20
+
+**Agent**: Coding Agent
+**Duration**: (in progress)
+**Focus**: F231 - Mobile-optimized Handoff and Settings apps
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- Session started
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Continue implementation
 
 #### Technical Notes
 

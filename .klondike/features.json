@@ -6256,12 +6256,36 @@
       "blockedBy": null,
       "lastWorkedOn": "2025-12-20T08:08:52.759243",
       "notes": "Implementation: Ensure Window.tsx content wrapper has overflow-auto and touch-scroll class. Apps should not set fixed height on outermost container. Edge cases: Apps with internal scroll areas need to not double-scroll. Dependencies: F226 (auto-maximize), F217 (virtual keyboard awareness). Context: Apps designed for desktop (e.g. 1100x700) need to work on 375x667 phone screens. Gotchas: Some apps may need refactoring to use flex/grid instead of fixed dimensions."
+    },
+    {
+      "id": "F231",
+      "category": "ui",
+      "priority": 2,
+      "description": "Mobile-optimized Handoff and Settings apps with touch-friendly layouts",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Settings has dropdown section selector visible on mobile when sidebar is hidden",
+        "Handoff uses tabbed layout (Compose/Inbox) on mobile instead of split pane",
+        "All action buttons are always visible on touch devices (no hover-only states)",
+        "Touch targets are minimum 44px on touch devices",
+        "Scrollable areas use touch-scroll class for smooth iOS/Android scrolling",
+        "HandoffQuickSend modal uses responsive width on mobile"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Use useIsTouchDevice hook and @media(pointer:coarse) for touch detection. Settings: add Select dropdown at top of content area with md:hidden. Handoff: conditionally render TabSwitcher vs SplitPane based on touch/viewport. Apply touch target patterns from StartMenu.tsx. Edge cases: Handle orientation changes, ensure keyboard doesn't break layouts. Dependencies: F214 (useTouchDevice), F224 (usePhoneMode), F191 (Handoff app). Context: Handoff and Settings are most-used apps on mobile but currently have unusable UX - fixed split panes break, sidebar hidden without nav alternative. Gotchas: Don't break desktop experience, test both touch and mouse, ensure tab/focus still works for accessibility."
     }
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-20T08:10:12.052426",
-    "totalFeatures": 230,
+    "lastUpdated": "2025-12-20T08:36:57.718730",
+    "totalFeatures": 231,
     "passingFeatures": 230
   }
 }

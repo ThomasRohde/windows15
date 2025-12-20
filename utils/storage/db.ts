@@ -1,6 +1,7 @@
 import { Dexie, type Table } from 'dexie';
 import dexieCloud from 'dexie-cloud-addon';
 import { getCloudDatabaseUrl } from './cloudConfig';
+import { HandoffItem } from '../../types';
 
 export type KvRecord = {
     key: string;
@@ -146,6 +147,12 @@ export type NotificationRecord = {
     createdAt: number;
 };
 
+// ==========================================
+// Handoff Queue (F189)
+// ==========================================
+
+export type HandoffRecord = HandoffItem;
+
 /**
  * Wallpaper manifest stored in IndexedDB
  */
@@ -226,6 +233,8 @@ export class Windows15DexieDB extends Dexie {
     appState!: Table<AppStateRecord, string>;
     // Notification center (cloud-synced) (F157)
     notifications!: Table<NotificationRecord, string>;
+    // Handoff Queue (cloud-synced) (F189)
+    handoffItems!: Table<HandoffRecord, string>;
     // Wow Pack tables (local-only, prefixed with $)
     $wallpapers!: Table<WallpaperRecord, string>;
     $wallpaperAssets!: Table<WallpaperAssetRecord, number>;
@@ -461,6 +470,30 @@ export class Windows15DexieDB extends Dexie {
             notifications: '@id, type, isRead, scheduledFor, createdAt',
             // Clipboard history table
             $clipboardHistory: '++id, copiedAt',
+        });
+
+        // Version 15: Handoff Queue (F189)
+        this.version(15).stores({
+            kv: 'key, updatedAt',
+            notes: '@id, updatedAt, createdAt',
+            bookmarks: '@id, folder, updatedAt, createdAt',
+            todos: '@id, completed, priority, dueDate, sortOrder, updatedAt, createdAt',
+            desktopIcons: '@id, order, updatedAt, createdAt',
+            $terminalHistory: '++id, executedAt',
+            $screensaverSettings: 'id, updatedAt, createdAt',
+            $terminalSessions: '++id, updatedAt, createdAt',
+            $terminalAliases: 'name, updatedAt, createdAt',
+            $wallpapers: 'id, type, installedAt, updatedAt',
+            $wallpaperAssets: '++id, wallpaperId, path, createdAt',
+            $arcadeGames: 'id, type, lastPlayedAt, createdAt, updatedAt',
+            $arcadeSaves: '++id, gameId, slot, createdAt, updatedAt',
+            emails: '@id, folderId, date, isRead, updatedAt, createdAt',
+            emailFolders: 'id, type, updatedAt, createdAt',
+            appState: '&appId, updatedAt',
+            notifications: '@id, type, isRead, scheduledFor, createdAt',
+            $clipboardHistory: '++id, copiedAt',
+            // Handoff items table
+            handoffItems: '@id, createdAt, status, target',
         });
 
         const databaseUrl = getCloudDatabaseUrl();

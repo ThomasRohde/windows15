@@ -126,3 +126,41 @@ export interface DesktopIconProps {
     /** Custom click handler (alternative to appId) */
     onClick?: () => void;
 }
+
+/**
+ * Represents an item in the Handoff Queue for cross-device synchronization.
+ * Used by the Handoff app and useHandoff hook.
+ */
+export type HandoffKind = 'url' | 'text';
+export type HandoffStatus = 'new' | 'opened' | 'done' | 'archived';
+
+export interface HandoffItem {
+    /** Unique identifier for the handoff item (Dexie Cloud @id) */
+    id: string;
+    /** ISO timestamp when the item was created */
+    createdAt: number;
+    /** Unique ID of the device that created the item */
+    createdByDeviceId: string;
+    /** Human-readable label of the device that created the item */
+    createdByLabel: string;
+    /** Target URL or identifier (e.g., app ID) */
+    target: string;
+    /** Type of content being handed off */
+    kind: HandoffKind;
+    /** Text content or description */
+    text: string;
+    /** Current status of the item in the queue */
+    status: HandoffStatus;
+    /** Optional display title */
+    title?: string;
+    /** ISO timestamp when the item was first opened on this device */
+    openedAt?: number;
+    /** ISO timestamp when the item was marked as done */
+    doneAt?: number;
+    /** Whether the content is sensitive and should be encrypted */
+    isSensitive?: boolean;
+    /** Encrypted content (if isSensitive is true) */
+    cipherText?: string;
+    /** Encryption nonce (if isSensitive is true) */
+    nonce?: string;
+}

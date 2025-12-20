@@ -28,8 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID  | Description | Status |
-| --- | ----------- | ------ |
+| ID   | Description                                                                                   | Status         |
+| ---- | --------------------------------------------------------------------------------------------- | -------------- |
+| F189 | Add HandoffItem type and Dexie table with cloud sync support for cross-device item queue      | ⏳ Not started |
+| F190 | Create useHandoff hook with send/list/markDone/archive operations for Handoff Queue           | ⏳ Not started |
+| F191 | Create Handoff app with inbox view showing queued items with status filters and quick actions | ⏳ Not started |
 
 ---
 

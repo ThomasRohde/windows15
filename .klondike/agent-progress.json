@@ -1065,6 +1065,22 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": []
+    "priorityFeatures": [
+      {
+        "id": "F189",
+        "description": "Add HandoffItem type and Dexie table with cloud sync support for cross-device item queue",
+        "status": "not-started"
+      },
+      {
+        "id": "F190",
+        "description": "Create useHandoff hook with send/list/markDone/archive operations for Handoff Queue",
+        "status": "not-started"
+      },
+      {
+        "id": "F191",
+        "description": "Create Handoff app with inbox view showing queued items with status filters and quick actions",
+        "status": "not-started"
+      }
+    ]
   }
 }

@@ -175,7 +175,7 @@ export const Calculator = () => {
     );
 
     return (
-        <AppContainer>
+        <AppContainer className={isPhone ? 'pb-24' : undefined}>
             <div className="flex-1 bg-black/20 rounded-xl p-4 flex flex-col gap-2">
                 <div className="flex items-center justify-end gap-2">
                     <button
@@ -184,7 +184,7 @@ export const Calculator = () => {
                         title={t('copyResult')}
                     >
                         <span className="material-symbols-outlined text-base">content_copy</span>
-                        {t('common:actions.copy')}
+                        {t('actions.copy')}
                     </button>
                 </div>
                 <div className="flex-1 flex items-end justify-end">

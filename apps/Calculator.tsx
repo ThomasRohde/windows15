@@ -175,8 +175,8 @@ export const Calculator = () => {
     );
 
     return (
-        <AppContainer className={isPhone ? 'pb-24' : undefined}>
-            <div className="flex-1 bg-black/20 rounded-xl p-4 flex flex-col gap-2">
+        <AppContainer>
+            <div className="flex-1 bg-black/20 rounded-xl p-4 flex flex-col gap-2 min-h-0">
                 <div className="flex items-center justify-end gap-2">
                     <button
                         onClick={copyResult}
@@ -191,7 +191,7 @@ export const Calculator = () => {
                     <span className="text-5xl font-light text-white truncate">{display}</span>
                 </div>
             </div>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 gap-2" style={{ touchAction: 'manipulation' }}>
                 <Btn v="C" />
                 <Btn v="+/-" />
                 <Btn v="%" />

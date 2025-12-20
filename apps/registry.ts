@@ -71,7 +71,7 @@ export const APP_REGISTRY: AppConfig[] = [
         color: 'bg-orange-400',
         component: React.lazy(() => import('./Calculator').then(m => ({ default: m.Calculator }))),
         defaultWidth: 320,
-        defaultHeight: 480,
+        defaultHeight: 520,
     },
     {
         id: 'notepad',

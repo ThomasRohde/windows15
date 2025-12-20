@@ -497,30 +497,30 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
     };
 
     // Calculate gap for maximized windows based on mode
-    // Phone landscape: 48px left gap for vertical taskbar
-    // Phone portrait: 60px bottom gap
+    // Phone landscape: 48px left gap for vertical taskbar, respect safe area
+    // Phone portrait: 60px bottom gap, respect safe area top (for notch/Dynamic Island)
     // Desktop: 96px bottom gap
     const getMaximizedStyle = (): React.CSSProperties => {
         if (isPhoneLandscape) {
-            // Phone landscape: taskbar on left, full height
+            // Phone landscape: taskbar on left, full height, respect safe areas
             return {
                 position: 'fixed',
-                top: 0,
-                left: '48px', // Vertical taskbar width
-                right: 0,
+                top: 'env(safe-area-inset-top, 0px)',
+                left: 'max(48px, env(safe-area-inset-left, 0px))', // Vertical taskbar width or safe area
+                right: 'env(safe-area-inset-right, 0px)',
                 bottom: 0,
-                height: '100vh',
+                height: 'calc(100vh - env(safe-area-inset-top, 0px))',
                 transform: 'none',
             };
         }
         if (isPhone) {
-            // Phone portrait: reduced bottom gap
+            // Phone portrait: reduced bottom gap, respect safe area top for notch/Dynamic Island
             return {
                 position: 'fixed',
-                top: 0,
+                top: 'env(safe-area-inset-top, 0px)',
                 left: 0,
                 right: 0,
-                height: 'calc(100vh - 60px)',
+                height: 'calc(100vh - 60px - env(safe-area-inset-top, 0px))',
                 transform: 'none',
             };
         }

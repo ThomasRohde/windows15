@@ -1,7 +1,13 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../utils/storage/db';
 import { useNotification } from '../hooks';
+
+/**
+ * Device identity key for localStorage (local-only, never synced)
+ * Must match the key used in useHandoff hook
+ */
+const DEVICE_ID_KEY = 'windows15_device_id';
 
 /**
  * HandoffNotificationListener - Listens for new handoff items and shows notifications (F193)
@@ -14,8 +20,14 @@ export const HandoffNotificationListener: React.FC = () => {
     const lastCheckedRef = useRef<number>(Date.now());
     const notifiedIdsRef = useRef<Set<string>>(new Set());
 
-    // Get device ID from localStorage (F195 will later move this to a central place)
-    const deviceId = localStorage.getItem('windows15_device_id');
+    // Get device ID from localStorage (must match useHandoff's storage)
+    const [deviceId, setDeviceId] = useState<string | null>(null);
+
+    useEffect(() => {
+        // Read from localStorage on mount
+        const id = localStorage.getItem(DEVICE_ID_KEY);
+        setDeviceId(id);
+    }, []);
 
     // Watch for new items reactively
     const newItems = useLiveQuery(async () => {

@@ -1,8 +1,39 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../utils/storage/db';
 import { HandoffItem, HandoffStatus } from '../types';
 import { usePersistedState } from './usePersistedState';
+
+/**
+ * Device identity keys for localStorage (local-only, never synced)
+ * CRITICAL: Device ID must NOT sync across devices or handoff filtering breaks!
+ */
+const DEVICE_ID_KEY = 'windows15_device_id';
+
+/**
+ * useDeviceId - Hook for managing device identity in localStorage (local-only)
+ *
+ * Device ID must be stored in localStorage (not Dexie) to prevent cross-device sync.
+ * If stored in Dexie Cloud's kv table, all devices would share the same ID,
+ * breaking the ability to distinguish which device sent a handoff item.
+ */
+function useDeviceId(): { deviceId: string; isLoading: boolean } {
+    const [deviceId, setDeviceId] = useState<string>('');
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Read from localStorage (synchronous, but we use effect to ensure SSR safety)
+        let id = localStorage.getItem(DEVICE_ID_KEY);
+        if (!id) {
+            id = crypto.randomUUID();
+            localStorage.setItem(DEVICE_ID_KEY, id);
+        }
+        setDeviceId(id);
+        setIsLoading(false);
+    }, []);
+
+    return { deviceId, isLoading };
+}
 
 /**
  * useHandoff - Hook for managing the Handoff Queue (F190)
@@ -11,12 +42,8 @@ import { usePersistedState } from './usePersistedState';
  * Automatically handles device identification.
  */
 export function useHandoff() {
-    // Get or generate device ID (F195)
-    const {
-        value: deviceId,
-        setValue: setDeviceId,
-        isLoading: isIdLoading,
-    } = usePersistedState('windows15_device_id', '');
+    // Get device ID from localStorage (local-only, never synced!)
+    const { deviceId, isLoading: isIdLoading } = useDeviceId();
 
     // Get or generate device label (F195)
     const { value: deviceLabel, setValue: setDeviceLabel } = usePersistedState('windows15_device_label', 'Browser');
@@ -29,13 +56,6 @@ export function useHandoff() {
 
     // Retention period in days (F196)
     const { value: retentionDays, setValue: setRetentionDays } = usePersistedState('windows15_handoff_retention', 7);
-
-    // Ensure device ID is generated and persisted
-    useEffect(() => {
-        if (!isIdLoading && !deviceId) {
-            setDeviceId(crypto.randomUUID());
-        }
-    }, [deviceId, isIdLoading, setDeviceId]);
 
     /**
      * Cleanup expired items (F196)

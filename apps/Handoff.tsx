@@ -184,7 +184,7 @@ const HandoffItemRow: React.FC<{
 export const Handoff: React.FC = () => {
     const { t } = useTranslation('handoff');
     const [statusFilter, setStatusFilter] = useState<HandoffStatus | 'all'>('new');
-    const { markOpened, markDone, archive, remove, send, deviceLabel, clearArchived } = useHandoff();
+    const { markOpened, markDone, archive, remove, send, deviceLabel, clearArchived, isLoading } = useHandoff();
     const items = useHandoffItems(statusFilter === 'all' ? undefined : statusFilter);
     const notify = useNotification();
     const isTouchDevice = useTouchDevice();
@@ -314,8 +314,11 @@ export const Handoff: React.FC = () => {
     };
 
     // Compose Panel Component (used in both split and tabbed layouts)
+    // On touch devices, add extra bottom padding to account for taskbar + safe area
     const composePanel = (
-        <div className="h-full flex flex-col p-4 md:p-4 bg-white/5 md:border-r border-white/10">
+        <div
+            className={`h-full flex flex-col p-4 md:p-4 bg-white/5 md:border-r border-white/10 ${isTouchDevice ? 'pb-24' : ''}`}
+        >
             <div className="mb-4">
                 <h2 className="text-sm font-bold uppercase tracking-wider text-white/50 mb-1">{t('composer.title')}</h2>
                 <p className="text-xs text-white/30">{t('composer.description')}</p>
@@ -403,10 +406,10 @@ export const Handoff: React.FC = () => {
                 <Button
                     variant="primary"
                     onClick={handleSend}
-                    disabled={!inputText.trim() || isSending}
+                    disabled={!inputText.trim() || isSending || isLoading}
                     className="w-full py-3 min-h-[44px] bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold uppercase tracking-widest text-xs transition-colors"
                 >
-                    {isSending ? t('composer.sending') : t('composer.send')}
+                    {isLoading ? t('common:loading') : isSending ? t('composer.sending') : t('composer.send')}
                 </Button>
             </div>
 
@@ -420,8 +423,9 @@ export const Handoff: React.FC = () => {
     );
 
     // Inbox Panel Component (used in both split and tabbed layouts)
+    // On touch devices, add extra bottom padding to account for taskbar + safe area
     const inboxPanel = (
-        <div className="h-full overflow-y-auto touch-scroll p-4">
+        <div className={`h-full overflow-y-auto touch-scroll p-4 ${isTouchDevice ? 'pb-24' : ''}`}>
             {!items || items.length === 0 ? (
                 <div className="h-full flex items-center justify-center">
                     <EmptyState icon="sync_alt" title={t('inbox.empty')} description={t('inbox.emptyHint')} />

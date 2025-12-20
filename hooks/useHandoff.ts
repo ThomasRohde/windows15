@@ -79,9 +79,14 @@ export function useHandoff() {
 
     /**
      * Send a new item to the handoff queue
+     * @throws Error if deviceId is not yet loaded
      */
     const send = useCallback(
         async (item: Omit<HandoffItem, 'id' | 'createdAt' | 'createdByDeviceId' | 'createdByLabel' | 'status'>) => {
+            // Prevent sending before device identity is ready
+            if (!deviceId) {
+                throw new Error('Device ID not yet loaded. Please wait and try again.');
+            }
             const newItem: Omit<HandoffItem, 'id'> = {
                 ...item,
                 createdAt: Date.now(),
@@ -146,6 +151,8 @@ export function useHandoff() {
         markDone,
         archive,
         remove,
+        /** True while device ID is loading from storage */
+        isLoading: isIdLoading,
     };
 }
 

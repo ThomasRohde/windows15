@@ -126,7 +126,9 @@
             "passphrase": "Passphrase",
             "passphrasePlaceholder": "Enter passphrase to encrypt...",
             "workMode": "Work Mode Only",
-            "workModeHint": "Restrict to URLs only"
+            "workModeHint": "Restrict to URLs only",
+            "clipboardEmpty": "Clipboard is empty",
+            "pasteFailed": "Couldn't read clipboard"
         },
         "inbox": {
             "title": "Inbox",

@@ -28,8 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID  | Description | Status |
-| --- | ----------- | ------ |
+| ID   | Description                                                      | Status         |
+| ---- | ---------------------------------------------------------------- | -------------- |
+| F232 | usePhoneMode detects landscape phones via max-height media query | ⏳ Not started |
+| F233 | useOrientation hook returns portrait or landscape orientation    | ⏳ Not started |
+| F234 | Taskbar renders vertically on left edge in phone landscape mode  | ⏳ Not started |
 
 ---
 

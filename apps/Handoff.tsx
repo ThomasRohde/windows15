@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useHandoff, useHandoffItems, useNotification, useTouchDevice } from '../hooks';
 import { useTranslation } from '../hooks/useTranslation';
 import {
@@ -16,6 +16,7 @@ import {
 import { HandoffStatus, HandoffItem } from '../types';
 import { formatRelativeTime } from '../utils/timeFormatters';
 import { encrypt, decrypt } from '../utils/crypto';
+import { readTextFromClipboard } from '../utils/clipboard';
 
 const HandoffItemRow: React.FC<{
     item: HandoffItem;
@@ -189,6 +190,7 @@ export const Handoff: React.FC = () => {
     const isTouchDevice = useTouchDevice();
 
     const [inputText, setInputText] = useState('');
+    const textAreaRef = useRef<HTMLTextAreaElement>(null);
     const [targetCategory, setTargetCategory] = useState<'private' | 'work' | 'any'>('any');
     const [isSending, setIsSending] = useState(false);
 
@@ -269,6 +271,42 @@ export const Handoff: React.FC = () => {
         }
     }, [inputText, targetCategory, send, notify, isSending, t, isSensitive, passphrase, isWorkMode]);
 
+    const handleManualPaste = useCallback(async () => {
+        try {
+            const text = await readTextFromClipboard();
+
+            if (text === null) {
+                notify.error(t('composer.pasteFailed'));
+                return;
+            }
+
+            if (text.length === 0) {
+                notify.warning(t('composer.clipboardEmpty'));
+                return;
+            }
+
+            const textarea = textAreaRef.current;
+            if (!textarea) {
+                setInputText(prev => prev + text);
+                return;
+            }
+
+            const start = textarea.selectionStart ?? textarea.value.length;
+            const end = textarea.selectionEnd ?? textarea.value.length;
+            const nextValue = `${textarea.value.slice(0, start)}${text}${textarea.value.slice(end)}`;
+
+            setInputText(nextValue);
+            requestAnimationFrame(() => {
+                textarea.focus();
+                const cursor = start + text.length;
+                textarea.setSelectionRange(cursor, cursor);
+            });
+        } catch (error) {
+            console.error('Handoff paste error:', error);
+            notify.error(t('composer.pasteFailed'));
+        }
+    }, [notify, t]);
+
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
             handleSend();
@@ -285,10 +323,24 @@ export const Handoff: React.FC = () => {
 
             <div className="flex-1 flex flex-col gap-4 overflow-y-auto touch-scroll">
                 <div className="flex-1 flex flex-col min-h-[200px]">
-                    <label className="text-[10px] font-bold uppercase text-white/40 mb-1.5 ml-1">
-                        {t('composer.content')}
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-[10px] font-bold uppercase text-white/40 ml-1">
+                            {t('composer.content')}
+                        </label>
+                        {isTouchDevice && (
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                icon="content_paste"
+                                onClick={handleManualPaste}
+                                className="min-h-[44px] px-3 text-[10px] uppercase tracking-wider"
+                            >
+                                {t('common:actions.paste')}
+                            </Button>
+                        )}
+                    </div>
                     <TextArea
+                        ref={textAreaRef}
                         value={inputText}
                         onChange={e => setInputText(e.target.value)}
                         onKeyDown={handleKeyDown}

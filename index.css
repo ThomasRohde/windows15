@@ -72,6 +72,13 @@ body {
     overflow: hidden;
 }
 
+/* Ensure iOS text inputs allow native selection/paste callout */
+.allow-text-selection {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+}
+
 /* Ripple animation for touch feedback (F218) */
 @keyframes ripple-expand {
     from {

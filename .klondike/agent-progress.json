@@ -1201,6 +1201,22 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": []
+    "priorityFeatures": [
+      {
+        "id": "F232",
+        "description": "usePhoneMode detects landscape phones via max-height media query",
+        "status": "not-started"
+      },
+      {
+        "id": "F233",
+        "description": "useOrientation hook returns portrait or landscape orientation",
+        "status": "not-started"
+      },
+      {
+        "id": "F234",
+        "description": "Taskbar renders vertically on left edge in phone landscape mode",
+        "status": "not-started"
+      }
+    ]
   }
 }

@@ -6286,12 +6286,78 @@
       "blockedBy": null,
       "lastWorkedOn": "2025-12-20T08:43:34.315784",
       "notes": "Implementation: Use useIsTouchDevice hook and @media(pointer:coarse) for touch detection. Settings: add Select dropdown at top of content area with md:hidden. Handoff: conditionally render TabSwitcher vs SplitPane based on touch/viewport. Apply touch target patterns from StartMenu.tsx. Edge cases: Handle orientation changes, ensure keyboard doesn't break layouts. Dependencies: F214 (useTouchDevice), F224 (usePhoneMode), F191 (Handoff app). Context: Handoff and Settings are most-used apps on mobile but currently have unusable UX - fixed split panes break, sidebar hidden without nav alternative. Gotchas: Don't break desktop experience, test both touch and mouse, ensure tab/focus still works for accessibility."
+    },
+    {
+      "id": "F232",
+      "category": "core",
+      "priority": 2,
+      "description": "usePhoneMode detects landscape phones via max-height media query",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "usePhoneMode returns true when (max-width: 767px) OR (max-height: 500px and orientation: landscape)",
+        "Phone landscape mode renders phone-optimized UI instead of desktop UI",
+        "All components using usePhoneMode respond correctly in landscape"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Update usePhoneMode in hooks/index.ts to add '(max-height: 500px) and (orientation: landscape)' to media query. Edge cases: iPads in landscape should NOT trigger phone mode (height > 500px). Dependencies: F224. Context: Current hook only checks width, so phone in landscape (844x390) has width > 768px and renders desktop UI which is wrong. Gotchas: Test with iPhone SE (smallest), iPhone Pro Max (largest), and ensure tablets don't trigger."
+    },
+    {
+      "id": "F233",
+      "category": "core",
+      "priority": 2,
+      "description": "useOrientation hook returns portrait or landscape orientation",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "useOrientation hook exists in hooks/index.ts",
+        "Returns 'portrait' when height > width",
+        "Returns 'landscape' when width >= height",
+        "Updates reactively on orientation change"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Create useOrientation hook using matchMedia('(orientation: portrait)') with change listener. Edge cases: Handle initial SSR/undefined state. Dependencies: None. Context: Components need to differentiate between portrait and landscape for layout decisions beyond just phone/desktop. Gotchas: Some devices report orientation change before resize completes, may need small delay."
+    },
+    {
+      "id": "F234",
+      "category": "ui",
+      "priority": 2,
+      "description": "Taskbar renders vertically on left edge in phone landscape mode",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Taskbar positioned on left edge when phone + landscape",
+        "Taskbar width ~48px and height 100vh in landscape",
+        "Taskbar contains same phone elements (start and notification buttons)",
+        "Safe area inset respected on notch side",
+        "Windows calculate available width minus taskbar"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: In Taskbar.tsx detect isPhone && orientation === 'landscape'. Render vertical layout with flex-col instead of flex-row. Position with left-0 instead of bottom-0. Update Window.tsx MAXIMIZED_BOTTOM_GAP logic to use left gap instead. Edge cases: Notch on left side in landscape-left orientation, may need to put taskbar on right. Dependencies: F232, F233. Context: Phone landscape has limited vertical space (390px), moving taskbar to side reclaims 48px vertical. Gotchas: Test both landscape-left and landscape-right orientations, notch position varies."
     }
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-20T08:47:36.122618",
-    "totalFeatures": 231,
+    "lastUpdated": "2025-12-20T10:20:43.027665",
+    "totalFeatures": 234,
     "passingFeatures": 231
   }
 }

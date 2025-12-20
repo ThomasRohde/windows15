@@ -91,6 +91,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
                     ${resizeClasses[resize]}
                     transition-colors
                     select-text
+                    allow-text-selection
                     ${className}
                 `.trim()}
                 {...props}

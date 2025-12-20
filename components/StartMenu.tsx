@@ -104,10 +104,10 @@ export const StartMenu = () => {
         }
     }, [isStartMenuOpen]);
 
-    // Reset selected index when search results change
+    // Reset selected index when search query changes
     useEffect(() => {
         setSelectedIndex(0);
-    }, [searchResults]);
+    }, [searchQuery]);
 
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent) => {
@@ -259,7 +259,8 @@ export const StartMenu = () => {
                     ) : (
                         <div className="text-center text-white/50 py-8">
                             <Icon name="search_off" size="xl" className="text-4xl mb-2 block" />
-                            No apps found matching "{searchQuery}"
+                            <span>No apps found matching</span>
+                            <span className="block text-white/30 mt-1">"{searchQuery}"</span>
                         </div>
                     )}
                 </div>

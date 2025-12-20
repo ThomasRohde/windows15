@@ -423,10 +423,10 @@ export const StartMenu = () => {
             <div className="h-16 [@media(pointer:coarse)]:h-20 border-t border-white/10 flex items-center justify-between px-8 bg-black/20">
                 <button
                     aria-label={`User profile: ${userName}`}
-                    className="flex items-center gap-3 hover:bg-white/10 p-2 [@media(pointer:coarse)]:p-3 rounded-lg cursor-pointer transition-colors"
+                    className="flex items-center gap-3 hover:bg-white/10 active:bg-white/20 p-2 [@media(pointer:coarse)]:p-3 rounded-lg transition-colors"
                 >
                     <div
-                        className="w-8 h-8 [@media(pointer:coarse)]:w-10 [@media(pointer:coarse)]:h-10 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold"
+                        className="w-8 h-8 [@media(pointer:coarse)]:w-10 [@media(pointer:coarse)]:h-10 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs [@media(pointer:coarse)]:text-sm font-bold text-white"
                         aria-hidden="true"
                     >
                         {userInitials}

@@ -8,7 +8,7 @@ import { FilePickerModal } from '../components';
 import { Checkbox } from '../components/ui';
 import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { required, validateValue, validateDateRange } from '../utils/validation';
-import { useSeededCollection, useFilePicker, useNotification } from '../hooks';
+import { useSeededCollection, useFilePicker, useNotification, usePhoneMode } from '../hooks';
 import { toYmd, fromYmd, pad2, addMonths, buildMonthGrid } from '../utils/dateUtils';
 
 type CalendarEvent = {
@@ -87,6 +87,7 @@ const normalizeInitialDate = (value?: string) => {
 export const Calendar = ({ initialDate }: { initialDate?: string }) => {
     const { formatTimeShortFromHm } = useLocalization();
     const { confirm, dialogProps } = useConfirmDialog();
+    const isPhone = usePhoneMode();
     const {
         items: events,
         setItems: setEvents,
@@ -364,6 +365,288 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
         closeDraft();
     };
 
+    // F239: Pre-compute agenda data for phone layout (hooks must be at top level)
+    const upcomingEvents = useMemo(() => {
+        const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        return events
+            .filter(e => fromYmd(e.date) >= todayStart)
+            .sort((a, b) => {
+                const dateCmp = a.date.localeCompare(b.date);
+                if (dateCmp !== 0) return dateCmp;
+                return compareTime(a, b);
+            })
+            .slice(0, 20); // Limit to 20 upcoming events
+    }, [events]);
+
+    // Group events by date for agenda view
+    const groupedEvents = useMemo(() => {
+        const groups: { date: string; label: string; events: CalendarEvent[] }[] = [];
+        let currentDate = '';
+        for (const event of upcomingEvents) {
+            if (event.date !== currentDate) {
+                currentDate = event.date;
+                const dateObj = fromYmd(event.date);
+                const isToday = event.date === todayYmd;
+                const isTomorrow = (() => {
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    return event.date === toYmd(tomorrow);
+                })();
+                groups.push({
+                    date: event.date,
+                    label: isToday
+                        ? 'Today'
+                        : isTomorrow
+                          ? 'Tomorrow'
+                          : dateObj.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }),
+                    events: [],
+                });
+            }
+            groups[groups.length - 1]?.events.push(event);
+        }
+        return groups;
+    }, [upcomingEvents, todayYmd]);
+
+    // F239: Phone-optimized agenda-first layout
+    if (isPhone) {
+        return (
+            <div className="h-full w-full bg-background-dark text-white flex flex-col">
+                {/* Compact header */}
+                <div className="h-12 shrink-0 border-b border-white/5 bg-black/20 flex items-center justify-between px-3">
+                    <div className="flex items-center gap-1">
+                        <button
+                            onClick={() => setMonthCursor(addMonths(monthCursor, -1))}
+                            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 active:bg-white/20"
+                        >
+                            <span className="material-symbols-outlined text-xl">chevron_left</span>
+                        </button>
+                        <button
+                            onClick={() => {
+                                const today = new Date();
+                                setMonthCursor(new Date(today.getFullYear(), today.getMonth(), 1));
+                                setSelectedDate(toYmd(today));
+                            }}
+                            className="px-3 h-10 text-sm font-medium text-white/90"
+                        >
+                            {monthLabel}
+                        </button>
+                        <button
+                            onClick={() => setMonthCursor(addMonths(monthCursor, 1))}
+                            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 active:bg-white/20"
+                        >
+                            <span className="material-symbols-outlined text-xl">chevron_right</span>
+                        </button>
+                    </div>
+                    <button
+                        onClick={() => openNewEvent()}
+                        className="w-10 h-10 rounded-full bg-primary flex items-center justify-center active:scale-95"
+                    >
+                        <span className="material-symbols-outlined text-xl">add</span>
+                    </button>
+                </div>
+
+                {/* Mini calendar strip - horizontal week days */}
+                <div className="shrink-0 border-b border-white/5 px-2 py-2">
+                    <div className="flex gap-1 overflow-x-auto">
+                        {monthGrid.slice(0, 7).map((_, i) => {
+                            const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+                            return (
+                                <div key={i} className="flex-1 text-center text-[10px] text-white/40">
+                                    {dayNames[i]}
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="flex gap-1 mt-1">
+                        {monthGrid
+                            .filter(c => c.inMonth)
+                            .slice(0, 7)
+                            .map(cell => {
+                                const isToday = cell.ymd === todayYmd;
+                                const isSelected = cell.ymd === selectedDate;
+                                const hasEvents = (eventsByDate[cell.ymd]?.length ?? 0) > 0;
+                                return (
+                                    <button
+                                        key={cell.ymd}
+                                        onClick={() => setSelectedDate(cell.ymd)}
+                                        className={`flex-1 aspect-square rounded-full flex flex-col items-center justify-center min-w-[40px] min-h-[40px] ${isSelected ? 'bg-primary text-white' : isToday ? 'bg-primary/20 text-primary' : 'text-white/70 active:bg-white/10'}`}
+                                    >
+                                        <span className="text-sm font-medium">{cell.date.getDate()}</span>
+                                        {hasEvents && !isSelected && (
+                                            <span className="w-1 h-1 rounded-full bg-primary mt-0.5" />
+                                        )}
+                                    </button>
+                                );
+                            })}
+                    </div>
+                </div>
+
+                {/* Agenda list */}
+                <div className="flex-1 overflow-y-auto">
+                    {isLoadingEvents && events.length === 0 ? (
+                        <SkeletonCalendar />
+                    ) : groupedEvents.length === 0 ? (
+                        <div className="p-6">
+                            <EmptyState
+                                icon="calendar_month"
+                                title="No upcoming events"
+                                description="Tap + to create an event"
+                                variant="minimal"
+                            />
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-white/5">
+                            {groupedEvents.map(group => (
+                                <div key={group.date}>
+                                    <div className="px-4 py-2 text-xs font-medium text-white/50 bg-black/20 sticky top-0">
+                                        {group.label}
+                                    </div>
+                                    {group.events.map(event => (
+                                        <button
+                                            key={event.id}
+                                            onClick={() => openEditEvent(event)}
+                                            className="w-full text-left px-4 py-3 min-h-[56px] flex items-center gap-3 active:bg-white/10"
+                                        >
+                                            <div className="w-12 shrink-0 text-center">
+                                                <div className="text-xs text-primary font-medium">
+                                                    {event.allDay ? 'All' : formatTimeShortFromHm(event.startTime)}
+                                                </div>
+                                                {!event.allDay && (
+                                                    <div className="text-[10px] text-white/40">
+                                                        {formatTimeShortFromHm(event.endTime)}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="text-sm font-medium text-white/90 truncate">
+                                                    {event.title}
+                                                </div>
+                                                {event.location && (
+                                                    <div className="text-[11px] text-white/50 truncate flex items-center gap-1">
+                                                        <span className="material-symbols-outlined text-[12px]">
+                                                            location_on
+                                                        </span>
+                                                        {event.location}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <span className="material-symbols-outlined text-white/30 text-lg">
+                                                chevron_right
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Event modal - full screen on phone */}
+                {draft && (
+                    <div className="absolute inset-0 z-50 bg-background-dark flex flex-col">
+                        <div className="h-12 shrink-0 border-b border-white/5 bg-black/20 flex items-center justify-between px-3">
+                            <button
+                                onClick={closeDraft}
+                                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10"
+                            >
+                                <span className="material-symbols-outlined text-xl">close</span>
+                            </button>
+                            <span className="text-sm font-medium">{draft.id ? 'Edit Event' : 'New Event'}</span>
+                            <button
+                                onClick={() => void saveEvent()}
+                                className="px-4 h-10 rounded-full bg-primary text-sm font-medium"
+                            >
+                                Save
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                            {draftError && (
+                                <div className="px-3 py-2 text-xs bg-red-500/15 text-red-100 rounded-lg">
+                                    {draftError}
+                                </div>
+                            )}
+                            <FormField label="Title">
+                                <input
+                                    value={draft.title}
+                                    onChange={e => setDraft(d => d && { ...d, title: e.target.value })}
+                                    className="w-full h-11 px-3 rounded-lg bg-black/30 border border-white/10 text-sm focus:outline-none focus:border-primary"
+                                    placeholder="Event title"
+                                />
+                            </FormField>
+                            <FormField label="Date">
+                                <input
+                                    type="date"
+                                    value={draft.date}
+                                    onChange={e => setDraft(d => d && { ...d, date: e.target.value })}
+                                    className="w-full h-11 px-3 rounded-lg bg-black/30 border border-white/10 text-sm focus:outline-none focus:border-primary"
+                                />
+                            </FormField>
+                            <div className="flex items-center gap-3">
+                                <Checkbox
+                                    id="allDay"
+                                    checked={draft.allDay}
+                                    onChange={e => setDraft(d => d && { ...d, allDay: e.target.checked })}
+                                />
+                                <label htmlFor="allDay" className="text-sm text-white/80">
+                                    All day
+                                </label>
+                            </div>
+                            {!draft.allDay && (
+                                <div className="grid grid-cols-2 gap-3">
+                                    <FormField label="Start">
+                                        <input
+                                            type="time"
+                                            value={draft.startTime}
+                                            onChange={e => setDraft(d => d && { ...d, startTime: e.target.value })}
+                                            className="w-full h-11 px-3 rounded-lg bg-black/30 border border-white/10 text-sm focus:outline-none focus:border-primary"
+                                        />
+                                    </FormField>
+                                    <FormField label="End">
+                                        <input
+                                            type="time"
+                                            value={draft.endTime}
+                                            onChange={e => setDraft(d => d && { ...d, endTime: e.target.value })}
+                                            className="w-full h-11 px-3 rounded-lg bg-black/30 border border-white/10 text-sm focus:outline-none focus:border-primary"
+                                        />
+                                    </FormField>
+                                </div>
+                            )}
+                            <FormField label="Location">
+                                <input
+                                    value={draft.location}
+                                    onChange={e => setDraft(d => d && { ...d, location: e.target.value })}
+                                    className="w-full h-11 px-3 rounded-lg bg-black/30 border border-white/10 text-sm focus:outline-none focus:border-primary"
+                                    placeholder="Add location"
+                                />
+                            </FormField>
+                            <FormField label="Notes">
+                                <TextArea
+                                    value={draft.notes}
+                                    onChange={e => setDraft(d => d && { ...d, notes: e.target.value })}
+                                    className="min-h-[100px] bg-black/30"
+                                    placeholder="Add notes"
+                                />
+                            </FormField>
+                            {draft.id && (
+                                <button
+                                    onClick={() => void deleteEvent(draft.id!)}
+                                    className="w-full h-11 rounded-lg bg-red-500/20 text-red-400 text-sm font-medium"
+                                >
+                                    Delete Event
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                <ConfirmDialog {...dialogProps} />
+                <FilePickerModal {...filePicker.modalProps} />
+            </div>
+        );
+    }
+
+    // Desktop layout
     return (
         <div className="h-full w-full bg-background-dark text-white flex flex-col">
             {/* Header */}

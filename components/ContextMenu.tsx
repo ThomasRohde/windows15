@@ -1,11 +1,13 @@
 /**
  * Context Menu Component
  * A reusable, accessible context menu with Windows-style glass styling
+ * F244: Renders as bottom action sheet on phone
  * @module components/ContextMenu
  */
 import React, { forwardRef, ReactNode, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Z_INDEX } from '../utils/constants';
+import { usePhoneMode } from '../hooks';
 
 // ============================================================================
 // Types
@@ -86,12 +88,63 @@ export interface ContextMenuLabelProps {
 /**
  * Context menu container component. Uses portal to render at document body.
  * Should be used with the useContextMenu hook.
+ * F244: Renders as bottom action sheet on phone
  */
 const ContextMenuRoot = forwardRef<HTMLDivElement, ContextMenuProps>(
-    (
-        { position, children, onClose: _onClose, className = '', onKeyDown, role = 'menu', tabIndex = -1, ...props },
-        ref
-    ) => {
+    ({ position, children, onClose, className = '', onKeyDown, role = 'menu', tabIndex = -1, ...props }, ref) => {
+        const isPhone = usePhoneMode();
+
+        // F244: Phone action sheet layout
+        if (isPhone) {
+            return createPortal(
+                <>
+                    {/* Backdrop */}
+                    <div
+                        className="fixed inset-0 bg-black/50 z-[9998] animate-in fade-in duration-150"
+                        onClick={onClose}
+                    />
+                    {/* Action Sheet */}
+                    <div
+                        ref={ref}
+                        role={role}
+                        tabIndex={tabIndex}
+                        onKeyDown={onKeyDown}
+                        className={`
+                            fixed bottom-0 left-0 right-0
+                            bg-gray-900/98 backdrop-blur-xl
+                            border-t border-white/10 rounded-t-2xl
+                            shadow-2xl shadow-black/40
+                            py-2 pb-safe
+                            animate-in slide-in-from-bottom duration-200
+                            outline-none
+                            max-h-[70vh] overflow-y-auto
+                            ${className}
+                        `}
+                        style={{ zIndex: Z_INDEX.CONTEXT_MENU }}
+                        onClick={e => e.stopPropagation()}
+                        {...props}
+                    >
+                        {/* Swipe indicator */}
+                        <div className="flex justify-center py-2 mb-1">
+                            <div className="w-10 h-1 bg-white/30 rounded-full" />
+                        </div>
+                        {children}
+                        {/* Cancel button */}
+                        <div className="mt-2 mx-3 mb-2">
+                            <button
+                                onClick={onClose}
+                                className="w-full py-4 text-center text-white/90 bg-white/10 hover:bg-white/15 rounded-xl font-medium transition-colors"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </>,
+                document.body
+            );
+        }
+
+        // Desktop dropdown layout
         return createPortal(
             <div
                 ref={ref}
@@ -130,6 +183,7 @@ ContextMenuRoot.displayName = 'ContextMenu';
 
 /**
  * A clickable menu item with optional icon and keyboard shortcut
+ * F244: Larger touch targets on phone
  */
 const ContextMenuItem = ({
     onClick,
@@ -141,13 +195,12 @@ const ContextMenuItem = ({
     className = '',
     iconClassName,
 }: ContextMenuItemProps) => {
-    const baseStyles = `
-        w-full px-3 py-2 text-sm
-        flex items-center gap-3
-        text-left transition-colors
-        outline-none
-        focus:bg-white/10
-    `;
+    const isPhone = usePhoneMode();
+
+    // F244: Larger padding and min-height for phone
+    const baseStyles = isPhone
+        ? `w-full px-4 py-4 min-h-[52px] text-base flex items-center gap-4 text-left transition-colors outline-none focus:bg-white/10`
+        : `w-full px-3 py-2 text-sm flex items-center gap-3 text-left transition-colors outline-none focus:bg-white/10`;
 
     const enabledStyles = danger
         ? 'text-red-400 hover:bg-white/10 hover:text-red-300'
@@ -164,14 +217,14 @@ const ContextMenuItem = ({
         >
             {icon && (
                 <span
-                    className={`material-symbols-outlined text-lg ${danger ? 'text-red-400' : iconClassName || 'text-white/60'}`}
+                    className={`material-symbols-outlined ${isPhone ? 'text-xl' : 'text-lg'} ${danger ? 'text-red-400' : iconClassName || 'text-white/60'}`}
                     aria-hidden="true"
                 >
                     {icon}
                 </span>
             )}
             <span className="flex-1">{children}</span>
-            {shortcut && <span className="text-xs text-white/40 ml-auto">{shortcut}</span>}
+            {shortcut && !isPhone && <span className="text-xs text-white/40 ml-auto">{shortcut}</span>}
         </button>
     );
 };

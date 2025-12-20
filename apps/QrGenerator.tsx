@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation, useAppState, useFilePicker } from '../hooks';
+import { useTranslation, useAppState, useFilePicker, usePhoneMode } from '../hooks';
 import { AppContainer, SectionLabel, TextArea } from '../components/ui';
 import { FilePickerModal } from '../components';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -12,6 +12,7 @@ interface QrGeneratorState {
 
 export const QrGenerator = () => {
     const { t } = useTranslation('qrGenerator');
+    const isPhone = usePhoneMode();
     const [state, setState] = useAppState<QrGeneratorState>('qrGenerator', {
         text: '',
         qrData: null,
@@ -91,7 +92,7 @@ export const QrGenerator = () => {
                             <p className="text-white/50 text-sm mb-3 max-w-[200px] truncate">{qrData}</p>
                             <button
                                 onClick={saveQRToFile}
-                                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-400 transition-colors text-sm flex items-center gap-1 mx-auto"
+                                className={`bg-green-500 text-white rounded-lg hover:bg-green-400 active:bg-green-600 transition-colors text-sm flex items-center gap-1 mx-auto ${isPhone ? 'min-h-[44px] px-6' : 'px-4 py-2'}`}
                             >
                                 <span className="material-symbols-outlined text-[16px]">save</span>
                                 Save to Pictures

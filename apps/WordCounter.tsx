@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useTranslation, useAppState, useFilePicker } from '../hooks';
+import { useTranslation, useAppState, useFilePicker, usePhoneMode } from '../hooks';
 import { Button, TextArea, StatCard } from '../components/ui';
 import { FilePickerModal } from '../components';
 import { formatReadingTime } from '../utils/timeFormatters';
@@ -10,6 +10,7 @@ interface WordCounterState {
 
 export const WordCounter = () => {
     const { t } = useTranslation('wordCounter');
+    const isPhone = usePhoneMode();
     const [state, setState] = useAppState<WordCounterState>('wordCounter', {
         text: '',
     });
@@ -55,7 +56,7 @@ export const WordCounter = () => {
             <div className="px-4 py-2 bg-black/20 border-b border-white/10 flex gap-2">
                 <button
                     onClick={openFile}
-                    className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors flex items-center gap-1"
+                    className={`bg-white/10 hover:bg-white/20 active:bg-white/30 rounded text-sm transition-colors flex items-center gap-1 ${isPhone ? 'min-h-[44px] px-4' : 'px-3 py-1.5'}`}
                     title="Open text file"
                 >
                     <span className="material-symbols-outlined text-[16px]">folder_open</span>
@@ -63,14 +64,18 @@ export const WordCounter = () => {
                 </button>
             </div>
 
-            <div className="grid grid-cols-4 gap-3 p-4 bg-[#2d2d2d] border-b border-white/10">
+            <div
+                className={`grid gap-3 p-4 bg-[#2d2d2d] border-b border-white/10 ${isPhone ? 'grid-cols-2' : 'grid-cols-4'}`}
+            >
                 <StatCard label={t('characters')} value={stats.characters} subtitle={t('charactersNoSpaces')} />
                 <StatCard label={t('words')} value={stats.words} />
                 <StatCard label={t('sentences')} value={stats.sentences} />
                 <StatCard label={t('paragraphs')} value={stats.paragraphs} />
             </div>
 
-            <div className="flex gap-4 px-4 py-3 bg-black/20 border-b border-white/10">
+            <div
+                className={`flex gap-4 px-4 py-3 bg-black/20 border-b border-white/10 ${isPhone ? 'flex-col gap-2' : ''}`}
+            >
                 <div className="flex items-center gap-2">
                     <span className="text-gray-400 text-sm">📖 {t('readingTime')}:</span>
                     <span className="text-white font-medium">{stats.readingTime}</span>

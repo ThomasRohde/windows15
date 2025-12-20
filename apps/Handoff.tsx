@@ -327,17 +327,15 @@ export const Handoff: React.FC = () => {
                         <label className="text-[10px] font-bold uppercase text-white/40 ml-1">
                             {t('composer.content')}
                         </label>
-                        {isTouchDevice && (
-                            <Button
-                                size="sm"
-                                variant="ghost"
-                                icon="content_paste"
-                                onClick={handleManualPaste}
-                                className="min-h-[44px] px-3 text-[10px] uppercase tracking-wider"
-                            >
-                                {t('common:actions.paste')}
-                            </Button>
-                        )}
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            icon="content_paste"
+                            onClick={handleManualPaste}
+                            className={`${isTouchDevice ? 'min-h-[44px]' : 'h-8'} px-3 text-[10px] uppercase tracking-wider`}
+                        >
+                            {t('actions.paste')}
+                        </Button>
                     </div>
                     <TextArea
                         ref={textAreaRef}

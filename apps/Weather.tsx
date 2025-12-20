@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocalization } from '../context';
 import { formatSpeed, formatTemperature } from '../utils/localization';
-import { useNotification, useAsyncAction } from '../hooks';
+import { useNotification, useAsyncAction, usePhoneMode } from '../hooks';
 import { AppContainer, LoadingState, Icon, SectionLabel } from '../components/ui';
 
 interface WeatherData {
@@ -54,6 +54,7 @@ const getWeatherInfo = (code: number) => {
 export const Weather = () => {
     const { locale, unitSystem } = useLocalization();
     const notify = useNotification();
+    const isPhone = usePhoneMode();
     const [weather, setWeather] = useState<WeatherData | null>(null);
     const [forecast, setForecast] = useState<ForecastDay[]>([]);
     const [locationName, setLocationName] = useState('Detecting location...');
@@ -169,50 +170,74 @@ export const Weather = () => {
 
     return (
         <AppContainer scrollable>
-            <div className="bg-black/20 rounded-xl p-6 flex flex-col items-center">
-                <div className="text-white/60 text-lg">{locationName}</div>
-                <Icon name={weather.icon} size="xl" className="text-7xl text-orange-400 my-4" />
-                <div className="text-6xl font-light text-white">
+            {/* F248: Main weather card */}
+            <div className={`bg-black/20 rounded-xl ${isPhone ? 'p-4' : 'p-6'} flex flex-col items-center`}>
+                <div className={`text-white/60 ${isPhone ? 'text-base' : 'text-lg'}`}>{locationName}</div>
+                <Icon
+                    name={weather.icon}
+                    size="xl"
+                    className={`${isPhone ? 'text-6xl' : 'text-7xl'} text-orange-400 my-4`}
+                />
+                <div className={`${isPhone ? 'text-5xl' : 'text-6xl'} font-light text-white`}>
                     {temperature.value}
                     {temperature.unit}
                 </div>
-                <div className="text-white/80 text-xl mt-2">{weather.condition}</div>
+                <div className={`text-white/80 ${isPhone ? 'text-lg' : 'text-xl'} mt-2`}>{weather.condition}</div>
                 <div className="text-white/60 mt-1">
                     H: {high.value}° L: {low.value}°
                 </div>
             </div>
 
+            {/* F248: Details panel - stack vertically on phone */}
             <div className="bg-black/20 rounded-xl p-4">
                 <SectionLabel className="mb-3">Details</SectionLabel>
-                <div className="grid grid-cols-3 gap-4">
-                    <div className="flex flex-col items-center">
+                <div className={`grid ${isPhone ? 'grid-cols-1 gap-3' : 'grid-cols-3 gap-4'}`}>
+                    <div
+                        className={`flex ${isPhone ? 'flex-row items-center gap-4 p-3 bg-white/5 rounded-lg' : 'flex-col items-center'}`}
+                    >
                         <Icon name="thermostat" size="xl" className="text-white/60" />
-                        <span className="text-white/60 text-xs mt-1">Feels Like</span>
-                        <span className="text-white text-lg">
-                            {feelsLike.value}
-                            {feelsLike.unit}
-                        </span>
+                        <div className={isPhone ? 'flex flex-col' : 'flex flex-col items-center'}>
+                            <span className="text-white/60 text-xs mt-1">Feels Like</span>
+                            <span className="text-white text-lg">
+                                {feelsLike.value}
+                                {feelsLike.unit}
+                            </span>
+                        </div>
                     </div>
-                    <div className="flex flex-col items-center">
+                    <div
+                        className={`flex ${isPhone ? 'flex-row items-center gap-4 p-3 bg-white/5 rounded-lg' : 'flex-col items-center'}`}
+                    >
                         <Icon name="water_drop" size="xl" className="text-white/60" />
-                        <span className="text-white/60 text-xs mt-1">Humidity</span>
-                        <span className="text-white text-lg">{weather.humidity}%</span>
+                        <div className={isPhone ? 'flex flex-col' : 'flex flex-col items-center'}>
+                            <span className="text-white/60 text-xs mt-1">Humidity</span>
+                            <span className="text-white text-lg">{weather.humidity}%</span>
+                        </div>
                     </div>
-                    <div className="flex flex-col items-center">
+                    <div
+                        className={`flex ${isPhone ? 'flex-row items-center gap-4 p-3 bg-white/5 rounded-lg' : 'flex-col items-center'}`}
+                    >
                         <Icon name="air" size="xl" className="text-white/60" />
-                        <span className="text-white/60 text-xs mt-1">Wind</span>
-                        <span className="text-white text-lg">
-                            {wind.value} {wind.unit}
-                        </span>
+                        <div className={isPhone ? 'flex flex-col' : 'flex flex-col items-center'}>
+                            <span className="text-white/60 text-xs mt-1">Wind</span>
+                            <span className="text-white text-lg">
+                                {wind.value} {wind.unit}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
 
+            {/* F248: Forecast - horizontal scroll on phone */}
             <div className="bg-black/20 rounded-xl p-4">
                 <SectionLabel className="mb-3">5-Day Forecast</SectionLabel>
-                <div className="flex justify-between">
+                <div
+                    className={`flex ${isPhone ? 'overflow-x-auto snap-x snap-mandatory gap-4 pb-2 -mx-2 px-2' : 'justify-between'}`}
+                >
                     {forecast.map((day, idx) => (
-                        <div key={idx} className="flex flex-col items-center">
+                        <div
+                            key={idx}
+                            className={`flex flex-col items-center ${isPhone ? 'min-w-[70px] snap-start flex-shrink-0' : ''}`}
+                        >
                             <span className="text-white/60 text-sm">{day.day}</span>
                             <Icon name={day.icon} size="xl" className="text-orange-400 my-2" />
                             <span className="text-white text-sm">{formatTemperature(day.high, unitSystem).value}°</span>

@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDb } from '../context/DbContext';
 import { useDexieLiveQuery } from '../utils/storage/react';
-import { useWindowInstance, useNotification } from '../hooks';
+import { useWindowInstance, useNotification, usePhoneMode } from '../hooks';
 import { generateUuid } from '../utils/uuid';
-import { SearchInput, TextArea } from '../components/ui';
+import { SearchInput, TextArea, TabSwitcher } from '../components/ui';
 import { useConfirmDialog, ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { email as emailValidator, validateValue } from '../utils/validation';
 import type { MailFolderId, EmailRecord } from '../utils/storage/db';
@@ -98,6 +98,7 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
     const { confirm, dialogProps } = useConfirmDialog();
     const { setTitle, setBadge } = useWindowInstance(windowId ?? '');
     const { info } = useNotification();
+    const isPhone = usePhoneMode();
 
     // Track previous unread count to detect new messages
     const prevUnreadCountRef = useRef<number | null>(null);
@@ -108,6 +109,9 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
     const [compose, setCompose] = useState<ComposeState | null>(null);
     const [composeError, setComposeError] = useState<string | null>(null);
     const [isSeeded, setIsSeeded] = useState(false);
+    // Phone mode: track which tab and whether we're viewing a message detail
+    const [phoneTab, setPhoneTab] = useState<'inbox' | 'compose'>('inbox');
+    const [showingDetail, setShowingDetail] = useState(false);
 
     // Live query for emails
     const { value: emails = [], isLoading } = useDexieLiveQuery(
@@ -214,6 +218,9 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
 
     const openMessage = async (id: string) => {
         setSelectedMessageId(id);
+        if (isPhone) {
+            setShowingDetail(true);
+        }
         const email = emails.find(e => e.id === id);
         if (email && !email.isRead) {
             await db.emails.update(id, { isRead: true, updatedAt: Date.now() });
@@ -378,6 +385,243 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
         );
     }
 
+    // F238: Phone-optimized tabbed layout
+    if (isPhone) {
+        const phoneTabs = [
+            { id: 'inbox' as const, label: t('inbox'), icon: 'inbox' },
+            { id: 'compose' as const, label: t('compose'), icon: 'edit' },
+        ];
+
+        // Phone: Message detail view with back button
+        if (showingDetail && selectedMessage) {
+            return (
+                <div className="h-full w-full bg-background-dark text-white flex flex-col">
+                    {/* Header with back button */}
+                    <div className="h-12 shrink-0 border-b border-white/5 bg-black/20 flex items-center gap-2 px-3">
+                        <button
+                            onClick={() => setShowingDetail(false)}
+                            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 active:bg-white/20"
+                        >
+                            <span className="material-symbols-outlined text-xl">arrow_back</span>
+                        </button>
+                        <span className="text-sm font-medium text-white/90 truncate flex-1">
+                            {selectedMessage.subject || '(no subject)'}
+                        </span>
+                        {selectedMessage.folderId === 'trash' ? (
+                            <button
+                                onClick={() => void deleteForever(selectedMessage.id)}
+                                className="w-10 h-10 rounded-full flex items-center justify-center text-red-400 hover:bg-red-500/20"
+                            >
+                                <span className="material-symbols-outlined text-xl">delete_forever</span>
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => void moveToTrash(selectedMessage.id)}
+                                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10"
+                            >
+                                <span className="material-symbols-outlined text-xl">delete</span>
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Message content */}
+                    <div className="flex-1 overflow-y-auto p-4">
+                        <div className="text-lg font-medium text-white mb-3">
+                            {selectedMessage.subject || '(no subject)'}
+                        </div>
+                        <div className="text-xs text-white/60 flex flex-col gap-1 mb-4">
+                            <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[16px] text-white/40">person</span>
+                                <span className="truncate">{selectedMessage.from}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[16px] text-white/40">mail</span>
+                                <span className="truncate">
+                                    {t('to')}: {selectedMessage.to.join(', ') || '(none)'}
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[16px] text-white/40">schedule</span>
+                                <span>{formatMessageTime(selectedMessage.date)}</span>
+                            </div>
+                        </div>
+                        <div className="text-sm text-white/80 whitespace-pre-wrap leading-relaxed">
+                            {selectedMessage.body}
+                        </div>
+                    </div>
+
+                    <ConfirmDialog {...dialogProps} />
+                </div>
+            );
+        }
+
+        return (
+            <div className="h-full w-full bg-background-dark text-white flex flex-col">
+                {/* Tab header */}
+                <div className="shrink-0 p-3 pb-0">
+                    <TabSwitcher tabs={phoneTabs} activeTab={phoneTab} onTabChange={tab => setPhoneTab(tab)} />
+                </div>
+
+                {phoneTab === 'inbox' ? (
+                    <div className="flex-1 flex flex-col min-h-0">
+                        {/* Folder selector */}
+                        <div className="shrink-0 flex gap-1 px-3 py-2 overflow-x-auto">
+                            {(['inbox', 'sent', 'drafts', 'trash'] as MailFolderId[]).map(mailbox => {
+                                const isActive = mailbox === activeMailbox;
+                                const count = mailboxCounts[mailbox];
+                                const badge = mailbox === 'inbox' ? count.unread : count.total;
+                                return (
+                                    <button
+                                        key={mailbox}
+                                        onClick={() => setActiveMailbox(mailbox)}
+                                        className={`shrink-0 px-3 py-2 rounded-full text-xs flex items-center gap-2 min-h-[44px] ${isActive ? 'bg-primary text-white' : 'bg-white/10 text-white/70'}`}
+                                    >
+                                        <span className="material-symbols-outlined text-[16px]">
+                                            {mailbox === 'inbox'
+                                                ? 'inbox'
+                                                : mailbox === 'sent'
+                                                  ? 'send'
+                                                  : mailbox === 'drafts'
+                                                    ? 'draft'
+                                                    : 'delete'}
+                                        </span>
+                                        {t(mailbox)}
+                                        {badge > 0 && (
+                                            <span
+                                                className={`text-[10px] px-1.5 py-0.5 rounded-full ${isActive ? 'bg-white/30' : 'bg-white/20'}`}
+                                            >
+                                                {badge}
+                                            </span>
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Search */}
+                        <div className="px-3 py-2">
+                            <SearchInput
+                                value={searchQuery}
+                                onChange={setSearchQuery}
+                                placeholder={t('actions.search')}
+                                aria-label={t('actions.search')}
+                            />
+                        </div>
+
+                        {/* Message list */}
+                        <div className="flex-1 overflow-y-auto">
+                            {filteredMessages.length === 0 ? (
+                                <div className="p-6 text-sm text-white/50 text-center">{t('noMessages')}</div>
+                            ) : (
+                                filteredMessages.map(email => {
+                                    const isUnread = !email.isRead && email.folderId === 'inbox';
+                                    const preview =
+                                        email.body
+                                            .split('\n')
+                                            .map(l => l.trim())
+                                            .find(Boolean) ?? '';
+                                    return (
+                                        <button
+                                            key={email.id}
+                                            onClick={() => void openMessage(email.id)}
+                                            className="w-full text-left px-4 py-3 min-h-[60px] border-b border-white/5 active:bg-white/10"
+                                        >
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex items-center gap-2">
+                                                        {isUnread && (
+                                                            <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
+                                                        )}
+                                                        <span
+                                                            className={`text-sm truncate ${isUnread ? 'font-semibold text-white' : 'text-white/80'}`}
+                                                        >
+                                                            {email.subject || '(no subject)'}
+                                                        </span>
+                                                    </div>
+                                                    <div className="mt-0.5 text-[11px] text-white/50 truncate">
+                                                        {email.folderId === 'sent'
+                                                            ? `To: ${email.to.join(', ') || '(none)'}`
+                                                            : email.from}
+                                                    </div>
+                                                </div>
+                                                <div className="text-[10px] text-white/40 shrink-0">
+                                                    {formatMessageTime(email.date)}
+                                                </div>
+                                            </div>
+                                            <div className="mt-1 text-[11px] text-white/40 truncate">{preview}</div>
+                                        </button>
+                                    );
+                                })
+                            )}
+                        </div>
+                    </div>
+                ) : (
+                    // Compose tab
+                    <div className="flex-1 flex flex-col p-3 gap-3 min-h-0">
+                        {composeError && (
+                            <div className="px-3 py-2 text-xs bg-red-500/15 text-red-100 rounded-lg">
+                                {composeError}
+                            </div>
+                        )}
+                        <input
+                            value={compose?.to ?? ''}
+                            onChange={e =>
+                                setCompose(prev =>
+                                    prev
+                                        ? { ...prev, to: e.target.value }
+                                        : { to: e.target.value, subject: '', body: '' }
+                                )
+                            }
+                            className="h-11 px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60"
+                            placeholder={`${t('to')}...`}
+                        />
+                        <input
+                            value={compose?.subject ?? ''}
+                            onChange={e =>
+                                setCompose(prev =>
+                                    prev
+                                        ? { ...prev, subject: e.target.value }
+                                        : { to: '', subject: e.target.value, body: '' }
+                                )
+                            }
+                            className="h-11 px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60"
+                            placeholder={t('subject')}
+                        />
+                        <TextArea
+                            value={compose?.body ?? ''}
+                            onChange={e =>
+                                setCompose(prev =>
+                                    prev
+                                        ? { ...prev, body: e.target.value }
+                                        : { to: '', subject: '', body: e.target.value }
+                                )
+                            }
+                            className="flex-1 min-h-[120px] bg-black/30 focus:border-primary/60"
+                            placeholder={t('body')}
+                        />
+                        <div className="flex items-center justify-between gap-2">
+                            <button
+                                onClick={() => void saveDraft()}
+                                className="px-4 py-2.5 min-h-[44px] rounded-lg bg-white/10 hover:bg-white/20 text-sm text-white/90"
+                            >
+                                {t('saveDraft')}
+                            </button>
+                            <button
+                                onClick={() => void sendMessage()}
+                                className="px-4 py-2.5 min-h-[44px] rounded-lg bg-primary hover:bg-primary/90 text-sm text-white font-medium"
+                            >
+                                {t('send')}
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                <ConfirmDialog {...dialogProps} />
+            </div>
+        );
+    }
+
+    // Desktop layout
     return (
         <div className="h-full w-full bg-background-dark text-white flex">
             {/* Sidebar */}

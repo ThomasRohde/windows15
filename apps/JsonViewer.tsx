@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAsyncAction, useAppState, useFilePicker } from '../hooks';
+import { useAsyncAction, useAppState, useFilePicker, usePhoneMode } from '../hooks';
 import { useTranslation } from '../hooks/useTranslation';
 import { AppToolbar, TextArea } from '../components/ui';
 import { FilePickerModal } from '../components';
@@ -8,9 +8,10 @@ interface JsonNodeProps {
     data: unknown;
     keyName?: string | number;
     level: number;
+    isPhone?: boolean;
 }
 
-const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level }) => {
+const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level, isPhone }) => {
     const [collapsed, setCollapsed] = useState(false);
 
     const getType = (value: unknown): string => {
@@ -36,14 +37,19 @@ const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level }) => {
 
     const type = getType(data);
     const isExpandable = type === 'object' || type === 'array';
-    const indent = level * 16;
+    const indent = level * (isPhone ? 12 : 16);
+
+    // F249: Phone-friendly sizing
+    const nodeClasses = isPhone ? 'min-h-[44px] py-2 text-base' : '';
 
     if (!isExpandable) {
         return (
-            <div style={{ paddingLeft: indent }} className="flex gap-1">
+            <div style={{ paddingLeft: indent }} className={`flex gap-1 items-center ${nodeClasses}`}>
                 {keyName !== undefined && <span className="text-purple-400">"{keyName}"</span>}
                 {keyName !== undefined && <span className="text-white">: </span>}
-                <span className={getColor(type)}>{type === 'string' ? `"${data}"` : String(data)}</span>
+                <span className={`${getColor(type)} ${isPhone ? 'break-all' : ''}`}>
+                    {type === 'string' ? `"${data}"` : String(data)}
+                </span>
             </div>
         );
     }
@@ -56,10 +62,10 @@ const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level }) => {
         <div>
             <div
                 style={{ paddingLeft: indent }}
-                className="flex gap-1 cursor-pointer hover:bg-white/5"
+                className={`flex gap-1 cursor-pointer hover:bg-white/5 items-center ${nodeClasses}`}
                 onClick={() => setCollapsed(!collapsed)}
             >
-                <span className="text-gray-500 w-4">{collapsed ? '▶' : '▼'}</span>
+                <span className={`text-gray-500 ${isPhone ? 'w-6 text-lg' : 'w-4'}`}>{collapsed ? '▶' : '▼'}</span>
                 {keyName !== undefined && <span className="text-purple-400">"{keyName}"</span>}
                 {keyName !== undefined && <span className="text-white">: </span>}
                 <span className="text-white">{bracket[0]}</span>
@@ -80,9 +86,10 @@ const JsonNode: React.FC<JsonNodeProps> = ({ data, keyName, level }) => {
                             data={value}
                             keyName={type === 'object' ? (entryKey as string) : undefined}
                             level={level + 1}
+                            isPhone={isPhone}
                         />
                     ))}
-                    <div style={{ paddingLeft: indent }} className="text-white">
+                    <div style={{ paddingLeft: indent }} className={`text-white ${nodeClasses}`}>
                         {bracket[1]}
                     </div>
                 </>
@@ -98,6 +105,7 @@ interface JsonViewerState {
 
 export const JsonViewer = () => {
     const { t } = useTranslation('jsonViewer');
+    const isPhone = usePhoneMode();
     const [state, setState] = useAppState<JsonViewerState>('jsonViewer', {
         input: '',
         view: 'tree',
@@ -207,8 +215,11 @@ export const JsonViewer = () => {
                 </div>
             </AppToolbar>
 
-            <div className="flex-1 flex min-h-0">
-                <div className="w-1/2 flex flex-col border-r border-white/10">
+            {/* F249: Responsive layout - stack on phone */}
+            <div className={`flex-1 flex ${isPhone ? 'flex-col' : ''} min-h-0`}>
+                <div
+                    className={`${isPhone ? 'h-1/3 min-h-[120px]' : 'w-1/2'} flex flex-col ${isPhone ? 'border-b' : 'border-r'} border-white/10`}
+                >
                     <div className="px-3 py-2 text-xs text-gray-400 bg-black/20">{t('pasteJson')}</div>
                     <TextArea
                         className="flex-1 bg-transparent border-none"
@@ -220,9 +231,11 @@ export const JsonViewer = () => {
                     />
                 </div>
 
-                <div className="w-1/2 flex flex-col min-h-0">
+                <div className={`${isPhone ? 'flex-1' : 'w-1/2'} flex flex-col min-h-0`}>
                     <div className="px-3 py-2 text-xs text-gray-400 bg-black/20">{t('validJson')}</div>
-                    <div className="flex-1 overflow-auto p-3 font-mono text-sm">
+                    <div
+                        className={`flex-1 overflow-auto p-3 font-mono ${isPhone ? 'text-base' : 'text-sm'} overflow-x-auto`}
+                    >
                         {error && (
                             <div className="bg-red-500/20 border border-red-500/50 rounded p-3 text-red-400">
                                 <div className="font-medium mb-1">{t('invalidJson')}</div>
@@ -232,7 +245,7 @@ export const JsonViewer = () => {
                         {parsedJson !== null &&
                             !error &&
                             (view === 'tree' ? (
-                                <JsonNode data={parsedJson} level={0} />
+                                <JsonNode data={parsedJson} level={0} isPhone={isPhone} />
                             ) : (
                                 <pre className="text-green-400 whitespace-pre-wrap">
                                     {JSON.stringify(parsedJson, null, 2)}

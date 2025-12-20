@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAsyncAction, useAppState, useFilePicker } from '../hooks';
+import { useAsyncAction, useAppState, useFilePicker, usePhoneMode } from '../hooks';
 import { useTranslation } from '../hooks/useTranslation';
 import { SectionLabel, CopyButton, AppToolbar, TextArea } from '../components/ui';
 import { FilePickerModal } from '../components';
@@ -180,6 +180,7 @@ interface HashGeneratorState {
 
 export const HashGenerator = () => {
     const { t } = useTranslation('hashGenerator');
+    const isPhone = usePhoneMode();
     const [state, setState] = useAppState<HashGeneratorState>('hashGenerator', {
         input: '',
         hashes: [],
@@ -230,7 +231,7 @@ export const HashGenerator = () => {
             <AppToolbar title={t('title')}>
                 <button
                     onClick={openFile}
-                    className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors flex items-center gap-1"
+                    className={`bg-white/10 hover:bg-white/20 active:bg-white/30 rounded text-sm transition-colors flex items-center gap-1 ${isPhone ? 'min-h-[44px] px-4' : 'px-3 py-1.5'}`}
                     title="Open file to hash"
                 >
                     <span className="material-symbols-outlined text-[16px]">folder_open</span>
@@ -238,7 +239,7 @@ export const HashGenerator = () => {
                 </button>
                 <button
                     onClick={clear}
-                    className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors"
+                    className={`bg-white/10 hover:bg-white/20 active:bg-white/30 rounded text-sm transition-colors ${isPhone ? 'min-h-[44px] px-4' : 'px-3 py-1.5'}`}
                 >
                     Clear
                 </button>
@@ -261,7 +262,7 @@ export const HashGenerator = () => {
                     <button
                         onClick={generateHashes}
                         disabled={loading || !input}
-                        className="self-start px-6 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/50 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors"
+                        className={`self-start bg-blue-600 hover:bg-blue-500 active:bg-blue-700 disabled:bg-blue-600/50 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors ${isPhone ? 'min-h-[44px] px-6 w-full' : 'px-6 py-2'}`}
                     >
                         {loading ? t('inputPlaceholder') : t('title')}
                     </button>

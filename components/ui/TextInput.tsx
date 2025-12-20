@@ -35,8 +35,8 @@ export interface TextInputProps extends Omit<React.InputHTMLAttributes<HTMLInput
 
 const sizeClasses: Record<TextInputSize, string> = {
     sm: 'h-8 px-2 py-1 text-sm rounded',
-    md: 'h-9 px-3 py-2 text-sm rounded-lg',
-    lg: 'h-11 px-4 py-3 text-base rounded-lg',
+    md: 'min-h-[44px] px-3 py-2 text-sm rounded-lg',
+    lg: 'min-h-[52px] px-4 py-3 text-base rounded-lg',
 };
 
 /**

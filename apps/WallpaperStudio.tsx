@@ -12,6 +12,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useWallpaper } from '../context';
 import { Slider } from '../components/ui';
+import { usePhoneMode } from '../hooks';
 import type { WallpaperManifest, WallpaperSettings } from '../types/wallpaper';
 
 /**
@@ -145,6 +146,7 @@ const ALL_TAGS = Array.from(new Set(BUILT_IN_WALLPAPERS.flatMap(w => w.tags ?? [
 
 export const WallpaperStudio: React.FC = () => {
     const { setWallpaper, activeWallpaper, settings: wallpaperSettings, updateSettings } = useWallpaper();
+    const isPhone = usePhoneMode();
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
     const [selectedWallpaper, setSelectedWallpaper] = useState<WallpaperManifest | null>(null);
     const [isApplying, setIsApplying] = useState(false);
@@ -194,72 +196,74 @@ export const WallpaperStudio: React.FC = () => {
 
     return (
         <div className="flex h-full bg-neutral-900/95">
-            {/* Sidebar with tags */}
-            <div className="w-56 bg-black/20 border-r border-white/10 flex flex-col">
-                <div className="p-4 border-b border-white/10">
-                    <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary">wallpaper</span>
-                        Wallpaper Studio
-                    </h2>
-                </div>
+            {/* F250: Sidebar hidden on phone, use header instead */}
+            {!isPhone && (
+                <div className="w-56 bg-black/20 border-r border-white/10 flex flex-col">
+                    <div className="p-4 border-b border-white/10">
+                        <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                            <span className="material-symbols-outlined text-primary">wallpaper</span>
+                            Wallpaper Studio
+                        </h2>
+                    </div>
 
-                {/* Categories */}
-                <nav className="flex-1 overflow-y-auto p-2">
-                    <button
-                        type="button"
-                        onClick={() => setSelectedTag(null)}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                            selectedTag === null
-                                ? 'bg-primary/20 text-primary'
-                                : 'text-white/70 hover:bg-white/5 hover:text-white'
-                        }`}
-                    >
-                        <span className="material-symbols-outlined text-base align-middle mr-2">grid_view</span>
-                        All Wallpapers
-                    </button>
-
-                    <div className="mt-4 mb-2 px-3 text-xs text-white/40 uppercase tracking-wider">Categories</div>
-
-                    {ALL_TAGS.map(tag => (
+                    {/* Categories */}
+                    <nav className="flex-1 overflow-y-auto p-2">
                         <button
-                            key={tag}
                             type="button"
-                            onClick={() => setSelectedTag(tag)}
-                            className={`w-full text-left px-3 py-2 rounded-lg text-sm capitalize transition-colors ${
-                                selectedTag === tag
+                            onClick={() => setSelectedTag(null)}
+                            className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                                selectedTag === null
                                     ? 'bg-primary/20 text-primary'
                                     : 'text-white/70 hover:bg-white/5 hover:text-white'
                             }`}
                         >
-                            <span className="material-symbols-outlined text-base align-middle mr-2">
-                                {getCategoryIcon(tag)}
-                            </span>
-                            {tag}
+                            <span className="material-symbols-outlined text-base align-middle mr-2">grid_view</span>
+                            All Wallpapers
                         </button>
-                    ))}
-                </nav>
 
-                {/* Settings button */}
-                <div className="p-2 border-t border-white/10">
-                    <button
-                        type="button"
-                        onClick={() => setShowSettings(!showSettings)}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                            showSettings
-                                ? 'bg-primary/20 text-primary'
-                                : 'text-white/70 hover:bg-white/5 hover:text-white'
-                        }`}
-                    >
-                        <span className="material-symbols-outlined text-base align-middle mr-2">tune</span>
-                        Settings
-                    </button>
-                </div>
+                        <div className="mt-4 mb-2 px-3 text-xs text-white/40 uppercase tracking-wider">Categories</div>
 
-                {/* Stats */}
-                <div className="p-4 border-t border-white/10 text-xs text-white/40">
-                    {filteredWallpapers.length} wallpapers
+                        {ALL_TAGS.map(tag => (
+                            <button
+                                key={tag}
+                                type="button"
+                                onClick={() => setSelectedTag(tag)}
+                                className={`w-full text-left px-3 py-2 rounded-lg text-sm capitalize transition-colors ${
+                                    selectedTag === tag
+                                        ? 'bg-primary/20 text-primary'
+                                        : 'text-white/70 hover:bg-white/5 hover:text-white'
+                                }`}
+                            >
+                                <span className="material-symbols-outlined text-base align-middle mr-2">
+                                    {getCategoryIcon(tag)}
+                                </span>
+                                {tag}
+                            </button>
+                        ))}
+                    </nav>
+
+                    {/* Settings button */}
+                    <div className="p-2 border-t border-white/10">
+                        <button
+                            type="button"
+                            onClick={() => setShowSettings(!showSettings)}
+                            className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                                showSettings
+                                    ? 'bg-primary/20 text-primary'
+                                    : 'text-white/70 hover:bg-white/5 hover:text-white'
+                            }`}
+                        >
+                            <span className="material-symbols-outlined text-base align-middle mr-2">tune</span>
+                            Settings
+                        </button>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="p-4 border-t border-white/10 text-xs text-white/40">
+                        {filteredWallpapers.length} wallpapers
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Main content - Gallery or Settings */}
             <div className="flex-1 flex flex-col overflow-hidden">
@@ -389,15 +393,43 @@ export const WallpaperStudio: React.FC = () => {
                     </div>
                 ) : (
                     <>
-                        {/* Gallery header */}
-                        <div className="p-4 border-b border-white/10 flex items-center justify-between">
-                            <h3 className="text-white font-medium capitalize">{selectedTag ?? 'All Wallpapers'}</h3>
-                            <span className="text-white/40 text-sm">Click to preview, double-click to apply</span>
+                        {/* Gallery header - F250: with category chips on phone */}
+                        <div className={`${isPhone ? 'p-3' : 'p-4'} border-b border-white/10 flex flex-col gap-2`}>
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-white font-medium capitalize">{selectedTag ?? 'All Wallpapers'}</h3>
+                                {!isPhone && (
+                                    <span className="text-white/40 text-sm">
+                                        Click to preview, double-click to apply
+                                    </span>
+                                )}
+                            </div>
+                            {/* F250: Phone category chips */}
+                            {isPhone && (
+                                <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+                                    <button
+                                        onClick={() => setSelectedTag(null)}
+                                        className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm ${selectedTag === null ? 'bg-primary text-white' : 'bg-white/10 text-white/70'}`}
+                                    >
+                                        All
+                                    </button>
+                                    {ALL_TAGS.slice(0, 6).map(tag => (
+                                        <button
+                                            key={tag}
+                                            onClick={() => setSelectedTag(tag)}
+                                            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm capitalize ${selectedTag === tag ? 'bg-primary text-white' : 'bg-white/10 text-white/70'}`}
+                                        >
+                                            {tag}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
-                        {/* Gallery grid */}
-                        <div className="flex-1 overflow-y-auto p-4">
-                            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        {/* Gallery grid - F250: 2 columns on phone */}
+                        <div className="flex-1 overflow-y-auto p-4 touch-scroll">
+                            <div
+                                className={`grid ${isPhone ? 'grid-cols-2 gap-3' : 'grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'}`}
+                            >
                                 {filteredWallpapers.map(wallpaper => (
                                     <WallpaperCard
                                         key={wallpaper.id}
@@ -414,44 +446,59 @@ export const WallpaperStudio: React.FC = () => {
                 )}
             </div>
 
-            {/* Preview panel (when wallpaper selected) */}
+            {/* Preview panel (when wallpaper selected) - F250: Full screen overlay on phone */}
             {selectedWallpaper && (
-                <div className="w-80 bg-black/30 border-l border-white/10 flex flex-col">
+                <div
+                    className={`${isPhone ? 'fixed inset-0 z-50 bg-neutral-900' : 'w-80'} bg-black/30 border-l border-white/10 flex flex-col`}
+                >
                     {/* Preview image */}
-                    <div className="aspect-video relative overflow-hidden">
+                    <div className={`${isPhone ? 'flex-1' : 'aspect-video'} relative overflow-hidden`}>
                         <img
                             src={selectedWallpaper.preview}
                             alt={selectedWallpaper.name}
                             className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
+
+                        {/* F250: Close button repositioned for phone */}
+                        <button
+                            type="button"
+                            onClick={() => setSelectedWallpaper(null)}
+                            className={`absolute ${isPhone ? 'top-4 right-4 w-11 h-11' : 'top-2 right-2 w-8 h-8'} flex items-center justify-center rounded-full bg-black/50 text-white/70 hover:text-white hover:bg-black/70 transition-colors`}
+                        >
+                            <span className="material-symbols-outlined text-lg">close</span>
+                        </button>
                     </div>
 
-                    {/* Info */}
-                    <div className="p-4 flex-1">
-                        <h3 className="text-lg font-semibold text-white mb-2">{selectedWallpaper.name}</h3>
+                    {/* Info - F250: Overlay on phone */}
+                    <div
+                        className={`${isPhone ? 'absolute bottom-0 left-0 right-0 p-6 pb-safe' : 'p-4 flex-1'} bg-gradient-to-t from-black via-black/90 to-transparent`}
+                    >
+                        <h3 className={`${isPhone ? 'text-xl' : 'text-lg'} font-semibold text-white mb-2`}>
+                            {selectedWallpaper.name}
+                        </h3>
 
                         <div className="flex flex-wrap gap-1 mb-4">
                             {selectedWallpaper.tags?.map(tag => (
                                 <span
                                     key={tag}
-                                    className="px-2 py-0.5 bg-white/10 rounded-full text-xs text-white/70 capitalize"
+                                    className={`px-2 py-0.5 bg-white/10 rounded-full ${isPhone ? 'text-sm' : 'text-xs'} text-white/70 capitalize`}
                                 >
                                     {tag}
                                 </span>
                             ))}
                         </div>
 
-                        <div className="text-sm text-white/50 mb-4">
+                        <div className={`${isPhone ? 'text-base' : 'text-sm'} text-white/50 mb-4`}>
                             Type: {selectedWallpaper.type === 'image' ? 'Static Image' : 'Live Wallpaper'}
                         </div>
 
-                        {/* Actions */}
+                        {/* Actions - F250: Larger button on phone */}
                         <button
                             type="button"
                             onClick={() => handleApplyWallpaper(selectedWallpaper)}
                             disabled={isApplying || isActive(selectedWallpaper)}
-                            className={`w-full py-2.5 rounded-lg font-medium transition-colors ${
+                            className={`w-full ${isPhone ? 'py-4 text-base' : 'py-2.5'} rounded-lg font-medium transition-colors ${
                                 isActive(selectedWallpaper)
                                     ? 'bg-green-500/20 text-green-400 cursor-default'
                                     : 'bg-primary hover:bg-primary/80 text-white'
@@ -474,15 +521,6 @@ export const WallpaperStudio: React.FC = () => {
                             )}
                         </button>
                     </div>
-
-                    {/* Close button */}
-                    <button
-                        type="button"
-                        onClick={() => setSelectedWallpaper(null)}
-                        className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full bg-black/50 text-white/70 hover:text-white hover:bg-black/70 transition-colors"
-                    >
-                        <span className="material-symbols-outlined text-lg">close</span>
-                    </button>
                 </div>
             )}
         </div>

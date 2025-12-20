@@ -4,7 +4,14 @@ import { WindowState } from '../types';
 import { AppLoadingSkeleton } from './AppLoadingSkeleton';
 import { ErrorBoundary } from './ErrorBoundary';
 import { WINDOW } from '../utils/constants';
-import { usePinchGesture, useTouchDevice, useAppEmit, useVirtualKeyboard, usePhoneMode } from '../hooks';
+import {
+    usePinchGesture,
+    useTouchDevice,
+    useAppEmit,
+    useVirtualKeyboard,
+    usePhoneMode,
+    useOrientation,
+} from '../hooks';
 
 interface WindowProps {
     window: WindowState;
@@ -57,6 +64,8 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
         prefersReducedMotion,
     } = useWindowSpace();
     const isPhone = usePhoneMode();
+    const orientation = useOrientation();
+    const isPhoneLandscape = isPhone && orientation === 'landscape';
     const [isDragging, setIsDragging] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
     const [resizeDir, setResizeDir] = useState<ResizeDirection>(null);
@@ -487,15 +496,47 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
         return parts.join(' ');
     };
 
+    // Calculate gap for maximized windows based on mode
+    // Phone landscape: 48px left gap for vertical taskbar
+    // Phone portrait: 60px bottom gap
+    // Desktop: 96px bottom gap
+    const getMaximizedStyle = (): React.CSSProperties => {
+        if (isPhoneLandscape) {
+            // Phone landscape: taskbar on left, full height
+            return {
+                position: 'fixed',
+                top: 0,
+                left: '48px', // Vertical taskbar width
+                right: 0,
+                bottom: 0,
+                height: '100vh',
+                transform: 'none',
+            };
+        }
+        if (isPhone) {
+            // Phone portrait: reduced bottom gap
+            return {
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 'calc(100vh - 60px)',
+                transform: 'none',
+            };
+        }
+        // Desktop: standard bottom gap
+        return {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: `calc(100vh - ${WINDOW.MAXIMIZED_BOTTOM_GAP}px)`,
+            transform: 'none',
+        };
+    };
+
     const outerStyle: React.CSSProperties = window.isMaximized
-        ? {
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: `calc(100vh - ${WINDOW.MAXIMIZED_BOTTOM_GAP}px)`,
-              transform: 'none',
-          }
+        ? getMaximizedStyle()
         : {
               top: 0,
               left: 0,

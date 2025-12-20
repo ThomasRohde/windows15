@@ -1,5 +1,12 @@
 import React from 'react';
-import { useAsyncAction, useStandardHotkeys, useCopyToClipboard, useAppState, useFilePicker } from '../hooks';
+import {
+    useAsyncAction,
+    useStandardHotkeys,
+    useCopyToClipboard,
+    useAppState,
+    useFilePicker,
+    usePhoneMode,
+} from '../hooks';
 import { useTranslation } from '../hooks/useTranslation';
 import { TabSwitcher, ErrorBanner, SectionLabel, CopyButton, AppToolbar, TextArea } from '../components/ui';
 import { FilePickerModal } from '../components';
@@ -12,6 +19,7 @@ interface Base64ToolState {
 
 export const Base64Tool = () => {
     const { t } = useTranslation('base64Tool');
+    const isPhone = usePhoneMode();
     const [state, setState] = useAppState<Base64ToolState>('base64Tool', {
         input: '',
         output: '',
@@ -96,25 +104,25 @@ export const Base64Tool = () => {
                 />
                 <button
                     onClick={openFile}
-                    className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors flex items-center gap-1"
+                    className={`bg-white/10 hover:bg-white/20 active:bg-white/30 rounded text-sm transition-colors flex items-center gap-1 ${isPhone ? 'min-h-[44px] px-4' : 'px-3 py-1.5'}`}
                     title="Open file to encode/decode"
                 >
                     <span className="material-symbols-outlined text-[16px]">folder_open</span>
-                    Open
+                    {!isPhone && 'Open'}
                 </button>
                 {output && (
                     <button
                         onClick={saveOutput}
-                        className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors flex items-center gap-1"
+                        className={`bg-white/10 hover:bg-white/20 active:bg-white/30 rounded text-sm transition-colors flex items-center gap-1 ${isPhone ? 'min-h-[44px] px-4' : 'px-3 py-1.5'}`}
                         title="Save output"
                     >
                         <span className="material-symbols-outlined text-[16px]">save</span>
-                        Save
+                        {!isPhone && 'Save'}
                     </button>
                 )}
                 <button
                     onClick={clear}
-                    className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors"
+                    className={`bg-white/10 hover:bg-white/20 active:bg-white/30 rounded text-sm transition-colors ${isPhone ? 'min-h-[44px] px-4' : 'px-3 py-1.5'}`}
                 >
                     {t('clearAll')}
                 </button>
@@ -136,16 +144,16 @@ export const Base64Tool = () => {
                     />
                 </div>
 
-                <div className="flex justify-center gap-3">
+                <div className={`flex justify-center gap-3 ${isPhone ? 'flex-col' : ''}`}>
                     <button
                         onClick={handleAction}
-                        className="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                        className={`bg-blue-600 hover:bg-blue-500 active:bg-blue-700 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${isPhone ? 'min-h-[44px] w-full' : 'px-6 py-2'}`}
                     >
                         {mode === 'encode' ? `↓ ${t('encode')}` : `↓ ${t('decode')}`}
                     </button>
                     <button
                         onClick={swap}
-                        className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors"
+                        className={`bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-lg text-sm transition-colors flex items-center justify-center ${isPhone ? 'min-h-[44px]' : 'px-4 py-2'}`}
                         title="Move output to input"
                     >
                         ⇅ Swap

@@ -6,7 +6,7 @@ import '@univerjs/presets/lib/styles/preset-sheets-core.css';
 import ExcelJS from 'exceljs';
 import { AppContainer } from '../components/ui';
 import { useTranslation } from '../hooks/useTranslation';
-import { useWindowInstance, useStandardHotkeys } from '../hooks';
+import { useWindowInstance, useStandardHotkeys, usePhoneMode } from '../hooks';
 import { getFileExtension } from './registry';
 import { getFiles, saveFileToFolder } from '../utils/fileSystem';
 import { FileSystemItem } from '../types';
@@ -212,9 +212,20 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
 }) => {
     const { t: _t } = useTranslation('spreadsheet');
     const { setTitle } = useWindowInstance(windowId ?? '');
+    const isPhone = usePhoneMode();
     const containerRef = useRef<HTMLDivElement>(null);
     const univerRef = useRef<ReturnType<typeof createUniver> | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
+
+    // F242: Phone warning banner state - check sessionStorage for dismissed state
+    const [bannerDismissed, setBannerDismissed] = useState(() => {
+        return sessionStorage.getItem('spreadsheet-phone-warning-dismissed') === 'true';
+    });
+
+    const dismissBanner = () => {
+        sessionStorage.setItem('spreadsheet-phone-warning-dismissed', 'true');
+        setBannerDismissed(true);
+    };
 
     // Menu and file state
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
@@ -603,6 +614,27 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
 
     return (
         <AppContainer>
+            {/* F242: Phone warning banner */}
+            {isPhone && !bannerDismissed && (
+                <div className="flex items-center gap-3 px-4 py-3 bg-amber-500/20 border-b border-amber-500/30">
+                    <span className="material-symbols-outlined text-amber-400 text-xl">warning</span>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-amber-200 text-sm font-medium">Limited mobile support</p>
+                        <p className="text-amber-200/70 text-xs">
+                            Spreadsheet editing works best on larger screens. You can view data, but some features may
+                            be difficult to use.
+                        </p>
+                    </div>
+                    <button
+                        onClick={dismissBanner}
+                        className="flex-shrink-0 w-10 h-10 flex items-center justify-center text-amber-200/70 hover:text-amber-200 hover:bg-amber-500/20 rounded-full transition-colors"
+                        title="Dismiss warning"
+                    >
+                        <span className="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+            )}
+
             {/* Menu Bar */}
             <div ref={menuRef} className="flex text-xs px-2 py-1 bg-[#2d2d2d] gap-4 select-none relative">
                 {Object.keys(menuItems).map(menu => (

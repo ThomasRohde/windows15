@@ -1,6 +1,6 @@
 import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
 import { useLocalization, useOS, useNotificationCenter } from '../context';
-import { useHandoffItems, usePhoneMode } from '../hooks';
+import { useHandoffItems, usePhoneMode, useOrientation } from '../hooks';
 import { SyncStatus } from './SyncStatus';
 import { NotificationCenter } from './NotificationCenter';
 import { Tooltip } from './ui';
@@ -22,6 +22,8 @@ export const Taskbar = () => {
     const { formatTimeShort, formatDateShort } = useLocalization();
     const { toggle: toggleNotifications, unreadCount, isOpen: isNotificationCenterOpen } = useNotificationCenter();
     const isPhone = usePhoneMode();
+    const orientation = useOrientation();
+    const isPhoneLandscape = isPhone && orientation === 'landscape';
     const [time, setTime] = useState(new Date());
     const newHandoffItems = useHandoffItems('new');
     const newHandoffCount = newHandoffItems?.length ?? 0;
@@ -61,12 +63,60 @@ export const Taskbar = () => {
     return (
         <div
             data-taskbar
-            className="fixed left-1/2 transform -translate-x-1/2 z-50"
-            style={{
-                bottom: 'calc(1.5rem + var(--safe-area-inset-bottom))',
-            }}
+            className={
+                isPhoneLandscape
+                    ? 'fixed top-0 left-0 h-full z-50 flex items-center'
+                    : 'fixed left-1/2 transform -translate-x-1/2 z-50'
+            }
+            style={
+                isPhoneLandscape
+                    ? { left: 'var(--safe-area-inset-left)', paddingTop: 'var(--safe-area-inset-top)' }
+                    : { bottom: 'calc(1.5rem + var(--safe-area-inset-bottom))' }
+            }
         >
-            {isPhone ? (
+            {isPhoneLandscape ? (
+                // Phone landscape - vertical taskbar on left edge (F234)
+                <div className="flex flex-col items-center justify-between h-[calc(100vh-var(--safe-area-inset-top)-var(--safe-area-inset-bottom))] w-12 py-3 glass-panel rounded-r-2xl shadow-2xl ring-1 ring-white/10 gap-3">
+                    {/* Start Button */}
+                    <button
+                        data-testid="start-menu-button"
+                        onClick={toggleStartMenu}
+                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors active:scale-95 ${isStartMenuOpen ? 'bg-white/10' : ''}`}
+                    >
+                        <span
+                            className="material-symbols-outlined text-primary text-2xl"
+                            style={{ fontVariationSettings: "'FILL' 1" }}
+                        >
+                            grid_view
+                        </span>
+                    </button>
+
+                    {/* Active app indicator - vertical centered */}
+                    {activeWindow && (
+                        <div className="flex flex-col items-center flex-1 justify-center min-h-0">
+                            <span
+                                className={`material-symbols-outlined text-xl ${apps.find(a => a.id === activeWindow.appId)?.color.replace('bg-', 'text-')}`}
+                            >
+                                {activeWindow.dynamicIcon ?? activeWindow.icon}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Notification toggle */}
+                    <button
+                        data-notification-button
+                        onClick={toggleNotifications}
+                        className={`relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 text-white/70 hover:text-white transition-colors ${isNotificationCenterOpen ? 'bg-white/10 text-white' : ''}`}
+                    >
+                        <span className="material-symbols-outlined text-xl">notifications</span>
+                        {unreadCount > 0 && (
+                            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full">
+                                {unreadCount > 99 ? '99+' : unreadCount}
+                            </span>
+                        )}
+                    </button>
+                </div>
+            ) : isPhone ? (
                 // Phone-optimized minimal layout (F227)
                 <div className="flex items-center justify-between h-12 px-3 glass-panel rounded-full shadow-2xl ring-1 ring-white/10 gap-3 w-[90vw] max-w-[400px]">
                     {/* Start Button */}

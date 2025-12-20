@@ -29,7 +29,7 @@ import {
     Select,
 } from '../components/ui';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
-import { useAsyncAction, useSound, useWindowInstance, useNotification } from '../hooks';
+import { useAsyncAction, useSound, useWindowInstance, useNotification, usePhoneMode } from '../hooks';
 import { required, maxLength, validateValue } from '../utils/validation';
 
 type Filter = 'all' | 'active' | 'completed';
@@ -81,6 +81,7 @@ export const TodoList: React.FC<TodoListProps> = ({ windowId }) => {
     const { playSound } = useSound();
     const { setTitle } = useWindowInstance(windowId ?? '');
     const { warning } = useNotification();
+    const isPhone = usePhoneMode();
     const { value: todosRaw, isLoading: loading } = useDexieLiveQuery(
         () => db.todos.orderBy('createdAt').toArray(),
         [db]
@@ -451,7 +452,8 @@ export const TodoList: React.FC<TodoListProps> = ({ windowId }) => {
             {error && <ErrorBanner message={error} onDismiss={clearError} />}
 
             <div className="space-y-2">
-                <div className="flex gap-2">
+                {/* F247: Stack input and add button on phone */}
+                <div className={`flex ${isPhone ? 'flex-col' : 'flex-row'} gap-2`}>
                     <TextInput
                         type="text"
                         value={input}
@@ -460,19 +462,20 @@ export const TodoList: React.FC<TodoListProps> = ({ windowId }) => {
                         placeholder="Add a new task..."
                         disabled={addAction.loading}
                         maxLength={500}
-                        className="flex-1 bg-black/30"
+                        className={`flex-1 bg-black/30 ${isPhone ? 'min-h-[44px]' : ''}`}
                     />
                     <Button
                         onClick={addTodo}
                         disabled={addAction.disabled}
                         loading={addAction.loading}
                         variant="secondary"
+                        className={isPhone ? 'min-h-[44px]' : ''}
                     >
                         Add
                     </Button>
                 </div>
 
-                <div className="flex gap-2 flex-wrap items-center">
+                <div className={`flex gap-2 flex-wrap items-center ${isPhone ? 'justify-start' : ''}`}>
                     <Select
                         value={newTodoPriority || ''}
                         onChange={value => setNewTodoPriority((value as Priority) || undefined)}
@@ -482,16 +485,16 @@ export const TodoList: React.FC<TodoListProps> = ({ windowId }) => {
                             { value: 'medium', label: 'Medium priority' },
                             { value: 'high', label: 'High priority' },
                         ]}
-                        className="bg-black/30"
-                        size="sm"
+                        className={`bg-black/30 ${isPhone ? 'min-h-[44px]' : ''}`}
+                        size={isPhone ? 'md' : 'sm'}
                     />
 
                     <TextInput
                         type="date"
                         value={newTodoDueDate}
                         onChange={e => setNewTodoDueDate(e.target.value)}
-                        className="bg-black/30"
-                        size="sm"
+                        className={`bg-black/30 ${isPhone ? 'min-h-[44px]' : ''}`}
+                        size={isPhone ? 'md' : 'sm'}
                     />
 
                     {(newTodoPriority || newTodoDueDate) && (
@@ -515,13 +518,14 @@ export const TodoList: React.FC<TodoListProps> = ({ windowId }) => {
                 aria-label="Search tasks"
             />
 
-            <div className="flex gap-2 flex-wrap">
-                <div className="flex gap-2">
+            <div className={`flex gap-2 flex-wrap ${isPhone ? '' : ''}`}>
+                {/* F247: Wrap filter buttons with touch-friendly sizing */}
+                <div className={`flex gap-2 flex-wrap ${isPhone ? 'w-full' : ''}`}>
                     {(['all', 'active', 'completed'] as Filter[]).map(f => (
                         <button
                             key={f}
                             onClick={() => setFilter(f)}
-                            className={`px-3 py-1 rounded-lg text-sm transition-colors capitalize ${
+                            className={`${isPhone ? 'px-4 py-2 min-h-[44px]' : 'px-3 py-1'} rounded-lg ${isPhone ? 'text-base' : 'text-sm'} transition-colors capitalize ${
                                 filter === f ? 'bg-blue-500 text-white' : 'bg-white/10 text-white/70 hover:bg-white/20'
                             }`}
                         >
@@ -530,7 +534,7 @@ export const TodoList: React.FC<TodoListProps> = ({ windowId }) => {
                     ))}
                     <button
                         onClick={() => setSortMode(sortMode === 'smart' ? 'manual' : 'smart')}
-                        className={`px-3 py-1 rounded-lg text-sm transition-colors ${
+                        className={`${isPhone ? 'px-4 py-2 min-h-[44px]' : 'px-3 py-1'} rounded-lg ${isPhone ? 'text-base' : 'text-sm'} transition-colors ${
                             sortMode === 'manual'
                                 ? 'bg-purple-500/20 text-purple-200 hover:bg-purple-500/30'
                                 : 'bg-white/10 text-white/70 hover:bg-white/20'
@@ -541,7 +545,7 @@ export const TodoList: React.FC<TodoListProps> = ({ windowId }) => {
                                 : 'Enable manual ordering (drag-to-reorder in All view)'
                         }
                     >
-                        {sortMode === 'manual' ? 'Manual Order' : 'Smart Sort'}
+                        {sortMode === 'manual' ? 'Manual' : 'Smart'}
                     </button>
                 </div>
 

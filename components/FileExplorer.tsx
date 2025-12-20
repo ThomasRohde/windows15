@@ -4,7 +4,7 @@ import { FileSystemItem } from '../types';
 import { useOS } from '../context/OSContext';
 import { SkeletonFileSidebar, SkeletonFileGrid } from './LoadingSkeleton';
 import { ContextMenu } from './ContextMenu';
-import { useContextMenu, useNotification } from '../hooks';
+import { useContextMenu, useNotification, usePhoneMode } from '../hooks';
 import { readTextFromClipboard } from '../utils/clipboard';
 import { analyzeClipboardContent, fetchYoutubeVideoTitle } from '../utils/clipboardAnalyzer';
 import { Tooltip } from './ui';
@@ -44,8 +44,10 @@ export const FileExplorer = () => {
     const [loading, setLoading] = useState(true);
     const [newFolderName, setNewFolderName] = useState('');
     const [showNewFolderInput, setShowNewFolderInput] = useState(false);
+    const [drawerOpen, setDrawerOpen] = useState(false); // F241: Drawer state for phone
     const { openWindow } = useOS();
     const notify = useNotification();
+    const isPhone = usePhoneMode();
 
     const {
         menu: contextMenu,
@@ -323,14 +325,38 @@ export const FileExplorer = () => {
 
     return (
         <div className="flex h-full w-full bg-transparent" onContextMenu={e => handleContextMenu(e)}>
-            {/* Sidebar */}
-            <div className="w-48 hidden sm:flex flex-col gap-1 p-3 border-r border-white/5 bg-black/10">
+            {/* F241: Phone drawer backdrop */}
+            {isPhone && drawerOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 transition-opacity"
+                    onClick={() => setDrawerOpen(false)}
+                />
+            )}
+
+            {/* Sidebar - desktop: always visible, phone: slide-out drawer */}
+            <div
+                className={`${isPhone ? 'fixed left-0 top-0 h-full z-50 transform transition-transform duration-200' : 'w-48 hidden sm:flex'} ${isPhone && !drawerOpen ? '-translate-x-full' : 'translate-x-0'} flex-col gap-1 p-3 border-r border-white/5 bg-black/90 ${isPhone ? 'w-64' : ''}`}
+            >
+                {isPhone && (
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-white/90">Navigation</span>
+                        <button
+                            onClick={() => setDrawerOpen(false)}
+                            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10"
+                        >
+                            <span className="material-symbols-outlined text-xl">close</span>
+                        </button>
+                    </div>
+                )}
                 <div className="text-xs font-bold text-white/40 uppercase px-3 py-2">Favorites</div>
                 <Tooltip content="Go to Home folder" position="right">
                     <button
                         type="button"
-                        onClick={() => setCurrentPath(['root'])}
-                        className="flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors"
+                        onClick={() => {
+                            setCurrentPath(['root']);
+                            if (isPhone) setDrawerOpen(false);
+                        }}
+                        className={`flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors ${isPhone ? 'min-h-[44px]' : ''}`}
                     >
                         <span className="material-symbols-outlined text-[20px] text-blue-400">home</span>
                         Home
@@ -339,8 +365,11 @@ export const FileExplorer = () => {
                 <Tooltip content="Go to Desktop folder" position="right">
                     <button
                         type="button"
-                        onClick={() => setCurrentPath(['root', 'desktop'])}
-                        className="flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors"
+                        onClick={() => {
+                            setCurrentPath(['root', 'desktop']);
+                            if (isPhone) setDrawerOpen(false);
+                        }}
+                        className={`flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors ${isPhone ? 'min-h-[44px]' : ''}`}
                     >
                         <span className="material-symbols-outlined text-[20px] text-yellow-400">star</span>
                         Desktop
@@ -349,8 +378,11 @@ export const FileExplorer = () => {
                 <Tooltip content="Go to Pictures folder" position="right">
                     <button
                         type="button"
-                        onClick={() => setCurrentPath(['root', 'pictures'])}
-                        className="flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors"
+                        onClick={() => {
+                            setCurrentPath(['root', 'pictures']);
+                            if (isPhone) setDrawerOpen(false);
+                        }}
+                        className={`flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors ${isPhone ? 'min-h-[44px]' : ''}`}
                     >
                         <span className="material-symbols-outlined text-[20px] text-pink-400">image</span>
                         Pictures
@@ -359,8 +391,11 @@ export const FileExplorer = () => {
                 <Tooltip content="Go to Documents folder" position="right">
                     <button
                         type="button"
-                        onClick={() => setCurrentPath(['root', 'documents'])}
-                        className="flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors"
+                        onClick={() => {
+                            setCurrentPath(['root', 'documents']);
+                            if (isPhone) setDrawerOpen(false);
+                        }}
+                        className={`flex items-center gap-3 px-3 py-2 rounded text-sm text-white/60 hover:text-white hover:bg-white/5 w-full text-left cursor-pointer transition-colors ${isPhone ? 'min-h-[44px]' : ''}`}
                     >
                         <span className="material-symbols-outlined text-[20px] text-orange-400">description</span>
                         Documents
@@ -371,13 +406,24 @@ export const FileExplorer = () => {
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Toolbar */}
-                <div className="h-12 border-b border-white/5 flex items-center px-4 gap-4">
+                <div className={`border-b border-white/5 flex items-center px-4 gap-4 ${isPhone ? 'h-14' : 'h-12'}`}>
+                    {/* F241: Hamburger menu for phone */}
+                    {isPhone && (
+                        <Tooltip content="Open navigation drawer" position="bottom">
+                            <button
+                                onClick={() => setDrawerOpen(true)}
+                                className="w-11 h-11 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 rounded transition-colors"
+                            >
+                                <span className="material-symbols-outlined text-2xl">menu</span>
+                            </button>
+                        </Tooltip>
+                    )}
                     <div className="flex gap-2 text-white/50">
                         <Tooltip content="Navigate up one folder" position="bottom">
                             <button
                                 onClick={navigateUp}
                                 disabled={currentPath.length <= 1}
-                                className="hover:text-white disabled:opacity-30"
+                                className={`hover:text-white disabled:opacity-30 ${isPhone ? 'w-11 h-11 flex items-center justify-center' : ''}`}
                             >
                                 <span className="material-symbols-outlined">arrow_upward</span>
                             </button>

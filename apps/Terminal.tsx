@@ -3,7 +3,7 @@ import { useLocalization, useSystemInfo, useNetwork } from '../context';
 import { useDb } from '../context/DbContext';
 import { useOS } from '../context/OSContext';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useTerminalPreferences, useContextMenu, useCopyToClipboard, useWindowInstance } from '../hooks';
+import { useTerminalPreferences, useContextMenu, useCopyToClipboard, useWindowInstance, usePhoneMode } from '../hooks';
 import { ContextMenu } from '../components/ContextMenu';
 import { TERMINAL_THEMES } from '../types/terminal';
 import { getFiles, saveFileToFolder } from '../utils/fileSystem';
@@ -115,6 +115,11 @@ export const Terminal: React.FC<TerminalProps> = ({ windowId }) => {
     const { setTitle } = useWindowInstance(windowId ?? '');
     const { preferences, currentTheme, setTheme, setFontSize, setFontFamily, availableThemes, availableFonts } =
         useTerminalPreferences();
+    const isPhone = usePhoneMode();
+
+    // F246: Enforce minimum font size on phone for readability
+    const effectiveFontSize = isPhone ? Math.max(preferences.fontSize, 14) : preferences.fontSize;
+
     const [input, setInput] = useState('');
     const [output, setOutput] = useState<OutputLine[]>(() => [
         { id: 0, type: 'output', text: `Windows15 Command Prompt [Version 15.0.${osBuild}]` },
@@ -1047,12 +1052,12 @@ export const Terminal: React.FC<TerminalProps> = ({ windowId }) => {
             style={{
                 backgroundColor: currentTheme.backgroundColor,
                 fontFamily: preferences.fontFamily,
-                fontSize: `${preferences.fontSize}px`,
+                fontSize: `${effectiveFontSize}px`,
             }}
             onClick={() => inputRef.current?.focus()}
             onContextMenu={handleContextMenu}
         >
-            <div ref={outputRef} className="flex-1 overflow-y-auto p-3 select-text">
+            <div ref={outputRef} className="flex-1 overflow-y-auto p-3 select-text touch-scroll">
                 {output.map(line => (
                     <div
                         key={line.id}
@@ -1070,7 +1075,8 @@ export const Terminal: React.FC<TerminalProps> = ({ windowId }) => {
                     </div>
                 ))}
             </div>
-            <div className="relative flex items-center p-3 pt-0">
+            {/* F246: Larger touch-friendly input area on phone */}
+            <div className={`relative flex items-center ${isPhone ? 'p-4 min-h-[52px]' : 'p-3 pt-0'}`}>
                 <span style={{ color: currentTheme.promptColor }}>{getCurrentPrompt()}&gt;</span>
                 <input
                     ref={inputRef}
@@ -1078,30 +1084,37 @@ export const Terminal: React.FC<TerminalProps> = ({ windowId }) => {
                     value={input}
                     onChange={e => handleInputChange(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="flex-1 bg-transparent outline-none ml-1"
+                    className={`flex-1 bg-transparent outline-none ml-1 ${isPhone ? 'min-h-[44px]' : ''}`}
                     style={{
                         color: currentTheme.textColor,
                         caretColor: currentTheme.textColor,
                         fontFamily: preferences.fontFamily,
-                        fontSize: `${preferences.fontSize}px`,
+                        fontSize: `${effectiveFontSize}px`,
                     }}
                     autoFocus
                     spellCheck={false}
                 />
-                {/* Tab completion suggestions */}
+                {/* Tab completion suggestions - F246: max-height for phone */}
                 {suggestions.length > 0 && (
-                    <div className="absolute bottom-full left-0 mb-1 bg-gray-800 border border-gray-600 rounded shadow-lg py-1 z-50 min-w-[200px]">
-                        <div className="px-3 py-1 text-xs text-gray-400 border-b border-gray-600">
-                            Press Tab to cycle ({suggestions.length} matches)
+                    <div
+                        className={`absolute bottom-full left-0 mb-1 bg-gray-800 border border-gray-600 rounded shadow-lg py-1 z-50 min-w-[200px] ${isPhone ? 'max-h-[50vh] overflow-y-auto w-full' : ''}`}
+                    >
+                        <div
+                            className={`${isPhone ? 'px-4 py-2' : 'px-3 py-1'} text-xs text-gray-400 border-b border-gray-600`}
+                        >
+                            {isPhone
+                                ? `${suggestions.length} matches`
+                                : `Press Tab to cycle (${suggestions.length} matches)`}
                         </div>
                         {suggestions.map((suggestion, idx) => (
                             <div
                                 key={suggestion}
-                                className={`px-3 py-1 ${
+                                className={`${isPhone ? 'px-4 py-3 min-h-[44px] flex items-center' : 'px-3 py-1'} ${
                                     idx === suggestionIndex
                                         ? 'bg-blue-600 text-white'
                                         : 'text-gray-300 hover:bg-gray-700'
                                 }`}
+                                onClick={isPhone ? () => setInput(suggestion) : undefined}
                             >
                                 {suggestion}
                             </div>

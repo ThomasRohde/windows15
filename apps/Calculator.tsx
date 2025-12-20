@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNotification, useCopyToClipboard, useSound } from '../hooks';
+import { useNotification, useCopyToClipboard, useSound, usePhoneMode } from '../hooks';
 import { AppContainer } from '../components/ui';
 import { useTranslation } from '../hooks/useTranslation';
 
@@ -10,6 +10,7 @@ export const Calculator = () => {
     const notify = useNotification();
     const { copy } = useCopyToClipboard();
     const { playSound } = useSound();
+    const isPhone = usePhoneMode();
     const [display, setDisplay] = useState('0');
     const [accumulator, setAccumulator] = useState<number | null>(null);
     const [operator, setOperator] = useState<Operator>(null);
@@ -179,7 +180,7 @@ export const Calculator = () => {
                 <div className="flex items-center justify-end gap-2">
                     <button
                         onClick={copyResult}
-                        className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 transition-colors flex items-center gap-1 text-sm text-white/70 hover:text-white"
+                        className={`rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors flex items-center gap-1 text-sm text-white/70 hover:text-white ${isPhone ? 'min-h-[44px] px-4' : 'px-3 py-1'}`}
                         title={t('copyResult')}
                     >
                         <span className="material-symbols-outlined text-base">content_copy</span>

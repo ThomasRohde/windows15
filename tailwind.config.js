@@ -22,6 +22,7 @@ export default {
             animation: {
                 'fade-in-up': 'fadeInUp 0.5s ease-out',
                 'pop-in': 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                'slide-in-left': 'slideInLeft 0.3s ease-out',
             },
             keyframes: {
                 fadeInUp: {
@@ -31,6 +32,10 @@ export default {
                 popIn: {
                     '0%': { opacity: '0', transform: 'scale(0.9)' },
                     '100%': { opacity: '1', transform: 'scale(1)' },
+                },
+                slideInLeft: {
+                    '0%': { opacity: '0', transform: 'translateX(-100%)' },
+                    '100%': { opacity: '1', transform: 'translateX(0)' },
                 },
             },
         },

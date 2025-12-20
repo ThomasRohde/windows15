@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { usePersistedState, useStandardHotkeys, useCopyToClipboard, useFilePicker } from '../hooks';
+import { usePersistedState, useStandardHotkeys, useCopyToClipboard, useFilePicker, usePhoneMode } from '../hooks';
 import { AppContainer, Slider, Button, SectionLabel, CopyButton } from '../components/ui';
 import { FilePickerModal } from '../components';
 import { hslToRgb, rgbToHex, rgbToHsl } from '../utils/color';
@@ -12,6 +12,7 @@ interface SavedColor {
 
 export const ColorPicker = () => {
     const { t } = useTranslation('colorPicker');
+    const isPhone = usePhoneMode();
     const [hue, setHue] = useState(200);
     const [saturation, setSaturation] = useState(70);
     const [lightness, setLightness] = useState(50);
@@ -135,10 +136,10 @@ export const ColorPicker = () => {
                 <div className="bg-black/20 p-4 rounded-lg">
                     <div className="flex justify-between items-center mb-3">
                         <SectionLabel className="mb-0">{t('recentColors')}</SectionLabel>
-                        <div className="flex gap-2">
+                        <div className={`flex gap-2 ${isPhone ? 'flex-col' : ''}`}>
                             <button
                                 onClick={importPalette}
-                                className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-xs transition-colors flex items-center gap-1"
+                                className={`bg-white/10 hover:bg-white/20 active:bg-white/30 rounded text-xs transition-colors flex items-center gap-1 justify-center ${isPhone ? 'min-h-[44px] px-4' : 'px-2 py-1'}`}
                                 title="Import palette"
                             >
                                 <span className="material-symbols-outlined text-[14px]">folder_open</span>
@@ -146,7 +147,7 @@ export const ColorPicker = () => {
                             </button>
                             <button
                                 onClick={exportPalette}
-                                className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-xs transition-colors flex items-center gap-1"
+                                className={`bg-white/10 hover:bg-white/20 active:bg-white/30 rounded text-xs transition-colors flex items-center gap-1 justify-center ${isPhone ? 'min-h-[44px] px-4' : 'px-2 py-1'}`}
                                 title="Export palette"
                             >
                                 <span className="material-symbols-outlined text-[14px]">save</span>
@@ -154,11 +155,11 @@ export const ColorPicker = () => {
                             </button>
                         </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className={`flex flex-wrap gap-2 ${isPhone ? 'gap-3' : ''}`}>
                         {savedColors.map(color => (
                             <div
                                 key={color.id}
-                                className="w-10 h-10 rounded-lg cursor-pointer relative group shadow-md"
+                                className={`rounded-lg cursor-pointer relative group shadow-md ${isPhone ? 'w-12 h-12' : 'w-10 h-10'}`}
                                 style={{ backgroundColor: color.hex }}
                                 onClick={() => loadColor(color.hex)}
                             >
@@ -167,7 +168,7 @@ export const ColorPicker = () => {
                                         e.stopPropagation();
                                         removeColor(color.id);
                                     }}
-                                    className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                                    className={`absolute -top-1 -right-1 bg-red-500 rounded-full text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center ${isPhone ? 'w-6 h-6 opacity-100' : 'w-4 h-4'}`}
                                 >
                                     ×
                                 </button>
@@ -182,7 +183,7 @@ export const ColorPicker = () => {
                     <p className="text-white/50 text-sm mb-2">No saved colors</p>
                     <button
                         onClick={importPalette}
-                        className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded text-sm transition-colors flex items-center gap-1 mx-auto"
+                        className={`bg-white/10 hover:bg-white/20 active:bg-white/30 rounded text-sm transition-colors flex items-center gap-1 mx-auto ${isPhone ? 'min-h-[44px] px-4' : 'px-3 py-1.5'}`}
                         title="Import palette"
                     >
                         <span className="material-symbols-outlined text-[16px]">folder_open</span>

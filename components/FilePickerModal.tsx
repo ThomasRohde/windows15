@@ -12,6 +12,7 @@ import type {
 import { getFileExtension } from '../apps/registry';
 import { AUDIO_EXTENSIONS, IMAGE_EXTENSIONS, VIDEO_EXTENSIONS } from '../utils/clipboardAnalyzer';
 import { TextInput, Button } from './ui';
+import { usePhoneMode } from '../hooks';
 
 interface FilePickerModalProps {
     state: FilePickerState;
@@ -37,6 +38,7 @@ export const FilePickerModal: React.FC<FilePickerModalProps> = ({
 }) => {
     const [files, setFiles] = useState<FileSystemItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const isPhone = usePhoneMode();
 
     // Load files on mount
     useEffect(() => {
@@ -221,18 +223,22 @@ export const FilePickerModal: React.FC<FilePickerModalProps> = ({
     if (!state.isOpen) return null;
 
     const modalContent = (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+        <div className={`fixed inset-0 z-[9999] ${isPhone ? '' : 'flex items-center justify-center p-4'}`}>
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
+            <div className={`absolute inset-0 bg-black/60 ${isPhone ? '' : 'backdrop-blur-sm'}`} onClick={onCancel} />
 
-            {/* Modal */}
-            <div className="relative w-full max-w-2xl glass-panel rounded-xl overflow-hidden shadow-2xl">
+            {/* Modal - F245: Full screen on phone */}
+            <div
+                className={`relative ${isPhone ? 'h-full w-full flex flex-col' : 'w-full max-w-2xl rounded-xl overflow-hidden shadow-2xl'} glass-panel`}
+            >
                 {/* Header */}
-                <div className="h-12 px-4 flex items-center justify-between border-b border-white/10 bg-black/30">
-                    <div className="text-sm font-medium text-white/90">{title}</div>
+                <div
+                    className={`${isPhone ? 'h-14 px-4' : 'h-12 px-4'} flex items-center justify-between border-b border-white/10 bg-black/30 shrink-0`}
+                >
+                    <div className={`${isPhone ? 'text-base' : 'text-sm'} font-medium text-white/90`}>{title}</div>
                     <button
                         onClick={onCancel}
-                        className="w-8 h-8 rounded-lg hover:bg-white/10 text-white/70 flex items-center justify-center"
+                        className={`${isPhone ? 'w-11 h-11' : 'w-8 h-8'} rounded-lg hover:bg-white/10 text-white/70 flex items-center justify-center`}
                         title="Close"
                     >
                         <span className="material-symbols-outlined text-[18px]">close</span>
@@ -240,13 +246,15 @@ export const FilePickerModal: React.FC<FilePickerModalProps> = ({
                 </div>
 
                 {/* Breadcrumbs */}
-                <div className="h-10 px-4 flex items-center gap-1 border-b border-white/5 bg-black/20 overflow-x-auto">
+                <div
+                    className={`${isPhone ? 'h-12 px-3' : 'h-10 px-4'} flex items-center gap-1 border-b border-white/5 bg-black/20 overflow-x-auto shrink-0`}
+                >
                     {breadcrumbs.map((crumb, idx) => (
                         <React.Fragment key={crumb.id}>
                             {idx > 0 && <span className="text-white/30 text-sm">/</span>}
                             <button
                                 onClick={() => onNavigateTo(crumb.path)}
-                                className="px-2 py-1 rounded text-xs text-white/70 hover:text-white hover:bg-white/10"
+                                className={`${isPhone ? 'px-3 py-2 min-h-[44px] text-sm' : 'px-2 py-1 text-xs'} rounded text-white/70 hover:text-white hover:bg-white/10 flex items-center`}
                             >
                                 {crumb.name}
                             </button>
@@ -254,8 +262,8 @@ export const FilePickerModal: React.FC<FilePickerModalProps> = ({
                     ))}
                 </div>
 
-                {/* File list */}
-                <div className="h-72 overflow-y-auto p-3 bg-black/10">
+                {/* File list - F245: Fills remaining space on phone */}
+                <div className={`${isPhone ? 'flex-1' : 'h-72'} overflow-y-auto p-3 bg-black/10`}>
                     {loading ? (
                         <div className="h-full flex items-center justify-center text-white/50 text-sm">Loading...</div>
                     ) : filteredItems.length === 0 ? (
@@ -263,17 +271,21 @@ export const FilePickerModal: React.FC<FilePickerModalProps> = ({
                             {state.mode === 'open' ? 'No matching files' : 'Empty folder'}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-2">
+                        <div
+                            className={`grid ${isPhone ? 'grid-cols-3 gap-3' : 'grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-2'}`}
+                        >
                             {/* Up button if not at root */}
                             {state.currentPath.length > 1 && (
                                 <button
                                     onClick={navigateUp}
-                                    className="flex flex-col items-center gap-1 p-2 rounded hover:bg-white/10"
+                                    className={`flex flex-col items-center gap-1 ${isPhone ? 'p-3 min-h-[80px]' : 'p-2'} rounded hover:bg-white/10`}
                                 >
-                                    <span className="material-symbols-outlined text-3xl text-white/40">
+                                    <span
+                                        className={`material-symbols-outlined ${isPhone ? 'text-4xl' : 'text-3xl'} text-white/40`}
+                                    >
                                         arrow_upward
                                     </span>
-                                    <span className="text-[10px] text-white/60">..</span>
+                                    <span className={`${isPhone ? 'text-xs' : 'text-[10px]'} text-white/60`}>..</span>
                                 </button>
                             )}
 
@@ -285,12 +297,12 @@ export const FilePickerModal: React.FC<FilePickerModalProps> = ({
                                         key={item.id}
                                         onClick={() => handleClick(item)}
                                         onDoubleClick={() => handleDoubleClick(item)}
-                                        className={`flex flex-col items-center gap-1 p-2 rounded transition-colors ${
+                                        className={`flex flex-col items-center gap-1 ${isPhone ? 'p-3 min-h-[80px]' : 'p-2'} rounded transition-colors ${
                                             isSelected ? 'bg-primary/30 ring-1 ring-primary' : 'hover:bg-white/10'
                                         }`}
                                     >
                                         <span
-                                            className={`material-symbols-outlined text-3xl ${
+                                            className={`material-symbols-outlined ${isPhone ? 'text-4xl' : 'text-3xl'} ${
                                                 item.type === 'folder'
                                                     ? 'text-yellow-400'
                                                     : item.type === 'document'
@@ -302,7 +314,9 @@ export const FilePickerModal: React.FC<FilePickerModalProps> = ({
                                         >
                                             {item.type === 'folder' ? 'folder' : 'description'}
                                         </span>
-                                        <span className="text-[10px] text-white/80 text-center line-clamp-2 w-full break-words">
+                                        <span
+                                            className={`${isPhone ? 'text-xs' : 'text-[10px]'} text-white/80 text-center line-clamp-2 w-full break-words`}
+                                        >
                                             {item.name}
                                         </span>
                                     </button>
@@ -312,32 +326,51 @@ export const FilePickerModal: React.FC<FilePickerModalProps> = ({
                     )}
                 </div>
 
-                {/* Footer */}
-                <div className="px-4 py-3 flex items-center gap-3 border-t border-white/10 bg-black/30">
+                {/* Footer - F245: Fixed at bottom with safe area padding on phone */}
+                <div
+                    className={`${isPhone ? 'px-4 py-4 pb-safe' : 'px-4 py-3'} flex ${isPhone ? 'flex-col gap-3' : 'items-center gap-3'} border-t border-white/10 bg-black/30 shrink-0`}
+                >
                     {state.mode === 'save' && (
                         <TextInput
                             value={state.fileName}
                             onChange={e => onSetFileName(e.target.value)}
                             placeholder="Enter filename..."
                             className="flex-1"
-                            size="sm"
+                            size={isPhone ? 'md' : 'sm'}
                         />
                     )}
                     {state.mode === 'open' && (
-                        <div className="flex-1 text-xs text-white/50 truncate">
+                        <div className={`flex-1 ${isPhone ? 'text-sm' : 'text-xs'} text-white/50 truncate`}>
                             {state.selectedFile ? state.selectedFile.name : 'Select a file'}
                         </div>
                     )}
-                    <div className="flex items-center gap-2">
-                        <Button variant="secondary" size="sm" onClick={onCancel}>
+                    <div className={`flex items-center gap-2 ${isPhone ? 'w-full' : ''}`}>
+                        <Button
+                            variant="secondary"
+                            size={isPhone ? 'md' : 'sm'}
+                            onClick={onCancel}
+                            className={isPhone ? 'flex-1' : ''}
+                        >
                             Cancel
                         </Button>
                         {state.mode === 'open' ? (
-                            <Button variant="primary" size="sm" onClick={onConfirm} disabled={!state.selectedFile}>
+                            <Button
+                                variant="primary"
+                                size={isPhone ? 'md' : 'sm'}
+                                onClick={onConfirm}
+                                disabled={!state.selectedFile}
+                                className={isPhone ? 'flex-1' : ''}
+                            >
                                 Open
                             </Button>
                         ) : (
-                            <Button variant="primary" size="sm" onClick={handleSave} disabled={!state.fileName.trim()}>
+                            <Button
+                                variant="primary"
+                                size={isPhone ? 'md' : 'sm'}
+                                onClick={handleSave}
+                                disabled={!state.fileName.trim()}
+                                className={isPhone ? 'flex-1' : ''}
+                            >
                                 Save
                             </Button>
                         )}

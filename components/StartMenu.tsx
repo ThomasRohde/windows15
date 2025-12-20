@@ -3,7 +3,7 @@ import { useOS } from '../context/OSContext';
 import { useStartMenu } from '../context/StartMenuContext';
 import { useUserProfile } from '../context/UserProfileContext';
 import { ContextMenu } from './ContextMenu';
-import { useContextMenu, useHandoff, useNotification, usePhoneMode } from '../hooks';
+import { useContextMenu, useHandoff, useNotification, usePhoneMode, useOrientation } from '../hooks';
 import { Icon } from './ui';
 
 export const StartMenu = () => {
@@ -14,6 +14,8 @@ export const StartMenu = () => {
     const { send, clearArchived } = useHandoff();
     const notify = useNotification();
     const isPhone = usePhoneMode();
+    const orientation = useOrientation();
+    const isLandscape = isPhone && orientation === 'landscape';
     const menuRef = useRef<HTMLDivElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -185,18 +187,31 @@ export const StartMenu = () => {
             onKeyDown={handleKeyDown}
             className={
                 isPhone
-                    ? // Phone: fullscreen above taskbar (F228)
-                      'fixed inset-x-0 top-0 z-40 flex flex-col glass-panel rounded-b-2xl animate-fade-in'
+                    ? isLandscape
+                        ? // Phone Landscape: position to the right of vertical taskbar
+                          'fixed top-0 bottom-0 z-40 flex flex-col glass-panel rounded-r-2xl animate-slide-in-left overflow-hidden'
+                        : // Phone Portrait: fullscreen above taskbar (F228)
+                          'fixed inset-x-0 top-0 z-40 flex flex-col glass-panel rounded-b-2xl animate-fade-in'
                     : // Desktop: centered dropdown
                       'fixed left-1/2 transform -translate-x-1/2 w-[600px] [@media(pointer:coarse)]:w-[90vw] [@media(pointer:coarse)]:max-w-[650px] h-[70vh] max-h-[700px] glass-panel rounded-xl shadow-2xl z-40 flex flex-col overflow-hidden animate-fade-in-up origin-bottom'
             }
             style={
                 isPhone
-                    ? {
-                          paddingTop: 'var(--safe-area-inset-top)',
-                          // Stop above the taskbar: 1.5rem bottom offset + 3rem taskbar height + safe-area + 0.5rem gap
-                          bottom: 'calc(5rem + var(--safe-area-inset-bottom))',
-                      }
+                    ? isLandscape
+                        ? {
+                              // Landscape: start from left taskbar (56px) plus safe area
+                              left: 'calc(56px + var(--safe-area-inset-left))',
+                              paddingTop: 'var(--safe-area-inset-top)',
+                              paddingBottom: 'var(--safe-area-inset-bottom)',
+                              // Take up most of the remaining width
+                              width: 'calc(85vw - 56px - var(--safe-area-inset-left))',
+                              maxWidth: '400px',
+                          }
+                        : {
+                              paddingTop: 'var(--safe-area-inset-top)',
+                              // Stop above the taskbar: 1.5rem bottom offset + 3rem taskbar height + safe-area + 0.5rem gap
+                              bottom: 'calc(5rem + var(--safe-area-inset-bottom))',
+                          }
                     : {
                           bottom: 'calc(6rem + var(--safe-area-inset-bottom))',
                       }
@@ -342,7 +357,7 @@ export const StartMenu = () => {
                         ) : (
                             /* Pinned Apps Grid View */
                             <div
-                                className={`grid gap-4 [@media(pointer:coarse)]:gap-5 ${isPhone ? 'grid-cols-2' : 'grid-cols-6 [@media(pointer:coarse)]:grid-cols-4'}`}
+                                className={`grid gap-4 [@media(pointer:coarse)]:gap-5 ${isLandscape ? 'grid-cols-3' : isPhone ? 'grid-cols-2' : 'grid-cols-6 [@media(pointer:coarse)]:grid-cols-4'}`}
                                 role="group"
                                 aria-label="Pinned apps"
                             >

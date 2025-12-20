@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocalization } from '../context';
 import { AppContainer, SectionLabel } from '../components/ui';
+import { usePhoneMode } from '../hooks';
 
 interface TimeZone {
     name: string;
@@ -18,6 +19,7 @@ const timeZones: TimeZone[] = [
 
 export const Clock = () => {
     const { formatTimeLong, formatDateLong } = useLocalization();
+    const isPhone = usePhoneMode();
     const [currentTime, setCurrentTime] = useState(new Date());
     const [viewMode, setViewMode] = useState<'digital' | 'analog'>('digital');
     const [selectedZone, setSelectedZone] = useState(0);
@@ -97,13 +99,13 @@ export const Clock = () => {
             <div className="flex gap-2 justify-center">
                 <button
                     onClick={() => setViewMode('digital')}
-                    className={`px-4 py-2 rounded-lg transition-all ${viewMode === 'digital' ? 'bg-orange-500 text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}
+                    className={`rounded-lg transition-all ${isPhone ? 'min-h-[44px] flex-1' : 'px-4 py-2'} ${viewMode === 'digital' ? 'bg-orange-500 text-white' : 'bg-white/10 text-white hover:bg-white/20 active:bg-white/30'}`}
                 >
                     Digital
                 </button>
                 <button
                     onClick={() => setViewMode('analog')}
-                    className={`px-4 py-2 rounded-lg transition-all ${viewMode === 'analog' ? 'bg-orange-500 text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}
+                    className={`rounded-lg transition-all ${isPhone ? 'min-h-[44px] flex-1' : 'px-4 py-2'} ${viewMode === 'analog' ? 'bg-orange-500 text-white' : 'bg-white/10 text-white hover:bg-white/20 active:bg-white/30'}`}
                 >
                     Analog
                 </button>
@@ -136,7 +138,7 @@ export const Clock = () => {
                             <button
                                 key={tz.name}
                                 onClick={() => setSelectedZone(index)}
-                                className={`flex justify-between items-center p-2 rounded-lg transition-all ${selectedZone === index ? 'bg-orange-500/30' : 'hover:bg-white/10'}`}
+                                className={`flex justify-between items-center rounded-lg transition-all ${isPhone ? 'min-h-[44px] p-3' : 'p-2'} ${selectedZone === index ? 'bg-orange-500/30' : 'hover:bg-white/10 active:bg-white/20'}`}
                             >
                                 <span className="text-white">{tz.name}</span>
                                 <span className="text-white/80 font-mono text-sm">{formatTimeLong(tzTime)}</span>

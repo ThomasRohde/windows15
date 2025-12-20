@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { AppContainer, SplitPane, AppToolbar, LoadingState, EmptyState, Icon } from '../components/ui';
+import { usePhoneMode } from '../hooks';
 
 // --- Components ---
 
@@ -388,9 +389,72 @@ const TableView = ({ data, onSelect }: { data: unknown[]; onSelect: (item: unkno
     );
 };
 
+// Card view for phone mode - shows each record as a card with key fields
+const CardView = ({ data, onSelect }: { data: unknown[]; onSelect: (item: unknown) => void }) => {
+    if (data.length === 0) return <div className="text-gray-500 italic p-4 text-center">No records found.</div>;
+
+    // Get key fields to display (up to 4, excluding internal keys)
+    const getDisplayFields = (item: Record<string, unknown>) => {
+        const keys = Object.keys(item).filter(k => !isInternalKey(k));
+        return keys.slice(0, 4);
+    };
+
+    return (
+        <div className="flex flex-col gap-2 p-3 overflow-auto touch-scroll pb-safe">
+            {data.map((item, idx) => {
+                const row = item as Record<string, unknown>;
+                const fields = getDisplayFields(row);
+
+                return (
+                    <div
+                        key={idx}
+                        className="bg-white/5 rounded-lg p-3 border border-white/10 active:bg-white/10 transition-colors cursor-pointer"
+                        onClick={() => onSelect(item)}
+                    >
+                        <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0 space-y-1.5">
+                                {fields.map(key => {
+                                    const value = row[key];
+                                    const isObject = typeof value === 'object' && value !== null;
+                                    const isJsonString =
+                                        typeof value === 'string' && (value.startsWith('{') || value.startsWith('['));
+
+                                    return (
+                                        <div key={key} className="flex items-start gap-2">
+                                            <span className="text-xs text-gray-500 font-medium min-w-16 shrink-0">
+                                                {key}
+                                            </span>
+                                            <span className="text-sm text-white/80 truncate flex-1">
+                                                {isObject || isJsonString ? (
+                                                    <InlineJsonPreview data={value} />
+                                                ) : (
+                                                    String(value ?? '')
+                                                )}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
+                                {Object.keys(row).filter(k => !isInternalKey(k)).length > 4 && (
+                                    <span className="text-xs text-gray-500 italic">
+                                        +{Object.keys(row).filter(k => !isInternalKey(k)).length - 4} more fields
+                                    </span>
+                                )}
+                            </div>
+                            <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
+                                <Icon name="chevron_right" className="text-gray-500" />
+                            </div>
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+    );
+};
+
 // Removed specialized JsonPreview in favor of JsonNode above
 
 export const IDBExplorer = () => {
+    const isPhone = usePhoneMode();
     const [dbs, setDbs] = useState<DBInfo[]>([]);
     const [structures, setStructures] = useState<Record<string, DBStructure>>({});
     const [expandedDbs, setExpandedDbs] = useState<Set<string>>(new Set());
@@ -877,6 +941,8 @@ export const IDBExplorer = () => {
                                 <div className="text-gray-500 italic p-4 flex flex-col items-center justify-center h-full gap-2">
                                     No records found.
                                 </div>
+                            ) : isPhone ? (
+                                <CardView data={storeData} onSelect={setSelectedRecord} />
                             ) : (
                                 <TableView data={storeData} onSelect={setSelectedRecord} />
                             )}
@@ -923,6 +989,204 @@ export const IDBExplorer = () => {
             </div>
         </div>
     );
+
+    // Phone layout with dropdown selectors instead of sidebar
+    const renderPhoneLayout = () => {
+        // Get available stores for selected database
+        const availableStores = selectedStore?.db
+            ? (structures[selectedStore.db]?.stores || []).filter(s => !filterEmpty || s.count > 0)
+            : [];
+
+        return (
+            <div className="h-full flex flex-col bg-background-dark/50">
+                {/* Database & Store dropdowns */}
+                <div className="p-3 bg-black/40 border-b border-white/10 flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                        <select
+                            className="flex-1 min-h-[44px] bg-black/50 border border-white/20 rounded-lg px-3 text-sm text-white appearance-none"
+                            value={selectedStore?.db || ''}
+                            onChange={async e => {
+                                const dbName = e.target.value;
+                                if (!dbName) {
+                                    setSelectedStore(null);
+                                    return;
+                                }
+                                // Load structure if not loaded
+                                if (!structures[dbName]) {
+                                    setLoading(true);
+                                    try {
+                                        const structure = await getDBStructure(dbName);
+                                        setStructures(prev => ({ ...prev, [dbName]: structure }));
+                                    } catch (err) {
+                                        console.error(err);
+                                    } finally {
+                                        setLoading(false);
+                                    }
+                                }
+                                setSelectedStore({ db: dbName, store: '' });
+                                setStoreData([]);
+                                setSelectedRecord(null);
+                            }}
+                        >
+                            <option value="">Select Database...</option>
+                            {dbs.map(db => (
+                                <option key={db.name} value={db.name}>
+                                    {db.name}
+                                </option>
+                            ))}
+                        </select>
+                        <button
+                            onClick={refreshDbs}
+                            className="min-h-[44px] min-w-[44px] flex items-center justify-center bg-black/50 border border-white/20 rounded-lg active:bg-white/10"
+                            title="Refresh"
+                        >
+                            <Icon name="refresh" className="text-white/80" />
+                        </button>
+                    </div>
+
+                    {selectedStore?.db && (
+                        <select
+                            className="w-full min-h-[44px] bg-black/50 border border-white/20 rounded-lg px-3 text-sm text-white appearance-none"
+                            value={selectedStore?.store || ''}
+                            onChange={e => {
+                                const storeName = e.target.value;
+                                if (storeName && selectedStore?.db) {
+                                    handleSelectStore(selectedStore.db, storeName);
+                                }
+                            }}
+                        >
+                            <option value="">Select Object Store...</option>
+                            {availableStores.map(store => (
+                                <option key={store.name} value={store.name}>
+                                    {store.name} ({store.count})
+                                </option>
+                            ))}
+                        </select>
+                    )}
+
+                    {/* Search input */}
+                    <div className="relative flex items-center">
+                        {isSearching ? (
+                            <span className="absolute left-3 w-4 h-4 border-2 border-gray-500 border-t-blue-400 rounded-full animate-spin pointer-events-none" />
+                        ) : (
+                            <Icon name="search" className="absolute left-3 text-gray-500 pointer-events-none" />
+                        )}
+                        <input
+                            ref={searchInputRef}
+                            type="text"
+                            placeholder="Search all databases..."
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                            className="w-full min-h-[44px] bg-black/50 border border-white/20 rounded-lg pl-10 pr-10 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50"
+                        />
+                        {searchQuery && (
+                            <button
+                                onClick={() => {
+                                    setSearchQuery('');
+                                    setGlobalSearchResults([]);
+                                }}
+                                className="absolute right-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                            >
+                                <Icon name="close" className="text-gray-400" />
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* Content area */}
+                <div className="flex-1 overflow-auto relative">
+                    {loading && <LoadingState />}
+
+                    {/* Global search results */}
+                    {!loading && (globalSearchResults.length > 0 || (searchQuery && isSearching)) && (
+                        <div className="flex flex-col h-full">
+                            <div className="px-4 py-2 bg-black/40 flex justify-between items-center border-b border-white/10">
+                                <span className="text-xs text-gray-400">
+                                    {isSearching ? 'Searching...' : `${globalSearchResults.length} results`}
+                                </span>
+                            </div>
+                            <div className="flex-1 overflow-auto touch-scroll pb-safe">
+                                {globalSearchResults.length === 0 && !isSearching ? (
+                                    <div className="text-gray-500 italic p-4 text-center">No results found</div>
+                                ) : (
+                                    <div className="divide-y divide-white/5">
+                                        {globalSearchResults.map((result, idx) => (
+                                            <div
+                                                key={idx}
+                                                className="px-4 py-3 min-h-[44px] active:bg-white/10 cursor-pointer transition-colors"
+                                                onClick={() => handleSearchResultClick(result)}
+                                            >
+                                                <div className="flex items-center gap-2 mb-1 text-xs text-gray-500">
+                                                    <span>{result.db}</span>
+                                                    <span>/</span>
+                                                    <span>{result.store}</span>
+                                                </div>
+                                                <div className="text-sm text-white/80 font-mono truncate">
+                                                    {result.matchPreview || <InlineJsonPreview data={result.record} />}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {!loading && !selectedStore?.store && globalSearchResults.length === 0 && !searchQuery && (
+                        <EmptyState
+                            icon="storage"
+                            title="Select a Store"
+                            description="Choose a database and object store from the dropdowns above."
+                        />
+                    )}
+
+                    {!loading &&
+                        selectedStore?.store &&
+                        !selectedRecord &&
+                        globalSearchResults.length === 0 &&
+                        !searchQuery && (
+                            <div className="flex flex-col h-full">
+                                <div className="px-4 py-2 bg-black/40 flex justify-between items-center border-b border-white/10">
+                                    <span className="text-xs text-gray-400">{storeData.length} records</span>
+                                </div>
+                                <div className="flex-1 overflow-auto">
+                                    {storeData.length === 0 ? (
+                                        <div className="text-gray-500 italic p-4 text-center">No records found.</div>
+                                    ) : (
+                                        <CardView data={storeData} onSelect={setSelectedRecord} />
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                    {/* Record detail overlay - phone optimized */}
+                    {selectedRecord !== null && (
+                        <div className="absolute inset-0 bg-background-dark/98 backdrop-blur z-10 flex flex-col">
+                            <div className="flex items-center justify-between p-3 border-b border-white/10 bg-white/5">
+                                <span className="font-semibold text-white">Record Details</span>
+                                <button
+                                    onClick={() => setSelectedRecord(null)}
+                                    className="min-h-[44px] min-w-[44px] flex items-center justify-center active:bg-white/10 rounded-full"
+                                >
+                                    <Icon name="close" className="text-gray-400" />
+                                </button>
+                            </div>
+                            <div className="flex-1 overflow-auto touch-scroll p-4 pb-safe">
+                                <div className="bg-black/40 rounded-lg p-4 border border-white/10">
+                                    <DataDescriptionList data={filterData(selectedRecord)} />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
+    // Phone mode: single column with dropdown selectors
+    if (isPhone) {
+        return <AppContainer>{renderPhoneLayout()}</AppContainer>;
+    }
 
     return (
         <AppContainer>

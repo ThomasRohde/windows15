@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { AppContainer } from '../components/ui/AppContainer';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useNotification } from '../hooks/useNotification';
+import { usePhoneMode } from '../hooks';
 import { Tooltip } from '../components/ui/Tooltip';
 import { GistService } from './GistService';
 import { ContextMenu } from '../components/ContextMenu';
@@ -15,6 +16,7 @@ import { useOS } from '../context/OSContext';
 const GIST_ROOT_ID = 'gist-root';
 
 export const GistExplorer = () => {
+    const isPhone = usePhoneMode();
     const [pat, setPat] = useLocalStorage<string>('github_pat', '');
     const [items, setItems] = useState<FileSystemItem[]>([]);
     const [loading, setLoading] = useState(false);
@@ -224,8 +226,10 @@ export const GistExplorer = () => {
 
     if (!pat) {
         return (
-            <AppContainer className="flex items-center justify-center bg-[#202020]">
-                <div className="bg-black/40 p-8 rounded-lg border border-white/10 w-96 backdrop-blur-md">
+            <AppContainer className="flex items-center justify-center bg-[#202020] p-4">
+                <div
+                    className={`bg-black/40 p-6 rounded-lg border border-white/10 backdrop-blur-md ${isPhone ? 'w-full' : 'w-96 p-8'}`}
+                >
                     <h2 className="text-xl font-semibold mb-4 text-white">GitHub Gist Access</h2>
                     <p className="text-white/60 text-sm mb-6">
                         Enter your Personal Access Token (PAT) to view and manage your Gists. The token is stored
@@ -234,7 +238,7 @@ export const GistExplorer = () => {
                     <input
                         type="password"
                         placeholder="ghp_..."
-                        className="w-full bg-black/50 border border-white/20 rounded px-3 py-2 text-white mb-4 focus:border-blue-500 outline-none"
+                        className={`w-full bg-black/50 border border-white/20 rounded px-3 text-white mb-4 focus:border-blue-500 outline-none ${isPhone ? 'min-h-[44px]' : 'py-2'}`}
                         onKeyDown={e => {
                             if (e.key === 'Enter') {
                                 setPat(e.currentTarget.value);
@@ -246,7 +250,7 @@ export const GistExplorer = () => {
                             const input = e.currentTarget.previousElementSibling as HTMLInputElement;
                             setPat(input.value);
                         }}
-                        className="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded transition-colors"
+                        className={`w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white rounded transition-colors ${isPhone ? 'min-h-[44px]' : 'py-2'}`}
                     >
                         Connect
                     </button>
@@ -260,19 +264,21 @@ export const GistExplorer = () => {
         <AppContainer className="bg-[#202020] text-white">
             <div className="flex h-full flex-col">
                 {/* Toolbar */}
-                <div className="h-12 border-b border-white/10 flex items-center px-4 justify-between bg-white/5">
+                <div
+                    className={`border-b border-white/10 flex items-center px-4 justify-between bg-white/5 ${isPhone ? 'min-h-[48px]' : 'h-12'}`}
+                >
                     <div className="flex items-center gap-2">
                         <Tooltip content="Up">
                             <button
                                 onClick={handleNavigateUp}
                                 disabled={currentPath.length <= 1}
-                                className="p-1 hover:bg-white/10 rounded text-white/70 disabled:opacity-30"
+                                className={`hover:bg-white/10 active:bg-white/20 rounded text-white/70 disabled:opacity-30 ${isPhone ? 'min-h-[44px] min-w-[44px] flex items-center justify-center' : 'p-1'}`}
                             >
                                 <span className="material-symbols-outlined">arrow_upward</span>
                             </button>
                         </Tooltip>
-                        <div className="h-4 w-[1px] bg-white/10 mx-2" />
-                        <span className="font-medium text-sm text-white/80">
+                        {!isPhone && <div className="h-4 w-[1px] bg-white/10 mx-2" />}
+                        <span className={`font-medium text-white/80 ${isPhone ? 'text-xs' : 'text-sm'}`}>
                             {currentPath.length === 1 ? 'All Gists' : 'Gist Content'}
                         </span>
                     </div>
@@ -280,13 +286,16 @@ export const GistExplorer = () => {
                         <Tooltip content="Refresh">
                             <button
                                 onClick={refreshGists}
-                                className={`p-1 hover:bg-white/10 rounded text-white/70 ${loading ? 'animate-spin' : ''}`}
+                                className={`hover:bg-white/10 active:bg-white/20 rounded text-white/70 ${loading ? 'animate-spin' : ''} ${isPhone ? 'min-h-[44px] min-w-[44px] flex items-center justify-center' : 'p-1'}`}
                             >
                                 <span className="material-symbols-outlined">refresh</span>
                             </button>
                         </Tooltip>
                         <Tooltip content="Sign Out">
-                            <button onClick={() => setPat('')} className="p-1 hover:bg-white/10 rounded text-white/70">
+                            <button
+                                onClick={() => setPat('')}
+                                className={`hover:bg-white/10 active:bg-white/20 rounded text-white/70 ${isPhone ? 'min-h-[44px] min-w-[44px] flex items-center justify-center' : 'p-1'}`}
+                            >
                                 <span className="material-symbols-outlined">logout</span>
                             </button>
                         </Tooltip>
@@ -311,7 +320,9 @@ export const GistExplorer = () => {
                             <p>No gists found. Click refresh to sync.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-4">
+                        <div
+                            className={`grid gap-4 ${isPhone ? 'grid-cols-2' : 'grid-cols-[repeat(auto-fill,minmax(100px,1fr))]'}`}
+                        >
                             {items.map(item => {
                                 // Build tooltip content based on item type
                                 const tooltipLines: string[] = [item.name];
@@ -332,10 +343,10 @@ export const GistExplorer = () => {
                                         <div
                                             onDoubleClick={() => handleOpen(item)}
                                             onContextMenu={e => open(e, { item })}
-                                            className="group flex flex-col items-center gap-2 p-2 rounded hover:bg-white/10 cursor-pointer transition-colors"
+                                            className={`group flex flex-col items-center gap-2 rounded hover:bg-white/10 active:bg-white/20 cursor-pointer transition-colors ${isPhone ? 'p-3 min-h-[80px]' : 'p-2'}`}
                                         >
                                             <span
-                                                className={`material-symbols-outlined text-4xl drop-shadow-lg ${item.type === 'folder' ? (item.isPrivate ? 'text-red-500' : 'text-yellow-400') : 'text-blue-400'}`}
+                                                className={`material-symbols-outlined drop-shadow-lg ${isPhone ? 'text-5xl' : 'text-4xl'} ${item.type === 'folder' ? (item.isPrivate ? 'text-red-500' : 'text-yellow-400') : 'text-blue-400'}`}
                                             >
                                                 {item.type === 'folder' ? 'folder' : 'description'}
                                             </span>

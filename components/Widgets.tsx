@@ -5,6 +5,7 @@ import { ensureArray } from '../utils';
 import { formatTemperature } from '../utils/localization';
 import { SystemStatusWidget } from './SystemStatusWidget';
 import { Icon } from './ui';
+import { usePhoneMode } from '../hooks';
 
 type CalendarEvent = {
     id: string;
@@ -58,6 +59,7 @@ const fromYmd = (ymd: string) => {
 };
 
 export const Widgets: React.FC = () => {
+    const isPhone = usePhoneMode();
     const { openWindow } = useOS();
     const { unitSystem, formatTimeShortFromHm } = useLocalization();
     const { is3DMode, toggle3DMode, prefersReducedMotion } = useWindowSpace();
@@ -86,6 +88,9 @@ export const Widgets: React.FC = () => {
     }, []);
 
     useEffect(() => {
+        // F237: Skip weather fetch on phone since widgets are hidden
+        if (isPhone) return;
+
         const fetchWeather = async (lat: number, lon: number, location: string) => {
             try {
                 const response = await fetch(
@@ -130,7 +135,7 @@ export const Widgets: React.FC = () => {
         } else {
             fetchWeather(37.7749, -122.4194, 'San Francisco');
         }
-    }, []);
+    }, [isPhone]);
 
     const formatTime = (hm: string) => formatTimeShortFromHm(hm);
 
@@ -156,6 +161,12 @@ export const Widgets: React.FC = () => {
 
         return upcoming[0] ?? null;
     }, [calendarEvents, currentDate]);
+
+    // F237: Hide widgets on phone-sized viewports to maximize app space
+    // Must be placed after all hooks to satisfy Rules of Hooks
+    if (isPhone) {
+        return null;
+    }
 
     const openCalendar = (ymd?: string) => {
         if (ymd) {

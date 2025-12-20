@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDb, useDexieLiveQuery } from '../utils/storage';
 import { generateUuid, ensureArray } from '../utils';
 import { useConfirmDialog, ConfirmDialog, SearchInput } from '../components/ui';
-import { usePersistedState } from '../hooks';
+import { usePersistedState, usePhoneMode } from '../hooks';
 import { url as urlValidator, validateValue } from '../utils/validation';
 import { useTranslation } from '../hooks/useTranslation';
 
@@ -102,6 +102,8 @@ const resolveInput = (raw: string): { url: string; modeSuggestion?: ViewMode } |
 export const Browser = () => {
     const { t } = useTranslation('browser');
     const db = useDb();
+    const isPhone = usePhoneMode();
+    const [showPhoneMenu, setShowPhoneMenu] = useState(false);
     const initialEntry: HistoryEntry = { url: 'https://thomasrohde.github.io', mode: 'live' };
 
     const { value: state, setValue: setState } = usePersistedState<BrowserState>('browser.state', {
@@ -362,37 +364,45 @@ export const Browser = () => {
 
     return (
         <div className="flex flex-col h-full bg-white relative">
-            {/* Browser Toolbar */}
-            <div className="h-12 bg-gray-100 border-b border-gray-200 flex items-center px-2 gap-2">
+            {/* Browser Toolbar - F240: Compact on phone */}
+            <div
+                className={`bg-gray-100 border-b border-gray-200 flex items-center px-2 gap-2 ${isPhone ? 'h-14' : 'h-12'}`}
+            >
                 <div className="flex gap-1">
                     <button
                         disabled={!canGoBack}
                         onClick={goBack}
-                        className="p-1.5 rounded-full hover:bg-gray-200 disabled:opacity-30 text-gray-700"
+                        className={`rounded-full hover:bg-gray-200 disabled:opacity-30 text-gray-700 ${isPhone ? 'p-2.5 min-w-[44px] min-h-[44px]' : 'p-1.5'}`}
                         title={t('back')}
                     >
-                        <span className="material-symbols-outlined text-lg">arrow_back</span>
+                        <span className={`material-symbols-outlined ${isPhone ? 'text-xl' : 'text-lg'}`}>
+                            arrow_back
+                        </span>
                     </button>
                     <button
                         disabled={!canGoForward}
                         onClick={goForward}
-                        className="p-1.5 rounded-full hover:bg-gray-200 disabled:opacity-30 text-gray-700"
+                        className={`rounded-full hover:bg-gray-200 disabled:opacity-30 text-gray-700 ${isPhone ? 'p-2.5 min-w-[44px] min-h-[44px]' : 'p-1.5'}`}
                         title={t('forward')}
                     >
-                        <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                        <span className={`material-symbols-outlined ${isPhone ? 'text-xl' : 'text-lg'}`}>
+                            arrow_forward
+                        </span>
                     </button>
-                    <button
-                        onClick={refresh}
-                        className="p-1.5 rounded-full hover:bg-gray-200 text-gray-700"
-                        title={t('reload')}
-                    >
-                        <span className="material-symbols-outlined text-lg">refresh</span>
-                    </button>
+                    {!isPhone && (
+                        <button
+                            onClick={refresh}
+                            className="p-1.5 rounded-full hover:bg-gray-200 text-gray-700"
+                            title={t('reload')}
+                        >
+                            <span className="material-symbols-outlined text-lg">refresh</span>
+                        </button>
+                    )}
                 </div>
 
                 <form onSubmit={navigate} className="flex-1">
                     <input
-                        className="w-full h-8 bg-white border border-gray-300 rounded-full px-4 text-sm text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                        className={`w-full bg-white border border-gray-300 rounded-full px-4 text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all ${isPhone ? 'h-10 text-base' : 'h-8 text-sm'}`}
                         value={state.input}
                         onChange={e => setState(prev => ({ ...prev, input: e.target.value }))}
                         placeholder={t('addressBar')}
@@ -400,47 +410,121 @@ export const Browser = () => {
                     />
                 </form>
 
-                <div className="flex items-center gap-1 bg-white border border-gray-300 rounded-full p-0.5">
-                    <button
-                        onClick={() => setMode('live')}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${viewMode === 'live' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-100'}`}
-                        title={t('title')}
-                    >
-                        <span className="material-symbols-outlined text-lg">language</span>
-                    </button>
-                    <button
-                        onClick={() => setMode('reader')}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${viewMode === 'reader' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-100'}`}
-                        title={t('title')}
-                    >
-                        <span className="material-symbols-outlined text-lg">article</span>
-                    </button>
-                </div>
+                {isPhone ? (
+                    // Phone: hamburger menu for additional actions
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowPhoneMenu(prev => !prev)}
+                            className="p-2.5 min-w-[44px] min-h-[44px] rounded-full hover:bg-gray-200 text-gray-700"
+                        >
+                            <span className="material-symbols-outlined text-xl">more_vert</span>
+                        </button>
+                        {showPhoneMenu && (
+                            <>
+                                <div className="fixed inset-0 z-40" onClick={() => setShowPhoneMenu(false)} />
+                                <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50">
+                                    <button
+                                        onClick={() => {
+                                            refresh();
+                                            setShowPhoneMenu(false);
+                                        }}
+                                        className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">refresh</span>
+                                        {t('reload')}
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setMode(viewMode === 'live' ? 'reader' : 'live');
+                                            setShowPhoneMenu(false);
+                                        }}
+                                        className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">
+                                            {viewMode === 'live' ? 'article' : 'language'}
+                                        </span>
+                                        {viewMode === 'live' ? 'Reader Mode' : 'Live Mode'}
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setIsBookmarksOpen(prev => !prev);
+                                            setShowPhoneMenu(false);
+                                        }}
+                                        className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">bookmarks</span>
+                                        {t('bookmarks')}
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            openAddBookmark();
+                                            setShowPhoneMenu(false);
+                                        }}
+                                        className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">bookmark_add</span>
+                                        {t('addBookmark')}
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            openExternal();
+                                            setShowPhoneMenu(false);
+                                        }}
+                                        className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">open_in_new</span>
+                                        {t('newTab')}
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                ) : (
+                    // Desktop: full toolbar
+                    <>
+                        <div className="flex items-center gap-1 bg-white border border-gray-300 rounded-full p-0.5">
+                            <button
+                                onClick={() => setMode('live')}
+                                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${viewMode === 'live' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-100'}`}
+                                title={t('title')}
+                            >
+                                <span className="material-symbols-outlined text-lg">language</span>
+                            </button>
+                            <button
+                                onClick={() => setMode('reader')}
+                                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${viewMode === 'reader' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-100'}`}
+                                title={t('title')}
+                            >
+                                <span className="material-symbols-outlined text-lg">article</span>
+                            </button>
+                        </div>
 
-                <div className="flex items-center gap-1">
-                    <button
-                        onClick={() => setIsBookmarksOpen(prev => !prev)}
-                        className={`p-1.5 rounded-full hover:bg-gray-200 text-gray-700 ${isBookmarksOpen ? 'bg-gray-200' : ''}`}
-                        title={t('bookmarks')}
-                    >
-                        <span className="material-symbols-outlined text-lg">bookmarks</span>
-                    </button>
-                    <button
-                        onClick={openAddBookmark}
-                        className="p-1.5 rounded-full hover:bg-gray-200 text-gray-700"
-                        title={t('addBookmark')}
-                    >
-                        <span className="material-symbols-outlined text-lg">bookmark_add</span>
-                    </button>
-                </div>
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={() => setIsBookmarksOpen(prev => !prev)}
+                                className={`p-1.5 rounded-full hover:bg-gray-200 text-gray-700 ${isBookmarksOpen ? 'bg-gray-200' : ''}`}
+                                title={t('bookmarks')}
+                            >
+                                <span className="material-symbols-outlined text-lg">bookmarks</span>
+                            </button>
+                            <button
+                                onClick={openAddBookmark}
+                                className="p-1.5 rounded-full hover:bg-gray-200 text-gray-700"
+                                title={t('addBookmark')}
+                            >
+                                <span className="material-symbols-outlined text-lg">bookmark_add</span>
+                            </button>
+                        </div>
 
-                <button
-                    onClick={openExternal}
-                    className="p-1.5 rounded-full hover:bg-gray-200 text-gray-700"
-                    title={t('newTab')}
-                >
-                    <span className="material-symbols-outlined text-lg">open_in_new</span>
-                </button>
+                        <button
+                            onClick={openExternal}
+                            className="p-1.5 rounded-full hover:bg-gray-200 text-gray-700"
+                            title={t('newTab')}
+                        >
+                            <span className="material-symbols-outlined text-lg">open_in_new</span>
+                        </button>
+                    </>
+                )}
             </div>
 
             {state.error && (

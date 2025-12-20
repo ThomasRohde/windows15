@@ -106,6 +106,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
         flex
         items-center
         gap-2
+        min-h-[44px]
         ${label ? 'cursor-pointer select-none' : ''}
         ${className}
     `

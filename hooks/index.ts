@@ -49,3 +49,4 @@ export type {
     FilePickerState,
     UseFilePickerReturn,
 } from './useFilePicker';
+export { useHandoff, useHandoffItems } from './useHandoff';

@@ -149,7 +149,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
                 placeholder={placeholder}
                 autoFocus={autoFocus}
                 aria-label={ariaLabel || placeholder}
-                className={`w-full h-9 pl-9 pr-${showClearButton ? '9' : '3'} rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 placeholder:text-white/40 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30 transition-colors ${inputClassName}`}
+                className={`w-full h-9 pl-9 pr-${showClearButton ? '9' : '3'} rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 placeholder:text-white/40 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30 transition-colors select-text ${inputClassName}`}
             />
 
             {/* Clear button */}

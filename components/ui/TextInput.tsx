@@ -107,6 +107,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                             text-white/90
                             placeholder:text-white/30
                             transition-colors
+                            select-text
                             ${sizeClasses[size]}
                         `.trim()}
                         {...props}
@@ -130,6 +131,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                     text-white/90
                     placeholder:text-white/30
                     transition-colors
+                    select-text
                     ${sizeClasses[size]}
                     ${className}
                 `.trim()}

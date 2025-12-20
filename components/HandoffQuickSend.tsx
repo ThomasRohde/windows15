@@ -122,7 +122,7 @@ export const HandoffQuickSend: React.FC<HandoffQuickSendProps> = ({ isOpen, onCl
                         </label>
                         <Select
                             value={targetCategory}
-                            onChange={e => setTargetCategory(e.target.value as 'private' | 'work' | 'any')}
+                            onChange={val => setTargetCategory(val as 'private' | 'work' | 'any')}
                             options={[
                                 { label: t('composer.any'), value: 'any' },
                                 { label: t('composer.work'), value: 'work' },

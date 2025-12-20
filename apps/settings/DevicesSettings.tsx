@@ -97,7 +97,7 @@ export const DevicesSettings: React.FC = () => {
                         <Select
                             id="device-category"
                             value={category}
-                            onChange={e => setCategory(e.target.value as 'any' | 'work' | 'private')}
+                            onChange={val => setCategory(val as 'any' | 'work' | 'private')}
                             options={[
                                 { label: t('composer.any'), value: 'any' },
                                 { label: t('composer.work'), value: 'work' },
@@ -115,7 +115,7 @@ export const DevicesSettings: React.FC = () => {
                         <Select
                             id="retention-period"
                             value={retention.toString()}
-                            onChange={e => setRetention(parseInt(e.target.value))}
+                            onChange={val => setRetention(parseInt(val))}
                             options={[
                                 { label: t('settings.days.1'), value: '1' },
                                 { label: t('settings.days.3'), value: '3' },

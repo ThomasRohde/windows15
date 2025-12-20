@@ -293,7 +293,7 @@ export const Handoff: React.FC = () => {
                             </span>
                             <Select
                                 value={statusFilter}
-                                onChange={e => setStatusFilter(e.target.value as HandoffStatus | 'all')}
+                                onChange={val => setStatusFilter(val as HandoffStatus | 'all')}
                                 options={[
                                     { label: t('inbox.filter') + ': All', value: 'all' },
                                     { label: t('status.new'), value: 'new' },
@@ -361,9 +361,7 @@ export const Handoff: React.FC = () => {
                                         </label>
                                         <Select
                                             value={targetCategory}
-                                            onChange={e =>
-                                                setTargetCategory(e.target.value as 'private' | 'work' | 'any')
-                                            }
+                                            onChange={val => setTargetCategory(val as 'private' | 'work' | 'any')}
                                             options={[
                                                 { label: t('composer.any'), value: 'any' },
                                                 { label: t('composer.work'), value: 'work' },

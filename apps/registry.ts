@@ -298,6 +298,15 @@ export const APP_REGISTRY: AppConfig[] = [
         defaultWidth: 900,
         defaultHeight: 650,
     },
+    {
+        id: 'handoff',
+        title: 'Handoff',
+        icon: 'sync_alt',
+        color: 'bg-indigo-500',
+        component: React.lazy(() => import('./Handoff').then(m => ({ default: m.Handoff }))),
+        defaultWidth: 600,
+        defaultHeight: 500,
+    },
 ];
 
 /**

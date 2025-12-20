@@ -16,6 +16,7 @@ export { Calculator } from './Calculator';
 export { Calendar } from './Calendar';
 export { Clock } from './Clock';
 export { ColorPicker } from './ColorPicker';
+export { Handoff } from './Handoff';
 export { HashGenerator } from './HashGenerator';
 export { ImageViewer } from './ImageViewer';
 export { JsonViewer } from './JsonViewer';

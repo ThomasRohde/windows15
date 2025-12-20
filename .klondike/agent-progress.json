@@ -1095,18 +1095,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F196",
-        "description": "Add auto-expiry for Handoff items with configurable retention period",
-        "status": "in-progress"
-      },
-      {
-        "id": "F197",
-        "description": "Add Handoff actions to global search/command palette",
+        "id": "F200",
+        "description": "Add sensitive mode with client-side encryption for Handoff items",
         "status": "not-started"
       },
       {
-        "id": "F198",
-        "description": "Add Send selection to Handoff context menu action in text-based apps",
+        "id": "F201",
+        "description": "Add work mode restriction to limit Handoff to URLs only",
+        "status": "not-started"
+      },
+      {
+        "id": "F202",
+        "description": "Add Handoff keyboard shortcut Ctrl+Shift+H to quick-send clipboard",
         "status": "not-started"
       }
     ]

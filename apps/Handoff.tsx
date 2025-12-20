@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useHandoff, useHandoffItems, useNotification } from '../hooks';
+import { useTranslation } from '../hooks/useTranslation';
 import { AppContainer, Button, Select, EmptyState, Icon, SplitPane, TextArea } from '../components/ui';
 import { HandoffStatus, HandoffItem } from '../types';
 import { formatRelativeTime } from '../utils/timeFormatters';
@@ -10,6 +11,7 @@ import { formatRelativeTime } from '../utils/timeFormatters';
  * Displays items sent from other devices and allows quick actions.
  */
 export const Handoff: React.FC = () => {
+    const { t } = useTranslation('handoff');
     const [statusFilter, setStatusFilter] = useState<HandoffStatus | 'all'>('new');
     const { markOpened, markDone, archive, remove, send, deviceLabel, clearArchived } = useHandoff();
     const items = useHandoffItems(statusFilter === 'all' ? undefined : statusFilter);
@@ -27,8 +29,8 @@ export const Handoff: React.FC = () => {
             // For text, copy to clipboard
             navigator.clipboard.writeText(item.text);
             addNotification({
-                title: 'Copied to Clipboard',
-                message: 'Text content has been copied to your clipboard.',
+                title: t('actions.copy'),
+                message: t('common:messages.copied'),
                 type: 'info',
             });
         }
@@ -52,21 +54,21 @@ export const Handoff: React.FC = () => {
 
             setInputText('');
             addNotification({
-                title: 'Sent to Handoff',
-                message: `Item sent to ${targetCategory} devices.`,
+                title: t('notifications.sent'),
+                message: t('notifications.sentTo', { category: targetCategory }),
                 type: 'success',
             });
         } catch (error) {
             console.error('Handoff send error:', error);
             addNotification({
-                title: 'Send Failed',
-                message: 'Failed to send item to handoff queue.',
+                title: t('notifications.failed'),
+                message: t('notifications.failedMessage'),
                 type: 'error',
             });
         } finally {
             setIsSending(false);
         }
-    }, [inputText, targetCategory, send, addNotification, isSending]);
+    }, [inputText, targetCategory, send, addNotification, isSending, t]);
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
@@ -82,19 +84,21 @@ export const Handoff: React.FC = () => {
                     <div className="flex items-center gap-4">
                         <h1 className="text-lg font-semibold flex items-center gap-2">
                             <Icon name="sync_alt" className="text-indigo-400" />
-                            Handoff Queue
+                            {t('title')}
                         </h1>
                         <div className="flex items-center gap-2 ml-4">
-                            <span className="text-xs text-white/50 uppercase font-bold tracking-wider">Filter:</span>
+                            <span className="text-xs text-white/50 uppercase font-bold tracking-wider">
+                                {t('inbox.filter')}:
+                            </span>
                             <Select
                                 value={statusFilter}
                                 onChange={e => setStatusFilter(e.target.value as HandoffStatus | 'all')}
                                 options={[
-                                    { label: 'All Items', value: 'all' },
-                                    { label: 'New', value: 'new' },
-                                    { label: 'Opened', value: 'opened' },
-                                    { label: 'Done', value: 'done' },
-                                    { label: 'Archived', value: 'archived' },
+                                    { label: t('inbox.filter') + ': All', value: 'all' },
+                                    { label: t('status.new'), value: 'new' },
+                                    { label: t('status.opened'), value: 'opened' },
+                                    { label: t('status.done'), value: 'done' },
+                                    { label: t('status.archived'), value: 'archived' },
                                 ]}
                                 className="w-32"
                             />
@@ -102,16 +106,16 @@ export const Handoff: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="text-[10px] text-white/30 uppercase font-bold tracking-widest">
-                            Device: <span className="text-indigo-400">{deviceLabel}</span>
+                            {t('inbox.device')}: <span className="text-indigo-400">{deviceLabel}</span>
                         </div>
                         {statusFilter === 'archived' && (
                             <button
                                 onClick={clearArchived}
                                 className="flex items-center gap-1.5 px-2 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded text-[10px] uppercase font-bold tracking-wider transition-colors"
-                                title="Permanently delete all archived items"
+                                title={t('actions.clearArchive')}
                             >
                                 <Icon name="delete_sweep" size={14} />
-                                Clear Archive
+                                {t('actions.clearArchive')}
                             </button>
                         )}
                     </div>
@@ -128,33 +132,31 @@ export const Handoff: React.FC = () => {
                             <div className="h-full flex flex-col p-4 bg-white/5 border-r border-white/10">
                                 <div className="mb-4">
                                     <h2 className="text-sm font-bold uppercase tracking-wider text-white/50 mb-1">
-                                        Composer
+                                        {t('composer.title')}
                                     </h2>
-                                    <p className="text-xs text-white/30">
-                                        Send URLs or text to your other devices instantly.
-                                    </p>
+                                    <p className="text-xs text-white/30">{t('composer.description')}</p>
                                 </div>
 
                                 <div className="flex-1 flex flex-col gap-4">
                                     <div className="flex-1 flex flex-col">
                                         <label className="text-[10px] font-bold uppercase text-white/40 mb-1.5 ml-1">
-                                            Content (URL or Text)
+                                            {t('composer.content')}
                                         </label>
                                         <TextArea
                                             value={inputText}
                                             onChange={e => setInputText(e.target.value)}
                                             onKeyDown={handleKeyDown}
-                                            placeholder="Paste a link or type some text..."
+                                            placeholder={t('composer.placeholder')}
                                             className="flex-1 resize-none bg-black/20 border-white/10 focus:border-indigo-500/50"
                                         />
                                         <div className="mt-1 text-[10px] text-white/20 text-right">
-                                            Ctrl + Enter to send
+                                            {t('composer.hint')}
                                         </div>
                                     </div>
 
                                     <div>
                                         <label className="text-[10px] font-bold uppercase text-white/40 mb-1.5 ml-1">
-                                            Target Devices
+                                            {t('composer.target')}
                                         </label>
                                         <Select
                                             value={targetCategory}
@@ -162,9 +164,9 @@ export const Handoff: React.FC = () => {
                                                 setTargetCategory(e.target.value as 'private' | 'work' | 'any')
                                             }
                                             options={[
-                                                { label: 'Any Device', value: 'any' },
-                                                { label: 'Work Devices Only', value: 'work' },
-                                                { label: 'Private Devices Only', value: 'private' },
+                                                { label: t('composer.any'), value: 'any' },
+                                                { label: t('composer.work'), value: 'work' },
+                                                { label: t('composer.private'), value: 'private' },
                                             ]}
                                             className="w-full bg-black/20 border-white/10"
                                         />
@@ -176,16 +178,14 @@ export const Handoff: React.FC = () => {
                                         disabled={!inputText.trim() || isSending}
                                         className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold uppercase tracking-widest text-xs"
                                     >
-                                        {isSending ? 'Sending...' : 'Send to Handoff'}
+                                        {isSending ? t('composer.sending') : t('composer.send')}
                                     </Button>
                                 </div>
 
                                 <div className="mt-auto pt-4 border-t border-white/5">
                                     <div className="flex items-center gap-2 text-[10px] text-white/30">
                                         <Icon name="info" size={14} />
-                                        <span>
-                                            You are sending from: <span className="text-white/60">{deviceLabel}</span>
-                                        </span>
+                                        <span>{t('inbox.sendingFrom', { device: deviceLabel })}</span>
                                     </div>
                                 </div>
                             </div>
@@ -196,10 +196,8 @@ export const Handoff: React.FC = () => {
                                     <div className="h-full flex items-center justify-center">
                                         <EmptyState
                                             icon="sync_alt"
-                                            title={
-                                                statusFilter === 'all' ? 'Queue is empty' : `No ${statusFilter} items`
-                                            }
-                                            description="Items sent from other devices will appear here."
+                                            title={t('inbox.empty')}
+                                            description={t('inbox.emptyHint')}
                                         />
                                     </div>
                                 ) : (
@@ -250,7 +248,9 @@ export const Handoff: React.FC = () => {
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() => handleOpen(item)}
-                                                        title={item.kind === 'url' ? 'Open Link' : 'Copy Text'}
+                                                        title={
+                                                            item.kind === 'url' ? t('actions.open') : t('actions.copy')
+                                                        }
                                                         className="h-8 w-8 p-0"
                                                     >
                                                         <Icon
@@ -263,7 +263,7 @@ export const Handoff: React.FC = () => {
                                                             variant="ghost"
                                                             size="sm"
                                                             onClick={() => markDone(item.id)}
-                                                            title="Mark as Done"
+                                                            title={t('actions.done')}
                                                             className="h-8 w-8 p-0 text-green-400 hover:text-green-300"
                                                         >
                                                             <Icon name="check_circle" size={18} />
@@ -274,7 +274,7 @@ export const Handoff: React.FC = () => {
                                                             variant="ghost"
                                                             size="sm"
                                                             onClick={() => archive(item.id)}
-                                                            title="Archive"
+                                                            title={t('actions.archive')}
                                                             className="h-8 w-8 p-0 text-orange-400 hover:text-orange-300"
                                                         >
                                                             <Icon name="archive" size={18} />
@@ -284,7 +284,7 @@ export const Handoff: React.FC = () => {
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() => remove(item.id)}
-                                                        title="Delete"
+                                                        title={t('actions.remove')}
                                                         className="h-8 w-8 p-0 text-red-400 hover:text-red-300"
                                                     >
                                                         <Icon name="delete" size={18} />

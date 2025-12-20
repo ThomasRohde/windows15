@@ -107,6 +107,78 @@
             "years": "years"
         }
     },
+    "handoff": {
+        "title": "Handoff Queue",
+        "composer": {
+            "title": "Composer",
+            "description": "Send URLs or text to your other devices instantly.",
+            "placeholder": "Paste URL or type text to send to other devices...",
+            "send": "Send to Handoff",
+            "sending": "Sending...",
+            "content": "Content (URL or Text)",
+            "target": "Target Category",
+            "any": "Any Device",
+            "work": "Work Devices",
+            "private": "Private Devices",
+            "hint": "Press Ctrl+Enter to send"
+        },
+        "inbox": {
+            "title": "Inbox",
+            "empty": "Your handoff queue is empty.",
+            "emptyHint": "Send something from another device or use the composer on the left.",
+            "filter": "Filter",
+            "device": "Device",
+            "sendingFrom": "You are sending from: {{device}}"
+        },
+        "status": {
+            "new": "New",
+            "opened": "Opened",
+            "done": "Done",
+            "archived": "Archived"
+        },
+        "actions": {
+            "open": "Open",
+            "copy": "Copy Text",
+            "done": "Mark Done",
+            "archive": "Archive",
+            "remove": "Delete Permanently",
+            "clearArchive": "Clear Archive",
+            "sendToHandoff": "Send to Handoff"
+        },
+        "notifications": {
+            "received": "New Handoff Item",
+            "receivedFrom": "Received from {{device}}",
+            "sent": "Sent to Handoff",
+            "sentTo": "Item sent to {{category}} devices",
+            "failed": "Send Failed",
+            "failedMessage": "Failed to send item to handoff queue"
+        },
+        "settings": {
+            "title": "Devices & Handoff",
+            "description": "Manage how this device appears to others and how long items are kept.",
+            "identity": "Device Identity",
+            "deviceName": "Device Name",
+            "deviceNameHint": "How this device is identified in the Handoff Queue.",
+            "deviceCategory": "Device Category",
+            "deviceCategoryHint": "Helps filter items sent to this device.",
+            "retention": "Data Retention",
+            "retentionPeriod": "Auto-Archive Period",
+            "retentionHint": "Items older than this will be moved to Archive.",
+            "clearArchive": "Clear All Archived Items",
+            "confirmClear": "Are you sure you want to permanently delete all archived items?",
+            "saved": "Saved",
+            "saveChanges": "Save Changes",
+            "aboutTitle": "About Device Profiles",
+            "aboutDescription": "Device profiles help you organize your Handoff Queue. You can target specific categories of devices when sending links or text, ensuring your work content stays on work devices and private content stays on private devices.",
+            "days": {
+                "1": "1 Day",
+                "3": "3 Days",
+                "7": "7 Days",
+                "14": "14 Days",
+                "30": "30 Days"
+            }
+        }
+    },
     "arcade": {
         "title": "Arcade",
         "library": "Game Library",

@@ -2,8 +2,9 @@ import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { getFiles, saveFileToFolder } from '../../utils/fileSystem';
 import { FileSystemItem } from '../../types';
 import { useConfirmDialog, ConfirmDialog } from '../../components/ui/ConfirmDialog';
-import { useStandardHotkeys } from '../../hooks';
+import { useStandardHotkeys, useContextMenu, useHandoff, useNotification } from '../../hooks';
 import { TextArea } from '../../components/ui';
+import { ContextMenu } from '../../components/ContextMenu';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
@@ -53,6 +54,41 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
     const menuRef = useRef<HTMLDivElement>(null);
 
     const { confirm, dialogProps } = useConfirmDialog();
+    const { send } = useHandoff();
+    const { notify } = useNotification();
+
+    const { menu: contextMenu, open: openContextMenu, close: closeContextMenu, menuProps } = useContextMenu<string>();
+
+    const handleTextAreaContextMenu = useCallback(
+        (e: React.MouseEvent<HTMLTextAreaElement>) => {
+            const start = e.currentTarget.selectionStart;
+            const end = e.currentTarget.selectionEnd;
+            const selection = e.currentTarget.value.substring(start, end);
+
+            if (selection) {
+                e.preventDefault();
+                openContextMenu(e, selection);
+            }
+        },
+        [openContextMenu]
+    );
+
+    const handleSendToHandoff = useCallback(async () => {
+        if (contextMenu?.data) {
+            try {
+                await send({
+                    target: contextMenu.data,
+                    kind: 'text',
+                    text: contextMenu.data,
+                    title: `From ${currentFileName}`,
+                });
+                notify.success('Selection sent to Handoff');
+            } catch {
+                notify.error('Failed to send to Handoff');
+            }
+            closeContextMenu();
+        }
+    }, [contextMenu, send, currentFileName, notify, closeContextMenu]);
 
     // Reset state when props change
     useEffect(() => {
@@ -316,8 +352,34 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
                     onSelect={e => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
                     onKeyUp={e => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
                     onClick={e => setCursorIndex(e.currentTarget.selectionStart ?? 0)}
+                    onContextMenu={handleTextAreaContextMenu}
                     spellCheck={false}
                     placeholder="Start typing..."
+                />
+            )}
+
+            {/* Context Menu (F198) */}
+            {contextMenu && (
+                <ContextMenu
+                    position={contextMenu.position}
+                    onClose={closeContextMenu}
+                    {...menuProps}
+                    items={[
+                        {
+                            label: 'Send Selection to Handoff',
+                            icon: 'sync_alt',
+                            onClick: handleSendToHandoff,
+                        },
+                        { type: 'separator' },
+                        {
+                            label: 'Copy',
+                            icon: 'content_copy',
+                            onClick: () => {
+                                navigator.clipboard.writeText(contextMenu.data);
+                                closeContextMenu();
+                            },
+                        },
+                    ]}
                 />
             )}
 

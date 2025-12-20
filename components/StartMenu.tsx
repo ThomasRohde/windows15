@@ -3,7 +3,7 @@ import { useOS } from '../context/OSContext';
 import { useStartMenu } from '../context/StartMenuContext';
 import { useUserProfile } from '../context/UserProfileContext';
 import { ContextMenu } from './ContextMenu';
-import { useContextMenu } from '../hooks';
+import { useContextMenu, useHandoff, useNotification } from '../hooks';
 import { Icon } from './ui';
 
 export const StartMenu = () => {
@@ -11,10 +11,58 @@ export const StartMenu = () => {
     const { isStartMenuOpen, toggleStartMenu, pinnedApps, isPinned, pinApp, unpinApp, showAllApps, toggleAllApps } =
         useStartMenu();
     const { profile, getInitials } = useUserProfile();
+    const { send, clearArchived } = useHandoff();
+    const notify = useNotification();
     const menuRef = useRef<HTMLDivElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(0);
+
+    // Handoff actions for search (F197)
+    const handoffActions = useMemo(
+        () => [
+            {
+                id: 'handoff-open',
+                title: 'Open Handoff Queue',
+                icon: 'sync_alt',
+                color: 'bg-indigo-500',
+                action: () => openWindow('handoff'),
+                keywords: ['handoff', 'sync', 'queue', 'devices'],
+            },
+            {
+                id: 'handoff-send-clipboard',
+                title: 'Send Clipboard to Handoff',
+                icon: 'content_paste_go',
+                color: 'bg-indigo-500',
+                action: async () => {
+                    try {
+                        const text = await navigator.clipboard.readText();
+                        if (text) {
+                            await send({ target: text, kind: 'text', text });
+                            notify.success('Clipboard sent to Handoff');
+                        } else {
+                            notify.warning('Clipboard is empty');
+                        }
+                    } catch {
+                        notify.error('Failed to read clipboard');
+                    }
+                },
+                keywords: ['handoff', 'send', 'clipboard', 'sync'],
+            },
+            {
+                id: 'handoff-clear',
+                title: 'Clear Handoff Archive',
+                icon: 'delete_sweep',
+                color: 'bg-red-500',
+                action: async () => {
+                    await clearArchived();
+                    notify.success('Handoff archive cleared');
+                },
+                keywords: ['handoff', 'clear', 'delete', 'archive'],
+            },
+        ],
+        [openWindow, send, clearArchived, notify]
+    );
 
     const {
         menu: contextMenu,
@@ -28,8 +76,26 @@ export const StartMenu = () => {
     const searchResults = useMemo(() => {
         if (!searchQuery.trim()) return null;
         const query = searchQuery.toLowerCase();
-        return apps.filter(app => app.title.toLowerCase().includes(query));
-    }, [apps, searchQuery]);
+
+        const appResults = apps
+            .filter(app => app.title.toLowerCase().includes(query))
+            .map(app => ({
+                ...app,
+                isAction: false as const,
+                action: () => openWindow(app.id),
+            }));
+
+        const actionResults = handoffActions
+            .filter(
+                action => action.title.toLowerCase().includes(query) || action.keywords.some(k => k.includes(query))
+            )
+            .map(action => ({
+                ...action,
+                isAction: true as const,
+            }));
+
+        return [...appResults, ...actionResults];
+    }, [apps, searchQuery, handoffActions]);
 
     // Focus search input when start menu opens
     useEffect(() => {
@@ -66,9 +132,9 @@ export const StartMenu = () => {
                 setSelectedIndex(prev => (prev - 1 + searchResults.length) % searchResults.length);
             } else if (e.key === 'Enter') {
                 e.preventDefault();
-                const selectedApp = searchResults[selectedIndex];
-                if (selectedApp) {
-                    openWindow(selectedApp.id);
+                const selected = searchResults[selectedIndex];
+                if (selected) {
+                    selected.action();
                     setSearchQuery('');
                 }
             }
@@ -158,10 +224,10 @@ export const StartMenu = () => {
                                     data-testid={`app-${app.id}`}
                                     role="menuitem"
                                     onClick={() => {
-                                        openWindow(app.id);
+                                        app.action();
                                         setSearchQuery('');
                                     }}
-                                    onContextMenu={e => handleContextMenu(e, app.id)}
+                                    onContextMenu={e => !app.isAction && handleContextMenu(e, app.id)}
                                     className={`flex items-center gap-3 p-2 rounded hover:bg-white/10 group transition-colors text-left ${
                                         index === selectedIndex ? 'bg-white/10 ring-2 ring-blue-400/50' : ''
                                     }`}
@@ -176,8 +242,15 @@ export const StartMenu = () => {
                                             {app.icon}
                                         </span>
                                     </div>
-                                    <span className="text-sm text-white/90 font-medium">{app.title}</span>
-                                    {isPinned(app.id) && (
+                                    <div className="flex flex-col">
+                                        <span className="text-sm text-white/90 font-medium">{app.title}</span>
+                                        {'isAction' in app && (
+                                            <span className="text-[10px] text-white/40 uppercase tracking-wider">
+                                                Action
+                                            </span>
+                                        )}
+                                    </div>
+                                    {!('isAction' in app) && isPinned(app.id) && (
                                         <Icon name="push_pin" size="sm" className="text-white/40 ml-auto" />
                                     )}
                                 </button>

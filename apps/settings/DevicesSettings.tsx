@@ -1,11 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import { useHandoff } from '../../hooks';
+import { useTranslation } from '../../hooks/useTranslation';
 import { FormField, Select, Button, Icon } from '../../components/ui';
 
 /**
  * DevicesSettings - Device profile and Handoff settings panel (F195)
  */
 export const DevicesSettings: React.FC = () => {
+    const { t } = useTranslation('handoff');
     const {
         deviceId,
         deviceLabel,
@@ -36,7 +38,7 @@ export const DevicesSettings: React.FC = () => {
     }, [label, category, retention, setDeviceLabel, setDeviceCategory, setRetentionDays]);
 
     const handleClearArchived = async () => {
-        if (confirm('Are you sure you want to permanently delete all archived items?')) {
+        if (confirm(t('settings.confirmClear'))) {
             await clearArchived();
         }
     };
@@ -45,7 +47,7 @@ export const DevicesSettings: React.FC = () => {
 
     return (
         <div className="max-w-2xl">
-            <h1 className="text-3xl font-light mb-8">Devices</h1>
+            <h1 className="text-3xl font-light mb-8">{t('settings.title')}</h1>
 
             <div className="bg-white/5 rounded-xl p-6 mb-6">
                 <div className="flex items-center gap-4 mb-6">
@@ -53,13 +55,17 @@ export const DevicesSettings: React.FC = () => {
                         <Icon name="devices" size={32} />
                     </div>
                     <div>
-                        <h2 className="text-lg font-medium text-white">This Device</h2>
+                        <h2 className="text-lg font-medium text-white">{t('settings.identity')}</h2>
                         <p className="text-xs text-white/40 font-mono">ID: {deviceId}</p>
                     </div>
                 </div>
 
                 <div className="space-y-6">
-                    <FormField label="Device Label" id="device-label" description="How this device appears to others">
+                    <FormField
+                        label={t('settings.deviceName')}
+                        id="device-label"
+                        description={t('settings.deviceNameHint')}
+                    >
                         <div className="flex gap-3">
                             <input
                                 id="device-label"
@@ -84,38 +90,38 @@ export const DevicesSettings: React.FC = () => {
                     </FormField>
 
                     <FormField
-                        label="Device Category"
+                        label={t('settings.deviceCategory')}
                         id="device-category"
-                        description="Used for targeting Handoff items"
+                        description={t('settings.deviceCategoryHint')}
                     >
                         <Select
                             id="device-category"
                             value={category}
                             onChange={e => setCategory(e.target.value as 'any' | 'work' | 'private')}
                             options={[
-                                { label: 'Any / General', value: 'any' },
-                                { label: 'Work', value: 'work' },
-                                { label: 'Private', value: 'private' },
+                                { label: t('composer.any'), value: 'any' },
+                                { label: t('composer.work'), value: 'work' },
+                                { label: t('composer.private'), value: 'private' },
                             ]}
                             className="w-full bg-black/30 border-white/10"
                         />
                     </FormField>
 
                     <FormField
-                        label="Auto-Archive Period"
+                        label={t('settings.retentionPeriod')}
                         id="retention-period"
-                        description="Items older than this will be moved to Archive"
+                        description={t('settings.retentionHint')}
                     >
                         <Select
                             id="retention-period"
                             value={retention.toString()}
                             onChange={e => setRetention(parseInt(e.target.value))}
                             options={[
-                                { label: '1 Day', value: '1' },
-                                { label: '3 Days', value: '3' },
-                                { label: '7 Days (Default)', value: '7' },
-                                { label: '14 Days', value: '14' },
-                                { label: '30 Days', value: '30' },
+                                { label: t('settings.days.1'), value: '1' },
+                                { label: t('settings.days.3'), value: '3' },
+                                { label: t('settings.days.7'), value: '7' },
+                                { label: t('settings.days.14'), value: '14' },
+                                { label: t('settings.days.30'), value: '30' },
                             ]}
                             className="w-full bg-black/30 border-white/10"
                         />
@@ -129,7 +135,7 @@ export const DevicesSettings: React.FC = () => {
                         >
                             <div className="flex items-center gap-2">
                                 <Icon name="delete_sweep" size={18} />
-                                Clear Archive
+                                {t('actions.clearArchive')}
                             </div>
                         </Button>
 
@@ -144,10 +150,10 @@ export const DevicesSettings: React.FC = () => {
                             ) : showSuccess ? (
                                 <div className="flex items-center gap-2">
                                     <Icon name="check" />
-                                    Saved
+                                    {t('settings.saved')}
                                 </div>
                             ) : (
-                                'Save Changes'
+                                t('settings.saveChanges')
                             )}
                         </Button>
                     </div>
@@ -157,13 +163,9 @@ export const DevicesSettings: React.FC = () => {
             <div className="bg-white/5 rounded-xl p-6">
                 <h3 className="text-sm font-medium text-white/80 mb-3 flex items-center gap-2">
                     <Icon name="info" size={18} />
-                    About Device Profiles
+                    {t('settings.aboutTitle')}
                 </h3>
-                <p className="text-xs text-white/60 leading-relaxed">
-                    Device profiles help you organize your Handoff Queue. You can target specific categories of devices
-                    when sending links or text, ensuring your work content stays on work devices and private content
-                    stays on private devices.
-                </p>
+                <p className="text-xs text-white/60 leading-relaxed">{t('settings.aboutDescription')}</p>
             </div>
         </div>
     );

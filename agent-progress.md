@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                          | Status         |
-| ---- | -------------------------------------------------------------------- | -------------- |
-| F196 | Add auto-expiry for Handoff items with configurable retention period | 🔄 In progress |
-| F197 | Add Handoff actions to global search/command palette                 | ⏳ Not started |
-| F198 | Add Send selection to Handoff context menu action in text-based apps | ⏳ Not started |
+| ID   | Description                                                        | Status         |
+| ---- | ------------------------------------------------------------------ | -------------- |
+| F200 | Add sensitive mode with client-side encryption for Handoff items   | ⏳ Not started |
+| F201 | Add work mode restriction to limit Handoff to URLs only            | ⏳ Not started |
+| F202 | Add Handoff keyboard shortcut Ctrl+Shift+H to quick-send clipboard | ⏳ Not started |
 
 ---
 

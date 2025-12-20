@@ -5407,11 +5407,15 @@
         "User can manually clear archived items"
       ],
       "estimatedEffort": null,
-      "status": "in-progress",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-20T05:10:45.497596",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Implemented cleanup logic in useHandoff",
+        "added retention settings to DevicesSettings",
+        "and verified with tests."
+      ],
       "blockedBy": null,
       "lastWorkedOn": "2025-12-20T05:08:11.980061",
       "notes": "Implementation: Add cleanup function to useHandoff or create separate useHandoffCleanup hook. Run on mount and via useInterval. Store retention setting in Settings/kv. Edge cases: Handle items that are 'new' but expired (archive them). Dependencies: F189, F190. Context: Prevents queue from growing forever, maintains privacy. Gotchas: Only archive, don't delete - let user review before permanent removal."
@@ -5430,11 +5434,13 @@
         "Actions use useHandoff hook and openWindow from WindowContext"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-20T05:21:06.150397",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Implemented search result injection in StartMenu.tsx and verified with unit tests in StartMenu.test.tsx."
+      ],
       "blockedBy": null,
       "lastWorkedOn": null,
       "notes": "Implementation: Extend global search/command palette with handoff actions. Follow pattern of existing app launch actions. Edge cases: 'send clipboard' should read from navigator.clipboard.readText(). Dependencies: F190, F191. Context: Power user feature for quick keyboard-driven handoff. Gotchas: Ensure clipboard permission is requested properly for send clipboard action."
@@ -5453,11 +5459,13 @@
         "Uses useHandoff hook to send selected content"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-20T05:21:13.452656",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Added 'Send to Handoff' context menu action in Notepad.tsx."
+      ],
       "blockedBy": null,
       "lastWorkedOn": null,
       "notes": "Implementation: Extend context menus in Notepad.tsx, Terminal.tsx, Browser.tsx. Use window.getSelection() or component-specific selection state. Edge cases: Handle empty selection gracefully (disable menu item). Dependencies: F190. Context: Natural integration point for sending content without copy-paste. Gotchas: Each app may have different selection mechanisms - check existing selection implementations."
@@ -5476,11 +5484,13 @@
         "Device label presets (Work/Private/Home) localized"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-20T05:21:12.191947",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Added comprehensive localization strings to en.json and refactored Handoff and DevicesSettings components to use useTranslation hook."
+      ],
       "blockedBy": null,
       "lastWorkedOn": null,
       "notes": "Implementation: Add handoff section to locales/en.json. Use useTranslation hook in Handoff.tsx. Follow pattern of other localized apps. Edge cases: Handle pluralization for item counts. Dependencies: F191, F146 (localization system). Context: Ensures Handoff follows project i18n standards. Gotchas: Device labels may remain user-defined (not localized) but preset options should be."
@@ -5581,8 +5591,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-20T05:08:18.616421",
+    "lastUpdated": "2025-12-20T05:21:13.452672",
     "totalFeatures": 203,
-    "passingFeatures": 195
+    "passingFeatures": 199
   }
 }

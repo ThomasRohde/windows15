@@ -41,6 +41,28 @@ vi.mock('../../context/StartMenuContext', () => ({
     }),
 }));
 
+// Mock useNotification hook
+vi.mock('../../hooks/useNotification', () => ({
+    useNotification: () => ({
+        addNotification: vi.fn(),
+    }),
+}));
+
+// Mock useHandoff hook
+vi.mock('../../hooks/useHandoff', () => ({
+    useHandoff: () => ({
+        send: vi.fn(),
+        clearArchived: vi.fn(),
+    }),
+}));
+
+// Mock useTranslation hook
+vi.mock('../../hooks/useTranslation', () => ({
+    useTranslation: () => ({
+        t: (key: string) => key,
+    }),
+}));
+
 // Mock useUserProfile hook
 vi.mock('../../context/UserProfileContext', () => ({
     useUserProfile: () => ({

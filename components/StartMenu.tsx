@@ -3,7 +3,7 @@ import { useOS } from '../context/OSContext';
 import { useStartMenu } from '../context/StartMenuContext';
 import { useUserProfile } from '../context/UserProfileContext';
 import { ContextMenu } from './ContextMenu';
-import { useContextMenu, useHandoff, useNotification } from '../hooks';
+import { useContextMenu, useHandoff, useNotification, usePhoneMode } from '../hooks';
 import { Icon } from './ui';
 
 export const StartMenu = () => {
@@ -13,6 +13,7 @@ export const StartMenu = () => {
     const { profile, getInitials } = useUserProfile();
     const { send, clearArchived } = useHandoff();
     const notify = useNotification();
+    const isPhone = usePhoneMode();
     const menuRef = useRef<HTMLDivElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -182,7 +183,23 @@ export const StartMenu = () => {
             role="menu"
             aria-label="Start menu"
             onKeyDown={handleKeyDown}
-            className="fixed bottom-24 [@media(pointer:coarse)]:bottom-28 left-1/2 transform -translate-x-1/2 w-[600px] [@media(pointer:coarse)]:w-[90vw] [@media(pointer:coarse)]:max-w-[650px] h-[70vh] max-h-[700px] glass-panel rounded-xl shadow-2xl z-40 flex flex-col animate-fade-in-up origin-bottom"
+            className={
+                isPhone
+                    ? // Phone: fullscreen with safe-area insets (F228)
+                      'fixed inset-0 z-40 flex flex-col glass-panel animate-fade-in'
+                    : // Desktop: centered dropdown
+                      'fixed left-1/2 transform -translate-x-1/2 w-[600px] [@media(pointer:coarse)]:w-[90vw] [@media(pointer:coarse)]:max-w-[650px] h-[70vh] max-h-[700px] glass-panel rounded-xl shadow-2xl z-40 flex flex-col animate-fade-in-up origin-bottom'
+            }
+            style={
+                isPhone
+                    ? {
+                          paddingTop: 'var(--safe-area-inset-top)',
+                          paddingBottom: 'var(--safe-area-inset-bottom)',
+                      }
+                    : {
+                          bottom: 'calc(6rem + var(--safe-area-inset-bottom))',
+                      }
+            }
         >
             {/* Search */}
             <div className="p-6 pb-2">
@@ -324,7 +341,7 @@ export const StartMenu = () => {
                         ) : (
                             /* Pinned Apps Grid View */
                             <div
-                                className="grid grid-cols-6 [@media(pointer:coarse)]:grid-cols-4 gap-4 [@media(pointer:coarse)]:gap-5"
+                                className={`grid gap-4 [@media(pointer:coarse)]:gap-5 ${isPhone ? 'grid-cols-2' : 'grid-cols-6 [@media(pointer:coarse)]:grid-cols-4'}`}
                                 role="group"
                                 aria-label="Pinned apps"
                             >

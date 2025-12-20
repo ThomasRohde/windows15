@@ -13,6 +13,7 @@ import { storageService } from '../utils/storage';
 import { soundService } from '../utils/soundService';
 import { useAppRegistry } from './AppRegistryContext';
 import { useStartMenu } from './StartMenuContext';
+import { usePhoneMode } from '../hooks/usePhoneMode';
 import { Z_INDEX } from '../utils/constants';
 
 const KV_KEYS = {
@@ -123,6 +124,7 @@ interface WindowProviderProps {
 export const WindowProvider: React.FC<WindowProviderProps> = ({ children }) => {
     const { apps, getApp } = useAppRegistry();
     const { closeStartMenu } = useStartMenu();
+    const isPhone = usePhoneMode();
 
     const [windows, setWindows] = useState<WindowState[]>([]);
     const [isInitialized, setIsInitialized] = useState(false);
@@ -250,6 +252,9 @@ export const WindowProvider: React.FC<WindowProviderProps> = ({ children }) => {
                 const offset = prevWindows.length * 20;
                 const savedState = savedWindowStatesRef.current.find(s => s.appId === appId);
 
+                // Auto-maximize on phone-sized viewports (F226)
+                const shouldMaximize = isPhone;
+
                 const newWindow: WindowState = {
                     id: globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 11),
                     appId: app.id,
@@ -258,7 +263,7 @@ export const WindowProvider: React.FC<WindowProviderProps> = ({ children }) => {
                     component: <app.component {...contentProps} />,
                     isOpen: true,
                     isMinimized: false,
-                    isMaximized: false,
+                    isMaximized: shouldMaximize,
                     zIndex: getNextZIndex(),
                     position: savedState?.state?.position ?? { x: 50 + offset, y: 50 + offset },
                     size: savedState?.state?.size ?? {
@@ -274,7 +279,7 @@ export const WindowProvider: React.FC<WindowProviderProps> = ({ children }) => {
             });
             closeStartMenu();
         },
-        [getApp, persistWindowStates, closeStartMenu]
+        [getApp, persistWindowStates, closeStartMenu, isPhone]
     );
 
     const closeWindow = useCallback(

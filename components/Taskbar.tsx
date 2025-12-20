@@ -1,6 +1,6 @@
 import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
 import { useLocalization, useOS, useNotificationCenter } from '../context';
-import { useHandoffItems } from '../hooks';
+import { useHandoffItems, usePhoneMode } from '../hooks';
 import { SyncStatus } from './SyncStatus';
 import { NotificationCenter } from './NotificationCenter';
 import { Tooltip } from './ui';
@@ -21,6 +21,7 @@ export const Taskbar = () => {
     const { toggleStartMenu, isStartMenuOpen, apps, openWindow, windows, minimizeWindow } = useOS();
     const { formatTimeShort, formatDateShort } = useLocalization();
     const { toggle: toggleNotifications, unreadCount, isOpen: isNotificationCenterOpen } = useNotificationCenter();
+    const isPhone = usePhoneMode();
     const [time, setTime] = useState(new Date());
     const newHandoffItems = useHandoffItems('new');
     const newHandoffCount = newHandoffItems?.length ?? 0;
@@ -50,116 +51,180 @@ export const Taskbar = () => {
         });
     }, [windows, minimizeWindow]);
 
+    // Get the active (focused) window for phone display
+    const activeWindow = useMemo(() => {
+        if (!windows.length) return null;
+        const maxZ = Math.max(...windows.map(w => w.zIndex));
+        return windows.find(w => w.zIndex === maxZ && !w.isMinimized) || null;
+    }, [windows]);
+
     return (
-        <div data-taskbar className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-            <div className="flex items-center h-16 [@media(pointer:coarse)]:h-20 px-3 glass-panel rounded-full shadow-2xl ring-1 ring-white/10 gap-2 md:gap-4 [@media(pointer:coarse)]:gap-3 transition-all">
-                {/* Start Button */}
-                <Tooltip content="Start Menu" position="top">
+        <div
+            data-taskbar
+            className="fixed left-1/2 transform -translate-x-1/2 z-50"
+            style={{
+                bottom: 'calc(1.5rem + var(--safe-area-inset-bottom))',
+            }}
+        >
+            {isPhone ? (
+                // Phone-optimized minimal layout (F227)
+                <div className="flex items-center justify-between h-12 px-3 glass-panel rounded-full shadow-2xl ring-1 ring-white/10 gap-3 w-[90vw] max-w-[400px]">
+                    {/* Start Button */}
                     <button
                         data-testid="start-menu-button"
                         onClick={toggleStartMenu}
-                        className={`w-10 h-10 [@media(pointer:coarse)]:w-12 [@media(pointer:coarse)]:h-12 rounded-full flex items-center justify-center hover:bg-white/10 transition-all active:scale-95 group relative ml-1 ${isStartMenuOpen ? 'bg-white/10' : ''}`}
+                        className={`w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-all active:scale-95 group relative ${isStartMenuOpen ? 'bg-white/10' : ''}`}
                     >
                         <div className="absolute inset-0 bg-primary/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <span
-                            className="material-symbols-outlined text-primary text-3xl [@media(pointer:coarse)]:text-4xl relative z-10"
+                            className="material-symbols-outlined text-primary text-2xl relative z-10"
                             style={{ fontVariationSettings: "'FILL' 1" }}
                         >
                             grid_view
                         </span>
                     </button>
-                </Tooltip>
 
-                <div className="w-px h-8 bg-white/10 mx-1"></div>
-
-                {/* App Icons (Pinned + Open) */}
-                <div className="flex gap-1 md:gap-2 [@media(pointer:coarse)]:gap-2">
-                    {/* Render Pinned Apps */}
-                    {PINNED_APPS.map(id => {
-                        const app = apps.find(a => a.id === id);
-                        if (!app) return null;
-                        const appWindow = windows.find(w => w.appId === id);
-                        const isOpen = appWindow && !appWindow.isMinimized;
-                        const isRunning = !!appWindow;
-                        // Get badge count from the window state (F148) or Handoff unread count (F203)
-                        const badge =
-                            id === 'handoff' ? newHandoffCount || appWindow?.badge || null : (appWindow?.badge ?? null);
-
-                        return (
-                            <TaskbarIcon
-                                key={id}
-                                icon={appWindow?.dynamicIcon ?? app.icon}
-                                title={appWindow?.dynamicTitle ?? app.title}
-                                colorClass={app.color.replace('bg-', 'text-')}
-                                active={isOpen}
-                                running={isRunning}
-                                onClick={openWindowHandlers[id]}
-                                filled={true}
-                                badge={badge}
-                            />
-                        );
-                    })}
-                </div>
-
-                <div className="w-px h-8 bg-white/10 mx-1"></div>
-
-                {/* System Tray */}
-                <div className="flex items-center gap-1 md:gap-2 [@media(pointer:coarse)]:gap-3 mr-1">
-                    <Tooltip content="Show hidden icons" position="top">
-                        <button className="p-2 [@media(pointer:coarse)]:p-3 rounded-full hover:bg-white/10 text-white/70 hover:text-white transition-colors">
-                            <span className="material-symbols-outlined text-[18px] [@media(pointer:coarse)]:text-[22px]">
-                                expand_less
+                    {/* Active app indicator */}
+                    {activeWindow && (
+                        <div className="flex items-center gap-2 flex-1 justify-center min-w-0">
+                            <span
+                                className={`material-symbols-outlined text-xl ${apps.find(a => a.id === activeWindow.appId)?.color.replace('bg-', 'text-')}`}
+                            >
+                                {activeWindow.dynamicIcon ?? activeWindow.icon}
                             </span>
-                        </button>
-                    </Tooltip>
-                    <Tooltip content="Network, Sound, Battery" position="top">
-                        <div className="flex items-center gap-3 px-3 py-1.5 [@media(pointer:coarse)]:px-4 [@media(pointer:coarse)]:py-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer group">
-                            <span className="material-symbols-outlined text-[18px] [@media(pointer:coarse)]:text-[22px] text-white">
-                                wifi
-                            </span>
-                            <span className="material-symbols-outlined text-[18px] [@media(pointer:coarse)]:text-[22px] text-white">
-                                volume_up
-                            </span>
-                            <span className="material-symbols-outlined text-[18px] [@media(pointer:coarse)]:text-[22px] text-white">
-                                battery_full
+                            <span className="text-sm text-white/90 truncate">
+                                {activeWindow.dynamicTitle ?? activeWindow.title}
                             </span>
                         </div>
-                    </Tooltip>
-                    <SyncStatus />
-                    {/* Notification Center (F157) */}
-                    <Tooltip content="Notifications" position="top">
-                        <button
-                            data-notification-button
-                            onClick={toggleNotifications}
-                            className={`relative p-2 [@media(pointer:coarse)]:p-3 rounded-full hover:bg-white/10 text-white/70 hover:text-white transition-colors ${isNotificationCenterOpen ? 'bg-white/10 text-white' : ''}`}
-                        >
-                            <span className="material-symbols-outlined text-[18px] [@media(pointer:coarse)]:text-[22px]">
-                                notifications
+                    )}
+
+                    {/* Notification toggle */}
+                    <button
+                        data-notification-button
+                        onClick={toggleNotifications}
+                        className={`relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 text-white/70 hover:text-white transition-colors ${isNotificationCenterOpen ? 'bg-white/10 text-white' : ''}`}
+                    >
+                        <span className="material-symbols-outlined text-xl">notifications</span>
+                        {unreadCount > 0 && (
+                            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full">
+                                {unreadCount > 99 ? '99+' : unreadCount}
                             </span>
-                            {unreadCount > 0 && (
-                                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] [@media(pointer:coarse)]:min-w-[20px] [@media(pointer:coarse)]:h-[20px] px-1 flex items-center justify-center bg-red-500 text-white text-[9px] [@media(pointer:coarse)]:text-[11px] font-bold rounded-full">
-                                    {unreadCount > 99 ? '99+' : unreadCount}
-                                </span>
-                            )}
+                        )}
+                    </button>
+                </div>
+            ) : (
+                // Desktop layout
+                <div className="flex items-center h-16 [@media(pointer:coarse)]:h-20 px-3 glass-panel rounded-full shadow-2xl ring-1 ring-white/10 gap-2 md:gap-4 [@media(pointer:coarse)]:gap-3 transition-all">
+                    {/* Start Button */}
+                    <Tooltip content="Start Menu" position="top">
+                        <button
+                            data-testid="start-menu-button"
+                            onClick={toggleStartMenu}
+                            className={`w-10 h-10 [@media(pointer:coarse)]:w-12 [@media(pointer:coarse)]:h-12 rounded-full flex items-center justify-center hover:bg-white/10 transition-all active:scale-95 group relative ml-1 ${isStartMenuOpen ? 'bg-white/10' : ''}`}
+                        >
+                            <div className="absolute inset-0 bg-primary/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <span
+                                className="material-symbols-outlined text-primary text-3xl [@media(pointer:coarse)]:text-4xl relative z-10"
+                                style={{ fontVariationSettings: "'FILL' 1" }}
+                            >
+                                grid_view
+                            </span>
                         </button>
                     </Tooltip>
-                    {/* Clock */}
-                    <div className="flex flex-col items-end justify-center px-3 py-1 [@media(pointer:coarse)]:px-4 [@media(pointer:coarse)]:py-2 rounded-lg hover:bg-white/10 transition-colors cursor-pointer text-right min-w-[80px] [@media(pointer:coarse)]:min-w-[90px]">
-                        <span className="text-xs [@media(pointer:coarse)]:text-sm font-semibold text-white leading-none mb-0.5">
-                            {formatTimeShort(time)}
-                        </span>
-                        <span className="text-[10px] [@media(pointer:coarse)]:text-xs text-white/60 leading-none">
-                            {formatDateShort(time)}
-                        </span>
+
+                    <div className="w-px h-8 bg-white/10 mx-1"></div>
+
+                    {/* App Icons (Pinned + Open) */}
+                    <div className="flex gap-1 md:gap-2 [@media(pointer:coarse)]:gap-2">
+                        {/* Render Pinned Apps */}
+                        {PINNED_APPS.map(id => {
+                            const app = apps.find(a => a.id === id);
+                            if (!app) return null;
+                            const appWindow = windows.find(w => w.appId === id);
+                            const isOpen = appWindow && !appWindow.isMinimized;
+                            const isRunning = !!appWindow;
+                            // Get badge count from the window state (F148) or Handoff unread count (F203)
+                            const badge =
+                                id === 'handoff'
+                                    ? newHandoffCount || appWindow?.badge || null
+                                    : (appWindow?.badge ?? null);
+
+                            return (
+                                <TaskbarIcon
+                                    key={id}
+                                    icon={appWindow?.dynamicIcon ?? app.icon}
+                                    title={appWindow?.dynamicTitle ?? app.title}
+                                    colorClass={app.color.replace('bg-', 'text-')}
+                                    active={isOpen}
+                                    running={isRunning}
+                                    onClick={openWindowHandlers[id]}
+                                    filled={true}
+                                    badge={badge}
+                                />
+                            );
+                        })}
                     </div>
-                    <Tooltip content="Show desktop" position="top">
-                        <button
-                            className="w-1 [@media(pointer:coarse)]:w-2 h-8 [@media(pointer:coarse)]:h-10 border-l border-white/20 ml-2 hover:bg-white/20"
-                            onClick={handleMinimizeAll}
-                        ></button>
-                    </Tooltip>
+
+                    <div className="w-px h-8 bg-white/10 mx-1"></div>
+
+                    {/* System Tray */}
+                    <div className="flex items-center gap-1 md:gap-2 [@media(pointer:coarse)]:gap-3 mr-1">
+                        <Tooltip content="Show hidden icons" position="top">
+                            <button className="p-2 [@media(pointer:coarse)]:p-3 rounded-full hover:bg-white/10 text-white/70 hover:text-white transition-colors">
+                                <span className="material-symbols-outlined text-[18px] [@media(pointer:coarse)]:text-[22px]">
+                                    expand_less
+                                </span>
+                            </button>
+                        </Tooltip>
+                        <Tooltip content="Network, Sound, Battery" position="top">
+                            <div className="flex items-center gap-3 px-3 py-1.5 [@media(pointer:coarse)]:px-4 [@media(pointer:coarse)]:py-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer group">
+                                <span className="material-symbols-outlined text-[18px] [@media(pointer:coarse)]:text-[22px] text-white">
+                                    wifi
+                                </span>
+                                <span className="material-symbols-outlined text-[18px] [@media(pointer:coarse)]:text-[22px] text-white">
+                                    volume_up
+                                </span>
+                                <span className="material-symbols-outlined text-[18px] [@media(pointer:coarse)]:text-[22px] text-white">
+                                    battery_full
+                                </span>
+                            </div>
+                        </Tooltip>
+                        <SyncStatus />
+                        {/* Notification Center (F157) */}
+                        <Tooltip content="Notifications" position="top">
+                            <button
+                                data-notification-button
+                                onClick={toggleNotifications}
+                                className={`relative p-2 [@media(pointer:coarse)]:p-3 rounded-full hover:bg-white/10 text-white/70 hover:text-white transition-colors ${isNotificationCenterOpen ? 'bg-white/10 text-white' : ''}`}
+                            >
+                                <span className="material-symbols-outlined text-[18px] [@media(pointer:coarse)]:text-[22px]">
+                                    notifications
+                                </span>
+                                {unreadCount > 0 && (
+                                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] [@media(pointer:coarse)]:min-w-[20px] [@media(pointer:coarse)]:h-[20px] px-1 flex items-center justify-center bg-red-500 text-white text-[9px] [@media(pointer:coarse)]:text-[11px] font-bold rounded-full">
+                                        {unreadCount > 99 ? '99+' : unreadCount}
+                                    </span>
+                                )}
+                            </button>
+                        </Tooltip>
+                        {/* Clock */}
+                        <div className="flex flex-col items-end justify-center px-3 py-1 [@media(pointer:coarse)]:px-4 [@media(pointer:coarse)]:py-2 rounded-lg hover:bg-white/10 transition-colors cursor-pointer text-right min-w-[80px] [@media(pointer:coarse)]:min-w-[90px]">
+                            <span className="text-xs [@media(pointer:coarse)]:text-sm font-semibold text-white leading-none mb-0.5">
+                                {formatTimeShort(time)}
+                            </span>
+                            <span className="text-[10px] [@media(pointer:coarse)]:text-xs text-white/60 leading-none">
+                                {formatDateShort(time)}
+                            </span>
+                        </div>
+                        <Tooltip content="Show desktop" position="top">
+                            <button
+                                className="w-1 [@media(pointer:coarse)]:w-2 h-8 [@media(pointer:coarse)]:h-10 border-l border-white/20 ml-2 hover:bg-white/20"
+                                onClick={handleMinimizeAll}
+                            ></button>
+                        </Tooltip>
+                    </div>
                 </div>
-            </div>
+            )}
             {/* Notification Center Panel (F157) */}
             <NotificationCenter />
         </div>

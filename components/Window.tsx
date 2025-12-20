@@ -4,7 +4,7 @@ import { WindowState } from '../types';
 import { AppLoadingSkeleton } from './AppLoadingSkeleton';
 import { ErrorBoundary } from './ErrorBoundary';
 import { WINDOW } from '../utils/constants';
-import { usePinchGesture, useTouchDevice, useAppEmit, useVirtualKeyboard } from '../hooks';
+import { usePinchGesture, useTouchDevice, useAppEmit, useVirtualKeyboard, usePhoneMode } from '../hooks';
 
 interface WindowProps {
     window: WindowState;
@@ -56,6 +56,7 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
         settings: windowSpaceSettings,
         prefersReducedMotion,
     } = useWindowSpace();
+    const isPhone = usePhoneMode();
     const [isDragging, setIsDragging] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
     const [resizeDir, setResizeDir] = useState<ResizeDirection>(null);
@@ -104,6 +105,13 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
         setPosition(restorePositionRef.current);
         setSize(restoreSizeRef.current);
     }, [window.isMaximized]);
+
+    // Auto-maximize when switching to phone mode (F226)
+    useEffect(() => {
+        if (isPhone && !window.isMaximized) {
+            toggleMaximizeWindow(window.id);
+        }
+    }, [isPhone, window.isMaximized, window.id, toggleMaximizeWindow]);
 
     useEffect(() => {
         return () => {
@@ -230,6 +238,8 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
     });
 
     const handlePointerDown = (e: React.PointerEvent) => {
+        // Disable drag on phone-sized viewports (F226)
+        if (isPhone) return;
         if (window.isMaximized) return;
         if (e.button !== 0) return;
         const target = e.target as HTMLElement;
@@ -336,6 +346,8 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
     };
 
     const handleResizeStart = (e: React.PointerEvent, direction: ResizeDirection) => {
+        // Disable resize on phone-sized viewports (F226)
+        if (isPhone) return;
         if (window.isMaximized) return;
         if (e.button !== 0) return;
         e.stopPropagation();
@@ -615,8 +627,8 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
                 </div>
             </div>
 
-            {/* Resize Handles - only show when not maximized */}
-            {!window.isMaximized && (
+            {/* Resize Handles - only show when not maximized and not on phone (F226) */}
+            {!window.isMaximized && !isPhone && (
                 <>
                     {/* Edge handles */}
                     <div

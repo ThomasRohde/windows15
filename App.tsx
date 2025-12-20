@@ -35,7 +35,7 @@ import {
 import { useDexieLiveQuery } from './utils/storage/react';
 import { DesktopIconRecord } from './utils/storage/db';
 import { APP_REGISTRY } from './apps';
-import { useHotkeys, useContextMenu, useNotification, useAppEvent } from './hooks';
+import { useHotkeys, useContextMenu, useNotification, useAppEvent, usePhoneMode } from './hooks';
 import { ensureArray } from './utils';
 import { readTextFromClipboard } from './utils/clipboard';
 import { analyzeClipboardContent, fetchYoutubeVideoTitle } from './utils/clipboardAnalyzer';
@@ -62,6 +62,7 @@ const Desktop = () => {
     const { toggleHistory: toggleClipboardHistory } = useClipboard();
     const db = useDb();
     const notify = useNotification();
+    const isPhone = usePhoneMode();
 
     // Overview mode state (F095)
     const [isOverviewOpen, setIsOverviewOpen] = useState(false);
@@ -584,23 +585,25 @@ const Desktop = () => {
             {/* Wallpaper Layer - WallpaperHost handles both static and live wallpapers */}
             <WallpaperHost fallbackImage={activeWallpaper} />
 
-            {/* Desktop Icons */}
-            <div className="absolute inset-0 z-10 w-full h-[calc(100vh-80px)] pointer-events-none">
-                {!iconsLoading &&
-                    icons.map(iconData => (
-                        <div key={iconData.id} className="pointer-events-auto">
-                            <DesktopIcon
-                                id={iconData.id}
-                                icon={iconData.icon}
-                                label={iconData.label}
-                                colorClass={iconData.colorClass}
-                                appId={iconData.appId}
-                                position={iconData.position}
-                                onPositionChange={handleIconPositionChange}
-                            />
-                        </div>
-                    ))}
-            </div>
+            {/* Desktop Icons - hidden on phone-sized viewports (F225) */}
+            {!isPhone && (
+                <div className="absolute inset-0 z-10 w-full h-[calc(100vh-80px)] pointer-events-none">
+                    {!iconsLoading &&
+                        icons.map(iconData => (
+                            <div key={iconData.id} className="pointer-events-auto">
+                                <DesktopIcon
+                                    id={iconData.id}
+                                    icon={iconData.icon}
+                                    label={iconData.label}
+                                    colorClass={iconData.colorClass}
+                                    appId={iconData.appId}
+                                    position={iconData.position}
+                                    onPositionChange={handleIconPositionChange}
+                                />
+                            </div>
+                        ))}
+                </div>
+            )}
 
             {/* Window Manager Layer - applies CSS perspective in 3D mode (F087) */}
             <div className="absolute inset-0 z-10 pointer-events-none" style={windowLayerStyle}>

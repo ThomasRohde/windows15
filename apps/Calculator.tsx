@@ -153,6 +153,7 @@ export const Calculator = () => {
 
     const Btn = ({ v, op, wide }: { v: string; op?: boolean; wide?: boolean }) => (
         <button
+            type="button"
             onClick={() => {
                 if (v === 'C') clear();
                 else if (v === '=') equals();

@@ -11,7 +11,7 @@ import { formatRelativeTime } from '../utils/timeFormatters';
  */
 export const Handoff: React.FC = () => {
     const [statusFilter, setStatusFilter] = useState<HandoffStatus | 'all'>('new');
-    const { markOpened, markDone, archive, remove, send, deviceLabel } = useHandoff();
+    const { markOpened, markDone, archive, remove, send, deviceLabel, clearArchived } = useHandoff();
     const items = useHandoffItems(statusFilter === 'all' ? undefined : statusFilter);
     const { addNotification } = useNotification();
 
@@ -100,8 +100,20 @@ export const Handoff: React.FC = () => {
                             />
                         </div>
                     </div>
-                    <div className="text-[10px] text-white/30 uppercase font-bold tracking-widest">
-                        Device: <span className="text-indigo-400">{deviceLabel}</span>
+                    <div className="flex items-center gap-4">
+                        <div className="text-[10px] text-white/30 uppercase font-bold tracking-widest">
+                            Device: <span className="text-indigo-400">{deviceLabel}</span>
+                        </div>
+                        {statusFilter === 'archived' && (
+                            <button
+                                onClick={clearArchived}
+                                className="flex items-center gap-1.5 px-2 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded text-[10px] uppercase font-bold tracking-wider transition-colors"
+                                title="Permanently delete all archived items"
+                            >
+                                <Icon name="delete_sweep" size={14} />
+                                Clear Archive
+                            </button>
+                        )}
                     </div>
                 </div>
 

@@ -6,9 +6,19 @@ import { FormField, Select, Button, Icon } from '../../components/ui';
  * DevicesSettings - Device profile and Handoff settings panel (F195)
  */
 export const DevicesSettings: React.FC = () => {
-    const { deviceId, deviceLabel, deviceCategory, setDeviceLabel, setDeviceCategory } = useHandoff();
+    const {
+        deviceId,
+        deviceLabel,
+        deviceCategory,
+        setDeviceLabel,
+        setDeviceCategory,
+        retentionDays,
+        setRetentionDays,
+        clearArchived,
+    } = useHandoff();
     const [label, setLabel] = useState(deviceLabel);
     const [category, setCategory] = useState(deviceCategory);
+    const [retention, setRetention] = useState(retentionDays);
     const [isSaving, setIsSaving] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
 
@@ -17,14 +27,21 @@ export const DevicesSettings: React.FC = () => {
         try {
             setDeviceLabel(label);
             setDeviceCategory(category);
+            setRetentionDays(retention);
             setShowSuccess(true);
             setTimeout(() => setShowSuccess(false), 2000);
         } finally {
             setIsSaving(false);
         }
-    }, [label, category, setDeviceLabel, setDeviceCategory]);
+    }, [label, category, retention, setDeviceLabel, setDeviceCategory, setRetentionDays]);
 
-    const hasChanges = label !== deviceLabel || category !== deviceCategory;
+    const handleClearArchived = async () => {
+        if (confirm('Are you sure you want to permanently delete all archived items?')) {
+            await clearArchived();
+        }
+    };
+
+    const hasChanges = label !== deviceLabel || category !== deviceCategory || retention !== retentionDays;
 
     return (
         <div className="max-w-2xl">
@@ -84,7 +101,38 @@ export const DevicesSettings: React.FC = () => {
                         />
                     </FormField>
 
-                    <div className="pt-4 border-t border-white/5 flex justify-end">
+                    <FormField
+                        label="Auto-Archive Period"
+                        id="retention-period"
+                        description="Items older than this will be moved to Archive"
+                    >
+                        <Select
+                            id="retention-period"
+                            value={retention.toString()}
+                            onChange={e => setRetention(parseInt(e.target.value))}
+                            options={[
+                                { label: '1 Day', value: '1' },
+                                { label: '3 Days', value: '3' },
+                                { label: '7 Days (Default)', value: '7' },
+                                { label: '14 Days', value: '14' },
+                                { label: '30 Days', value: '30' },
+                            ]}
+                            className="w-full bg-black/30 border-white/10"
+                        />
+                    </FormField>
+
+                    <div className="pt-4 border-t border-white/5 flex justify-between items-center">
+                        <Button
+                            variant="ghost"
+                            onClick={handleClearArchived}
+                            className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                        >
+                            <div className="flex items-center gap-2">
+                                <Icon name="delete_sweep" size={18} />
+                                Clear Archive
+                            </div>
+                        </Button>
+
                         <Button
                             variant="primary"
                             onClick={handleSave}

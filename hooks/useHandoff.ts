@@ -27,12 +27,55 @@ export function useHandoff() {
         'any'
     );
 
+    // Retention period in days (F196)
+    const { value: retentionDays, setValue: setRetentionDays } = usePersistedState('windows15_handoff_retention', 7);
+
     // Ensure device ID is generated and persisted
     useEffect(() => {
         if (!isIdLoading && !deviceId) {
             setDeviceId(crypto.randomUUID());
         }
     }, [deviceId, isIdLoading, setDeviceId]);
+
+    /**
+     * Cleanup expired items (F196)
+     * Moves items older than retentionDays to 'archived' status.
+     */
+    const cleanup = useCallback(async () => {
+        const cutoff = Date.now() - retentionDays * 24 * 60 * 60 * 1000;
+
+        // Find items older than cutoff that are not already archived
+        const expiredItems = await db.handoffItems
+            .where('createdAt')
+            .below(cutoff)
+            .filter(item => item.status !== 'archived')
+            .toArray();
+
+        if (expiredItems.length === 0) return;
+
+        // Update them to archived
+        await db.transaction('rw', db.handoffItems, async () => {
+            for (const item of expiredItems) {
+                if (item.id) {
+                    await db.handoffItems.update(item.id, { status: 'archived' });
+                }
+            }
+        });
+
+        console.log(`[useHandoff] Archived ${expiredItems.length} expired items.`);
+    }, [retentionDays]);
+
+    // Run cleanup on mount
+    useEffect(() => {
+        cleanup();
+    }, [cleanup]);
+
+    /**
+     * Clear all archived items (F196)
+     */
+    const clearArchived = useCallback(async () => {
+        await db.handoffItems.where('status').equals('archived').delete();
+    }, []);
 
     /**
      * Send a new item to the handoff queue
@@ -94,6 +137,10 @@ export function useHandoff() {
         deviceCategory,
         setDeviceLabel,
         setDeviceCategory,
+        retentionDays,
+        setRetentionDays,
+        cleanup,
+        clearArchived,
         send,
         markOpened,
         markDone,

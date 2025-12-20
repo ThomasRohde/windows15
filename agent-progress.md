@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                                      | Status         |
-| ---- | -------------------------------------------------------------------------------- | -------------- |
-| F192 | Add Handoff composer panel for sending URLs and text to other devices            | 🔄 In progress |
-| F193 | Add real-time notifications for incoming Handoff items with click-to-open action | ⏳ Not started |
-| F194 | Add Send to Handoff action in Clipboard History viewer context menu              | ⏳ Not started |
+| ID   | Description                                                          | Status         |
+| ---- | -------------------------------------------------------------------- | -------------- |
+| F196 | Add auto-expiry for Handoff items with configurable retention period | 🔄 In progress |
+| F197 | Add Handoff actions to global search/command palette                 | ⏳ Not started |
+| F198 | Add Send selection to Handoff context menu action in text-based apps | ⏳ Not started |
 
 ---
 

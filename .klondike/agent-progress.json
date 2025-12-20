@@ -1095,18 +1095,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F192",
-        "description": "Add Handoff composer panel for sending URLs and text to other devices",
+        "id": "F196",
+        "description": "Add auto-expiry for Handoff items with configurable retention period",
         "status": "in-progress"
       },
       {
-        "id": "F193",
-        "description": "Add real-time notifications for incoming Handoff items with click-to-open action",
+        "id": "F197",
+        "description": "Add Handoff actions to global search/command palette",
         "status": "not-started"
       },
       {
-        "id": "F194",
-        "description": "Add Send to Handoff action in Clipboard History viewer context menu",
+        "id": "F198",
+        "description": "Add Send selection to Handoff context menu action in text-based apps",
         "status": "not-started"
       }
     ]

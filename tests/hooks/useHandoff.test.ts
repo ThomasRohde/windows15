@@ -113,4 +113,70 @@ describe('useHandoff', () => {
         expect(item?.status).toBe('done');
         expect(item?.doneAt).toBeDefined();
     });
+
+    it('should archive expired items', async () => {
+        const { result } = renderHook(() => useHandoff());
+
+        await waitFor(() => {
+            expect(result.current.deviceId).toBeTruthy();
+        });
+
+        // Set retention to 1 day
+        await act(async () => {
+            result.current.setRetentionDays(1);
+        });
+
+        // Add an old item (2 days old)
+        const oldId = await db.handoffItems.add({
+            target: 'old',
+            kind: 'text',
+            text: 'old',
+            status: 'new',
+            createdAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
+            createdByDeviceId: 'other',
+            createdByLabel: 'Other',
+        } as HandoffItem);
+
+        // Add a recent item (1 hour old)
+        const recentId = await db.handoffItems.add({
+            target: 'recent',
+            kind: 'text',
+            text: 'recent',
+            status: 'new',
+            createdAt: Date.now() - 1 * 60 * 60 * 1000,
+            createdByDeviceId: 'other',
+            createdByLabel: 'Other',
+        } as HandoffItem);
+
+        await act(async () => {
+            await result.current.cleanup();
+        });
+
+        const oldItem = await db.handoffItems.get(oldId);
+        const recentItem = await db.handoffItems.get(recentId);
+
+        expect(oldItem?.status).toBe('archived');
+        expect(recentItem?.status).toBe('new');
+    });
+
+    it('should clear archived items', async () => {
+        const { result } = renderHook(() => useHandoff());
+
+        await db.handoffItems.add({
+            target: 'archived',
+            kind: 'text',
+            text: 'archived',
+            status: 'archived',
+            createdAt: Date.now(),
+            createdByDeviceId: 'other',
+            createdByLabel: 'Other',
+        } as HandoffItem);
+
+        await act(async () => {
+            await result.current.clearArchived();
+        });
+
+        const archivedItems = await db.handoffItems.where('status').equals('archived').toArray();
+        expect(archivedItems.length).toBe(0);
+    });
 });

@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef, Suspense, memo, cloneElement, isValidElement } from 'react';
+import React, { useState, useEffect, useRef, Suspense, memo, cloneElement, isValidElement, useCallback } from 'react';
 import { useOS, useWindowSpace } from '../context/OSContext';
 import { WindowState } from '../types';
 import { AppLoadingSkeleton } from './AppLoadingSkeleton';
 import { ErrorBoundary } from './ErrorBoundary';
 import { WINDOW } from '../utils/constants';
+import { usePinchGesture, useTouchDevice } from '../hooks';
 
 interface WindowProps {
     window: WindowState;
@@ -81,6 +82,11 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
     const isDraggingRef = useRef(false);
     // Ref for current tilt to use in RAF callbacks
     const tiltRef = useRef({ rotateX: 0, rotateY: 0 });
+    // Pinch gesture state (F206)
+    const isPinchingRef = useRef(false);
+    const pinchStartSizeRef = useRef({ width: 0, height: 0 });
+    const isTouchDevice = useTouchDevice();
+    const contentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (window.isMaximized) {
@@ -147,6 +153,77 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
             applyTransform(nextPos, nextSize, tiltRef.current);
         });
     };
+
+    // Pinch gesture handlers (F206)
+    const handlePinchStart = useCallback(() => {
+        if (window.isMaximized) return;
+        isPinchingRef.current = true;
+        pinchStartSizeRef.current = { ...sizeRef.current };
+    }, [window.isMaximized]);
+
+    const handlePinch = useCallback(
+        (scale: number, center: { x: number; y: number }) => {
+            if (window.isMaximized || !isPinchingRef.current) return;
+
+            // Calculate new size based on scale
+            const newWidth = Math.max(WINDOW.MIN_WIDTH, Math.round(pinchStartSizeRef.current.width * scale));
+            const newHeight = Math.max(WINDOW.MIN_HEIGHT, Math.round(pinchStartSizeRef.current.height * scale));
+
+            // Calculate position adjustment to keep the gesture center point in place
+            // This makes the resize feel more natural
+            const rect = windowRef.current?.getBoundingClientRect();
+            if (rect) {
+                const relX = (center.x - rect.left) / rect.width;
+                const relY = (center.y - rect.top) / rect.height;
+
+                const widthDelta = newWidth - sizeRef.current.width;
+                const heightDelta = newHeight - sizeRef.current.height;
+
+                const newX = positionRef.current.x - widthDelta * relX;
+                const newY = positionRef.current.y - heightDelta * relY;
+
+                pendingPositionRef.current = { x: newX, y: newY };
+                pendingSizeRef.current = { width: newWidth, height: newHeight };
+                scheduleApply();
+            }
+        },
+        [window.isMaximized]
+    );
+
+    const handlePinchEnd = useCallback(
+        (_scale: number) => {
+            if (!isPinchingRef.current) return;
+            isPinchingRef.current = false;
+
+            // Finalize the resize
+            if (rafIdRef.current !== null) {
+                globalThis.cancelAnimationFrame(rafIdRef.current);
+                rafIdRef.current = null;
+            }
+
+            const finalPos = pendingPositionRef.current ?? positionRef.current;
+            const finalSize = pendingSizeRef.current ?? sizeRef.current;
+            pendingPositionRef.current = null;
+            pendingSizeRef.current = null;
+
+            applyTransform(finalPos, finalSize);
+            setPosition(finalPos);
+            setSize(finalSize);
+            restorePositionRef.current = finalPos;
+            restoreSizeRef.current = finalSize;
+
+            resizeWindow(window.id, finalSize, finalPos);
+        },
+        [window.id, resizeWindow]
+    );
+
+    // Attach pinch gesture to content area on touch devices (F206)
+    usePinchGesture(contentRef, {
+        onPinchStart: handlePinchStart,
+        onPinch: handlePinch,
+        onPinchEnd: handlePinchEnd,
+        enabled: isTouchDevice && !window.isMaximized,
+    });
 
     const handlePointerDown = (e: React.PointerEvent) => {
         if (window.isMaximized) return;
@@ -402,7 +479,7 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
     })();
 
     const resizeHandleClass = 'absolute z-[60]';
-    const handleSize = 8;
+    const handleSize = isTouchDevice ? 16 : 8; // F204: Larger resize handles on touch devices
 
     const titleId = `window-title-${window.id}`;
     const renderContent = () => {
@@ -499,7 +576,7 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-auto relative z-40 bg-black/20">
+                <div ref={contentRef} className="flex-1 overflow-auto relative z-40 bg-black/20">
                     <ErrorBoundary title={window.title}>
                         <Suspense fallback={<AppLoadingSkeleton title={window.title} />}>{renderContent()}</Suspense>
                     </ErrorBoundary>

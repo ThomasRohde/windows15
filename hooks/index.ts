@@ -50,3 +50,5 @@ export type {
     UseFilePickerReturn,
 } from './useFilePicker';
 export { useHandoff, useHandoffItems } from './useHandoff';
+export { useTouchDevice } from './useTouchDevice';
+export { usePinchGesture } from './usePinchGesture';

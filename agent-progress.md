@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                                  | Status         |
-| ---- | ---------------------------------------------------------------------------- | -------------- |
-| F211 | Start menu is optimized for touch with larger app tiles and better scrolling | 🔄 In progress |
-| F206 | Two-finger pinch gesture resizes windows on touch devices                    | ⏳ Not started |
-| F212 | Window snap zones appear at screen edges for touch-based window tiling       | ⏳ Not started |
+| ID   | Description                                                                      | Status         |
+| ---- | -------------------------------------------------------------------------------- | -------------- |
+| F206 | Two-finger pinch gesture resizes windows on touch devices                        | 🔄 In progress |
+| F212 | Window snap zones appear at screen edges for touch-based window tiling           | ⏳ Not started |
+| F215 | Scrollable areas have touch-optimized scrolling with momentum and rubber-banding | ⏳ Not started |
 
 ---
 

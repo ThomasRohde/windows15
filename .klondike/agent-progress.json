@@ -1152,18 +1152,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F211",
-        "description": "Start menu is optimized for touch with larger app tiles and better scrolling",
-        "status": "in-progress"
-      },
-      {
         "id": "F206",
         "description": "Two-finger pinch gesture resizes windows on touch devices",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F212",
         "description": "Window snap zones appear at screen edges for touch-based window tiling",
+        "status": "not-started"
+      },
+      {
+        "id": "F215",
+        "description": "Scrollable areas have touch-optimized scrolling with momentum and rubber-banding",
         "status": "not-started"
       }
     ]

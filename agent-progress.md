@@ -28,8 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID  | Description | Status |
-| --- | ----------- | ------ |
+| ID   | Description                                           | Status         |
+| ---- | ----------------------------------------------------- | -------------- |
+| F223 | iOS PWA meta tags and safe-area CSS custom properties | ⏳ Not started |
+| F224 | usePhoneMode hook detects phone-sized viewport        | ⏳ Not started |
+| F225 | Desktop icons hidden on phone-sized viewports         | ⏳ Not started |
 
 ---
 

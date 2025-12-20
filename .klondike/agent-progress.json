@@ -1171,6 +1171,22 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": []
+    "priorityFeatures": [
+      {
+        "id": "F223",
+        "description": "iOS PWA meta tags and safe-area CSS custom properties",
+        "status": "not-started"
+      },
+      {
+        "id": "F224",
+        "description": "usePhoneMode hook detects phone-sized viewport",
+        "status": "not-started"
+      },
+      {
+        "id": "F225",
+        "description": "Desktop icons hidden on phone-sized viewports",
+        "status": "not-started"
+      }
+    ]
   }
 }

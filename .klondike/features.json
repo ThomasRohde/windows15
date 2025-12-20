@@ -6055,12 +6055,195 @@
       "blockedBy": null,
       "lastWorkedOn": "2025-12-20T07:18:36.813649",
       "notes": "Implemented in GestureHandler.tsx using touch events and edge threshold."
+    },
+    {
+      "id": "F223",
+      "category": "ui",
+      "priority": 2,
+      "description": "iOS PWA meta tags and safe-area CSS custom properties",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "index.html has apple-mobile-web-app-capable meta tag",
+        "index.html has apple-mobile-web-app-status-bar-style meta tag",
+        "viewport meta includes viewport-fit=cover",
+        "index.css defines --safe-area-inset-top/bottom/left/right CSS custom properties using env()",
+        "Taskbar and StartMenu use safe-area padding"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Add meta tags to index.html head section. In index.css define :root variables mapping to env(safe-area-inset-*) with fallback to 0px. Edge cases: Non-iOS browsers ignore env() so fallback is critical. Dependencies: None. Context: iPhone X+ have notch and home indicator that overlap content without safe-area handling. Gotchas: viewport-fit=cover is required for env() to return non-zero values."
+    },
+    {
+      "id": "F224",
+      "category": "core",
+      "priority": 2,
+      "description": "usePhoneMode hook detects phone-sized viewport",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Hook returns true when viewport width < 768px",
+        "Hook updates on resize and orientation change",
+        "Hook is exported from hooks/index.ts",
+        "Hook works in both portrait and landscape orientations"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Create hooks/usePhoneMode.ts using window.matchMedia('(max-width: 767px)'). Add event listener for 'change' event. Use useState to track matches. Edge cases: SSR/initial render - default to false. Dependencies: None (standalone hook). Context: Enables conditional rendering of phone-specific layouts across all components. Gotchas: Use matchMedia not innerWidth for better performance and consistency with CSS breakpoints."
+    },
+    {
+      "id": "F225",
+      "category": "ui",
+      "priority": 2,
+      "description": "Desktop icons hidden on phone-sized viewports",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Desktop icon grid is not rendered when usePhoneMode returns true",
+        "Users access apps exclusively via Start Menu on phones",
+        "No layout shift or flash when loading on phone",
+        "Desktop icons reappear when resizing to tablet/desktop width"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: In App.tsx wrap desktop icon grid with conditional render using usePhoneMode(). Edge cases: Window resize from phone to desktop should show icons without reload. Dependencies: F224 (usePhoneMode hook). Context: Phone screens too small for useful desktop icon grid - Start Menu provides better UX. Gotchas: Ensure no orphaned click handlers or state when icons hidden."
+    },
+    {
+      "id": "F226",
+      "category": "core",
+      "priority": 2,
+      "description": "Windows auto-maximize on phone-sized viewports",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "New windows open maximized when usePhoneMode is true",
+        "Window drag is disabled in phone mode",
+        "Window resize is disabled in phone mode",
+        "Window fills viewport minus taskbar height and safe-area insets",
+        "Existing maximize/restore logic still works for manual toggle"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: In WindowContext openWindow() check phone mode and force maximized:true. In Window.tsx disable drag/resize handlers when phone mode active. Edge cases: Window opened on desktop then resized to phone should auto-maximize. Dependencies: F224 (usePhoneMode), F223 (safe-area). Context: Multi-window management impractical on phone screens. Gotchas: Preserve original window bounds for when user resizes back to desktop."
+    },
+    {
+      "id": "F227",
+      "category": "ui",
+      "priority": 2,
+      "description": "Phone-optimized Taskbar layout",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Taskbar shows only Start button and system tray toggle on phones",
+        "Active app name or icon shown in center of taskbar",
+        "Taskbar has padding-bottom equal to safe-area-inset-bottom",
+        "Taskbar height reduced to 48px on phones",
+        "Running app indicators simplified or hidden"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: In Taskbar.tsx use usePhoneMode() to conditionally render minimal layout. Apply pb-[env(safe-area-inset-bottom)] or use CSS var from F223. Edge cases: Orientation change should re-layout smoothly. Dependencies: F224 (usePhoneMode), F223 (safe-area). Context: Phone taskbar needs to be minimal - no room for multiple app buttons. Gotchas: System tray toggle should open a slide-up panel not dropdown."
+    },
+    {
+      "id": "F228",
+      "category": "ui",
+      "priority": 2,
+      "description": "Fullscreen Start Menu on phone-sized viewports",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Start Menu covers entire viewport on phones",
+        "App grid uses 2-column layout on phones",
+        "Safe-area insets respected at top and bottom",
+        "Swipe-down gesture closes Start Menu",
+        "Search input is prominently placed at top"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: In StartMenu.tsx use usePhoneMode() to apply fixed inset-0 positioning and 2-col grid. Add touch event handler for swipe-down dismiss. Edge cases: Virtual keyboard appearing should not break layout. Dependencies: F224 (usePhoneMode), F223 (safe-area). Context: Dropdown Start Menu too small on phones - fullscreen is standard mobile pattern. Gotchas: Ensure focus trap works correctly in fullscreen mode for accessibility."
+    },
+    {
+      "id": "F229",
+      "category": "ui",
+      "priority": 3,
+      "description": "Mobile app switcher with horizontal card carousel",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Swipe-up from taskbar opens app switcher on phones",
+        "App switcher shows horizontal scrollable card carousel",
+        "Each card shows app window preview at reduced scale",
+        "Tapping a card switches to that window",
+        "Swipe-up on a card closes that window",
+        "Switcher respects safe-area insets"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Enhance OverviewMode.tsx with phone-specific carousel layout using CSS scroll-snap. Trigger via touch gesture on taskbar or dedicated button. Edge cases: Single window should still show switcher (allows closing). No windows should show empty state. Dependencies: F224 (usePhoneMode), F223 (safe-area), F226 (auto-maximize). Context: Standard iOS/Android app switcher pattern users expect. Gotchas: Window previews may need to be simplified thumbnails for performance."
+    },
+    {
+      "id": "F230",
+      "category": "ui",
+      "priority": 2,
+      "description": "App content scrolls when exceeding phone viewport",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Maximized window content area has overflow-y: auto",
+        "Apps with fixed large dimensions scroll within window bounds",
+        "Scroll uses momentum scrolling (touch-scroll class)",
+        "Window header/title bar remains fixed during scroll",
+        "Virtual keyboard appearance shifts content appropriately"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Ensure Window.tsx content wrapper has overflow-auto and touch-scroll class. Apps should not set fixed height on outermost container. Edge cases: Apps with internal scroll areas need to not double-scroll. Dependencies: F226 (auto-maximize), F217 (virtual keyboard awareness). Context: Apps designed for desktop (e.g. 1100x700) need to work on 375x667 phone screens. Gotchas: Some apps may need refactoring to use flex/grid instead of fixed dimensions."
     }
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-20T07:23:40.461588",
-    "totalFeatures": 222,
+    "lastUpdated": "2025-12-20T07:57:42.692031",
+    "totalFeatures": 230,
     "passingFeatures": 222
   }
 }

@@ -8,6 +8,7 @@
  */
 import React, { useEffect, useRef, memo } from 'react';
 import { useNotificationCenter } from '../context/NotificationContext';
+import { useOS } from '../hooks';
 import { formatRelativeTime } from '../utils/timeFormatters';
 
 // ==========================================
@@ -37,9 +38,11 @@ const NotificationItem = memo<NotificationItemProps>(function NotificationItem({
     type,
     isRead,
     createdAt,
+    appId,
     onMarkAsRead,
     onDismiss,
 }) {
+    const { openWindow } = useOS();
     const typeConfig = {
         success: { icon: 'check_circle', color: 'text-green-400', bgHover: 'hover:bg-green-500/10' },
         error: { icon: 'error', color: 'text-red-400', bgHover: 'hover:bg-red-500/10' },
@@ -50,9 +53,17 @@ const NotificationItem = memo<NotificationItemProps>(function NotificationItem({
     const config = typeConfig[type];
     const timeAgo = formatRelativeTime(createdAt);
 
+    const handleClick = () => {
+        if (appId) {
+            openWindow(appId);
+            onMarkAsRead(id);
+        }
+    };
+
     return (
         <div
-            className={`relative p-3 border-b border-white/5 last:border-b-0 transition-colors ${config.bgHover} ${!isRead ? 'bg-white/5' : ''}`}
+            onClick={handleClick}
+            className={`relative p-3 border-b border-white/5 last:border-b-0 transition-colors ${config.bgHover} ${!isRead ? 'bg-white/5' : ''} ${appId ? 'cursor-pointer' : ''}`}
         >
             {/* Unread indicator */}
             {!isRead && <div className="absolute left-1 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-blue-500" />}

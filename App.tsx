@@ -15,6 +15,7 @@ import {
     WallpaperHost,
     LoginScreen,
     ContextMenu,
+    HandoffNotificationListener,
 } from './components';
 import { ClipboardHistoryViewer } from './components/ClipboardHistoryViewer';
 import {
@@ -508,6 +509,9 @@ const Desktop = () => {
                 closeStartMenu();
             }}
         >
+            {/* Handoff Notification Listener (F193) */}
+            <HandoffNotificationListener />
+
             {/* File drop overlay indicator */}
             {isDraggingFile && (
                 <div className="absolute inset-0 z-[9999] pointer-events-none flex items-center justify-center bg-blue-500/10 backdrop-blur-sm">

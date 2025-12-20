@@ -5,13 +5,14 @@
  * and displays brief notifications with auto-dismiss.
  */
 import React, { useState, useCallback } from 'react';
-import { useAppEvent } from '../hooks/useEventBus';
+import { useAppEvent, useOS } from '../hooks';
 
 interface Notification {
     id: number;
     message: string;
     type: 'info' | 'success' | 'warning' | 'error';
     duration: number;
+    appId?: string;
 }
 
 const NOTIFICATION_ICONS: Record<Notification['type'], string> = {
@@ -39,15 +40,27 @@ const MAX_VISIBLE_NOTIFICATIONS = 5;
  */
 export const NotificationToast: React.FC = () => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
+    const { openWindow } = useOS();
 
     const addNotification = useCallback(
-        ({ message, type, duration }: { message: string; type: Notification['type']; duration?: number }) => {
+        ({
+            message,
+            type,
+            duration,
+            appId,
+        }: {
+            message: string;
+            type: Notification['type'];
+            duration?: number;
+            appId?: string;
+        }) => {
             const id = ++notificationId;
             const notification: Notification = {
                 id,
                 message,
                 type,
                 duration: duration ?? 3000,
+                appId,
             };
 
             setNotifications(prev => {
@@ -67,6 +80,13 @@ export const NotificationToast: React.FC = () => {
     // Listen for notification events
     useAppEvent('notification:show', addNotification);
 
+    const handleNotificationClick = (notification: Notification) => {
+        if (notification.appId) {
+            openWindow(notification.appId);
+            setNotifications(prev => prev.filter(n => n.id !== notification.id));
+        }
+    };
+
     if (notifications.length === 0) return null;
 
     return (
@@ -74,7 +94,8 @@ export const NotificationToast: React.FC = () => {
             {notifications.map(notification => (
                 <div
                     key={notification.id}
-                    className="glass-panel rounded-xl shadow-2xl ring-1 ring-white/10 p-3 min-w-[200px] max-w-[320px] animate-fade-in-up pointer-events-auto"
+                    onClick={() => handleNotificationClick(notification)}
+                    className={`glass-panel rounded-xl shadow-2xl ring-1 ring-white/10 p-3 min-w-[200px] max-w-[320px] animate-fade-in-up pointer-events-auto ${notification.appId ? 'cursor-pointer hover:bg-white/5' : ''}`}
                 >
                     <div className="flex items-center gap-3">
                         <span className={`material-symbols-outlined text-xl ${NOTIFICATION_COLORS[notification.type]}`}>

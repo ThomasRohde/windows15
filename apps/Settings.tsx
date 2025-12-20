@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useOS } from '../context/OSContext';
 import { WALLPAPERS } from '../utils/constants';
-import { AppSidebar, type SidebarItem } from '../components/ui';
+import { AppSidebar, type SidebarItem, Select } from '../components/ui';
 import { SyncSettings } from './settings/SyncSettings';
 import { LocalizationSettings } from './settings/LocalizationSettings';
 import { ScreensaverSettings } from './settings/ScreensaverSettings';
@@ -46,8 +46,8 @@ export const Settings = () => {
     ];
 
     return (
-        <div className="h-full bg-background-dark text-white flex">
-            {/* Sidebar */}
+        <div className="h-full bg-background-dark text-white flex flex-col md:flex-row">
+            {/* Sidebar - hidden on mobile */}
             <div className="hidden md:block">
                 <AppSidebar
                     title={t('title')}
@@ -58,60 +58,76 @@ export const Settings = () => {
             </div>
 
             {/* Content */}
-            <div className="flex-1 p-8 overflow-y-auto touch-scroll">
-                {activeSection === 'account' && <ProfileSettings />}
+            <div className="flex-1 flex flex-col overflow-hidden">
+                {/* F231: Mobile dropdown section selector */}
+                <div className="md:hidden p-4 border-b border-white/10 bg-[#2d2d2d]">
+                    <Select
+                        value={activeSection}
+                        onChange={val => setActiveSection(val as SettingsSection)}
+                        options={sidebarItems.map(item => ({
+                            label: item.label,
+                            value: item.id,
+                        }))}
+                        className="w-full min-h-[44px]"
+                    />
+                </div>
 
-                {activeSection === 'personalization' && (
-                    <>
-                        <h1 className="text-3xl font-light mb-8">{t('personalization')}</h1>
-                        <section className="mb-8">
-                            <h3 className="text-lg font-medium mb-4">{t('wallpaper')}</h3>
-                            <div className="aspect-video w-full max-w-2xl rounded-xl overflow-hidden mb-6 shadow-2xl ring-1 ring-white/10">
-                                <img
-                                    src={activeWallpaper}
-                                    className="w-full h-full object-cover"
-                                    alt={t('wallpaper')}
-                                />
-                            </div>
+                {/* Scrollable content area */}
+                <div className="flex-1 p-4 md:p-8 overflow-y-auto touch-scroll">
+                    {activeSection === 'account' && <ProfileSettings />}
 
-                            <h4 className="text-sm text-white/60 mb-3">{t('wallpaper')}</h4>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl">
-                                {WALLPAPERS.map(wp => (
-                                    <button
-                                        key={wp.id}
-                                        onClick={() => setWallpaper(wp.url)}
-                                        className={`aspect-video rounded-lg overflow-hidden ring-2 transition-all ${activeWallpaper === wp.url ? 'ring-primary' : 'ring-transparent hover:ring-white/20'}`}
-                                    >
-                                        <img src={wp.url} className="w-full h-full object-cover" alt={wp.name} />
-                                    </button>
-                                ))}
-                            </div>
-                        </section>
-                    </>
-                )}
+                    {activeSection === 'personalization' && (
+                        <>
+                            <h1 className="text-3xl font-light mb-8">{t('personalization')}</h1>
+                            <section className="mb-8">
+                                <h3 className="text-lg font-medium mb-4">{t('wallpaper')}</h3>
+                                <div className="aspect-video w-full max-w-2xl rounded-xl overflow-hidden mb-6 shadow-2xl ring-1 ring-white/10">
+                                    <img
+                                        src={activeWallpaper}
+                                        className="w-full h-full object-cover"
+                                        alt={t('wallpaper')}
+                                    />
+                                </div>
 
-                {activeSection === 'sound' && <SoundSettings />}
+                                <h4 className="text-sm text-white/60 mb-3">{t('wallpaper')}</h4>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl">
+                                    {WALLPAPERS.map(wp => (
+                                        <button
+                                            key={wp.id}
+                                            onClick={() => setWallpaper(wp.url)}
+                                            className={`aspect-video rounded-lg overflow-hidden ring-2 transition-all min-h-[44px] active:scale-95 ${activeWallpaper === wp.url ? 'ring-primary' : 'ring-transparent hover:ring-white/20 active:ring-white/40'}`}
+                                        >
+                                            <img src={wp.url} className="w-full h-full object-cover" alt={wp.name} />
+                                        </button>
+                                    ))}
+                                </div>
+                            </section>
+                        </>
+                    )}
 
-                {activeSection === 'sync' && <SyncSettings />}
+                    {activeSection === 'sound' && <SoundSettings />}
 
-                {activeSection === 'localization' && <LocalizationSettings />}
+                    {activeSection === 'sync' && <SyncSettings />}
 
-                {activeSection === 'network' && <NetworkSettings />}
+                    {activeSection === 'localization' && <LocalizationSettings />}
 
-                {activeSection === 'devices' && <DevicesSettings />}
+                    {activeSection === 'network' && <NetworkSettings />}
 
-                {activeSection === 'touch' && <TouchSettings />}
+                    {activeSection === 'devices' && <DevicesSettings />}
 
-                {activeSection === 'apps' && (
-                    <div className="max-w-2xl">
-                        <h1 className="text-3xl font-light mb-3">{t('common:labels.name')}</h1>
-                        <p className="text-sm text-white/60">App management is not implemented in this demo.</p>
-                    </div>
-                )}
+                    {activeSection === 'touch' && <TouchSettings />}
 
-                {activeSection === 'screensaver' && <ScreensaverSettings />}
+                    {activeSection === 'apps' && (
+                        <div className="max-w-2xl">
+                            <h1 className="text-3xl font-light mb-3">{t('common:labels.name')}</h1>
+                            <p className="text-sm text-white/60">App management is not implemented in this demo.</p>
+                        </div>
+                    )}
 
-                {activeSection === '3dmode' && <WindowSpaceSettings />}
+                    {activeSection === 'screensaver' && <ScreensaverSettings />}
+
+                    {activeSection === '3dmode' && <WindowSpaceSettings />}
+                </div>
             </div>
         </div>
     );

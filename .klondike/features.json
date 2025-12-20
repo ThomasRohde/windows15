@@ -6272,13 +6272,13 @@
         "HandoffQuickSend modal uses responsive width on mobile"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-20T08:43:34.315784",
       "notes": "Implementation: Use useIsTouchDevice hook and @media(pointer:coarse) for touch detection. Settings: add Select dropdown at top of content area with md:hidden. Handoff: conditionally render TabSwitcher vs SplitPane based on touch/viewport. Apply touch target patterns from StartMenu.tsx. Edge cases: Handle orientation changes, ensure keyboard doesn't break layouts. Dependencies: F214 (useTouchDevice), F224 (usePhoneMode), F191 (Handoff app). Context: Handoff and Settings are most-used apps on mobile but currently have unusable UX - fixed split panes break, sidebar hidden without nav alternative. Gotchas: Don't break desktop experience, test both touch and mouse, ensure tab/focus still works for accessibility."
     }
   ],

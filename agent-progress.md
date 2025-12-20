@@ -30,7 +30,7 @@ klondike feature list  # List all features
 
 | ID   | Description                                                            | Status         |
 | ---- | ---------------------------------------------------------------------- | -------------- |
-| F231 | Mobile-optimized Handoff and Settings apps with touch-friendly layouts | ⏳ Not started |
+| F231 | Mobile-optimized Handoff and Settings apps with touch-friendly layouts | 🔄 In progress |
 
 ---
 

@@ -157,6 +157,8 @@ export interface HandoffItem {
     openedAt?: number;
     /** ISO timestamp when the item was marked as done */
     doneAt?: number;
+    /** Target category for the item (F192) */
+    targetCategory?: 'private' | 'work' | 'any';
     /** Whether the content is sensitive and should be encrypted */
     isSensitive?: boolean;
     /** Encrypted content (if isSensitive is true) */

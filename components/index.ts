@@ -16,6 +16,7 @@ export { DesktopIcon } from './DesktopIcon';
 export { ErrorBoundary } from './ErrorBoundary';
 export { FileExplorer } from './FileExplorer';
 export { FilePickerModal } from './FilePickerModal';
+export { GestureHandler } from './GestureHandler';
 export { HandoffNotificationListener } from './HandoffNotificationListener';
 export { InstallButton } from './InstallButton';
 export {

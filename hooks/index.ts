@@ -52,3 +52,4 @@ export type {
 export { useHandoff, useHandoffItems } from './useHandoff';
 export { useTouchDevice } from './useTouchDevice';
 export { usePinchGesture } from './usePinchGesture';
+export { useVirtualKeyboard } from './useVirtualKeyboard';

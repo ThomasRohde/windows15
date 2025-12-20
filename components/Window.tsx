@@ -4,7 +4,7 @@ import { WindowState } from '../types';
 import { AppLoadingSkeleton } from './AppLoadingSkeleton';
 import { ErrorBoundary } from './ErrorBoundary';
 import { WINDOW } from '../utils/constants';
-import { usePinchGesture, useTouchDevice, useAppEmit } from '../hooks';
+import { usePinchGesture, useTouchDevice, useAppEmit, useVirtualKeyboard } from '../hooks';
 
 interface WindowProps {
     window: WindowState;
@@ -63,6 +63,9 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
     const [size, setSize] = useState(window.size);
     // Tilt state for 3D drag effect (F093)
     const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 });
+
+    // Virtual keyboard detection for touch devices
+    const { isKeyboardVisible, keyboardHeight } = useVirtualKeyboard();
 
     const windowRef = useRef<HTMLDivElement>(null);
     const dragOffsetRef = useRef({ x: 0, y: 0 });
@@ -451,7 +454,22 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
         // During drag/resize, use the ref value which is updated by RAF
         // This prevents the position snapping back to state on re-renders
         const pos = isDragging || isResizing ? positionRef.current : position;
-        const parts = [`translate3d(${pos.x}px, ${pos.y}px, 0)`];
+
+        // Adjust Y position when virtual keyboard is visible
+        let adjustedY = pos.y;
+        if (isKeyboardVisible && keyboardHeight > 0) {
+            // Check if window bottom would be covered by keyboard
+            const windowBottom = pos.y + size.height;
+            const viewportVisibleHeight = window.innerHeight - keyboardHeight;
+
+            if (windowBottom > viewportVisibleHeight) {
+                // Shift window up to keep it visible
+                const shiftAmount = Math.min(windowBottom - viewportVisibleHeight, pos.y);
+                adjustedY = pos.y - shiftAmount;
+            }
+        }
+
+        const parts = [`translate3d(${pos.x}px, ${adjustedY}px, 0)`];
         if (transform3D) parts.push(transform3D);
         if (tiltTransform) parts.push(tiltTransform);
         return parts.join(' ');
@@ -474,8 +492,11 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
               height: isResizing ? sizeRef.current.height : size.height,
               transform: buildTransform(),
               willChange: isDragging || isResizing ? 'transform, width, height' : undefined,
-              // Smooth transition for tilt return animation (F093)
-              transition: !isDragging && shouldTilt ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)' : undefined,
+              // Smooth transition for tilt return animation (F093) and keyboard adjustment (F217)
+              transition:
+                  !isDragging && (shouldTilt || isKeyboardVisible)
+                      ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                      : undefined,
               // Apply 3D shadow when in 3D mode
               ...(shadow3D ? ({ '--window-shadow': shadow3D } as React.CSSProperties) : {}),
           };
@@ -587,7 +608,7 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
                 </div>
 
                 {/* Content */}
-                <div ref={contentRef} className="flex-1 overflow-auto relative z-40 bg-black/20">
+                <div ref={contentRef} className="flex-1 overflow-auto touch-scroll relative z-40 bg-black/20">
                     <ErrorBoundary title={window.title}>
                         <Suspense fallback={<AppLoadingSkeleton title={window.title} />}>{renderContent()}</Suspense>
                     </ErrorBoundary>

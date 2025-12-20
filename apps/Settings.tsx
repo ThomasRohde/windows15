@@ -55,7 +55,7 @@ export const Settings = () => {
             </div>
 
             {/* Content */}
-            <div className="flex-1 p-8 overflow-y-auto">
+            <div className="flex-1 p-8 overflow-y-auto touch-scroll">
                 {activeSection === 'account' && <ProfileSettings />}
 
                 {activeSection === 'personalization' && (

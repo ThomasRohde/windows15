@@ -211,10 +211,7 @@ export const StartMenu = () => {
 
             {/* Search Results */}
             {searchResults !== null ? (
-                <div
-                    className="flex-1 px-6 py-4 overflow-y-auto [@media(pointer:coarse)]:scroll-smooth"
-                    onClick={closeContextMenu}
-                >
+                <div className="flex-1 px-6 py-4 overflow-y-auto touch-scroll" onClick={closeContextMenu}>
                     <div className="flex justify-between items-center mb-4">
                         <span className="text-sm font-semibold text-white/90">Results for "{searchQuery}"</span>
                         <span className="text-xs text-white/50">{searchResults.length} found</span>
@@ -270,10 +267,7 @@ export const StartMenu = () => {
             ) : (
                 <>
                     {/* Pinned / All Apps */}
-                    <div
-                        className="flex-1 px-6 py-4 overflow-y-auto [@media(pointer:coarse)]:scroll-smooth"
-                        onClick={closeContextMenu}
-                    >
+                    <div className="flex-1 px-6 py-4 overflow-y-auto touch-scroll" onClick={closeContextMenu}>
                         <div className="flex justify-between items-center mb-4">
                             <span className="text-sm font-semibold text-white/90">
                                 {showAllApps ? 'All apps' : 'Pinned'}

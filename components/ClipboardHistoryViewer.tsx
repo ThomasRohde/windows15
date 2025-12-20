@@ -119,7 +119,7 @@ export const ClipboardHistoryViewer: React.FC = () => {
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-2">
+                <div className="flex-1 overflow-y-auto touch-scroll p-2">
                     {history.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-12 text-white/40">
                             <Icon name="content_paste_off" size="xl" className="mb-3 opacity-50" />

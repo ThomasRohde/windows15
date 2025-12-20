@@ -18,6 +18,7 @@ import {
     HandoffNotificationListener,
     SnapZoneOverlay,
     SnapZone,
+    GestureHandler,
 } from './components';
 import { HandoffQuickSend } from './components/HandoffQuickSend';
 import { ClipboardHistoryViewer } from './components/ClipboardHistoryViewer';
@@ -566,6 +567,9 @@ const Desktop = () => {
         >
             {/* Handoff Notification Listener (F193) */}
             <HandoffNotificationListener />
+
+            {/* Gesture Handler for edge swipes (F222) */}
+            <GestureHandler />
 
             {/* File drop overlay indicator */}
             {isDraggingFile && (

@@ -214,7 +214,7 @@ export const NotificationCenter: React.FC = () => {
             )}
 
             {/* Notifications list */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto touch-scroll">
                 {notifications.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-white/40">
                         <span className="material-symbols-outlined text-[48px] mb-3">notifications_off</span>

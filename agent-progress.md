@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: Session Ended
+## Current Status: In Progress
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -28,11 +28,10 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                                      | Status         |
-| ---- | -------------------------------------------------------------------------------- | -------------- |
-| F215 | Scrollable areas have touch-optimized scrolling with momentum and rubber-banding | ⏳ Not started |
-| F217 | Virtual keyboard awareness adjusts window positioning when keyboard appears      | ⏳ Not started |
-| F222 | Edge swipe from right triggers Notification Center                               | ⏳ Not started |
+| ID   | Description                                                            | Status         |
+| ---- | ---------------------------------------------------------------------- | -------------- |
+| F216 | Settings has Touch & Tablet section for configuring touch behavior     | ⏳ Not started |
+| F218 | Touch feedback ripple effect on interactive elements throughout the OS | ⏳ Not started |
 
 ---
 
@@ -2217,6 +2216,34 @@ klondike feature list  # List all features
 3. F222 (edge swipe notification center)
 4. F216 (touch settings)
 5. F218 (touch feedback ripple)
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 76 - 2025-12-20
+
+**Agent**: Coding Agent
+**Duration**: (in progress)
+**Focus**: F215, F217, F222 - Touch optimizations
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- Session started
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Continue implementation
 
 #### Technical Notes
 

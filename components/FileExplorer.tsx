@@ -450,7 +450,7 @@ export const FileExplorer = () => {
                 )}
 
                 {/* File Grid */}
-                <div className="flex-1 overflow-y-auto p-4">
+                <div className="flex-1 overflow-y-auto touch-scroll p-4">
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-4">
                         {currentFolder?.children
                             ?.filter(item => item.id !== 'recycleBin')

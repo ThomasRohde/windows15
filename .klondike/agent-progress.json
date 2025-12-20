@@ -1107,22 +1107,6 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": [
-      {
-        "id": "F200",
-        "description": "Add sensitive mode with client-side encryption for Handoff items",
-        "status": "not-started"
-      },
-      {
-        "id": "F201",
-        "description": "Add work mode restriction to limit Handoff to URLs only",
-        "status": "not-started"
-      },
-      {
-        "id": "F202",
-        "description": "Add Handoff keyboard shortcut Ctrl+Shift+H to quick-send clipboard",
-        "status": "not-started"
-      }
-    ]
+    "priorityFeatures": []
   }
 }

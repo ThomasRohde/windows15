@@ -120,7 +120,13 @@
             "any": "Any Device",
             "work": "Work Devices",
             "private": "Private Devices",
-            "hint": "Press Ctrl+Enter to send"
+            "hint": "Press Ctrl+Enter to send",
+            "sensitive": "Sensitive Mode",
+            "sensitiveHint": "Encrypts content with a passphrase",
+            "passphrase": "Passphrase",
+            "passphrasePlaceholder": "Enter passphrase to encrypt...",
+            "workMode": "Work Mode Only",
+            "workModeHint": "Restrict to URLs only"
         },
         "inbox": {
             "title": "Inbox",
@@ -143,7 +149,9 @@
             "archive": "Archive",
             "remove": "Delete Permanently",
             "clearArchive": "Clear Archive",
-            "sendToHandoff": "Send to Handoff"
+            "sendToHandoff": "Send to Handoff",
+            "decrypt": "Decrypt",
+            "enterPassphrase": "Enter Passphrase"
         },
         "notifications": {
             "received": "New Handoff Item",

@@ -42,7 +42,10 @@ export const HandoffNotificationListener: React.FC = () => {
             notifiedIdsRef.current.add(item.id);
 
             const title = item.kind === 'url' ? 'Link Received' : 'Text Received';
-            const message = `From ${item.createdByLabel}: ${item.title || (item.text.length > 50 ? item.text.substring(0, 47) + '...' : item.text)}`;
+            const content = item.isSensitive
+                ? '********'
+                : item.title || (item.text.length > 50 ? item.text.substring(0, 47) + '...' : item.text);
+            const message = `From ${item.createdByLabel}: ${content}`;
 
             // Show persistent notification in center + toast
             void notify(title, message, {

@@ -165,4 +165,6 @@ export interface HandoffItem {
     cipherText?: string;
     /** Encryption nonce (if isSensitive is true) */
     nonce?: string;
+    /** Encryption salt (if isSensitive is true) */
+    salt?: string;
 }

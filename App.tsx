@@ -17,6 +17,7 @@ import {
     ContextMenu,
     HandoffNotificationListener,
 } from './components';
+import { HandoffQuickSend } from './components/HandoffQuickSend';
 import { ClipboardHistoryViewer } from './components/ClipboardHistoryViewer';
 import {
     OSProvider,
@@ -59,6 +60,9 @@ const Desktop = () => {
 
     // Overview mode state (F095)
     const [isOverviewOpen, setIsOverviewOpen] = useState(false);
+
+    // Handoff quick send state (F202)
+    const [isHandoffQuickSendOpen, setIsHandoffQuickSendOpen] = useState(false);
 
     // File drag state for desktop drop handling
     const [isDraggingFile, setIsDraggingFile] = useState(false);
@@ -479,6 +483,10 @@ const Desktop = () => {
         'ctrl+shift+v': () => {
             toggleClipboardHistory();
         },
+        // Handoff quick send (F202)
+        'ctrl+shift+h': () => {
+            setIsHandoffQuickSendOpen(true);
+        },
     });
 
     // CSS perspective for 3D mode
@@ -563,6 +571,7 @@ const Desktop = () => {
             <InstallButton />
             <Screensaver />
             <ClipboardHistoryViewer />
+            <HandoffQuickSend isOpen={isHandoffQuickSendOpen} onClose={() => setIsHandoffQuickSendOpen(false)} />
 
             {/* Desktop Background Context Menu */}
             {desktopMenu && (

@@ -1,17 +1,29 @@
 import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
 import { useLocalization, useOS, useNotificationCenter } from '../context';
+import { useHandoffItems } from '../hooks';
 import { SyncStatus } from './SyncStatus';
 import { NotificationCenter } from './NotificationCenter';
 import { Tooltip } from './ui';
 
 // Pinned apps configuration - static list
-const PINNED_APPS = ['explorer', 'browser', 'mail', 'calendar', 'notepad', 'calculator', 'settings'] as const;
+const PINNED_APPS = [
+    'explorer',
+    'browser',
+    'mail',
+    'calendar',
+    'handoff',
+    'notepad',
+    'calculator',
+    'settings',
+] as const;
 
 export const Taskbar = () => {
     const { toggleStartMenu, isStartMenuOpen, apps, openWindow, windows, minimizeWindow } = useOS();
     const { formatTimeShort, formatDateShort } = useLocalization();
     const { toggle: toggleNotifications, unreadCount, isOpen: isNotificationCenterOpen } = useNotificationCenter();
     const [time, setTime] = useState(new Date());
+    const newHandoffItems = useHandoffItems('new');
+    const newHandoffCount = newHandoffItems?.length ?? 0;
 
     useEffect(() => {
         const timer = setInterval(() => setTime(new Date()), 1000);
@@ -69,8 +81,9 @@ export const Taskbar = () => {
                         const appWindow = windows.find(w => w.appId === id);
                         const isOpen = appWindow && !appWindow.isMinimized;
                         const isRunning = !!appWindow;
-                        // Get badge count from the window state (F148)
-                        const badge = appWindow?.badge ?? null;
+                        // Get badge count from the window state (F148) or Handoff unread count (F203)
+                        const badge =
+                            id === 'handoff' ? newHandoffCount || appWindow?.badge || null : (appWindow?.badge ?? null);
 
                         return (
                             <TaskbarIcon

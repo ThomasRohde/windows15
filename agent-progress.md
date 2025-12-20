@@ -28,11 +28,8 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                        | Status         |
-| ---- | ------------------------------------------------------------------ | -------------- |
-| F200 | Add sensitive mode with client-side encryption for Handoff items   | ⏳ Not started |
-| F201 | Add work mode restriction to limit Handoff to URLs only            | ⏳ Not started |
-| F202 | Add Handoff keyboard shortcut Ctrl+Shift+H to quick-send clipboard | ⏳ Not started |
+| ID  | Description | Status |
+| --- | ----------- | ------ |
 
 ---
 

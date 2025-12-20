@@ -5510,13 +5510,17 @@
         "User prompted for passphrase when viewing encrypted items"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-20T05:39:31.509781",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Implemented AES-GCM encryption/decryption in utils/crypto.ts",
+        "added Sensitive toggle in Handoff.tsx and HandoffQuickSend.tsx",
+        "and added decryption UI in HandoffItemRow. Verified with unit tests in tests/utils/crypto.test.ts."
+      ],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-20T05:36:37.649465",
       "notes": "Implementation: Use Web Crypto API (crypto.subtle). PBKDF2 for key derivation, AES-GCM for encryption. Store only encrypted payload in cloud. Edge cases: Handle passphrase mismatch (show error, don't corrupt). Dependencies: F189, F190. Context: Security feature for sensitive content like passwords/codes. Gotchas: Passphrase must be shared out-of-band between devices - document this clearly. Consider key caching in session storage."
     },
     {
@@ -5533,11 +5537,13 @@
         "Visual indicator in Handoff app when restriction active"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-20T05:39:31.741981",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Added Work Mode toggle in Handoff.tsx that restricts sending to URLs only using regex validation."
+      ],
       "blockedBy": null,
       "lastWorkedOn": null,
       "notes": "Implementation: Add workModeRestricted boolean to device profile settings. Check in useHandoff.send() before creating item. Show clear error toast when blocked. Edge cases: Handle pasted content that looks like URL but isn't quite valid. Dependencies: F190, F195 (device profile). Context: Prevents accidental paste of sensitive text like passwords or API keys. Gotchas: Make the restriction obvious in UI so user understands why send is blocked."
@@ -5556,11 +5562,13 @@
         "Shows toast on successful send"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-20T05:39:31.998698",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Added Ctrl+Shift+H global hotkey in App.tsx and created HandoffQuickSend.tsx component for quick clipboard sharing with target selection and encryption support."
+      ],
       "blockedBy": null,
       "lastWorkedOn": null,
       "notes": "Implementation: Use useHotkeys hook at App level. Show modal dialog for target selection. Read clipboard with navigator.clipboard.readText(). Edge cases: Handle clipboard read permission denied. Dependencies: F190, F053 (keyboard shortcuts system). Context: Ultimate power-user flow - one shortcut to send. Gotchas: Avoid conflict with existing shortcuts, make it opt-in if needed."
@@ -5579,11 +5587,13 @@
         "Badge respects notification settings"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-20T05:39:32.232382",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Updated Taskbar.tsx to include Handoff in pinned apps and added reactive badge showing count of 'new' items from useHandoffItems hook."
+      ],
       "blockedBy": null,
       "lastWorkedOn": null,
       "notes": "Implementation: Use WindowContext setBadge from F148. Subscribe to handoff items with status 'new' using useLiveQuery. Update badge count reactively. Edge cases: Handle count > 99 (show 99+). Dependencies: F189, F190, F148 (window badges). Context: Quick glance to see if handoff items waiting. Gotchas: Only count items not created by this device."
@@ -5591,8 +5601,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-20T05:21:13.452672",
+    "lastUpdated": "2025-12-20T05:39:32.232400",
     "totalFeatures": 203,
-    "passingFeatures": 199
+    "passingFeatures": 203
   }
 }

@@ -5305,13 +5305,13 @@
         "Displays current device label prominently (YOU ARE SENDING FROM: WORK)"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
+      "status": "in-progress",
       "passes": false,
       "verifiedAt": null,
       "verifiedBy": null,
       "evidenceLinks": [],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-20T04:58:31.149885",
       "notes": "Implementation: Add composer panel to left side of Handoff app using SplitPane. Auto-detect URLs with pattern like /^https?:\\\\/\\\\//. Use useNotification for send confirmation. Edge cases: Handle very long text (truncate preview, store full). Dependencies: F191 (Handoff app shell). Context: This is where users compose items to send. Gotchas: Always show FROM device label to prevent accidental work->private leaks."
     },
     {

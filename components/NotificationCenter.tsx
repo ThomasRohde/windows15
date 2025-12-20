@@ -8,7 +8,7 @@
  */
 import React, { useEffect, useRef, memo } from 'react';
 import { useNotificationCenter } from '../context/NotificationContext';
-import { useOS } from '../hooks';
+import { useOS } from '../context';
 import { formatRelativeTime } from '../utils/timeFormatters';
 
 // ==========================================

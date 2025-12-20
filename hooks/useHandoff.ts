@@ -1,7 +1,8 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../utils/storage/db';
 import { HandoffItem, HandoffStatus } from '../types';
+import { usePersistedState } from './usePersistedState';
 
 /**
  * useHandoff - Hook for managing the Handoff Queue (F190)
@@ -10,25 +11,28 @@ import { HandoffItem, HandoffStatus } from '../types';
  * Automatically handles device identification.
  */
 export function useHandoff() {
-    // Get or generate device ID (F195 will later move this to a central place)
-    const deviceId = useMemo(() => {
-        let id = localStorage.getItem('windows15_device_id');
-        if (!id) {
-            id = crypto.randomUUID();
-            localStorage.setItem('windows15_device_id', id);
-        }
-        return id;
-    }, []);
+    // Get or generate device ID (F195)
+    const {
+        value: deviceId,
+        setValue: setDeviceId,
+        isLoading: isIdLoading,
+    } = usePersistedState('windows15_device_id', '');
 
-    // Get or generate device label (F195 will later move this to a central place)
-    const deviceLabel = useMemo(() => {
-        let label = localStorage.getItem('windows15_device_label');
-        if (!label) {
-            label = 'Browser'; // Default label
-            localStorage.setItem('windows15_device_label', label);
+    // Get or generate device label (F195)
+    const { value: deviceLabel, setValue: setDeviceLabel } = usePersistedState('windows15_device_label', 'Browser');
+
+    // Get or generate device category (F195)
+    const { value: deviceCategory, setValue: setDeviceCategory } = usePersistedState(
+        'windows15_device_category',
+        'any'
+    );
+
+    // Ensure device ID is generated and persisted
+    useEffect(() => {
+        if (!isIdLoading && !deviceId) {
+            setDeviceId(crypto.randomUUID());
         }
-        return label;
-    }, []);
+    }, [deviceId, isIdLoading, setDeviceId]);
 
     /**
      * Send a new item to the handoff queue
@@ -87,6 +91,9 @@ export function useHandoff() {
     return {
         deviceId,
         deviceLabel,
+        deviceCategory,
+        setDeviceLabel,
+        setDeviceCategory,
         send,
         markOpened,
         markDone,

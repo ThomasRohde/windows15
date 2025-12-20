@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../utils/storage/db';
-import { useOS } from '../hooks';
+import { useOS } from '../context';
 import { useNotificationCenter } from '../context/NotificationContext';
 
 /**

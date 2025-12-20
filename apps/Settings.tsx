@@ -9,6 +9,7 @@ import { WindowSpaceSettings } from './settings/WindowSpaceSettings';
 import { ProfileSettings } from './settings/ProfileSettings';
 import { SoundSettings } from './settings/SoundSettings';
 import { NetworkSettings } from './settings/NetworkSettings';
+import { DevicesSettings } from './settings/DevicesSettings';
 import { useTranslation } from '../hooks/useTranslation';
 
 type SettingsSection =
@@ -17,6 +18,7 @@ type SettingsSection =
     | 'localization'
     | 'sync'
     | 'network'
+    | 'devices'
     | 'apps'
     | 'sound'
     | 'screensaver'
@@ -32,6 +34,7 @@ export const Settings = () => {
         { id: 'personalization', label: t('personalization'), icon: 'wallpaper' },
         { id: 'sound', label: t('sound'), icon: 'volume_up' },
         { id: 'sync', label: t('sync'), icon: 'sync' },
+        { id: 'devices', label: 'Devices', icon: 'devices' },
         { id: 'localization', label: t('localization'), icon: 'language' },
         { id: 'network', label: 'Network', icon: 'wifi' },
         { id: 'apps', label: 'Apps', icon: 'apps' },
@@ -91,6 +94,8 @@ export const Settings = () => {
                 {activeSection === 'localization' && <LocalizationSettings />}
 
                 {activeSection === 'network' && <NetworkSettings />}
+
+                {activeSection === 'devices' && <DevicesSettings />}
 
                 {activeSection === 'apps' && (
                     <div className="max-w-2xl">

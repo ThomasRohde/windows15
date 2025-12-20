@@ -5,7 +5,8 @@
  * and displays brief notifications with auto-dismiss.
  */
 import React, { useState, useCallback } from 'react';
-import { useAppEvent, useOS } from '../hooks';
+import { useAppEvent } from '../hooks';
+import { useOS } from '../context';
 
 interface Notification {
     id: number;

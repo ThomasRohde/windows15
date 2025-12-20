@@ -1152,18 +1152,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F210",
-        "description": "Touch-friendly taskbar with larger tap targets on tablets",
-        "status": "in-progress"
-      },
-      {
         "id": "F211",
         "description": "Start menu is optimized for touch with larger app tiles and better scrolling",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F206",
         "description": "Two-finger pinch gesture resizes windows on touch devices",
+        "status": "not-started"
+      },
+      {
+        "id": "F212",
+        "description": "Window snap zones appear at screen edges for touch-based window tiling",
         "status": "not-started"
       }
     ]

@@ -182,11 +182,11 @@ export const StartMenu = () => {
             role="menu"
             aria-label="Start menu"
             onKeyDown={handleKeyDown}
-            className="fixed bottom-24 left-1/2 transform -translate-x-1/2 w-[600px] h-[70vh] max-h-[700px] glass-panel rounded-xl shadow-2xl z-40 flex flex-col animate-fade-in-up origin-bottom"
+            className="fixed bottom-24 [@media(pointer:coarse)]:bottom-28 left-1/2 transform -translate-x-1/2 w-[600px] [@media(pointer:coarse)]:w-[90vw] [@media(pointer:coarse)]:max-w-[650px] h-[70vh] max-h-[700px] glass-panel rounded-xl shadow-2xl z-40 flex flex-col animate-fade-in-up origin-bottom"
         >
             {/* Search */}
             <div className="p-6 pb-2">
-                <div className="bg-black/20 h-10 rounded-lg flex items-center px-4 gap-3 border border-white/5">
+                <div className="bg-black/20 h-10 [@media(pointer:coarse)]:h-12 rounded-lg flex items-center px-4 gap-3 border border-white/5">
                     <Icon name="search" className="text-white/50" />
                     <input
                         ref={searchInputRef}
@@ -194,7 +194,7 @@ export const StartMenu = () => {
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
                         onKeyDown={handleSearchKeyDown}
-                        className="bg-transparent border-none text-white text-sm focus:outline-none w-full placeholder:text-white/30"
+                        className="bg-transparent border-none text-white text-sm [@media(pointer:coarse)]:text-base focus:outline-none w-full placeholder:text-white/30"
                         placeholder="Type here to search..."
                     />
                     {searchQuery && (
@@ -211,7 +211,10 @@ export const StartMenu = () => {
 
             {/* Search Results */}
             {searchResults !== null ? (
-                <div className="flex-1 px-6 py-4 overflow-y-auto" onClick={closeContextMenu}>
+                <div
+                    className="flex-1 px-6 py-4 overflow-y-auto [@media(pointer:coarse)]:scroll-smooth"
+                    onClick={closeContextMenu}
+                >
                     <div className="flex justify-between items-center mb-4">
                         <span className="text-sm font-semibold text-white/90">Results for "{searchQuery}"</span>
                         <span className="text-xs text-white/50">{searchResults.length} found</span>
@@ -228,12 +231,12 @@ export const StartMenu = () => {
                                         setSearchQuery('');
                                     }}
                                     onContextMenu={e => !app.isAction && handleContextMenu(e, app.id)}
-                                    className={`flex items-center gap-3 p-2 rounded hover:bg-white/10 group transition-colors text-left ${
+                                    className={`flex items-center gap-3 p-2 [@media(pointer:coarse)]:p-3 rounded hover:bg-white/10 group transition-colors text-left ${
                                         index === selectedIndex ? 'bg-white/10 ring-2 ring-blue-400/50' : ''
                                     }`}
                                 >
                                     <div
-                                        className={`w-8 h-8 rounded-lg flex items-center justify-center ${app.color} bg-opacity-20 text-xl`}
+                                        className={`w-8 h-8 [@media(pointer:coarse)]:w-10 [@media(pointer:coarse)]:h-10 rounded-lg flex items-center justify-center ${app.color} bg-opacity-20 text-xl`}
                                         aria-hidden="true"
                                     >
                                         <span
@@ -267,7 +270,10 @@ export const StartMenu = () => {
             ) : (
                 <>
                     {/* Pinned / All Apps */}
-                    <div className="flex-1 px-6 py-4 overflow-y-auto" onClick={closeContextMenu}>
+                    <div
+                        className="flex-1 px-6 py-4 overflow-y-auto [@media(pointer:coarse)]:scroll-smooth"
+                        onClick={closeContextMenu}
+                    >
                         <div className="flex justify-between items-center mb-4">
                             <span className="text-sm font-semibold text-white/90">
                                 {showAllApps ? 'All apps' : 'Pinned'}
@@ -300,10 +306,10 @@ export const StartMenu = () => {
                                         role="menuitem"
                                         onClick={() => openWindow(app.id)}
                                         onContextMenu={e => handleContextMenu(e, app.id)}
-                                        className="flex items-center gap-3 p-2 rounded hover:bg-white/10 group transition-colors text-left"
+                                        className="flex items-center gap-3 p-2 [@media(pointer:coarse)]:p-3 rounded hover:bg-white/10 group transition-colors text-left"
                                     >
                                         <div
-                                            className={`w-8 h-8 rounded-lg flex items-center justify-center ${app.color} bg-opacity-20 text-xl`}
+                                            className={`w-8 h-8 [@media(pointer:coarse)]:w-10 [@media(pointer:coarse)]:h-10 rounded-lg flex items-center justify-center ${app.color} bg-opacity-20 text-xl`}
                                             aria-hidden="true"
                                         >
                                             <span
@@ -323,7 +329,11 @@ export const StartMenu = () => {
                             </div>
                         ) : (
                             /* Pinned Apps Grid View */
-                            <div className="grid grid-cols-6 gap-4" role="group" aria-label="Pinned apps">
+                            <div
+                                className="grid grid-cols-6 [@media(pointer:coarse)]:grid-cols-4 gap-4 [@media(pointer:coarse)]:gap-5"
+                                role="group"
+                                aria-label="Pinned apps"
+                            >
                                 {displayApps.map(app => (
                                     <button
                                         key={app.id}
@@ -331,10 +341,10 @@ export const StartMenu = () => {
                                         role="menuitem"
                                         onClick={() => openWindow(app.id)}
                                         onContextMenu={e => handleContextMenu(e, app.id)}
-                                        className="flex flex-col items-center gap-2 p-2 rounded hover:bg-white/10 group transition-colors"
+                                        className="flex flex-col items-center gap-2 p-2 [@media(pointer:coarse)]:p-3 rounded hover:bg-white/10 group transition-colors"
                                     >
                                         <div
-                                            className={`w-10 h-10 rounded-lg flex items-center justify-center ${app.color} bg-opacity-20 text-2xl`}
+                                            className={`w-10 h-10 [@media(pointer:coarse)]:w-12 [@media(pointer:coarse)]:h-12 rounded-lg flex items-center justify-center ${app.color} bg-opacity-20 text-2xl [@media(pointer:coarse)]:text-3xl`}
                                             aria-hidden="true"
                                         >
                                             <span
@@ -399,20 +409,25 @@ export const StartMenu = () => {
             )}
 
             {/* Footer */}
-            <div className="h-16 border-t border-white/10 flex items-center justify-between px-8 bg-black/20">
+            <div className="h-16 [@media(pointer:coarse)]:h-20 border-t border-white/10 flex items-center justify-between px-8 bg-black/20">
                 <button
                     aria-label={`User profile: ${userName}`}
-                    className="flex items-center gap-3 hover:bg-white/10 p-2 rounded-lg cursor-pointer transition-colors"
+                    className="flex items-center gap-3 hover:bg-white/10 p-2 [@media(pointer:coarse)]:p-3 rounded-lg cursor-pointer transition-colors"
                 >
                     <div
-                        className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold"
+                        className="w-8 h-8 [@media(pointer:coarse)]:w-10 [@media(pointer:coarse)]:h-10 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold"
                         aria-hidden="true"
                     >
                         {userInitials}
                     </div>
-                    <span className="text-sm font-medium text-white/90">{userName}</span>
+                    <span className="text-sm [@media(pointer:coarse)]:text-base font-medium text-white/90">
+                        {userName}
+                    </span>
                 </button>
-                <button aria-label="Power options" className="p-2 hover:bg-white/10 rounded-full text-white/80">
+                <button
+                    aria-label="Power options"
+                    className="p-2 [@media(pointer:coarse)]:p-3 hover:bg-white/10 rounded-full text-white/80"
+                >
                     <span className="material-symbols-outlined" aria-hidden="true">
                         power_settings_new
                     </span>

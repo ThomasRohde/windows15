@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                                                  | Status         |
 | ---- | ---------------------------------------------------------------------------- | -------------- |
-| F210 | Touch-friendly taskbar with larger tap targets on tablets                    | 🔄 In progress |
-| F211 | Start menu is optimized for touch with larger app tiles and better scrolling | ⏳ Not started |
+| F211 | Start menu is optimized for touch with larger app tiles and better scrolling | 🔄 In progress |
 | F206 | Two-finger pinch gesture resizes windows on touch devices                    | ⏳ Not started |
+| F212 | Window snap zones appear at screen edges for touch-based window tiling       | ⏳ Not started |
 
 ---
 

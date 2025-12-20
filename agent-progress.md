@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: In Progress
+## Current Status: Session Ended
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                                                      | Status         |
 | ---- | -------------------------------------------------------------------------------- | -------------- |
-| F212 | Window snap zones appear at screen edges for touch-based window tiling           | 🔄 In progress |
 | F215 | Scrollable areas have touch-optimized scrolling with momentum and rubber-banding | ⏳ Not started |
 | F217 | Virtual keyboard awareness adjusts window positioning when keyboard appears      | ⏳ Not started |
+| F222 | Edge swipe from right triggers Notification Center                               | ⏳ Not started |
 
 ---
 
@@ -2195,8 +2195,8 @@ klondike feature list  # List all features
 ### Session 75 - 2025-12-20
 
 **Agent**: Coding Agent
-**Duration**: (in progress)
-**Focus**: F210-F219 - iPad and Touch Support Implementation
+**Duration**: ~session
+**Focus**: Implemented 4 touch/tablet features: F210 (touch-friendly taskbar), F211 (touch-optimized Start Menu), F206 (pinch-to-resize gesture), F212 (snap zones for window tiling), and F214 (useTouchDevice hook). All features tested and committed.
 
 #### Completed
 
@@ -2204,7 +2204,7 @@ klondike feature list  # List all features
 
 #### In Progress
 
-- Session started
+- None
 
 #### Blockers
 
@@ -2212,7 +2212,11 @@ klondike feature list  # List all features
 
 #### Recommended Next Steps
 
-1. Continue implementation
+1. Continue with remaining touch features: F215 (touch-optimized scrolling)
+2. F217 (virtual keyboard awareness)
+3. F222 (edge swipe notification center)
+4. F216 (touch settings)
+5. F218 (touch feedback ripple)
 
 #### Technical Notes
 

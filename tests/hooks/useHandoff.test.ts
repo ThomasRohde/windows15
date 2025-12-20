@@ -4,8 +4,13 @@ import { useHandoff } from '../../hooks/useHandoff';
 import { db } from '../../utils/storage/db';
 import { HandoffItem } from '../../types';
 
+const DEVICE_ID_KEY = 'windows15_device_id';
+
 describe('useHandoff', () => {
     beforeEach(async () => {
+        // Clear localStorage for device ID
+        localStorage.removeItem(DEVICE_ID_KEY);
+
         if (db.isOpen()) {
             await db.handoffItems.clear();
             await db.kv.clear();
@@ -17,13 +22,15 @@ describe('useHandoff', () => {
     });
 
     afterEach(async () => {
+        localStorage.removeItem(DEVICE_ID_KEY);
+
         if (db.isOpen()) {
             await db.handoffItems.clear();
             await db.kv.clear();
         }
     });
 
-    it('should generate a device ID and label on first use', async () => {
+    it('should generate a device ID in localStorage (not Dexie) and have a label', async () => {
         const { result } = renderHook(() => useHandoff());
 
         await waitFor(() => {
@@ -31,15 +38,16 @@ describe('useHandoff', () => {
             expect(result.current.deviceLabel).toBe('Browser');
         });
 
-        const idRecord = await db.kv.get('windows15_device_id');
+        // Device ID should be stored in localStorage (local-only, not synced)
+        // This is critical - if stored in Dexie's kv table, it would sync across devices
+        // and break cross-device handoff filtering
+        const localStorageId = localStorage.getItem(DEVICE_ID_KEY);
+        expect(localStorageId).toBeDefined();
+        expect(localStorageId).toBe(result.current.deviceId);
 
-        // Label might not be in DB yet because it's just the default value
-        // and we haven't called setDeviceLabel.
-        // But deviceId should be there because of the useEffect in useHandoff.
-        expect(idRecord).toBeDefined();
-        if (idRecord) {
-            expect(JSON.parse(idRecord.valueJson)).toBe(result.current.deviceId);
-        }
+        // Verify it's NOT in Dexie's kv table (would cause cross-device sync issues)
+        const dexieRecord = await db.kv.get(DEVICE_ID_KEY);
+        expect(dexieRecord).toBeUndefined();
     });
 
     it('should send a handoff item', async () => {

@@ -17,36 +17,26 @@ interface TouchConfig {
 /**
  * TouchSettings - Touch and Tablet configuration panel (F216)
  */
+const DEFAULT_CONFIG: TouchConfig = {
+    enabled: true,
+    tabletMode: false,
+    swipeGestures: true,
+    pinchToResize: true,
+    longPressDuration: 500,
+    snapZones: true,
+    gestureSensitivity: 50,
+};
+
 export const TouchSettings: React.FC = () => {
     const { db } = useDb();
     const isTouchDevice = useTouchDevice();
 
-    const touchConfig = useDexieLiveQuery<TouchConfig>(
-        () =>
-            db.config.get('touch').then(
-                result =>
-                    (result?.value as TouchConfig) || {
-                        enabled: true,
-                        tabletMode: false,
-                        swipeGestures: true,
-                        pinchToResize: true,
-                        longPressDuration: 500,
-                        snapZones: true,
-                        gestureSensitivity: 50,
-                    }
-            ),
+    const { value: touchConfig } = useDexieLiveQuery<TouchConfig>(
+        () => db.config.get('touch').then(result => (result?.value as TouchConfig) || DEFAULT_CONFIG),
         []
     );
 
-    const config = touchConfig || {
-        enabled: true,
-        tabletMode: false,
-        swipeGestures: true,
-        pinchToResize: true,
-        longPressDuration: 500,
-        snapZones: true,
-        gestureSensitivity: 50,
-    };
+    const config = touchConfig || DEFAULT_CONFIG;
 
     const [enabled, setEnabled] = useState(config.enabled);
     const [tabletMode, setTabletMode] = useState(config.tabletMode);

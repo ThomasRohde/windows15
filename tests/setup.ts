@@ -35,6 +35,19 @@ Object.defineProperty(window, 'localStorage', {
 window.Element.prototype.setPointerCapture = vi.fn();
 window.Element.prototype.releasePointerCapture = vi.fn();
 
+// Mock window.matchMedia (not available in jsdom)
+Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: vi.fn().mockImplementation(query => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+    })),
+});
+
 beforeAll(async () => {
     // Ensure crypto is available in test environment
     if (typeof globalThis.crypto === 'undefined') {

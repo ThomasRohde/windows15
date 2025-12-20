@@ -35,7 +35,7 @@ import {
 import { useDexieLiveQuery } from './utils/storage/react';
 import { DesktopIconRecord } from './utils/storage/db';
 import { APP_REGISTRY } from './apps';
-import { useHotkeys, useContextMenu, useNotification, useAppEvent, usePhoneMode } from './hooks';
+import { useHotkeys, useContextMenu, useNotification, useAppEvent, usePhoneMode, useViewportCssVars } from './hooks';
 import { ensureArray } from './utils';
 import { readTextFromClipboard } from './utils/clipboard';
 import { analyzeClipboardContent, fetchYoutubeVideoTitle } from './utils/clipboardAnalyzer';
@@ -552,7 +552,7 @@ const Desktop = () => {
 
     return (
         <div
-            className={`relative h-screen w-screen overflow-hidden select-none ${isDraggingFile ? 'ring-4 ring-inset ring-blue-500/50' : ''}`}
+            className={`relative h-[var(--app-vh)] w-[var(--app-vw)] overflow-hidden select-none ${isDraggingFile ? 'ring-4 ring-inset ring-blue-500/50' : ''}`}
             onContextMenu={handleDesktopContextMenu}
             onDrop={handleDesktopDrop}
             onDragOver={handleDesktopDragOver}
@@ -587,7 +587,10 @@ const Desktop = () => {
 
             {/* Desktop Icons - hidden on phone-sized viewports (F225) */}
             {!isPhone && (
-                <div className="absolute inset-0 z-10 w-full h-[calc(100vh-80px)] pointer-events-none">
+                <div
+                    className="absolute inset-0 z-10 w-full pointer-events-none"
+                    style={{ height: 'calc(var(--app-vh) - var(--taskbar-total-height))' }}
+                >
                     {!iconsLoading &&
                         icons.map(iconData => (
                             <div key={iconData.id} className="pointer-events-auto">
@@ -665,6 +668,8 @@ const Desktop = () => {
 };
 
 const App: React.FC = () => {
+    useViewportCssVars();
+
     return (
         <DbProvider>
             <NotificationProvider>

@@ -400,7 +400,7 @@ const CardView = ({ data, onSelect }: { data: unknown[]; onSelect: (item: unknow
     };
 
     return (
-        <div className="flex flex-col gap-2 p-3 overflow-auto touch-scroll pb-safe">
+        <div className="flex flex-col gap-2 p-3 overflow-auto touch-scroll pb-[calc(0.75rem+var(--safe-area-inset-bottom))]">
             {data.map((item, idx) => {
                 const row = item as Record<string, unknown>;
                 const fields = getDisplayFields(row);
@@ -1105,7 +1105,7 @@ export const IDBExplorer = () => {
                                     {isSearching ? 'Searching...' : `${globalSearchResults.length} results`}
                                 </span>
                             </div>
-                            <div className="flex-1 overflow-auto touch-scroll pb-safe">
+                            <div className="flex-1 overflow-auto touch-scroll pb-[var(--safe-area-inset-bottom)]">
                                 {globalSearchResults.length === 0 && !isSearching ? (
                                     <div className="text-gray-500 italic p-4 text-center">No results found</div>
                                 ) : (
@@ -1171,7 +1171,7 @@ export const IDBExplorer = () => {
                                     <Icon name="close" className="text-gray-400" />
                                 </button>
                             </div>
-                            <div className="flex-1 overflow-auto touch-scroll p-4 pb-safe">
+                            <div className="flex-1 overflow-auto touch-scroll p-4 pb-[calc(1rem+var(--safe-area-inset-bottom))]">
                                 <div className="bg-black/40 rounded-lg p-4 border border-white/10">
                                     <DataDescriptionList data={filterData(selectedRecord)} />
                                 </div>

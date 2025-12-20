@@ -36,7 +36,7 @@ export const PWAUpdatePrompt = () => {
     if (!showPrompt) return null;
 
     return (
-        <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-[60] animate-fade-in-up">
+        <div className="fixed bottom-[var(--start-menu-bottom-offset)] left-1/2 transform -translate-x-1/2 z-[60] animate-fade-in-up">
             <div className="glass-panel rounded-2xl shadow-2xl ring-1 ring-white/10 p-4 max-w-md">
                 <div className="flex items-start gap-3">
                     <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">

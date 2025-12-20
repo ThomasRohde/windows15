@@ -472,7 +472,7 @@ export const WallpaperStudio: React.FC = () => {
 
                     {/* Info - F250: Overlay on phone */}
                     <div
-                        className={`${isPhone ? 'absolute bottom-0 left-0 right-0 p-6 pb-safe' : 'p-4 flex-1'} bg-gradient-to-t from-black via-black/90 to-transparent`}
+                        className={`${isPhone ? 'absolute bottom-0 left-0 right-0 p-6 pb-[calc(1.5rem+var(--safe-area-inset-bottom))]' : 'p-4 flex-1'} bg-gradient-to-t from-black via-black/90 to-transparent`}
                     >
                         <h3 className={`${isPhone ? 'text-xl' : 'text-lg'} font-semibold text-white mb-2`}>
                             {selectedWallpaper.name}

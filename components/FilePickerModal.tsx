@@ -328,7 +328,7 @@ export const FilePickerModal: React.FC<FilePickerModalProps> = ({
 
                 {/* Footer - F245: Fixed at bottom with safe area padding on phone */}
                 <div
-                    className={`${isPhone ? 'px-4 py-4 pb-safe' : 'px-4 py-3'} flex ${isPhone ? 'flex-col gap-3' : 'items-center gap-3'} border-t border-white/10 bg-black/30 shrink-0`}
+                    className={`${isPhone ? 'px-4 py-4 pb-[calc(1rem+var(--safe-area-inset-bottom))]' : 'px-4 py-3'} flex ${isPhone ? 'flex-col gap-3' : 'items-center gap-3'} border-t border-white/10 bg-black/30 shrink-0`}
                 >
                     {state.mode === 'save' && (
                         <TextInput

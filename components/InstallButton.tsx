@@ -90,7 +90,7 @@ export const InstallButton = () => {
         <>
             {/* Install Button */}
             {isInstallable && (
-                <div className="fixed bottom-24 right-6 z-[60] animate-fade-in-up">
+                <div className="fixed bottom-[var(--start-menu-bottom-offset)] right-6 z-[60] animate-fade-in-up">
                     <div className="glass-panel rounded-2xl shadow-2xl ring-1 ring-white/10 p-4 max-w-sm">
                         <div className="flex items-start gap-3">
                             <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">

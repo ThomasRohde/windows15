@@ -70,13 +70,16 @@ export const Taskbar = () => {
             }
             style={
                 isPhoneLandscape
-                    ? { left: 'var(--safe-area-inset-left)', paddingTop: 'var(--safe-area-inset-top)' }
-                    : { bottom: 'calc(1.5rem + var(--safe-area-inset-bottom))' }
+                    ? { left: 'var(--taskbar-left-offset)', paddingTop: 'var(--safe-area-inset-top)' }
+                    : { bottom: 'var(--taskbar-offset)' }
             }
         >
             {isPhoneLandscape ? (
                 // Phone landscape - vertical taskbar on left edge (F234)
-                <div className="flex flex-col items-center justify-between h-[calc(100vh-var(--safe-area-inset-top)-var(--safe-area-inset-bottom))] w-12 py-3 glass-panel rounded-r-2xl shadow-2xl ring-1 ring-white/10 gap-3">
+                <div
+                    className="flex flex-col items-center justify-between h-[calc(var(--app-vh)-var(--safe-area-inset-top)-var(--safe-area-inset-bottom))] py-3 glass-panel rounded-r-2xl shadow-2xl ring-1 ring-white/10 gap-3"
+                    style={{ width: 'var(--taskbar-width)' }}
+                >
                     {/* Start Button */}
                     <button
                         data-testid="start-menu-button"
@@ -118,7 +121,10 @@ export const Taskbar = () => {
                 </div>
             ) : isPhone ? (
                 // Phone-optimized minimal layout (F227)
-                <div className="flex items-center justify-between h-12 px-3 glass-panel rounded-full shadow-2xl ring-1 ring-white/10 gap-3 w-[90vw] max-w-[400px]">
+                <div
+                    className="flex items-center justify-between px-3 glass-panel rounded-full shadow-2xl ring-1 ring-white/10 gap-3 w-[90vw] max-w-[400px]"
+                    style={{ height: 'var(--taskbar-height)' }}
+                >
                     {/* Start Button */}
                     <button
                         data-testid="start-menu-button"
@@ -163,7 +169,10 @@ export const Taskbar = () => {
                 </div>
             ) : (
                 // Desktop layout
-                <div className="flex items-center h-16 [@media(pointer:coarse)]:h-20 px-3 glass-panel rounded-full shadow-2xl ring-1 ring-white/10 gap-2 md:gap-4 [@media(pointer:coarse)]:gap-3 transition-all">
+                <div
+                    className="flex items-center px-3 glass-panel rounded-full shadow-2xl ring-1 ring-white/10 gap-2 md:gap-4 [@media(pointer:coarse)]:gap-3 transition-all"
+                    style={{ height: 'var(--taskbar-height)' }}
+                >
                     {/* Start Button */}
                     <Tooltip content="Start Menu" position="top">
                         <button

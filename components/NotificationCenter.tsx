@@ -231,16 +231,16 @@ export const NotificationCenter: React.FC = () => {
     const getPanelClasses = () => {
         if (!isPhone) {
             // Desktop: fixed dropdown
-            return 'fixed bottom-20 right-8 w-96 max-h-[70vh] rounded-xl animate-in slide-in-from-bottom-4 fade-in duration-200';
+            return 'fixed bottom-[var(--start-menu-bottom-offset)] right-8 w-96 max-h-[70vh] rounded-xl animate-in slide-in-from-bottom-4 fade-in duration-200';
         }
 
         if (orientation === 'portrait') {
             // Phone portrait: bottom sheet
-            return 'fixed bottom-0 left-0 right-0 h-[70vh] rounded-t-2xl animate-in slide-in-from-bottom fade-in duration-200 pb-safe';
+            return 'fixed bottom-0 left-0 right-0 h-[70vh] rounded-t-2xl animate-in slide-in-from-bottom fade-in duration-200 pb-[var(--safe-area-inset-bottom)]';
         }
 
         // Phone landscape: right side sheet
-        return 'fixed top-0 right-0 bottom-0 w-80 animate-in slide-in-from-right fade-in duration-200 pr-safe';
+        return 'fixed top-0 right-0 bottom-0 w-80 animate-in slide-in-from-right fade-in duration-200 pr-[var(--safe-area-inset-right)]';
     };
 
     const getSwipeTransform = () => {

@@ -166,7 +166,7 @@ export const Calculator = () => {
                     handleOperator(mapped);
                 } else inputDigit(v);
             }}
-            className={`${wide ? 'col-span-2' : ''} h-14 rounded-lg text-xl font-medium transition-all active:scale-95 flex items-center justify-center
+            className={`${wide ? 'col-span-2' : ''} h-full min-h-[clamp(2.75rem,12cqw,3.5rem)] rounded-lg text-[clamp(1rem,5cqw,1.25rem)] font-medium transition-all active:scale-95 flex items-center justify-center
                 ${op ? 'bg-orange-500 text-white hover:bg-orange-400' : 'bg-white/10 text-white hover:bg-white/20'}
                 ${v === 'C' ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30' : ''}
             `}
@@ -176,8 +176,8 @@ export const Calculator = () => {
     );
 
     return (
-        <AppContainer>
-            <div className="flex-1 bg-black/20 rounded-xl p-4 flex flex-col gap-2">
+        <AppContainer className="@container">
+            <div className="shrink-0 bg-black/20 rounded-xl p-[clamp(0.75rem,3cqw,1rem)] flex flex-col gap-2 min-h-[clamp(6rem,20cqw,9rem)]">
                 <div className="flex items-center justify-end gap-2">
                     <button
                         type="button"
@@ -190,10 +190,10 @@ export const Calculator = () => {
                     </button>
                 </div>
                 <div className="flex-1 flex items-end justify-end">
-                    <span className="text-5xl font-light text-white truncate">{display}</span>
+                    <span className="text-[clamp(2rem,10cqw,3.25rem)] font-light text-white truncate">{display}</span>
                 </div>
             </div>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid flex-1 min-h-0 grid-cols-4 auto-rows-fr gap-[clamp(0.5rem,2cqw,0.75rem)]">
                 <Btn v="C" />
                 <Btn v="+/-" />
                 <Btn v="%" />

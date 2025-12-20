@@ -4,14 +4,7 @@ import { WindowState } from '../types';
 import { AppLoadingSkeleton } from './AppLoadingSkeleton';
 import { ErrorBoundary } from './ErrorBoundary';
 import { WINDOW } from '../utils/constants';
-import {
-    usePinchGesture,
-    useTouchDevice,
-    useAppEmit,
-    useVirtualKeyboard,
-    usePhoneMode,
-    useOrientation,
-} from '../hooks';
+import { usePinchGesture, useTouchDevice, useAppEmit, useVirtualKeyboard, usePhoneMode } from '../hooks';
 
 interface WindowProps {
     window: WindowState;
@@ -64,8 +57,6 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
         prefersReducedMotion,
     } = useWindowSpace();
     const isPhone = usePhoneMode();
-    const orientation = useOrientation();
-    const isPhoneLandscape = isPhone && orientation === 'landscape';
     const [isDragging, setIsDragging] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
     const [resizeDir, setResizeDir] = useState<ResizeDirection>(null);
@@ -496,44 +487,15 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
         return parts.join(' ');
     };
 
-    // Calculate gap for maximized windows based on mode
-    // Phone landscape: 48px left gap for vertical taskbar, respect safe area
-    // Phone portrait: 60px bottom gap, respect safe area top (for notch/Dynamic Island)
-    // Desktop: 96px bottom gap
-    const getMaximizedStyle = (): React.CSSProperties => {
-        if (isPhoneLandscape) {
-            // Phone landscape: taskbar on left, full height, respect safe areas
-            return {
-                position: 'fixed',
-                top: 'env(safe-area-inset-top, 0px)',
-                left: 'max(48px, env(safe-area-inset-left, 0px))', // Vertical taskbar width or safe area
-                right: 'env(safe-area-inset-right, 0px)',
-                bottom: 0,
-                height: 'calc(100vh - env(safe-area-inset-top, 0px))',
-                transform: 'none',
-            };
-        }
-        if (isPhone) {
-            // Phone portrait: reduced bottom gap, respect safe area top for notch/Dynamic Island
-            return {
-                position: 'fixed',
-                top: 'env(safe-area-inset-top, 0px)',
-                left: 0,
-                right: 0,
-                height: 'calc(100vh - 60px - env(safe-area-inset-top, 0px))',
-                transform: 'none',
-            };
-        }
-        // Desktop: standard bottom gap
-        return {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: `calc(100vh - ${WINDOW.MAXIMIZED_BOTTOM_GAP}px)`,
-            transform: 'none',
-        };
-    };
+    // Maximize inset uses CSS vars so taskbar + safe area stay in sync across breakpoints.
+    const getMaximizedStyle = (): React.CSSProperties => ({
+        position: 'fixed',
+        top: 'var(--window-max-top)',
+        right: 'var(--window-max-right)',
+        bottom: 'var(--window-max-bottom)',
+        left: 'var(--window-max-left)',
+        transform: 'none',
+    });
 
     const outerStyle: React.CSSProperties = window.isMaximized
         ? getMaximizedStyle()
@@ -667,7 +629,7 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
                 </div>
 
                 {/* Content */}
-                <div ref={contentRef} className="flex-1 overflow-auto touch-scroll relative z-40 bg-black/20">
+                <div ref={contentRef} className="flex-1 min-h-0 overflow-auto touch-scroll relative z-40 bg-black/20">
                     <ErrorBoundary title={window.title}>
                         <Suspense fallback={<AppLoadingSkeleton title={window.title} />}>{renderContent()}</Suspense>
                     </ErrorBoundary>

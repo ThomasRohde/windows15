@@ -53,10 +53,10 @@ export const AppContainer = ({
     className,
 }: AppContainerProps) => {
     const classes = [
-        'h-full bg-background-dark flex flex-col',
+        'h-full w-full min-h-0 min-w-0 bg-background-dark flex flex-col',
         padding && 'p-4',
         gapClasses[gap],
-        scrollable && 'overflow-y-auto',
+        scrollable && 'overflow-y-auto touch-scroll',
         className,
     ]
         .filter(Boolean)

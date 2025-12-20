@@ -114,7 +114,7 @@ const ContextMenuRoot = forwardRef<HTMLDivElement, ContextMenuProps>(
                             bg-gray-900/98 backdrop-blur-xl
                             border-t border-white/10 rounded-t-2xl
                             shadow-2xl shadow-black/40
-                            py-2 pb-safe
+                            py-2 pb-[calc(0.5rem+var(--safe-area-inset-bottom))]
                             animate-in slide-in-from-bottom duration-200
                             outline-none
                             max-h-[70vh] overflow-y-auto

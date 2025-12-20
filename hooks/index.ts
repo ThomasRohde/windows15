@@ -56,3 +56,4 @@ export { useVirtualKeyboard } from './useVirtualKeyboard';
 export { usePhoneMode } from './usePhoneMode';
 export { useOrientation } from './useOrientation';
 export type { Orientation } from './useOrientation';
+export { useViewportCssVars } from './useViewportCssVars';

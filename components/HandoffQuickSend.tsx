@@ -79,8 +79,8 @@ export const HandoffQuickSend: React.FC<HandoffQuickSendProps> = ({ isOpen, onCl
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
-            <div className="w-[400px] glass-panel rounded-xl shadow-2xl p-6 border border-white/10 animate-scale-in">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4">
+            <div className="w-full max-w-[400px] max-h-[calc(var(--app-vh)-var(--safe-area-inset-top)-var(--safe-area-inset-bottom)-2rem)] overflow-y-auto glass-panel rounded-xl shadow-2xl p-6 border border-white/10 animate-scale-in">
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-lg font-semibold flex items-center gap-2 text-white">
                         <Icon name="sync_alt" className="text-indigo-400" />

@@ -400,8 +400,8 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
 
             {/* Open File Dialog */}
             {showOpenDialog && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-[#2d2d2d] rounded-lg p-4 w-[400px] max-h-[400px] flex flex-col">
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-[#2d2d2d] rounded-lg p-4 w-full max-w-[400px] max-h-[70vh] flex flex-col">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-white font-medium">Open File</h3>
                             <button onClick={() => setShowOpenDialog(false)} className="text-white/60 hover:text-white">
@@ -432,8 +432,8 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
 
             {/* Save As Dialog */}
             {showSaveDialog && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-[#2d2d2d] rounded-lg p-4 w-[350px]">
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-[#2d2d2d] rounded-lg p-4 w-full max-w-[360px]">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-white font-medium">Save As</h3>
                             <button onClick={() => setShowSaveDialog(false)} className="text-white/60 hover:text-white">

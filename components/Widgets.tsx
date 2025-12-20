@@ -216,7 +216,7 @@ export const Widgets: React.FC = () => {
     }
 
     return (
-        <div className="hidden lg:flex absolute right-6 top-6 bottom-24 w-80 flex-col gap-4 pointer-events-none z-0">
+        <div className="hidden lg:flex absolute right-6 top-6 bottom-[var(--start-menu-bottom-offset)] w-80 flex-col gap-4 pointer-events-none z-0">
             {/* Quick Settings (F087) */}
             <div className="p-4 glass-panel rounded-xl pointer-events-auto hover:bg-white/5 transition-colors cursor-default">
                 <div className="flex items-center gap-3 mb-3">

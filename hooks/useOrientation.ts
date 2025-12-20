@@ -32,19 +32,27 @@ export function useOrientation(): Orientation {
 
         const mediaQuery = window.matchMedia('(orientation: portrait)');
 
-        const handleChange = (e: { matches: boolean }) => {
-            setOrientation(e.matches ? 'portrait' : 'landscape');
+        const handleChange = () => {
+            setOrientation(mediaQuery.matches ? 'portrait' : 'landscape');
         };
 
         // Set initial value
-        handleChange(mediaQuery);
+        handleChange();
 
         // Listen for changes
-        mediaQuery.addEventListener('change', handleChange);
+        if (mediaQuery.addEventListener) {
+            mediaQuery.addEventListener('change', handleChange);
+            return () => {
+                mediaQuery.removeEventListener('change', handleChange);
+            };
+        }
 
-        return () => {
-            mediaQuery.removeEventListener('change', handleChange);
-        };
+        if (mediaQuery.addListener) {
+            mediaQuery.addListener(handleChange);
+            return () => {
+                mediaQuery.removeListener(handleChange);
+            };
+        }
     }, []);
 
     return orientation;

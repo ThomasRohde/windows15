@@ -91,7 +91,7 @@ export const NotificationToast: React.FC = () => {
     if (notifications.length === 0) return null;
 
     return (
-        <div className="fixed bottom-20 right-4 z-[60] flex flex-col gap-2 pointer-events-none">
+        <div className="fixed bottom-[var(--start-menu-bottom-offset)] right-4 z-[60] flex flex-col gap-2 pointer-events-none">
             {notifications.map(notification => (
                 <div
                     key={notification.id}

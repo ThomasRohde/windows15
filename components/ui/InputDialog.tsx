@@ -52,8 +52,8 @@ export const InputDialog = ({
     if (!isOpen) return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
-            <div className="w-[400px] bg-[#202020] border border-white/10 rounded-lg shadow-2xl p-6 flex flex-col gap-4 animate-scale-in">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4">
+            <div className="w-full max-w-[400px] max-h-[calc(var(--app-vh)-var(--safe-area-inset-top)-var(--safe-area-inset-bottom)-2rem)] overflow-y-auto bg-[#202020] border border-white/10 rounded-lg shadow-2xl p-6 flex flex-col gap-4 animate-scale-in">
                 <div>
                     <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
                     {description && <p className="text-sm text-white/60">{description}</p>}

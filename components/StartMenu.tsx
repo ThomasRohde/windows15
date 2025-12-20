@@ -199,21 +199,21 @@ export const StartMenu = () => {
                 isPhone
                     ? isLandscape
                         ? {
-                              // Landscape: start from left taskbar (56px) plus safe area
-                              left: 'calc(56px + var(--safe-area-inset-left))',
+                              // Landscape: start after taskbar + shared gap
+                              left: 'calc(var(--taskbar-total-width) + var(--taskbar-gap))',
                               paddingTop: 'var(--safe-area-inset-top)',
                               paddingBottom: 'var(--safe-area-inset-bottom)',
                               // Take up most of the remaining width
-                              width: 'calc(85vw - 56px - var(--safe-area-inset-left))',
+                              width: 'calc(85vw - var(--taskbar-total-width) - var(--taskbar-gap))',
                               maxWidth: '400px',
                           }
                         : {
                               paddingTop: 'var(--safe-area-inset-top)',
-                              // Stop above the taskbar: 1.5rem bottom offset + 3rem taskbar height + safe-area + 0.5rem gap
-                              bottom: 'calc(5rem + var(--safe-area-inset-bottom))',
+                              // Stop above the taskbar using shared offset
+                              bottom: 'var(--start-menu-bottom-offset)',
                           }
                     : {
-                          bottom: 'calc(6rem + var(--safe-area-inset-bottom))',
+                          bottom: 'var(--start-menu-bottom-offset)',
                       }
             }
         >

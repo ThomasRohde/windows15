@@ -8,13 +8,63 @@
     --safe-area-inset-right: env(safe-area-inset-right, 0px);
     --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
     --safe-area-inset-left: env(safe-area-inset-left, 0px);
+    --app-vh: 100vh;
+    --app-vw: 100vw;
+    --taskbar-height: 64px;
+    --taskbar-offset: calc(24px + var(--safe-area-inset-bottom));
+    --taskbar-width: 48px;
+    --taskbar-gap: 8px;
+    --taskbar-left-offset: var(--safe-area-inset-left);
+    --taskbar-total-height: calc(var(--taskbar-height) + var(--taskbar-offset));
+    --taskbar-total-width: calc(var(--taskbar-width) + var(--taskbar-left-offset));
+    --window-max-top: 0px;
+    --window-max-right: 0px;
+    --window-max-bottom: var(--taskbar-total-height);
+    --window-max-left: 0px;
+    --start-menu-bottom-offset: calc(var(--taskbar-total-height) + var(--taskbar-gap));
+}
+
+@supports (height: 100dvh) {
+    :root {
+        --app-vh: 100dvh;
+        --app-vw: 100dvw;
+    }
+}
+
+@media (pointer: coarse) and (min-width: 768px) {
+    :root {
+        --taskbar-height: 80px;
+    }
+}
+
+@media (max-width: 767px) and (orientation: portrait) {
+    :root {
+        --taskbar-height: 48px;
+        --window-max-top: var(--safe-area-inset-top);
+        --window-max-right: 0px;
+        --window-max-bottom: var(--taskbar-total-height);
+        --window-max-left: 0px;
+    }
+}
+
+@media (max-width: 767px) and (orientation: landscape), (max-height: 500px) and (orientation: landscape) {
+    :root {
+        --taskbar-height: 48px;
+        --taskbar-offset: 0px;
+        --taskbar-total-height: 0px;
+        --window-max-top: var(--safe-area-inset-top);
+        --window-max-right: var(--safe-area-inset-right);
+        --window-max-bottom: var(--safe-area-inset-bottom);
+        --window-max-left: var(--taskbar-total-width);
+        --start-menu-bottom-offset: var(--safe-area-inset-bottom);
+    }
 }
 
 html,
 body,
 #root {
-    height: 100%;
-    width: 100%;
+    height: var(--app-vh);
+    width: var(--app-vw);
 }
 
 .glass-panel {

@@ -44,19 +44,27 @@ export function usePhoneMode(): boolean {
 
         const mediaQuery = window.matchMedia(PHONE_MEDIA_QUERY);
 
-        const handleChange = (e: { matches: boolean }) => {
-            setIsPhone(e.matches);
+        const handleChange = () => {
+            setIsPhone(mediaQuery.matches);
         };
 
         // Set initial value
-        handleChange(mediaQuery);
+        handleChange();
 
         // Listen for changes (resize, orientation change)
-        mediaQuery.addEventListener('change', handleChange);
+        if (mediaQuery.addEventListener) {
+            mediaQuery.addEventListener('change', handleChange);
+            return () => {
+                mediaQuery.removeEventListener('change', handleChange);
+            };
+        }
 
-        return () => {
-            mediaQuery.removeEventListener('change', handleChange);
-        };
+        if (mediaQuery.addListener) {
+            mediaQuery.addListener(handleChange);
+            return () => {
+                mediaQuery.removeListener(handleChange);
+            };
+        }
     }, []);
 
     return isPhone;

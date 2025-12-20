@@ -36,6 +36,8 @@ export { OverviewMode } from './OverviewMode';
 export { PWAUpdatePrompt } from './PWAUpdatePrompt';
 export { ReconnectingToast } from './ReconnectingToast';
 export { Screensaver } from './Screensaver';
+export { SnapZoneOverlay } from './SnapZoneOverlay';
+export type { SnapZone } from './SnapZoneOverlay';
 export { StartMenu } from './StartMenu';
 export { SyncStatus } from './SyncStatus';
 export { Taskbar } from './Taskbar';

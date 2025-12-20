@@ -4,7 +4,7 @@ import { WindowState } from '../types';
 import { AppLoadingSkeleton } from './AppLoadingSkeleton';
 import { ErrorBoundary } from './ErrorBoundary';
 import { WINDOW } from '../utils/constants';
-import { usePinchGesture, useTouchDevice } from '../hooks';
+import { usePinchGesture, useTouchDevice, useAppEmit } from '../hooks';
 
 interface WindowProps {
     window: WindowState;
@@ -87,6 +87,7 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
     const pinchStartSizeRef = useRef({ width: 0, height: 0 });
     const isTouchDevice = useTouchDevice();
     const contentRef = useRef<HTMLDivElement>(null);
+    const emit = useAppEmit(); // For snap zone communication (F212)
 
     useEffect(() => {
         if (window.isMaximized) {
@@ -260,6 +261,13 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
             y: e.clientY - dragOffsetRef.current.y,
         };
 
+        // Emit window drag position for snap zone detection (F212)
+        emit('window:drag:move', {
+            x: e.clientX,
+            y: e.clientY,
+            isMaximized: window.isMaximized,
+        });
+
         // Calculate velocity for tilt effect (F093)
         if (shouldTilt) {
             const now = performance.now();
@@ -294,6 +302,9 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
         pointerIdRef.current = null;
         setIsDragging(false);
         isDraggingRef.current = false;
+
+        // Emit drag end for snap zone application (F212)
+        emit('window:drag:end', { windowId: window.id });
 
         // Reset tilt with smooth animation (F093)
         if (shouldTilt) {

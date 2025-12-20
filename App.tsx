@@ -16,6 +16,8 @@ import {
     LoginScreen,
     ContextMenu,
     HandoffNotificationListener,
+    SnapZoneOverlay,
+    SnapZone,
 } from './components';
 import { HandoffQuickSend } from './components/HandoffQuickSend';
 import { ClipboardHistoryViewer } from './components/ClipboardHistoryViewer';
@@ -32,7 +34,7 @@ import {
 import { useDexieLiveQuery } from './utils/storage/react';
 import { DesktopIconRecord } from './utils/storage/db';
 import { APP_REGISTRY } from './apps';
-import { useHotkeys, useContextMenu, useNotification } from './hooks';
+import { useHotkeys, useContextMenu, useNotification, useAppEvent } from './hooks';
 import { ensureArray } from './utils';
 import { readTextFromClipboard } from './utils/clipboard';
 import { analyzeClipboardContent, fetchYoutubeVideoTitle } from './utils/clipboardAnalyzer';
@@ -52,6 +54,8 @@ const Desktop = () => {
         activeWallpaper,
         isStartMenuOpen,
         closeStartMenu,
+        toggleMaximizeWindow,
+        resizeWindow,
     } = useOS();
     const { is3DMode, settings: windowSpaceSettings, toggle3DMode } = useWindowSpace();
     const { toggleHistory: toggleClipboardHistory } = useClipboard();
@@ -66,6 +70,49 @@ const Desktop = () => {
 
     // File drag state for desktop drop handling
     const [isDraggingFile, setIsDraggingFile] = useState(false);
+
+    // Snap zone state for touch-based window tiling (F212)
+    const [snapZone, setSnapZone] = useState<SnapZone>('none');
+
+    // Listen for window drag position updates (F212)
+    useAppEvent<{ x: number; y: number; isMaximized: boolean }>('window:drag:move', ({ x, y, isMaximized }) => {
+        if (isMaximized) {
+            setSnapZone('none');
+            return;
+        }
+
+        const SNAP_THRESHOLD = 30; // pixels from edge
+        const screenWidth = globalThis.innerWidth;
+
+        // Detect which snap zone
+        if (y < SNAP_THRESHOLD) {
+            setSnapZone('top');
+        } else if (x < SNAP_THRESHOLD) {
+            setSnapZone('left');
+        } else if (x > screenWidth - SNAP_THRESHOLD) {
+            setSnapZone('right');
+        } else {
+            setSnapZone('none');
+        }
+    });
+
+    // Listen for window drag end to apply snap (F212)
+    useAppEvent<{ windowId: string }>('window:drag:end', ({ windowId }) => {
+        if (snapZone === 'top') {
+            toggleMaximizeWindow(windowId);
+        } else if (snapZone === 'left') {
+            const screenHeight = globalThis.innerHeight;
+            resizeWindow(windowId, { width: globalThis.innerWidth / 2, height: screenHeight - 96 }, { x: 0, y: 0 });
+        } else if (snapZone === 'right') {
+            const screenHeight = globalThis.innerHeight;
+            resizeWindow(
+                windowId,
+                { width: globalThis.innerWidth / 2, height: screenHeight - 96 },
+                { x: globalThis.innerWidth / 2, y: 0 }
+            );
+        }
+        setSnapZone('none');
+    });
 
     // Calculate max z-index for 3D depth calculations
     const maxZIndex = useMemo(() => {
@@ -561,6 +608,7 @@ const Desktop = () => {
             </div>
 
             {/* UI Overlays */}
+            <SnapZoneOverlay zone={snapZone} />
             <Widgets />
             <StartMenu />
             <Taskbar />

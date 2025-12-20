@@ -1152,18 +1152,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F206",
-        "description": "Two-finger pinch gesture resizes windows on touch devices",
-        "status": "in-progress"
-      },
-      {
         "id": "F212",
         "description": "Window snap zones appear at screen edges for touch-based window tiling",
-        "status": "not-started"
+        "status": "in-progress"
       },
       {
         "id": "F215",
         "description": "Scrollable areas have touch-optimized scrolling with momentum and rubber-banding",
+        "status": "not-started"
+      },
+      {
+        "id": "F217",
+        "description": "Virtual keyboard awareness adjusts window positioning when keyboard appears",
         "status": "not-started"
       }
     ]

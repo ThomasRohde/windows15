@@ -30,9 +30,9 @@ klondike feature list  # List all features
 
 | ID   | Description                                                                      | Status         |
 | ---- | -------------------------------------------------------------------------------- | -------------- |
-| F206 | Two-finger pinch gesture resizes windows on touch devices                        | 🔄 In progress |
-| F212 | Window snap zones appear at screen edges for touch-based window tiling           | ⏳ Not started |
+| F212 | Window snap zones appear at screen edges for touch-based window tiling           | 🔄 In progress |
 | F215 | Scrollable areas have touch-optimized scrolling with momentum and rubber-banding | ⏳ Not started |
+| F217 | Virtual keyboard awareness adjusts window positioning when keyboard appears      | ⏳ Not started |
 
 ---
 

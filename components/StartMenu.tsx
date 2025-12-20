@@ -185,16 +185,17 @@ export const StartMenu = () => {
             onKeyDown={handleKeyDown}
             className={
                 isPhone
-                    ? // Phone: fullscreen with safe-area insets (F228)
-                      'fixed inset-0 z-40 flex flex-col glass-panel animate-fade-in'
+                    ? // Phone: fullscreen above taskbar (F228)
+                      'fixed inset-x-0 top-0 z-40 flex flex-col glass-panel rounded-b-2xl animate-fade-in'
                     : // Desktop: centered dropdown
-                      'fixed left-1/2 transform -translate-x-1/2 w-[600px] [@media(pointer:coarse)]:w-[90vw] [@media(pointer:coarse)]:max-w-[650px] h-[70vh] max-h-[700px] glass-panel rounded-xl shadow-2xl z-40 flex flex-col animate-fade-in-up origin-bottom'
+                      'fixed left-1/2 transform -translate-x-1/2 w-[600px] [@media(pointer:coarse)]:w-[90vw] [@media(pointer:coarse)]:max-w-[650px] h-[70vh] max-h-[700px] glass-panel rounded-xl shadow-2xl z-40 flex flex-col overflow-hidden animate-fade-in-up origin-bottom'
             }
             style={
                 isPhone
                     ? {
                           paddingTop: 'var(--safe-area-inset-top)',
-                          paddingBottom: 'var(--safe-area-inset-bottom)',
+                          // Stop above the taskbar: 1.5rem bottom offset + 3rem taskbar height + safe-area + 0.5rem gap
+                          bottom: 'calc(5rem + var(--safe-area-inset-bottom))',
                       }
                     : {
                           bottom: 'calc(6rem + var(--safe-area-inset-bottom))',
@@ -202,7 +203,7 @@ export const StartMenu = () => {
             }
         >
             {/* Search */}
-            <div className="p-6 pb-2">
+            <div className="p-4 pb-2">
                 <div className="bg-black/20 h-10 [@media(pointer:coarse)]:h-12 rounded-lg flex items-center px-4 gap-3 border border-white/5">
                     <Icon name="search" className="text-white/50" />
                     <input
@@ -228,7 +229,7 @@ export const StartMenu = () => {
 
             {/* Search Results */}
             {searchResults !== null ? (
-                <div className="flex-1 px-6 py-4 overflow-y-auto touch-scroll" onClick={closeContextMenu}>
+                <div className="flex-1 min-h-0 px-6 py-4 overflow-y-auto touch-scroll" onClick={closeContextMenu}>
                     <div className="flex justify-between items-center mb-4">
                         <span className="text-sm font-semibold text-white/90">Results for "{searchQuery}"</span>
                         <span className="text-xs text-white/50">{searchResults.length} found</span>
@@ -284,7 +285,7 @@ export const StartMenu = () => {
             ) : (
                 <>
                     {/* Pinned / All Apps */}
-                    <div className="flex-1 px-6 py-4 overflow-y-auto touch-scroll" onClick={closeContextMenu}>
+                    <div className="flex-1 min-h-0 px-6 py-4 overflow-y-auto touch-scroll" onClick={closeContextMenu}>
                         <div className="flex justify-between items-center mb-4">
                             <span className="text-sm font-semibold text-white/90">
                                 {showAllApps ? 'All apps' : 'Pinned'}
@@ -378,8 +379,8 @@ export const StartMenu = () => {
                         )}
 
                         {!showAllApps && (
-                            <div className="mt-8">
-                                <span className="text-sm font-semibold text-white/90 mb-4 block">Recommended</span>
+                            <div className="mt-6">
+                                <span className="text-sm font-semibold text-white/90 mb-3 block">Recommended</span>
                                 <div className="flex flex-col gap-1">
                                     <div className="flex items-center gap-3 p-2 rounded hover:bg-white/10 cursor-pointer">
                                         <span className="material-symbols-outlined text-blue-400">description</span>

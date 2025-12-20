@@ -324,8 +324,8 @@ export const Handoff: React.FC = () => {
                 <p className="text-xs text-white/30">{t('composer.description')}</p>
             </div>
 
-            <div className="flex-1 flex flex-col gap-4 overflow-y-auto touch-scroll">
-                <div className="flex-1 flex flex-col min-h-[200px]">
+            <div className="flex-1 flex flex-col gap-4 overflow-y-auto touch-scroll min-h-0">
+                <div className="flex-1 flex flex-col min-h-[120px]">
                     <div className="flex items-center justify-between mb-1.5">
                         <label className="text-[10px] font-bold uppercase text-white/40 ml-1">
                             {t('composer.content')}
@@ -346,7 +346,7 @@ export const Handoff: React.FC = () => {
                         onChange={e => setInputText(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder={t('composer.placeholder')}
-                        className="flex-1 resize-none bg-black/20 border-white/10 focus:border-indigo-500/50 touch-scroll"
+                        className="flex-1 resize-none bg-black/20 border-white/10 focus:border-indigo-500/50 touch-scroll min-h-[80px]"
                     />
                     <div className="mt-1 text-[10px] text-white/20 text-right">{t('composer.hint')}</div>
                 </div>
@@ -402,7 +402,10 @@ export const Handoff: React.FC = () => {
                         </div>
                     )}
                 </div>
+            </div>
 
+            {/* Fixed bottom section - always visible without scrolling */}
+            <div className="flex-shrink-0 pt-4 mt-4 border-t border-white/5 space-y-3">
                 <Button
                     variant="primary"
                     onClick={handleSend}
@@ -411,9 +414,6 @@ export const Handoff: React.FC = () => {
                 >
                     {isLoading ? t('common:loading') : isSending ? t('composer.sending') : t('composer.send')}
                 </Button>
-            </div>
-
-            <div className="mt-auto pt-4 border-t border-white/5">
                 <div className="flex items-center gap-2 text-[10px] text-white/30">
                     <Icon name="info" size={14} />
                     <span>{t('inbox.sendingFrom', { device: deviceLabel })}</span>

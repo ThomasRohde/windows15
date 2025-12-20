@@ -25,8 +25,9 @@ Windows 15 is a fully functional desktop environment running entirely in your br
 
 - **🖥️ Full Desktop Environment:** Taskbar, Start Menu, System Tray, and a robust Window Manager with minimize/maximize/restore functionality.
 - **☁️ Cloud Sync & Offline First:** Built on **Dexie.js**, your data persists locally in IndexedDB. Connect your own **Dexie Cloud** database to sync seamlessly across devices.
+- **🔄 Handoff Queue:** Send URLs and text between devices instantly with cloud sync, optional encryption, and device targeting.
 - **🎨 Stunning UI:** Custom-built glassmorphism design system using Tailwind CSS, featuring dark mode support and dynamic wallpapers.
-- **� Notification Center:** Schedule and manage notifications with browser notification support and sound alerts.
+- **🔔 Notification Center:** Schedule and manage notifications with browser notification support and sound alerts.
 - **📋 Clipboard History:** Access your clipboard history with **Ctrl+Shift+V** (up to 25 items).
 - **🌐 Internationalization:** Full i18n support with 8 languages via LocalizationContext.
 - **🖱️ Rich Interactions:** Context menus, desktop icons, drag-and-drop support, and global search.
@@ -47,6 +48,7 @@ Windows 15 provides a rich set of OS-level services through React contexts:
 | **Sound**          | `soundService`       | System sounds with volume control                     |
 | **Screensaver**    | `useScreensaver()`   | Animated screensavers with customizable settings      |
 | **Wallpaper**      | `useWallpaper()`     | Dynamic wallpaper management including shaders        |
+| **Handoff**        | `useHandoff()`       | Cross-device item queue with encryption support       |
 
 See the [API documentation](https://thomasrohde.github.io/windows15/docs/) for detailed usage.
 
@@ -64,6 +66,7 @@ Windows 15 comes pre-loaded with a variety of applications:
 
 ### 💼 Productivity
 
+- **Handoff:** Cross-device clipboard and URL sharing with optional encryption.
 - **Mail, Calendar & To-Do:** Stay organized.
 - **Notepad:** A simple text editor for your thoughts.
 - **Calculator & Unit Converter:** For all your calculation needs.
@@ -142,6 +145,57 @@ For system sounds, use the singleton `soundService`:
 import { soundService } from './utils';
 
 soundService.play('notification');
+```
+
+## 🔄 Handoff Feature
+
+The Handoff feature allows you to seamlessly share URLs and text between your devices. It syncs via Dexie Cloud and supports optional end-to-end encryption for sensitive content.
+
+### How to Use
+
+1. **Open Handoff:** Click the Handoff icon in the taskbar (or find it in the Start Menu).
+2. **Send Content:** Type or paste a URL/text in the composer panel on the left, then click "Send to Handoff."
+3. **Receive Content:** New items from other devices appear in the inbox with real-time notifications.
+4. **Quick Send:** Use the global keyboard shortcut or right-click context menu to quickly send clipboard content.
+
+### Features
+
+| Feature              | Description                                                      |
+| -------------------- | ---------------------------------------------------------------- |
+| **Device Targeting** | Target specific device categories (Work, Private, or Any)        |
+| **Sensitive Mode**   | Encrypt content with a passphrase (AES-256-GCM)                  |
+| **Work Mode**        | Restrict sending to URLs only (no plain text)                    |
+| **Auto-Archive**     | Items older than the retention period are automatically archived |
+| **Status Tracking**  | Items have statuses: New → Opened → Done → Archived              |
+| **Real-time Sync**   | Syncs instantly across all devices via Dexie Cloud               |
+
+### Configuration
+
+Configure your device profile and retention settings in **Settings → Devices & Handoff**:
+
+- **Device Name:** How this device appears to other devices
+- **Device Category:** Work, Private, or Any (for targeting)
+- **Auto-Archive Period:** How long to keep items before archiving (1-30 days)
+
+### Using the Hook
+
+```tsx
+import { useHandoff } from './hooks';
+
+function MyComponent() {
+    const { send, markOpened, markDone, deviceLabel } = useHandoff();
+
+    const handleShare = async () => {
+        await send({
+            kind: 'url',
+            target: 'https://example.com',
+            text: 'Check out this link!',
+            targetCategory: 'any',
+        });
+    };
+
+    return <button onClick={handleShare}>Share Link</button>;
+}
 ```
 
 ## 🤝 Contributing

@@ -13,11 +13,12 @@ interface HandoffQuickSendProps {
 export const HandoffQuickSend: React.FC<HandoffQuickSendProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation('handoff');
     const { send } = useHandoff();
-    const { addNotification } = useNotification();
+    const notify = useNotification();
     const [text, setText] = useState('');
     const [targetCategory, setTargetCategory] = useState<'private' | 'work' | 'any'>('any');
     const [isSensitive, setIsSensitive] = useState(false);
     const [passphrase, setPassphrase] = useState('');
+    const [showPassphrase, setShowPassphrase] = useState(false);
     const [isSending, setIsSending] = useState(false);
 
     useEffect(() => {
@@ -26,24 +27,16 @@ export const HandoffQuickSend: React.FC<HandoffQuickSendProps> = ({ isOpen, onCl
                 .readText()
                 .then(setText)
                 .catch(() => {
-                    addNotification({
-                        title: t('notifications.failed'),
-                        message: 'Failed to read clipboard',
-                        type: 'error',
-                    });
+                    notify.error('Failed to read clipboard');
                 });
         }
-    }, [isOpen, addNotification, t]);
+    }, [isOpen, notify, t]);
 
     const handleSend = async () => {
         if (!text.trim() || isSending) return;
 
         if (isSensitive && !passphrase.trim()) {
-            addNotification({
-                title: t('notifications.failed'),
-                message: t('composer.passphrasePlaceholder'),
-                type: 'warning',
-            });
+            notify.warning(t('composer.passphrasePlaceholder'));
             return;
         }
 
@@ -74,18 +67,10 @@ export const HandoffQuickSend: React.FC<HandoffQuickSendProps> = ({ isOpen, onCl
             }
 
             await send(finalItem as HandoffItem);
-            addNotification({
-                title: t('notifications.sent'),
-                message: t('notifications.sentTo', { category: targetCategory }),
-                type: 'success',
-            });
+            notify.success(t('notifications.sentTo', { category: targetCategory }));
             onClose();
         } catch {
-            addNotification({
-                title: t('notifications.failed'),
-                message: t('notifications.failedMessage'),
-                type: 'error',
-            });
+            notify.error(t('notifications.failedMessage'));
         } finally {
             setIsSending(false);
         }
@@ -140,14 +125,25 @@ export const HandoffQuickSend: React.FC<HandoffQuickSendProps> = ({ isOpen, onCl
                             className="text-xs"
                         />
                         {isSensitive && (
-                            <TextInput
-                                type="password"
-                                value={passphrase}
-                                onChange={setPassphrase}
-                                placeholder={t('composer.passphrasePlaceholder')}
-                                className="bg-black/40 border-white/10 text-xs"
-                                autoFocus
-                            />
+                            <div className="flex items-center gap-2">
+                                <TextInput
+                                    type={showPassphrase ? 'text' : 'password'}
+                                    value={passphrase}
+                                    onChange={e => setPassphrase(e.target.value)}
+                                    placeholder={t('composer.passphrasePlaceholder')}
+                                    className="flex-1 bg-black/40 border-white/10 text-xs"
+                                    autoFocus
+                                />
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => setShowPassphrase(!showPassphrase)}
+                                    className="h-9 px-2"
+                                    title={showPassphrase ? 'Hide' : 'Show'}
+                                >
+                                    <Icon name={showPassphrase ? 'visibility_off' : 'visibility'} size={16} />
+                                </Button>
+                            </div>
                         )}
                     </div>
 

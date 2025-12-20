@@ -1,8 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../utils/storage/db';
-import { useOS } from '../context';
-import { useNotificationCenter } from '../context/NotificationContext';
+import { useNotification } from '../hooks';
 
 /**
  * HandoffNotificationListener - Listens for new handoff items and shows notifications (F193)
@@ -11,8 +10,7 @@ import { useNotificationCenter } from '../context/NotificationContext';
  * It watches the handoffItems table for new items from other devices.
  */
 export const HandoffNotificationListener: React.FC = () => {
-    const { notify } = useNotificationCenter();
-    const { openWindow } = useOS();
+    const notify = useNotification();
     const lastCheckedRef = useRef<number>(Date.now());
     const notifiedIdsRef = useRef<Set<string>>(new Set());
 
@@ -41,20 +39,15 @@ export const HandoffNotificationListener: React.FC = () => {
 
             notifiedIdsRef.current.add(item.id);
 
-            const title = item.kind === 'url' ? 'Link Received' : 'Text Received';
             const content = item.isSensitive
                 ? '********'
                 : item.title || (item.text.length > 50 ? item.text.substring(0, 47) + '...' : item.text);
             const message = `From ${item.createdByLabel}: ${content}`;
 
-            // Show persistent notification in center + toast
-            void notify(title, message, {
-                type: 'info',
-                appId: 'handoff',
-                showBrowserNotification: true,
-            });
+            // Show toast notification (simple, no persistence to avoid ID conflicts)
+            notify.info(message);
         });
-    }, [newItems, notify, openWindow]);
+    }, [newItems, notify]);
 
     return null;
 };

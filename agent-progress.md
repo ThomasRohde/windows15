@@ -28,10 +28,8 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                            | Status         |
-| ---- | ---------------------------------------------------------------------- | -------------- |
-| F216 | Settings has Touch & Tablet section for configuring touch behavior     | ⏳ Not started |
-| F218 | Touch feedback ripple effect on interactive elements throughout the OS | ⏳ Not started |
+| ID  | Description | Status |
+| --- | ----------- | ------ |
 
 ---
 

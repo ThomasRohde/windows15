@@ -64,6 +64,20 @@ body {
     overflow: hidden;
 }
 
+/* Ripple animation for touch feedback (F218) */
+@keyframes ripple-expand {
+    from {
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+    to {
+        width: 400px;
+        height: 400px;
+        opacity: 0;
+    }
+}
+
 /* Touch-optimized scrolling */
 .touch-scroll {
     -webkit-overflow-scrolling: touch;

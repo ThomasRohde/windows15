@@ -44,3 +44,4 @@ export { SplitPane } from './SplitPane';
 export type { SplitPaneProps, SplitPaneDirection } from './SplitPane';
 export { Tooltip } from './Tooltip';
 export type { TooltipProps, TooltipPosition } from './Tooltip';
+export { Ripple } from './Ripple';

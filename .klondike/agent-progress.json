@@ -1168,17 +1168,6 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": [
-      {
-        "id": "F216",
-        "description": "Settings has Touch & Tablet section for configuring touch behavior",
-        "status": "not-started"
-      },
-      {
-        "id": "F218",
-        "description": "Touch feedback ripple effect on interactive elements throughout the OS",
-        "status": "not-started"
-      }
-    ]
+    "priorityFeatures": []
   }
 }

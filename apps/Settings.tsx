@@ -10,6 +10,7 @@ import { ProfileSettings } from './settings/ProfileSettings';
 import { SoundSettings } from './settings/SoundSettings';
 import { NetworkSettings } from './settings/NetworkSettings';
 import { DevicesSettings } from './settings/DevicesSettings';
+import { TouchSettings } from './settings/TouchSettings';
 import { useTranslation } from '../hooks/useTranslation';
 
 type SettingsSection =
@@ -19,6 +20,7 @@ type SettingsSection =
     | 'sync'
     | 'network'
     | 'devices'
+    | 'touch'
     | 'apps'
     | 'sound'
     | 'screensaver'
@@ -35,6 +37,7 @@ export const Settings = () => {
         { id: 'sound', label: t('sound'), icon: 'volume_up' },
         { id: 'sync', label: t('sync'), icon: 'sync' },
         { id: 'devices', label: 'Devices', icon: 'devices' },
+        { id: 'touch', label: 'Touch & Tablet', icon: 'touch_app' },
         { id: 'localization', label: t('localization'), icon: 'language' },
         { id: 'network', label: 'Network', icon: 'wifi' },
         { id: 'apps', label: 'Apps', icon: 'apps' },
@@ -96,6 +99,8 @@ export const Settings = () => {
                 {activeSection === 'network' && <NetworkSettings />}
 
                 {activeSection === 'devices' && <DevicesSettings />}
+
+                {activeSection === 'touch' && <TouchSettings />}
 
                 {activeSection === 'apps' && (
                     <div className="max-w-2xl">

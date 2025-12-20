@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { Icon } from './Icon';
+import { Ripple } from './Ripple';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'default';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -127,10 +128,12 @@ export const Button: React.FC<ButtonProps> = ({
             onPointerUp={handlePointerUp}
             aria-label={props['aria-label']}
         >
-            {loading && <Icon name="progress_activity" className="animate-spin text-current" />}
-            {!loading && icon && iconPosition === 'left' && <Icon name={icon} size={size} />}
-            {content && <span>{content}</span>}
-            {!loading && icon && iconPosition === 'right' && <Icon name={icon} size={size} />}
+            <Ripple className="w-full h-full flex items-center justify-center gap-2">
+                {loading && <Icon name="progress_activity" className="animate-spin text-current" />}
+                {!loading && icon && iconPosition === 'left' && <Icon name={icon} size={size} />}
+                {content && <span>{content}</span>}
+                {!loading && icon && iconPosition === 'right' && <Icon name={icon} size={size} />}
+            </Ripple>
         </button>
     );
 };

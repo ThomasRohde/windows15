@@ -446,39 +446,43 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                     </button>
                 </div>
 
-                {/* Mini calendar strip - horizontal week days */}
+                {/* Month calendar grid */}
                 <div className="shrink-0 border-b border-white/5 px-2 py-2">
-                    <div className="flex gap-1 overflow-x-auto">
-                        {monthGrid.slice(0, 7).map((_, i) => {
-                            const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+                    {/* Day of week headers */}
+                    <div className="grid grid-cols-7 gap-1">
+                        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
+                            <div key={i} className="text-center text-[10px] text-white/40 py-1">
+                                {day}
+                            </div>
+                        ))}
+                    </div>
+                    {/* Calendar days grid */}
+                    <div className="grid grid-cols-7 gap-1 mt-1">
+                        {monthGrid.map(cell => {
+                            const isToday = cell.ymd === todayYmd;
+                            const isSelected = cell.ymd === selectedDate;
+                            const hasEvents = (eventsByDate[cell.ymd]?.length ?? 0) > 0;
                             return (
-                                <div key={i} className="flex-1 text-center text-[10px] text-white/40">
-                                    {dayNames[i]}
-                                </div>
+                                <button
+                                    key={cell.ymd}
+                                    onClick={() => setSelectedDate(cell.ymd)}
+                                    className={`aspect-square rounded-full flex flex-col items-center justify-center min-h-[36px] ${
+                                        !cell.inMonth
+                                            ? 'text-white/20'
+                                            : isSelected
+                                              ? 'bg-primary text-white'
+                                              : isToday
+                                                ? 'bg-primary/20 text-primary'
+                                                : 'text-white/70 active:bg-white/10'
+                                    }`}
+                                >
+                                    <span className="text-xs font-medium">{cell.date.getDate()}</span>
+                                    {hasEvents && !isSelected && cell.inMonth && (
+                                        <span className="w-1 h-1 rounded-full bg-primary mt-0.5" />
+                                    )}
+                                </button>
                             );
                         })}
-                    </div>
-                    <div className="flex gap-1 mt-1">
-                        {monthGrid
-                            .filter(c => c.inMonth)
-                            .slice(0, 7)
-                            .map(cell => {
-                                const isToday = cell.ymd === todayYmd;
-                                const isSelected = cell.ymd === selectedDate;
-                                const hasEvents = (eventsByDate[cell.ymd]?.length ?? 0) > 0;
-                                return (
-                                    <button
-                                        key={cell.ymd}
-                                        onClick={() => setSelectedDate(cell.ymd)}
-                                        className={`flex-1 aspect-square rounded-full flex flex-col items-center justify-center min-w-[40px] min-h-[40px] ${isSelected ? 'bg-primary text-white' : isToday ? 'bg-primary/20 text-primary' : 'text-white/70 active:bg-white/10'}`}
-                                    >
-                                        <span className="text-sm font-medium">{cell.date.getDate()}</span>
-                                        {hasEvents && !isSelected && (
-                                            <span className="w-1 h-1 rounded-full bg-primary mt-0.5" />
-                                        )}
-                                    </button>
-                                );
-                            })}
                     </div>
                 </div>
 
@@ -641,7 +645,16 @@ export const Calendar = ({ initialDate }: { initialDate?: string }) => {
                 )}
 
                 <ConfirmDialog {...dialogProps} />
-                <FilePickerModal {...filePicker.modalProps} />
+                {filePicker.state.isOpen && (
+                    <FilePickerModal
+                        state={filePicker.state}
+                        onNavigateTo={filePicker.navigateTo}
+                        onSelectFile={filePicker.selectFile}
+                        onSetFileName={filePicker.setFileName}
+                        onConfirm={filePicker.confirm}
+                        onCancel={filePicker.cancel}
+                    />
+                )}
             </div>
         );
     }

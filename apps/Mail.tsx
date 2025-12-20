@@ -388,8 +388,8 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
     // F238: Phone-optimized tabbed layout
     if (isPhone) {
         const phoneTabs = [
-            { id: 'inbox' as const, label: t('inbox'), icon: 'inbox' },
-            { id: 'compose' as const, label: t('compose'), icon: 'edit' },
+            { value: 'inbox' as const, label: t('inbox'), icon: 'inbox' },
+            { value: 'compose' as const, label: t('compose'), icon: 'edit' },
         ];
 
         // Phone: Message detail view with back button
@@ -459,7 +459,7 @@ export const Mail: React.FC<MailProps> = ({ windowId }) => {
             <div className="h-full w-full bg-background-dark text-white flex flex-col">
                 {/* Tab header */}
                 <div className="shrink-0 p-3 pb-0">
-                    <TabSwitcher tabs={phoneTabs} activeTab={phoneTab} onTabChange={tab => setPhoneTab(tab)} />
+                    <TabSwitcher options={phoneTabs} value={phoneTab} onChange={tab => setPhoneTab(tab)} />
                 </div>
 
                 {phoneTab === 'inbox' ? (

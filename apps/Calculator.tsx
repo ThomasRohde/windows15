@@ -151,21 +151,22 @@ export const Calculator = () => {
         setAwaitingNext(true);
     };
 
+    const handleButtonPress = (v: string, isOp: boolean) => {
+        if (v === 'C') clear();
+        else if (v === '=') equals();
+        else if (v === '.') inputDecimal();
+        else if (v === '+/-') toggleSign();
+        else if (v === '%') percent();
+        else if (isOp) {
+            const mapped: Exclude<Operator, null> = v === '×' ? '*' : v === '÷' ? '/' : (v as Exclude<Operator, null>);
+            handleOperator(mapped);
+        } else inputDigit(v);
+    };
+
     const Btn = ({ v, op, wide }: { v: string; op?: boolean; wide?: boolean }) => (
         <button
             type="button"
-            onClick={() => {
-                if (v === 'C') clear();
-                else if (v === '=') equals();
-                else if (v === '.') inputDecimal();
-                else if (v === '+/-') toggleSign();
-                else if (v === '%') percent();
-                else if (op) {
-                    const mapped: Exclude<Operator, null> =
-                        v === '×' ? '*' : v === '÷' ? '/' : (v as Exclude<Operator, null>);
-                    handleOperator(mapped);
-                } else inputDigit(v);
-            }}
+            onClick={() => handleButtonPress(v, !!op)}
             className={`${wide ? 'col-span-2' : ''} h-14 rounded-lg text-xl font-medium transition-all active:scale-95 flex items-center justify-center
                 ${op ? 'bg-orange-500 text-white hover:bg-orange-400' : 'bg-white/10 text-white hover:bg-white/20'}
                 ${v === 'C' ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30' : ''}
@@ -180,6 +181,7 @@ export const Calculator = () => {
             <div className="flex-1 bg-black/20 rounded-xl p-4 flex flex-col gap-2 min-h-0">
                 <div className="flex items-center justify-end gap-2">
                     <button
+                        type="button"
                         onClick={copyResult}
                         className={`rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors flex items-center gap-1 text-sm text-white/70 hover:text-white ${isPhone ? 'min-h-[44px] px-4' : 'px-3 py-1'}`}
                         title={t('copyResult')}
@@ -192,7 +194,7 @@ export const Calculator = () => {
                     <span className="text-5xl font-light text-white truncate">{display}</span>
                 </div>
             </div>
-            <div className="grid grid-cols-4 gap-2" style={{ touchAction: 'manipulation' }}>
+            <div className="grid grid-cols-4 gap-2">
                 <Btn v="C" />
                 <Btn v="+/-" />
                 <Btn v="%" />

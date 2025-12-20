@@ -586,7 +586,13 @@ export const Window: React.FC<WindowProps> = memo(function Window({ window, maxZ
                 ...outerStyle,
                 zIndex: window.zIndex,
             }}
-            onPointerDownCapture={() => focusWindow(window.id)}
+            onPointerDownCapture={() => {
+                // Only focus if not already the topmost window to avoid unnecessary re-renders
+                // that would orphan the event target and break click handlers
+                if (window.zIndex < maxZIndex) {
+                    setTimeout(() => focusWindow(window.id), 0);
+                }
+            }}
         >
             <div
                 className={`glass-panel flex h-full w-full flex-col overflow-hidden animate-pop-in ${isDragging || isResizing ? 'transition-none opacity-90' : 'transition-all duration-200'} ${window.isMaximized ? '' : 'shadow-2xl rounded-xl border border-white/10'}`}

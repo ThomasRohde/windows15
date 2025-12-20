@@ -153,6 +153,7 @@ export const Calculator = () => {
 
     const Btn = ({ v, op, wide }: { v: string; op?: boolean; wide?: boolean }) => (
         <button
+            type="button"
             onClick={() => {
                 if (v === 'C') clear();
                 else if (v === '=') equals();
@@ -179,6 +180,7 @@ export const Calculator = () => {
             <div className="flex-1 bg-black/20 rounded-xl p-4 flex flex-col gap-2">
                 <div className="flex items-center justify-end gap-2">
                     <button
+                        type="button"
                         onClick={copyResult}
                         className={`rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors flex items-center gap-1 text-sm text-white/70 hover:text-white ${isPhone ? 'min-h-[44px] px-4' : 'px-3 py-1'}`}
                         title={t('copyResult')}

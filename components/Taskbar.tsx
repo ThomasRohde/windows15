@@ -73,11 +73,10 @@ export const Taskbar = () => {
                     <button
                         data-testid="start-menu-button"
                         onClick={toggleStartMenu}
-                        className={`w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-all active:scale-95 group relative ${isStartMenuOpen ? 'bg-white/10' : ''}`}
+                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors active:scale-95 ${isStartMenuOpen ? 'bg-white/10' : ''}`}
                     >
-                        <div className="absolute inset-0 bg-primary/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <span
-                            className="material-symbols-outlined text-primary text-2xl relative z-10"
+                            className="material-symbols-outlined text-primary text-2xl"
                             style={{ fontVariationSettings: "'FILL' 1" }}
                         >
                             grid_view

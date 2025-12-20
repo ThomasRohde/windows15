@@ -305,7 +305,7 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
         const bgImage = fallbackImage || activeWallpaperUrl || '';
         return (
             <div
-                className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-700 ease-in-out transform scale-105"
+                className="fixed inset-0 z-0 bg-cover bg-center transition-all duration-700 ease-in-out transform scale-105"
                 style={{ backgroundImage: `url('${bgImage}')` }}
             >
                 <div className="absolute inset-0 bg-black/10 backdrop-blur-[0px]" />
@@ -323,7 +323,7 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
         <>
             <canvas
                 ref={canvasRef}
-                className="absolute inset-0 z-0"
+                className="fixed inset-0 z-0"
                 style={{
                     width: '100%',
                     height: '100%',

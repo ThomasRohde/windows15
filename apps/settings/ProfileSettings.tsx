@@ -52,12 +52,12 @@ export const ProfileSettings: React.FC = () => {
             <div className="bg-white/5 rounded-xl p-6 mb-6">
                 <div className="flex items-center gap-6">
                     {/* Avatar */}
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-2xl font-bold text-white shadow-lg">
+                    <div className="w-20 h-20 shrink-0 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl font-semibold text-white shadow-xl ring-4 ring-white/10">
                         {previewInitials}
                     </div>
 
                     {/* Name input */}
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                         <FormField label="Your name" id="profile-name" required>
                             <div className="flex gap-3">
                                 <input
@@ -67,12 +67,12 @@ export const ProfileSettings: React.FC = () => {
                                     onChange={e => setName(e.target.value)}
                                     onKeyDown={handleKeyDown}
                                     placeholder="Enter your name"
-                                    className="flex-1 h-10 px-4 bg-black/30 border border-white/10 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent"
+                                    className="flex-1 min-w-0 h-10 px-4 bg-black/30 border border-white/10 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent"
                                 />
                                 <button
                                     onClick={handleSave}
                                     disabled={!hasChanges || isSaving || !name.trim()}
-                                    className="h-10 px-4 bg-blue-500 hover:bg-blue-600 disabled:bg-white/10 disabled:text-white/40 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+                                    className="h-10 px-4 shrink-0 bg-blue-500 hover:bg-blue-600 disabled:bg-white/10 disabled:text-white/40 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
                                 >
                                     {isSaving ? (
                                         <span className="material-symbols-outlined animate-spin text-lg">

@@ -74,15 +74,6 @@ const HandoffItemRow: React.FC<{
                         </span>
                         <span>•</span>
                         <span>{formatRelativeTime(item.createdAt)}</span>
-                        {item.isSensitive && (
-                            <>
-                                <span>•</span>
-                                <span className="text-amber-400 flex items-center gap-1">
-                                    <Icon name="encrypted" size={12} />
-                                    {t('composer.sensitive')}
-                                </span>
-                            </>
-                        )}
                     </div>
                 </div>
             </div>

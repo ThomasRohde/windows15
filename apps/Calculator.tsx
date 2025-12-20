@@ -184,7 +184,7 @@ export const Calculator = () => {
                         title={t('copyResult')}
                     >
                         <span className="material-symbols-outlined text-base">content_copy</span>
-                        {t('common:actions.copy')}
+                        Copy
                     </button>
                 </div>
                 <div className="flex-1 flex items-end justify-end">

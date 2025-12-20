@@ -6352,12 +6352,34 @@
       "blockedBy": null,
       "lastWorkedOn": null,
       "notes": "Implementation: In Taskbar.tsx detect isPhone && orientation === 'landscape'. Render vertical layout with flex-col instead of flex-row. Position with left-0 instead of bottom-0. Update Window.tsx MAXIMIZED_BOTTOM_GAP logic to use left gap instead. Edge cases: Notch on left side in landscape-left orientation, may need to put taskbar on right. Dependencies: F232, F233. Context: Phone landscape has limited vertical space (390px), moving taskbar to side reclaims 48px vertical. Gotchas: Test both landscape-left and landscape-right orientations, notch position varies."
+    },
+    {
+      "id": "F235",
+      "category": "ui",
+      "priority": 2,
+      "description": "Window maximized gap reduced on phone for more screen real estate",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "MAXIMIZED_BOTTOM_GAP is 60px or less on phone portrait (down from 96px)",
+        "Gap accounts for taskbar position in landscape (left gap instead of bottom)",
+        "Windows use nearly full viewport height on phone",
+        "Maximized windows still show taskbar"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: In types.ts or Window.tsx, make MAXIMIZED_BOTTOM_GAP conditional on usePhoneMode. Portrait: 60px bottom gap. Landscape: 0px bottom gap but ~56px left gap for side taskbar. Edge cases: Ensure window content doesn't overlap taskbar. Dependencies: F232, F234. Context: 96px bottom gap wastes 15% of 640px landscape height. Gotchas: Safe area insets may add to gaps, don't double-count."
     }
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-20T10:20:43.027665",
-    "totalFeatures": 234,
+    "lastUpdated": "2025-12-20T10:20:51.435116",
+    "totalFeatures": 235,
     "passingFeatures": 231
   }
 }

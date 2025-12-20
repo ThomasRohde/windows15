@@ -60,15 +60,22 @@ export interface CreateShaderRuntimeOptions {
 export async function createShaderRuntime(options: CreateShaderRuntimeOptions = {}): Promise<WallpaperRuntime | null> {
     const { wgslCode, glslCode, wgslUrl, glslUrl, forceRuntime, useWorker } = options;
 
-    const preferredRuntime = forceRuntime ?? getPreferredRuntime();
+    const hasWgsl = Boolean(wgslCode || wgslUrl);
+    const hasGlsl = Boolean(glslCode || glslUrl);
+
+    let preferredRuntime = forceRuntime ?? getPreferredRuntime();
+    if (preferredRuntime === 'worker') {
+        preferredRuntime = getPreferredRuntime();
+    }
 
     // Try Web Worker runtime first if requested (F102)
-    if ((useWorker || forceRuntime === 'worker') && supportsOffscreenCanvas()) {
+    if ((useWorker || forceRuntime === 'worker') && supportsOffscreenCanvas() && hasGlsl) {
         try {
             console.log('[RuntimeFactory] Creating Web Worker runtime');
             return new WorkerWallpaperRuntime({
                 shaderUrl: wgslUrl,
                 glslUrl: glslUrl,
+                glslCode: glslCode,
             });
         } catch (error) {
             console.warn('[RuntimeFactory] Worker runtime creation failed, trying main thread:', error);
@@ -77,7 +84,7 @@ export async function createShaderRuntime(options: CreateShaderRuntimeOptions = 
     }
 
     // Try WebGPU first
-    if (preferredRuntime === 'webgpu') {
+    if (preferredRuntime === 'webgpu' && hasWgsl) {
         try {
             if (wgslUrl) {
                 return await createShaderRuntimeFromUrl(wgslUrl);
@@ -90,7 +97,7 @@ export async function createShaderRuntime(options: CreateShaderRuntimeOptions = 
     }
 
     // Try WebGL2
-    if (preferredRuntime === 'webgl2' || (preferredRuntime === 'webgpu' && isWebGL2Available())) {
+    if ((preferredRuntime === 'webgl2' || (preferredRuntime === 'webgpu' && isWebGL2Available())) && hasGlsl) {
         try {
             if (glslUrl) {
                 return await createWebGL2RuntimeFromUrl(glslUrl);

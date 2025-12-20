@@ -21,6 +21,45 @@ interface WallpaperHostProps {
     batterySaver?: boolean;
 }
 
+const stripQueryHash = (value: string): string => value.split('?')[0].split('#')[0];
+
+const getShaderLanguage = (value?: string): 'wgsl' | 'glsl' | null => {
+    if (!value) return null;
+    const normalized = stripQueryHash(value).toLowerCase();
+    if (normalized.endsWith('.wgsl')) return 'wgsl';
+    if (normalized.endsWith('.glsl') || normalized.endsWith('.frag') || normalized.endsWith('.vert')) return 'glsl';
+    return null;
+};
+
+const resolveShaderUrls = (
+    entry?: string,
+    fallback?: string
+): {
+    wgslUrl?: string;
+    glslUrl?: string;
+} => {
+    const entryType = getShaderLanguage(entry);
+    const fallbackType = getShaderLanguage(fallback);
+    let wgslUrl: string | undefined;
+    let glslUrl: string | undefined;
+
+    if (entryType === 'wgsl') {
+        wgslUrl = entry;
+    } else if (entryType === 'glsl') {
+        glslUrl = entry;
+    }
+
+    if (!glslUrl && fallbackType === 'glsl') {
+        glslUrl = fallback;
+    }
+
+    if (!wgslUrl && fallbackType === 'wgsl' && entryType !== 'glsl') {
+        wgslUrl = fallback;
+    }
+
+    return { wgslUrl, glslUrl };
+};
+
 /**
  * WallpaperHost - Renders live wallpaper behind the desktop
  *
@@ -127,10 +166,15 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
             try {
                 setRuntimeError(null);
 
+                const { wgslUrl, glslUrl } = resolveShaderUrls(activeManifestEntry, activeManifestFallback);
+                if (!wgslUrl && !glslUrl) {
+                    throw new Error('Unsupported shader entry format');
+                }
+
                 // Create runtime with shader URLs from manifest
                 runtime = await createShaderRuntime({
-                    wgslUrl: activeManifestEntry,
-                    glslUrl: activeManifestFallback,
+                    wgslUrl,
+                    glslUrl,
                 });
 
                 if (!runtime) {

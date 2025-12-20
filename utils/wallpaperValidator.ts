@@ -108,15 +108,29 @@ export function validateWallpaperManifest(manifest: unknown): ValidationResult {
         }
     }
 
-    // Preview field - recommended
-    if (m.preview !== undefined) {
-        if (typeof m.preview !== 'string') {
-            errors.push('Field "preview" must be a string (URL or path)');
-        } else if (!isValidUrl(m.preview) && !isValidPath(m.preview)) {
-            errors.push('Field "preview" must be a valid URL or relative path');
-        }
+    // Preview field - required
+    if (typeof m.preview !== 'string' || m.preview.length === 0) {
+        errors.push('Missing or invalid required field: preview (must be a string URL or path)');
     } else {
-        warnings.push('Field "preview" is recommended for wallpaper display in gallery');
+        const previewIsUrl = isValidUrl(m.preview);
+        const previewIsPath = isValidPath(m.preview);
+
+        if (!previewIsUrl && !previewIsPath) {
+            errors.push('Field "preview" must be a valid URL or relative path');
+        } else if (previewIsPath) {
+            if (!hasAllowedExtension(m.preview, ALLOWED_EXTENSIONS.preview)) {
+                warnings.push(
+                    `Field "preview" has unexpected extension. Expected: ${ALLOWED_EXTENSIONS.preview.join(', ')}`
+                );
+            }
+        } else {
+            const previewPath = getUrlPathname(m.preview);
+            if (previewPath && !hasAllowedExtension(previewPath, ALLOWED_EXTENSIONS.preview)) {
+                warnings.push(
+                    `Field "preview" has unexpected extension. Expected: ${ALLOWED_EXTENSIONS.preview.join(', ')}`
+                );
+            }
+        }
     }
 
     // Fallback field - optional, for shader types
@@ -125,6 +139,10 @@ export function validateWallpaperManifest(manifest: unknown): ValidationResult {
             errors.push('Field "fallback" must be a string');
         } else if (!isValidPath(m.fallback)) {
             errors.push('Field "fallback" contains invalid characters or path traversal');
+        } else if (!hasAllowedExtension(m.fallback, ALLOWED_EXTENSIONS.shader)) {
+            warnings.push(
+                `Field "fallback" has unexpected extension. Expected: ${ALLOWED_EXTENSIONS.shader.join(', ')}`
+            );
         }
     }
 
@@ -145,14 +163,19 @@ export function validateWallpaperManifest(manifest: unknown): ValidationResult {
 
     // Default settings field - optional
     if (m.defaultSettings !== undefined) {
-        if (typeof m.defaultSettings !== 'object' || m.defaultSettings === null) {
+        if (typeof m.defaultSettings !== 'object' || m.defaultSettings === null || Array.isArray(m.defaultSettings)) {
             errors.push('Field "defaultSettings" must be an object');
         } else {
             const settings = m.defaultSettings as Record<string, unknown>;
 
             // Validate intensity
             if (settings.intensity !== undefined) {
-                if (typeof settings.intensity !== 'number' || settings.intensity < 0 || settings.intensity > 1) {
+                if (
+                    typeof settings.intensity !== 'number' ||
+                    !Number.isFinite(settings.intensity) ||
+                    settings.intensity < 0 ||
+                    settings.intensity > 1
+                ) {
                     errors.push('defaultSettings.intensity must be a number between 0 and 1');
                 }
             }
@@ -168,6 +191,25 @@ export function validateWallpaperManifest(manifest: unknown): ValidationResult {
             if (settings.quality !== undefined) {
                 if (!['low', 'med', 'high'].includes(settings.quality as string)) {
                     errors.push('defaultSettings.quality must be "low", "med", or "high"');
+                }
+            }
+
+            // Validate audioReactive
+            if (settings.audioReactive !== undefined) {
+                if (typeof settings.audioReactive !== 'boolean') {
+                    errors.push('defaultSettings.audioReactive must be a boolean');
+                }
+            }
+
+            // Validate micSensitivity
+            if (settings.micSensitivity !== undefined) {
+                if (
+                    typeof settings.micSensitivity !== 'number' ||
+                    !Number.isFinite(settings.micSensitivity) ||
+                    settings.micSensitivity < 0 ||
+                    settings.micSensitivity > 1
+                ) {
+                    errors.push('defaultSettings.micSensitivity must be a number between 0 and 1');
                 }
             }
         }
@@ -187,19 +229,28 @@ function isValidPath(path: string): boolean {
     // Reject empty paths
     if (!path || path.length === 0) return false;
 
+    let decoded: string;
+    try {
+        decoded = decodeURIComponent(path);
+    } catch {
+        return false;
+    }
+
+    const normalized = decoded.replace(/\\/g, '/');
+
     // Reject absolute paths
-    if (path.startsWith('/') || path.startsWith('\\') || /^[a-zA-Z]:/.test(path)) {
+    if (normalized.startsWith('/') || /^[a-zA-Z]:/.test(normalized)) {
         return false;
     }
 
     // Reject path traversal
-    if (path.includes('..') || path.includes('~')) {
+    if (normalized.includes('..') || normalized.includes('~')) {
         return false;
     }
 
     // Reject dangerous characters
     // eslint-disable-next-line no-control-regex
-    if (/[<>"|?*\x00-\x1f]/.test(path)) {
+    if (/[<>:"|?*\x00-\x1f]/.test(normalized)) {
         return false;
     }
 
@@ -224,6 +275,17 @@ function isValidUrl(str: string): boolean {
 function hasAllowedExtension(path: string, extensions: string[]): boolean {
     const lower = path.toLowerCase();
     return extensions.some(ext => lower.endsWith(ext));
+}
+
+/**
+ * Extract the pathname from a URL string, returning undefined on failure
+ */
+function getUrlPathname(urlString: string): string | undefined {
+    try {
+        return new URL(urlString).pathname;
+    } catch {
+        return undefined;
+    }
 }
 
 /**

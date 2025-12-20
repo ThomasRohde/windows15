@@ -20,7 +20,7 @@ import type { WallpaperSettings } from '../types/wallpaper';
  * Message types from main thread to worker
  */
 export interface WorkerMessage {
-    type: 'init' | 'resize' | 'settings' | 'audio' | 'start' | 'stop' | 'dispose';
+    type: 'handshake' | 'init' | 'resize' | 'settings' | 'audio' | 'start' | 'stop' | 'dispose';
     payload?: unknown;
 }
 
@@ -29,6 +29,7 @@ export interface InitPayload {
     settings: WallpaperSettings;
     shaderUrl?: string;
     glslUrl?: string;
+    glslCode?: string;
 }
 
 export interface ResizePayload {
@@ -253,8 +254,8 @@ self.onmessage = async (event: MessageEvent<WorkerMessage>) => {
             settings = initPayload.settings;
 
             // Try to fetch custom shader if provided
-            let fragmentShader: string | undefined;
-            if (initPayload.glslUrl) {
+            let fragmentShader: string | undefined = initPayload.glslCode;
+            if (!fragmentShader && initPayload.glslUrl) {
                 try {
                     const response = await fetch(initPayload.glslUrl);
                     if (response.ok) {
@@ -310,6 +311,10 @@ self.onmessage = async (event: MessageEvent<WorkerMessage>) => {
                 lastFrameTime = startTime;
                 animationId = requestAnimationFrame(renderLoop);
             }
+            break;
+
+        case 'handshake':
+            self.postMessage({ type: 'ready' } as WorkerResponse);
             break;
 
         case 'stop':

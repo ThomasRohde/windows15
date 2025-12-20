@@ -101,34 +101,64 @@ describe('validateWallpaperManifest', () => {
         expect(result.errors.some(e => e.includes('path traversal'))).toBe(true);
     });
 
+    it('should reject encoded path traversal in entry', () => {
+        const manifest = {
+            id: 'test',
+            name: 'Test',
+            type: 'shader',
+            entry: 'shaders/%2e%2e/%2e%2e/secret.wgsl',
+        };
+        const result = validateWallpaperManifest(manifest);
+        expect(result.valid).toBe(false);
+        expect(result.errors.some(e => e.includes('entry'))).toBe(true);
+    });
+
     it('should reject absolute paths in entry', () => {
         const manifest = { id: 'test', name: 'Test', type: 'shader', entry: '/etc/passwd' };
         const result = validateWallpaperManifest(manifest);
         expect(result.valid).toBe(false);
     });
 
+    it('should reject URL entries for shader type', () => {
+        const manifest = {
+            id: 'test',
+            name: 'Test',
+            type: 'shader',
+            entry: 'https://example.com/shader.wgsl',
+        };
+        const result = validateWallpaperManifest(manifest);
+        expect(result.valid).toBe(false);
+        expect(result.errors.some(e => e.includes('entry'))).toBe(true);
+    });
+
     it('should validate id format (lowercase, hyphens, numbers)', () => {
-        const validId = { id: 'my-wallpaper-123', name: 'Test', type: 'image' };
+        const validId = { id: 'my-wallpaper-123', name: 'Test', type: 'image', preview: 'preview.jpg' };
         expect(validateWallpaperManifest(validId).valid).toBe(true);
 
-        const invalidId = { id: 'My_Wallpaper!', name: 'Test', type: 'image' };
+        const invalidId = { id: 'My_Wallpaper!', name: 'Test', type: 'image', preview: 'preview.jpg' };
         const result = validateWallpaperManifest(invalidId);
         expect(result.valid).toBe(false);
         expect(result.errors.some(e => e.includes('lowercase'))).toBe(true);
     });
 
-    it('should warn when preview is missing', () => {
+    it('should require preview field', () => {
         const manifest = { id: 'test', name: 'Test', type: 'image' };
         const result = validateWallpaperManifest(manifest);
-        expect(result.valid).toBe(true); // Still valid, just a warning
-        expect(result.warnings.some(w => w.includes('preview'))).toBe(true);
+        expect(result.valid).toBe(false);
+        expect(result.errors.some(e => e.includes('preview'))).toBe(true);
     });
 
     it('should validate tags as array of strings', () => {
-        const validTags = { id: 'test', name: 'Test', type: 'image', tags: ['one', 'two'] };
+        const validTags = { id: 'test', name: 'Test', type: 'image', preview: 'preview.jpg', tags: ['one', 'two'] };
         expect(validateWallpaperManifest(validTags).valid).toBe(true);
 
-        const invalidTags = { id: 'test', name: 'Test', type: 'image', tags: 'not-an-array' };
+        const invalidTags = {
+            id: 'test',
+            name: 'Test',
+            type: 'image',
+            preview: 'preview.jpg',
+            tags: 'not-an-array',
+        };
         expect(validateWallpaperManifest(invalidTags).valid).toBe(false);
     });
 
@@ -137,7 +167,8 @@ describe('validateWallpaperManifest', () => {
             id: 'test',
             name: 'Test',
             type: 'image',
-            defaultSettings: { intensity: 0.5, fpsCap: 30, quality: 'high' },
+            preview: 'preview.jpg',
+            defaultSettings: { intensity: 0.5, fpsCap: 30, quality: 'high', audioReactive: true, micSensitivity: 0.7 },
         };
         expect(validateWallpaperManifest(validSettings).valid).toBe(true);
 
@@ -145,6 +176,7 @@ describe('validateWallpaperManifest', () => {
             id: 'test',
             name: 'Test',
             type: 'image',
+            preview: 'preview.jpg',
             defaultSettings: { intensity: 2.0 },
         };
         expect(validateWallpaperManifest(invalidIntensity).valid).toBe(false);
@@ -153,9 +185,59 @@ describe('validateWallpaperManifest', () => {
             id: 'test',
             name: 'Test',
             type: 'image',
+            preview: 'preview.jpg',
             defaultSettings: { fpsCap: 120 },
         };
         expect(validateWallpaperManifest(invalidFps).valid).toBe(false);
+
+        const invalidAudioReactive = {
+            id: 'test',
+            name: 'Test',
+            type: 'image',
+            preview: 'preview.jpg',
+            defaultSettings: { audioReactive: 'yes' },
+        };
+        expect(validateWallpaperManifest(invalidAudioReactive).valid).toBe(false);
+
+        const invalidMicSensitivity = {
+            id: 'test',
+            name: 'Test',
+            type: 'image',
+            preview: 'preview.jpg',
+            defaultSettings: { micSensitivity: 2 },
+        };
+        expect(validateWallpaperManifest(invalidMicSensitivity).valid).toBe(false);
+    });
+
+    it('should reject non-object defaultSettings', () => {
+        const invalidDefaultSettings = {
+            id: 'test',
+            name: 'Test',
+            type: 'image',
+            preview: 'preview.jpg',
+            defaultSettings: ['not', 'an', 'object'],
+        };
+        expect(validateWallpaperManifest(invalidDefaultSettings).valid).toBe(false);
+    });
+
+    it('should reject non-finite numeric defaultSettings values', () => {
+        const invalidIntensity = {
+            id: 'test',
+            name: 'Test',
+            type: 'image',
+            preview: 'preview.jpg',
+            defaultSettings: { intensity: Number.NaN },
+        };
+        expect(validateWallpaperManifest(invalidIntensity).valid).toBe(false);
+
+        const invalidMicSensitivity = {
+            id: 'test',
+            name: 'Test',
+            type: 'image',
+            preview: 'preview.jpg',
+            defaultSettings: { micSensitivity: Number.POSITIVE_INFINITY },
+        };
+        expect(validateWallpaperManifest(invalidMicSensitivity).valid).toBe(false);
     });
 });
 

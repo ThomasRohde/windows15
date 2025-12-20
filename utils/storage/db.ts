@@ -139,6 +139,7 @@ export type NotificationRecord = {
     message: string; // Notification body
     type: 'success' | 'error' | 'warning' | 'info'; // Notification type
     appId?: string; // Source app that created the notification
+    showBrowserNotification?: boolean; // Whether to show browser notification
     isRead: boolean; // Whether the notification has been read
     scheduledFor?: number; // Unix timestamp for scheduled notifications
     triggeredAt?: number; // When the notification was actually shown
@@ -419,7 +420,25 @@ export class Windows15DexieDB extends Dexie {
         });
 
         // Version 13: Notification center (F157)
-        this.version(13).stores({});
+        this.version(13).stores({
+            kv: 'key, updatedAt',
+            notes: '@id, updatedAt, createdAt',
+            bookmarks: '@id, folder, updatedAt, createdAt',
+            todos: '@id, completed, priority, dueDate, sortOrder, updatedAt, createdAt',
+            desktopIcons: '@id, order, updatedAt, createdAt',
+            $terminalHistory: '++id, executedAt',
+            $screensaverSettings: 'id, updatedAt, createdAt',
+            $terminalSessions: '++id, updatedAt, createdAt',
+            $terminalAliases: 'name, updatedAt, createdAt',
+            $wallpapers: 'id, type, installedAt, updatedAt',
+            $wallpaperAssets: '++id, wallpaperId, path, createdAt',
+            $arcadeGames: 'id, type, lastPlayedAt, createdAt, updatedAt',
+            $arcadeSaves: '++id, gameId, slot, createdAt, updatedAt',
+            emails: '@id, folderId, date, isRead, updatedAt, createdAt',
+            emailFolders: 'id, type, updatedAt, createdAt',
+            appState: '&appId, updatedAt',
+            notifications: '@id, type, isRead, scheduledFor, createdAt',
+        });
 
         // Version 14: Clipboard history (F164)
         this.version(14).stores({

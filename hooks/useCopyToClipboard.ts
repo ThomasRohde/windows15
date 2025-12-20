@@ -3,7 +3,7 @@
  * @module hooks/useCopyToClipboard
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { copyTextToClipboard, readTextFromClipboard } from '../utils/clipboard';
 
 /**
@@ -38,6 +38,21 @@ import { copyTextToClipboard, readTextFromClipboard } from '../utils/clipboard';
 export function useCopyToClipboard(timeout = 2000) {
     const [copied, setCopied] = useState<string | null>(null);
     const [pasted, setPasted] = useState<string | null>(null);
+    const copiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const pastedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (copiedTimeoutRef.current) {
+                clearTimeout(copiedTimeoutRef.current);
+                copiedTimeoutRef.current = null;
+            }
+            if (pastedTimeoutRef.current) {
+                clearTimeout(pastedTimeoutRef.current);
+                pastedTimeoutRef.current = null;
+            }
+        };
+    }, []);
 
     const copy = useCallback(
         async (text: string, label?: string): Promise<boolean> => {
@@ -45,7 +60,10 @@ export function useCopyToClipboard(timeout = 2000) {
             if (!ok) return false;
 
             setCopied(label ?? text);
-            setTimeout(() => setCopied(null), timeout);
+            if (copiedTimeoutRef.current) {
+                clearTimeout(copiedTimeoutRef.current);
+            }
+            copiedTimeoutRef.current = setTimeout(() => setCopied(null), timeout);
             return true;
         },
         [timeout]
@@ -55,7 +73,10 @@ export function useCopyToClipboard(timeout = 2000) {
         const text = await readTextFromClipboard();
         if (text) {
             setPasted(text);
-            setTimeout(() => setPasted(null), timeout);
+            if (pastedTimeoutRef.current) {
+                clearTimeout(pastedTimeoutRef.current);
+            }
+            pastedTimeoutRef.current = setTimeout(() => setPasted(null), timeout);
         }
         return text;
     }, [timeout]);

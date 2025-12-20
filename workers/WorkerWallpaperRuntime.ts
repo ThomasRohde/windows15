@@ -20,7 +20,11 @@ import type {
  * Check if OffscreenCanvas is supported
  */
 export function supportsOffscreenCanvas(): boolean {
-    return typeof OffscreenCanvas !== 'undefined' && 'transferControlToOffscreen' in HTMLCanvasElement.prototype;
+    return (
+        typeof OffscreenCanvas !== 'undefined' &&
+        typeof HTMLCanvasElement !== 'undefined' &&
+        'transferControlToOffscreen' in HTMLCanvasElement.prototype
+    );
 }
 
 /**
@@ -29,6 +33,7 @@ export function supportsOffscreenCanvas(): boolean {
 export interface WorkerRuntimeOptions {
     shaderUrl?: string;
     glslUrl?: string;
+    glslCode?: string;
 }
 
 /**
@@ -78,7 +83,12 @@ export class WorkerWallpaperRuntime implements WallpaperRuntime {
         });
 
         // Wait for worker to be ready
-        await this.waitForWorkerMessage('ready');
+        const readyPromise = this.waitForWorkerMessage('ready', 'error');
+        this.worker.postMessage({ type: 'handshake' } as WorkerMessage);
+        const readyResponse = await readyPromise;
+        if (readyResponse.type === 'error') {
+            throw new Error(readyResponse.payload as string);
+        }
 
         // Transfer canvas control to worker
         this.offscreenCanvas = this.canvas.transferControlToOffscreen();
@@ -89,6 +99,7 @@ export class WorkerWallpaperRuntime implements WallpaperRuntime {
             settings: this.settings,
             shaderUrl: this.options.shaderUrl,
             glslUrl: this.options.glslUrl,
+            glslCode: this.options.glslCode,
         };
 
         this.worker.postMessage(
@@ -109,26 +120,50 @@ export class WorkerWallpaperRuntime implements WallpaperRuntime {
     /**
      * Wait for a specific message type from worker
      */
-    private waitForWorkerMessage(...expectedTypes: string[]): Promise<WorkerResponse> {
+    private waitForWorkerMessage(...expectedTypes: WorkerResponse['type'][]): Promise<WorkerResponse> {
         return new Promise((resolve, reject) => {
-            if (!this.worker) {
+            const worker = this.worker;
+            if (!worker) {
                 reject(new Error('Worker not created'));
                 return;
             }
 
+            let settled = false;
+            const cleanup = () => {
+                if (settled) return;
+                settled = true;
+                clearTimeout(timeout);
+                worker.removeEventListener('message', handleMessage);
+                worker.removeEventListener('error', handleError);
+                worker.removeEventListener('messageerror', handleMessageError);
+            };
+
             const timeout = setTimeout(() => {
+                cleanup();
                 reject(new Error('Worker message timeout'));
             }, 5000);
 
-            const handler = (event: MessageEvent<WorkerResponse>) => {
-                if (expectedTypes.includes(event.data.type)) {
-                    clearTimeout(timeout);
-                    this.worker?.removeEventListener('message', handler);
+            const handleMessage = (event: MessageEvent<WorkerResponse>) => {
+                if (event.data && expectedTypes.includes(event.data.type)) {
+                    cleanup();
                     resolve(event.data);
                 }
             };
 
-            this.worker.addEventListener('message', handler);
+            const handleError = (event: Event) => {
+                cleanup();
+                const message = 'message' in event ? String(event.message) : 'Worker error';
+                reject(new Error(message));
+            };
+
+            const handleMessageError = () => {
+                cleanup();
+                reject(new Error('Worker message error'));
+            };
+
+            worker.addEventListener('message', handleMessage);
+            worker.addEventListener('error', handleError);
+            worker.addEventListener('messageerror', handleMessageError);
         });
     }
 

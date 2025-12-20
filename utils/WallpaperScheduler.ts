@@ -80,7 +80,9 @@ export class WallpaperScheduler {
 
     // Battery status API
     private batteryManager: BatteryManager | null = null;
+    private batteryListener: (() => void) | null = null;
     private isOnBattery = false;
+    private isDisposed = false;
 
     constructor(config: Partial<SchedulerConfig> = {}) {
         this.config = {
@@ -205,6 +207,7 @@ export class WallpaperScheduler {
      * Dispose of the scheduler and clean up resources
      */
     dispose(): void {
+        this.isDisposed = true;
         this.stop();
 
         // Remove visibility listener
@@ -213,7 +216,10 @@ export class WallpaperScheduler {
             this.visibilityHandler = null;
         }
 
-        // Battery API doesn't need explicit cleanup
+        if (this.batteryManager && this.batteryListener) {
+            this.batteryManager.removeEventListener('chargingchange', this.batteryListener);
+            this.batteryListener = null;
+        }
         this.batteryManager = null;
     }
 
@@ -321,7 +327,11 @@ export class WallpaperScheduler {
         }
 
         try {
-            this.batteryManager = await (navigator as NavigatorWithBattery).getBattery();
+            const batteryManager = await (navigator as NavigatorWithBattery).getBattery();
+            if (this.isDisposed) {
+                return;
+            }
+            this.batteryManager = batteryManager;
 
             const updateBatteryStatus = () => {
                 if (this.batteryManager) {
@@ -331,6 +341,7 @@ export class WallpaperScheduler {
 
             updateBatteryStatus();
 
+            this.batteryListener = updateBatteryStatus;
             this.batteryManager.addEventListener('chargingchange', updateBatteryStatus);
         } catch (error) {
             // Battery API not available or denied

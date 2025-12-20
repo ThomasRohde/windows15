@@ -2,7 +2,7 @@
  * Tests for useLocalStorage hook
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 describe('useLocalStorage', () => {
@@ -47,6 +47,17 @@ describe('useLocalStorage', () => {
         });
 
         expect(result.current[0]).toBe(11);
+    });
+
+    it('should apply multiple functional updates in the same tick', () => {
+        const { result } = renderHook(() => useLocalStorage('counter-batch', 0));
+
+        act(() => {
+            result.current[1](prev => prev + 1);
+            result.current[1](prev => prev + 1);
+        });
+
+        expect(result.current[0]).toBe(2);
     });
 
     it('should work with complex objects', () => {
@@ -127,5 +138,22 @@ describe('useLocalStorage', () => {
         // Second reads from localStorage (updated by first)
         // Note: In real scenarios, storage events handle this, but we've mocked localStorage
         expect(JSON.parse(localStorage.getItem('sharedKey') || '')).toBe('updated');
+    });
+
+    it('should update when the storage key changes', async () => {
+        localStorage.setItem('firstKey', JSON.stringify('firstValue'));
+        localStorage.setItem('secondKey', JSON.stringify('secondValue'));
+
+        const { result, rerender } = renderHook(({ storageKey }) => useLocalStorage(storageKey, 'defaultValue'), {
+            initialProps: { storageKey: 'firstKey' },
+        });
+
+        expect(result.current[0]).toBe('firstValue');
+
+        rerender({ storageKey: 'secondKey' });
+
+        await waitFor(() => {
+            expect(result.current[0]).toBe('secondValue');
+        });
     });
 });

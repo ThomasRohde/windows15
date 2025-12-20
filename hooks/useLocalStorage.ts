@@ -12,58 +12,75 @@
  * const [settings, setSettings] = useLocalStorage<UserSettings>('settings', defaultSettings);
  * ```
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 const isTestEnv = typeof import.meta !== 'undefined' && import.meta.env?.MODE === 'test';
 
 export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((prev: T) => T)) => void] {
+    const initialValueRef = useRef(initialValue);
+
+    useEffect(() => {
+        initialValueRef.current = initialValue;
+    }, [initialValue]);
+
     // Get initial value from localStorage or use provided initial value
     const readValue = useCallback((): T => {
         if (typeof window === 'undefined') {
-            return initialValue;
+            return initialValueRef.current;
         }
 
         try {
             const item = window.localStorage.getItem(key);
-            return item ? (JSON.parse(item) as T) : initialValue;
+            return item ? (JSON.parse(item) as T) : initialValueRef.current;
         } catch (error) {
             if (!isTestEnv) {
                 console.warn(`Error reading localStorage key "${key}":`, error);
             }
-            return initialValue;
+            return initialValueRef.current;
         }
-    }, [key, initialValue]);
+    }, [key]);
 
     const [storedValue, setStoredValue] = useState<T>(readValue);
+
+    useEffect(() => {
+        setStoredValue(readValue());
+    }, [readValue]);
 
     // Persist to localStorage whenever value changes
     const setValue = useCallback(
         (value: T | ((prev: T) => T)) => {
-            try {
-                const valueToStore = value instanceof Function ? value(storedValue) : value;
-                setStoredValue(valueToStore);
+            setStoredValue(prev => {
+                const valueToStore = value instanceof Function ? value(prev) : value;
 
                 if (typeof window !== 'undefined') {
-                    window.localStorage.setItem(key, JSON.stringify(valueToStore));
+                    try {
+                        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+                    } catch (error) {
+                        if (!isTestEnv) {
+                            console.warn(`Error setting localStorage key "${key}":`, error);
+                        }
+                    }
                 }
-            } catch (error) {
-                if (!isTestEnv) {
-                    console.warn(`Error setting localStorage key "${key}":`, error);
-                }
-            }
+
+                return valueToStore;
+            });
         },
-        [key, storedValue]
+        [key]
     );
 
     // Listen for changes in other tabs/windows
     useEffect(() => {
         const handleStorageChange = (event: StorageEvent) => {
-            if (event.key === key && event.newValue !== null) {
-                try {
-                    setStoredValue(JSON.parse(event.newValue) as T);
-                } catch {
-                    // Ignore parse errors
-                }
+            if (event.key !== key) return;
+            if (event.newValue === null) {
+                setStoredValue(initialValueRef.current);
+                return;
+            }
+
+            try {
+                setStoredValue(JSON.parse(event.newValue) as T);
+            } catch {
+                // Ignore parse errors
             }
         };
 

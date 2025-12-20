@@ -107,20 +107,38 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     // Trigger a scheduled notification
     const triggerNotification = useCallback(
         async (notification: NotificationRecord) => {
+            const triggeredAt = Date.now();
+
+            const updatedCount = await db.notifications
+                .where('id')
+                .equals(notification.id)
+                .and(n => !n.triggeredAt)
+                .modify({ triggeredAt });
+
+            if (updatedCount === 0) {
+                scheduledTimersRef.current.delete(notification.id);
+                return;
+            }
+
+            const latest = await db.notifications.get(notification.id);
+            if (!latest) {
+                scheduledTimersRef.current.delete(notification.id);
+                return;
+            }
+
             // Play sound
             soundService.play('notification');
 
-            // Update the notification as triggered
-            await db.notifications.update(notification.id, {
-                triggeredAt: Date.now(),
-            });
-
-            // Show browser notification if permission granted
-            if ('Notification' in window && window.Notification.permission === 'granted') {
-                const browserNotif = new window.Notification(notification.title, {
-                    body: notification.message,
+            // Show browser notification if permission granted and allowed
+            if (
+                latest.showBrowserNotification !== false &&
+                'Notification' in window &&
+                window.Notification.permission === 'granted'
+            ) {
+                const browserNotif = new window.Notification(latest.title, {
+                    body: latest.message,
                     icon: '/icon-192.png',
-                    tag: notification.id,
+                    tag: latest.id,
                 });
 
                 // Close after 5 seconds
@@ -166,6 +184,40 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         };
     }, [db, triggerNotification]);
 
+    // Keep scheduled timers in sync with database changes (other tabs/cloud sync)
+    useEffect(() => {
+        if (!notifications) return;
+
+        const timers = scheduledTimersRef.current;
+        const pendingIds = new Set(
+            notifications.filter(notification => notification.scheduledFor && !notification.triggeredAt).map(n => n.id)
+        );
+
+        timers.forEach((timerId, id) => {
+            if (!pendingIds.has(id)) {
+                clearTimeout(timerId);
+                timers.delete(id);
+            }
+        });
+
+        const now = Date.now();
+        for (const notification of notifications) {
+            if (!notification.scheduledFor || notification.triggeredAt) continue;
+            if (timers.has(notification.id)) continue;
+
+            const delay = notification.scheduledFor - now;
+            if (delay <= 0) {
+                void triggerNotification(notification);
+                continue;
+            }
+
+            const timerId = setTimeout(() => {
+                void triggerNotification(notification);
+            }, delay);
+            timers.set(notification.id, timerId);
+        }
+    }, [notifications, triggerNotification]);
+
     // Request browser notification permission
     const requestPermission = useCallback(async (): Promise<BrowserNotificationPermission> => {
         if (!('Notification' in window)) {
@@ -190,6 +242,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
                 message,
                 type: options.type ?? 'info',
                 appId: options.appId,
+                showBrowserNotification: options.showBrowserNotification ?? true,
                 isRead: false,
                 scheduledFor,
                 createdAt: now,
@@ -226,6 +279,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
                 message,
                 type: options.type ?? 'info',
                 appId: options.appId,
+                showBrowserNotification: options.showBrowserNotification ?? true,
                 isRead: false,
                 triggeredAt: now,
                 createdAt: now,

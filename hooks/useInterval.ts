@@ -3,7 +3,7 @@
  * @module hooks/useInterval
  */
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 
 /**
  * A hook that manages a setInterval with automatic cleanup.
@@ -79,7 +79,7 @@ export function useControllableInterval(
     const { autoStart = false } = options;
     const savedCallback = useRef(callback);
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-    const isRunningRef = useRef(autoStart);
+    const [isRunning, setIsRunning] = useState(autoStart);
 
     // Remember the latest callback
     useEffect(() => {
@@ -91,16 +91,28 @@ export function useControllableInterval(
             clearInterval(intervalRef.current);
             intervalRef.current = null;
         }
-        isRunningRef.current = false;
+        setIsRunning(false);
     }, []);
 
     const start = useCallback(() => {
         if (intervalRef.current !== null) {
             return; // Already running
         }
-        isRunningRef.current = true;
+        setIsRunning(true);
+    }, []);
+
+    useEffect(() => {
+        if (!isRunning) return;
+
         intervalRef.current = setInterval(() => savedCallback.current(), delay);
-    }, [delay]);
+
+        return () => {
+            if (intervalRef.current !== null) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
+        };
+    }, [delay, isRunning]);
 
     // Auto-start if configured
     useEffect(() => {
@@ -113,6 +125,6 @@ export function useControllableInterval(
     return {
         start,
         stop,
-        isRunning: isRunningRef.current,
+        isRunning,
     };
 }

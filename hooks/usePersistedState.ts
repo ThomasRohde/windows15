@@ -31,7 +31,7 @@
  * - Frequently changing values (can cause excessive IndexedDB writes)
  * - Large objects (> 1MB) - consider breaking into smaller keys
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { storageService } from '../utils/storage';
 
 export interface UsePersistedStateReturn<T> {
@@ -43,22 +43,29 @@ export interface UsePersistedStateReturn<T> {
 export function usePersistedState<T>(key: string, defaultValue: T): UsePersistedStateReturn<T> {
     const [value, setValueInternal] = useState<T>(defaultValue);
     const [isLoading, setIsLoading] = useState(true);
+    const defaultValueRef = useRef(defaultValue);
+
+    useEffect(() => {
+        defaultValueRef.current = defaultValue;
+    }, [defaultValue]);
 
     // Load initial value from storage
     useEffect(() => {
         let cancelled = false;
+        setIsLoading(true);
 
         const loadInitialValue = async () => {
             try {
                 const stored = await storageService.get<T>(key);
                 if (!cancelled) {
-                    setValueInternal(stored ?? defaultValue);
+                    const nextValue = stored === undefined ? defaultValueRef.current : stored;
+                    setValueInternal(nextValue);
                     setIsLoading(false);
                 }
             } catch (error) {
                 console.warn(`[usePersistedState] Error loading key "${key}":`, error);
                 if (!cancelled) {
-                    setValueInternal(defaultValue);
+                    setValueInternal(defaultValueRef.current);
                     setIsLoading(false);
                 }
             }
@@ -69,16 +76,18 @@ export function usePersistedState<T>(key: string, defaultValue: T): UsePersisted
         return () => {
             cancelled = true;
         };
-    }, [key, defaultValue]);
+    }, [key]);
 
     // Subscribe to changes (from other tabs/components)
     useEffect(() => {
         if (isLoading) return;
 
         const unsubscribe = storageService.subscribe<T>(key, newValue => {
-            if (newValue !== undefined) {
-                setValueInternal(newValue);
+            if (newValue === undefined) {
+                setValueInternal(defaultValueRef.current);
+                return;
             }
+            setValueInternal(newValue);
         });
 
         return unsubscribe;

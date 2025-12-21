@@ -1263,22 +1263,6 @@
       ".klondike/agent-progress.json",
       "agent-progress.md"
     ],
-    "priorityFeatures": [
-      {
-        "id": "F259",
-        "description": "Create iOS Shortcut 'Send to Windows15 Handoff' with share sheet integration",
-        "status": "not-started"
-      },
-      {
-        "id": "F260",
-        "description": "Create documentation page for iOS Share Sheet Shortcut setup and usage",
-        "status": "not-started"
-      },
-      {
-        "id": "F263",
-        "description": "Add optional Work and Private iOS Shortcut variants with preset targetCategory",
-        "status": "not-started"
-      }
-    ]
+    "priorityFeatures": []
   }
 }

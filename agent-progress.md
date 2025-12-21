@@ -28,11 +28,8 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                                    | Status         |
-| ---- | ------------------------------------------------------------------------------ | -------------- |
-| F259 | Create iOS Shortcut 'Send to Windows15 Handoff' with share sheet integration   | ⏳ Not started |
-| F260 | Create documentation page for iOS Share Sheet Shortcut setup and usage         | ⏳ Not started |
-| F263 | Add optional Work and Private iOS Shortcut variants with preset targetCategory | ⏳ Not started |
+| ID  | Description | Status |
+| --- | ----------- | ------ |
 
 ---
 

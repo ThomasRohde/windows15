@@ -128,12 +128,15 @@ export const SyncSettings = () => {
 
     // Scroll input into view when focused on mobile (iOS keyboard handling)
     const handleInputFocus = useCallback(() => {
-        if (isPhone && inputRef.current) {
-            // Delay to allow virtual keyboard to appear
-            setTimeout(() => {
-                inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 300);
-        }
+        if (!isPhone || !inputRef.current) return;
+
+        const scrollIntoView = () => {
+            inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        };
+
+        requestAnimationFrame(scrollIntoView);
+        // Delay to allow virtual keyboard to appear
+        setTimeout(scrollIntoView, 350);
     }, [isPhone]);
 
     const copyOrigin = async () => {
@@ -363,7 +366,7 @@ export const SyncSettings = () => {
                     }}
                     onFocus={handleInputFocus}
                     placeholder="https://<yourdb>.dexie.cloud"
-                    className="w-full min-h-[44px] px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30 allow-text-selection"
+                    className="w-full min-h-[44px] px-3 rounded-lg bg-black/30 border border-white/10 text-[16px] md:text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30 allow-text-selection"
                     style={{
                         WebkitUserSelect: 'text',
                         userSelect: 'text',

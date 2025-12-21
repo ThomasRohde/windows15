@@ -12,6 +12,7 @@ import { NetworkSettings } from './settings/NetworkSettings';
 import { DevicesSettings } from './settings/DevicesSettings';
 import { TouchSettings } from './settings/TouchSettings';
 import { useTranslation } from '../hooks/useTranslation';
+import { usePhoneMode, useVirtualKeyboard } from '../hooks';
 
 type SettingsSection =
     | 'account'
@@ -30,6 +31,9 @@ export const Settings = () => {
     const { t } = useTranslation('settings');
     const { activeWallpaper, setWallpaper } = useOS();
     const [activeSection, setActiveSection] = useState<SettingsSection>('account');
+    const isPhone = usePhoneMode();
+    const { isKeyboardVisible, keyboardHeight } = useVirtualKeyboard();
+    const keyboardPadding = isPhone && isKeyboardVisible ? keyboardHeight + 16 : 0;
 
     const sidebarItems: SidebarItem<SettingsSection>[] = [
         { id: 'account', label: t('general'), icon: 'person' },
@@ -73,7 +77,17 @@ export const Settings = () => {
                 </div>
 
                 {/* Scrollable content area */}
-                <div className="flex-1 p-4 md:p-8 overflow-y-auto touch-scroll">
+                <div
+                    className="flex-1 p-4 md:p-8 overflow-y-auto touch-scroll"
+                    style={
+                        keyboardPadding
+                            ? {
+                                  paddingBottom: keyboardPadding,
+                                  scrollPaddingBottom: keyboardPadding,
+                              }
+                            : undefined
+                    }
+                >
                     {activeSection === 'account' && <ProfileSettings />}
 
                     {activeSection === 'personalization' && (

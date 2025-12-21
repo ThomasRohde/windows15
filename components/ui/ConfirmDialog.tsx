@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { Button, type ButtonVariant } from './Button';
 
 export interface ConfirmDialogProps {
@@ -123,7 +124,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         return null;
     }
 
-    return (
+    const dialog = (
         <div
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm"
             onClick={handleBackdropClick}
@@ -168,6 +169,12 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             </div>
         </div>
     );
+
+    if (typeof document === 'undefined') {
+        return dialog;
+    }
+
+    return createPortal(dialog, document.body);
 };
 
 /**

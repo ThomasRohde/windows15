@@ -19,6 +19,7 @@
  */
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { getViewportSize } from '../../utils';
 
 export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
 
@@ -58,8 +59,7 @@ function calculatePosition(
     tooltipRect: DOMRect,
     preferredPosition: TooltipPosition
 ): TooltipCoords {
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
+    const { width: viewportWidth, height: viewportHeight } = getViewportSize();
 
     // Calculate coordinates for each position
     const positions: Record<TooltipPosition, { x: number; y: number }> = {
@@ -162,10 +162,14 @@ export const Tooltip: React.FC<TooltipProps> = ({
         // Update on scroll/resize
         window.addEventListener('scroll', updatePosition, true);
         window.addEventListener('resize', updatePosition);
+        window.visualViewport?.addEventListener('resize', updatePosition);
+        window.visualViewport?.addEventListener('scroll', updatePosition);
 
         return () => {
             window.removeEventListener('scroll', updatePosition, true);
             window.removeEventListener('resize', updatePosition);
+            window.visualViewport?.removeEventListener('resize', updatePosition);
+            window.visualViewport?.removeEventListener('scroll', updatePosition);
         };
     }, [isVisible, position]);
 

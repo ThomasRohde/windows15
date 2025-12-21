@@ -1,4 +1,5 @@
 import React from 'react';
+import { getWindowMaxRect } from '../utils';
 
 export type SnapZone = 'left' | 'right' | 'top' | 'none';
 
@@ -16,28 +17,31 @@ interface SnapZoneOverlayProps {
 export const SnapZoneOverlay: React.FC<SnapZoneOverlayProps> = ({ zone }) => {
     if (zone === 'none') return null;
 
+    const { x, y, width, height } = getWindowMaxRect();
+    const halfWidth = width / 2;
+
     const getZoneStyles = (): React.CSSProperties => {
         switch (zone) {
             case 'left':
                 return {
-                    left: 0,
-                    top: 0,
-                    width: '50%',
-                    height: '100%',
+                    left: x,
+                    top: y,
+                    width: halfWidth,
+                    height,
                 };
             case 'right':
                 return {
-                    right: 0,
-                    top: 0,
-                    width: '50%',
-                    height: '100%',
+                    left: x + halfWidth,
+                    top: y,
+                    width: halfWidth,
+                    height,
                 };
             case 'top':
                 return {
-                    left: 0,
-                    top: 0,
-                    width: '100%',
-                    height: '100%',
+                    left: x,
+                    top: y,
+                    width,
+                    height,
                 };
             default:
                 return {};

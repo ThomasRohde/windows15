@@ -8,6 +8,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useScreensaver } from '../context/ScreensaverContext';
 import { useLocalization } from '../context/LocalizationContext';
+import { getViewportSize } from '../utils';
 
 type Star = { x: number; y: number; z: number };
 type StarfieldState = { kind: 'starfield'; stars: Star[] };
@@ -42,11 +43,14 @@ export const Screensaver: React.FC = () => {
 
         // Set canvas to full screen
         const resizeCanvas = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            const { width, height } = getViewportSize();
+            canvas.width = width;
+            canvas.height = height;
         };
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
+        window.visualViewport?.addEventListener('resize', resizeCanvas);
+        window.visualViewport?.addEventListener('scroll', resizeCanvas);
 
         // Initialize animation
         const initAnimation = (): AnimationState => {
@@ -117,12 +121,13 @@ export const Screensaver: React.FC = () => {
 
             for (let i = 0; i < state.drops.length; i++) {
                 const text = state.chars[Math.floor(Math.random() * state.chars.length)];
-                if (text) ctx.fillText(text, i * 20, state.drops[i]! * 20);
+                const dropValue = state.drops[i] ?? 0;
+                if (text) ctx.fillText(text, i * 20, dropValue * 20);
 
-                if (state.drops[i]! * 20 > canvas.height && Math.random() > 0.975) {
+                if (dropValue * 20 > canvas.height && Math.random() > 0.975) {
                     state.drops[i] = 0;
                 }
-                state.drops[i]! += settings.animationSpeed;
+                state.drops[i] = dropValue + settings.animationSpeed;
             }
         };
 
@@ -293,6 +298,8 @@ export const Screensaver: React.FC = () => {
 
         return () => {
             window.removeEventListener('resize', resizeCanvas);
+            window.visualViewport?.removeEventListener('resize', resizeCanvas);
+            window.visualViewport?.removeEventListener('scroll', resizeCanvas);
             if (animationFrameRef.current !== null) {
                 cancelAnimationFrame(animationFrameRef.current);
             }

@@ -3,6 +3,7 @@
  * @module hooks/useContextMenu
  */
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { getViewportSize } from '../utils';
 
 /**
  * Position for context menu
@@ -110,15 +111,16 @@ export function useContextMenu<T = undefined>(options: UseContextMenuOptions = {
         (clientX: number, clientY: number): ContextMenuPosition => {
             let x = clientX;
             let y = clientY;
+            const { width: viewportWidth, height: viewportHeight } = getViewportSize();
 
             // Ensure menu doesn't go off the right edge
-            if (x + menuWidth > window.innerWidth - padding) {
-                x = window.innerWidth - menuWidth - padding;
+            if (x + menuWidth > viewportWidth - padding) {
+                x = viewportWidth - menuWidth - padding;
             }
 
             // Ensure menu doesn't go off the bottom edge
-            if (y + menuHeight > window.innerHeight - padding) {
-                y = window.innerHeight - menuHeight - padding;
+            if (y + menuHeight > viewportHeight - padding) {
+                y = viewportHeight - menuHeight - padding;
             }
 
             // Ensure menu doesn't go off the left/top edge

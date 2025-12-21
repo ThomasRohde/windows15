@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useNotificationCenter } from '../context/NotificationContext';
+import { getViewportSize } from '../utils';
 
 /**
  * GestureHandler component that detects edge swipes and triggers actions.
@@ -20,7 +21,7 @@ export const GestureHandler: React.FC = () => {
 
         const handleTouchStart = (e: globalThis.TouchEvent) => {
             const touch = e.touches[0];
-            const screenWidth = window.innerWidth;
+            const { width: screenWidth } = getViewportSize();
 
             // Detect if touch started from right edge
             if (touch.clientX > screenWidth - EDGE_THRESHOLD) {

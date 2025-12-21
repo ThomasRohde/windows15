@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { getViewportSize } from '../utils';
 
 /**
  * Keeps CSS viewport variables in sync with the actual visual viewport.
@@ -12,9 +13,7 @@ export const useViewportCssVars = (): void => {
         let rafId: number | null = null;
 
         const apply = () => {
-            const viewport = window.visualViewport;
-            const width = viewport?.width ?? window.innerWidth;
-            const height = viewport?.height ?? window.innerHeight;
+            const { width, height } = getViewportSize();
             root.style.setProperty('--app-vw', `${Math.round(width)}px`);
             root.style.setProperty('--app-vh', `${Math.round(height)}px`);
         };

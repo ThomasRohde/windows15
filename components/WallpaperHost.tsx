@@ -11,6 +11,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { useWallpaper } from '../context/WallpaperContext';
 import type { WallpaperRuntime } from '../types/wallpaper';
 import { WallpaperScheduler } from '../utils/WallpaperScheduler';
+import { getViewportSize } from '../utils';
 import { createShaderRuntime, getPreferredRuntime, type RuntimeType } from '../runtime';
 import { AudioAnalyzer, type AnalyzerState } from '../utils/audio';
 
@@ -213,8 +214,7 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
                 // Initial canvas sizing
                 const dpr = window.devicePixelRatio || 1;
                 const scale = scheduler.resolutionScale ?? 1;
-                const width = window.innerWidth;
-                const height = window.innerHeight;
+                const { width, height } = getViewportSize();
                 canvas.width = Math.floor(width * dpr * scale);
                 canvas.height = Math.floor(height * dpr * scale);
                 canvas.style.width = `${width}px`;
@@ -226,8 +226,7 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
                     if (!runtime || disposed) return;
                     const dpr = window.devicePixelRatio || 1;
                     const scale = schedulerRef.current?.resolutionScale ?? 1;
-                    const w = window.innerWidth;
-                    const h = window.innerHeight;
+                    const { width: w, height: h } = getViewportSize();
                     canvas.width = Math.floor(w * dpr * scale);
                     canvas.height = Math.floor(h * dpr * scale);
                     canvas.style.width = `${w}px`;
@@ -235,6 +234,8 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
                     runtime.resize(w, h, dpr * scale);
                 };
                 window.addEventListener('resize', handleResize);
+                window.visualViewport?.addEventListener('resize', handleResize);
+                window.visualViewport?.addEventListener('scroll', handleResize);
 
                 // Start render loop
                 scheduler.start((timestamp: number) => {
@@ -269,6 +270,8 @@ export const WallpaperHost: React.FC<WallpaperHostProps> = ({ fallbackImage, bat
                 const handler = (schedulerRef.current as unknown as { _resizeHandler?: () => void })._resizeHandler;
                 if (handler) {
                     window.removeEventListener('resize', handler);
+                    window.visualViewport?.removeEventListener('resize', handler);
+                    window.visualViewport?.removeEventListener('scroll', handler);
                 }
                 schedulerRef.current.stop();
                 schedulerRef.current.dispose();

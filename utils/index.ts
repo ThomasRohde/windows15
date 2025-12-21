@@ -36,3 +36,7 @@ export { generateUuid, createId } from './uuid';
 // Sound service
 export { soundService } from './soundService';
 export type { SoundSettings, SystemSound } from './soundService';
+
+// Viewport utilities
+export type { ViewportSize, WindowMaxInsets, WindowMaxRect } from './viewport';
+export { getViewportSize, getWindowMaxInsets, getWindowMaxRect } from './viewport';

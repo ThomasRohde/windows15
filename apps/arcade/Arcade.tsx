@@ -30,6 +30,7 @@ import {
 import type { Wasm4State } from './Wasm4Runtime';
 import { useConfirmDialog, ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { useTranslation } from '../../hooks/useTranslation';
+import { getViewportSize } from '../../utils';
 
 /**
  * View modes for the arcade app
@@ -241,8 +242,7 @@ export const Arcade: React.FC = () => {
     // Calculate integer scale for fullscreen
     useEffect(() => {
         if (isFullscreen && containerRef.current) {
-            const containerWidth = window.innerWidth;
-            const containerHeight = window.innerHeight;
+            const { width: containerWidth, height: containerHeight } = getViewportSize();
             const scaleX = Math.floor(containerWidth / SCREEN_WIDTH);
             const scaleY = Math.floor(containerHeight / SCREEN_HEIGHT);
             setScale(Math.min(scaleX, scaleY, 8));

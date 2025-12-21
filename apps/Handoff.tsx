@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { useHandoff, useHandoffItems, useNotification, useTouchDevice } from '../hooks';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useHandoff, useHandoffItems, useNotification, useTouchDevice, usePhoneMode } from '../hooks';
 import { useTranslation } from '../hooks/useTranslation';
 import {
     AppContainer,
@@ -11,7 +11,6 @@ import {
     TextArea,
     Checkbox,
     TextInput,
-    TabSwitcher,
 } from '../components/ui';
 import { HandoffStatus, HandoffItem } from '../types';
 import { formatRelativeTime } from '../utils/timeFormatters';
@@ -179,7 +178,7 @@ const HandoffItemRow: React.FC<{
  * Handoff - Cross-device item queue application (F191)
  *
  * Displays items sent from other devices and allows quick actions.
- * F231: Mobile-optimized with tabbed layout for touch devices
+ * F231: Phone-optimized with share sheet composer
  */
 export const Handoff: React.FC = () => {
     const { t } = useTranslation('handoff');
@@ -188,14 +187,13 @@ export const Handoff: React.FC = () => {
     const items = useHandoffItems(statusFilter === 'all' ? undefined : statusFilter);
     const notify = useNotification();
     const isTouchDevice = useTouchDevice();
+    const isPhone = usePhoneMode();
 
     const [inputText, setInputText] = useState('');
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
     const [targetCategory, setTargetCategory] = useState<'private' | 'work' | 'any'>('any');
     const [isSending, setIsSending] = useState(false);
-
-    // F231: Mobile tab state (Compose/Inbox)
-    const [activeTab, setActiveTab] = useState<'compose' | 'inbox'>('inbox');
+    const [isComposeSheetOpen, setIsComposeSheetOpen] = useState(false);
 
     // F200: Sensitive mode state
     const [isSensitive, setIsSensitive] = useState(false);
@@ -204,6 +202,12 @@ export const Handoff: React.FC = () => {
 
     // F201: Work mode state
     const [isWorkMode, setIsWorkMode] = useState(false);
+
+    useEffect(() => {
+        if (!isPhone) {
+            setIsComposeSheetOpen(false);
+        }
+    }, [isPhone]);
 
     const handleOpen = (item: HandoffItem) => {
         markOpened(item.id);
@@ -263,13 +267,16 @@ export const Handoff: React.FC = () => {
             if (isSensitive) setPassphrase('');
 
             notify.success(t('notifications.sentTo', { category: targetCategory }));
+            if (isPhone) {
+                setIsComposeSheetOpen(false);
+            }
         } catch (error) {
             console.error('Handoff send error:', error);
             notify.error(t('notifications.failedMessage'));
         } finally {
             setIsSending(false);
         }
-    }, [inputText, targetCategory, send, notify, isSending, t, isSensitive, passphrase, isWorkMode]);
+    }, [inputText, targetCategory, send, notify, isSending, t, isSensitive, passphrase, isWorkMode, isPhone]);
 
     const handleManualPaste = useCallback(async () => {
         try {
@@ -313,116 +320,135 @@ export const Handoff: React.FC = () => {
         }
     };
 
-    // Compose Panel Component (used in both split and tabbed layouts)
+    // Compose Panel Component (used in both split and sheet layouts)
     // On touch devices, add extra bottom padding to account for taskbar + safe area
-    const composePanel = (
-        <div
-            className={`h-full flex flex-col p-4 md:p-4 bg-white/5 md:border-r border-white/10 ${isTouchDevice ? 'pb-24' : ''}`}
-        >
-            <div className="mb-4">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-white/50 mb-1">{t('composer.title')}</h2>
-                <p className="text-xs text-white/30">{t('composer.description')}</p>
-            </div>
+    const renderComposePanel = (variant: 'pane' | 'sheet') => {
+        const isSheet = variant === 'sheet';
+        const containerClasses = isSheet
+            ? 'h-full flex flex-col px-4 pt-2 pb-[calc(1rem+var(--safe-area-inset-bottom))]'
+            : `h-full flex flex-col p-4 md:p-4 bg-white/5 md:border-r border-white/10 ${isTouchDevice ? 'pb-24' : ''}`;
 
-            <div className="flex-1 flex flex-col gap-4 overflow-y-auto touch-scroll min-h-0">
-                <div className="flex-1 flex flex-col min-h-[120px]">
-                    <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-[10px] font-bold uppercase text-white/40 ml-1">
-                            {t('composer.content')}
-                        </label>
+        return (
+            <div className={containerClasses}>
+                <div className={`mb-4 ${isSheet ? 'flex items-start justify-between gap-3' : ''}`}>
+                    <div>
+                        <h2 className="text-sm font-bold uppercase tracking-wider text-white/50 mb-1">
+                            {t('composer.title')}
+                        </h2>
+                        <p className="text-xs text-white/30">{t('composer.description')}</p>
+                    </div>
+                    {isSheet && (
                         <Button
                             size="sm"
                             variant="ghost"
-                            icon="content_paste"
-                            onClick={handleManualPaste}
-                            className={`${isTouchDevice ? 'min-h-[44px]' : 'h-8'} px-3 text-[10px] uppercase tracking-wider`}
-                        >
-                            {t('actions.paste')}
-                        </Button>
-                    </div>
-                    <TextArea
-                        ref={textAreaRef}
-                        value={inputText}
-                        onChange={e => setInputText(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder={t('composer.placeholder')}
-                        className="flex-1 resize-none bg-black/20 border-white/10 focus:border-indigo-500/50 touch-scroll min-h-[80px]"
-                    />
-                    <div className="mt-1 text-[10px] text-white/20 text-right">{t('composer.hint')}</div>
+                            icon="close"
+                            onClick={() => setIsComposeSheetOpen(false)}
+                            aria-label={t('common:actions.close')}
+                            className="min-w-[44px] min-h-[44px]"
+                        />
+                    )}
                 </div>
 
-                <div>
-                    <label className="text-[10px] font-bold uppercase text-white/40 mb-1.5 ml-1">
-                        {t('composer.target')}
-                    </label>
-                    <Select
-                        value={targetCategory}
-                        onChange={val => setTargetCategory(val as 'private' | 'work' | 'any')}
-                        options={[
-                            { label: t('composer.any'), value: 'any' },
-                            { label: t('composer.work'), value: 'work' },
-                            { label: t('composer.private'), value: 'private' },
-                        ]}
-                        className="w-full bg-black/20 border-white/10"
-                    />
-                </div>
-
-                <div className="flex flex-col gap-3 p-3 bg-white/5 rounded-lg border border-white/5">
-                    <Checkbox
-                        label={t('composer.workMode')}
-                        checked={isWorkMode}
-                        onChange={setIsWorkMode}
-                        className="text-xs"
-                    />
-                    <div className="h-px bg-white/5" />
-                    <Checkbox
-                        label={t('composer.sensitive')}
-                        checked={isSensitive}
-                        onChange={setIsSensitive}
-                        className="text-xs"
-                    />
-                    {isSensitive && (
-                        <div className="animate-fade-in flex items-center gap-2">
-                            <TextInput
-                                type={showPassphrase ? 'text' : 'password'}
-                                value={passphrase}
-                                onChange={e => setPassphrase(e.target.value)}
-                                placeholder={t('composer.passphrasePlaceholder')}
-                                className="flex-1 bg-black/40 border-white/10 text-xs"
-                            />
+                <div className="flex-1 flex flex-col gap-4 overflow-y-auto touch-scroll min-h-0">
+                    <div className="flex-1 flex flex-col min-h-[120px]">
+                        <div className="flex items-center justify-between mb-1.5">
+                            <label className="text-[10px] font-bold uppercase text-white/40 ml-1">
+                                {t('composer.content')}
+                            </label>
                             <Button
                                 size="sm"
                                 variant="ghost"
-                                onClick={() => setShowPassphrase(!showPassphrase)}
-                                className="h-9 px-2 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0"
-                                title={showPassphrase ? 'Hide' : 'Show'}
+                                icon="content_paste"
+                                onClick={handleManualPaste}
+                                className={`${isTouchDevice ? 'min-h-[44px]' : 'h-8'} px-3 text-[10px] uppercase tracking-wider`}
                             >
-                                <Icon name={showPassphrase ? 'visibility_off' : 'visibility'} size={16} />
+                                {t('actions.paste')}
                             </Button>
                         </div>
-                    )}
+                        <TextArea
+                            ref={textAreaRef}
+                            value={inputText}
+                            onChange={e => setInputText(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            placeholder={t('composer.placeholder')}
+                            className="flex-1 resize-none bg-black/20 border-white/10 focus:border-indigo-500/50 touch-scroll min-h-[80px]"
+                        />
+                        <div className="mt-1 text-[10px] text-white/20 text-right">{t('composer.hint')}</div>
+                    </div>
+
+                    <div>
+                        <label className="text-[10px] font-bold uppercase text-white/40 mb-1.5 ml-1">
+                            {t('composer.target')}
+                        </label>
+                        <Select
+                            value={targetCategory}
+                            onChange={val => setTargetCategory(val as 'private' | 'work' | 'any')}
+                            options={[
+                                { label: t('composer.any'), value: 'any' },
+                                { label: t('composer.work'), value: 'work' },
+                                { label: t('composer.private'), value: 'private' },
+                            ]}
+                            className="w-full bg-black/20 border-white/10"
+                        />
+                    </div>
+
+                    <div className="flex flex-col gap-3 p-3 bg-white/5 rounded-lg border border-white/5">
+                        <Checkbox
+                            label={t('composer.workMode')}
+                            checked={isWorkMode}
+                            onChange={setIsWorkMode}
+                            className="text-xs"
+                        />
+                        <div className="h-px bg-white/5" />
+                        <Checkbox
+                            label={t('composer.sensitive')}
+                            checked={isSensitive}
+                            onChange={setIsSensitive}
+                            className="text-xs"
+                        />
+                        {isSensitive && (
+                            <div className="animate-fade-in flex items-center gap-2">
+                                <TextInput
+                                    type={showPassphrase ? 'text' : 'password'}
+                                    value={passphrase}
+                                    onChange={e => setPassphrase(e.target.value)}
+                                    placeholder={t('composer.passphrasePlaceholder')}
+                                    className="flex-1 bg-black/40 border-white/10 text-xs"
+                                />
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => setShowPassphrase(!showPassphrase)}
+                                    className="h-9 px-2 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0"
+                                    title={showPassphrase ? 'Hide' : 'Show'}
+                                >
+                                    <Icon name={showPassphrase ? 'visibility_off' : 'visibility'} size={16} />
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Fixed bottom section - always visible without scrolling */}
+                <div className="flex-shrink-0 pt-4 mt-4 border-t border-white/5 space-y-3">
+                    <Button
+                        variant="primary"
+                        onClick={handleSend}
+                        disabled={!inputText.trim() || isSending || isLoading}
+                        className="w-full py-3 min-h-[44px] bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold uppercase tracking-widest text-xs transition-colors"
+                    >
+                        {isLoading ? t('common:loading') : isSending ? t('composer.sending') : t('composer.send')}
+                    </Button>
+                    <div className="flex items-center gap-2 text-[10px] text-white/30">
+                        <Icon name="info" size={14} />
+                        <span>{t('inbox.sendingFrom', { device: deviceLabel })}</span>
+                    </div>
                 </div>
             </div>
+        );
+    };
 
-            {/* Fixed bottom section - always visible without scrolling */}
-            <div className="flex-shrink-0 pt-4 mt-4 border-t border-white/5 space-y-3">
-                <Button
-                    variant="primary"
-                    onClick={handleSend}
-                    disabled={!inputText.trim() || isSending || isLoading}
-                    className="w-full py-3 min-h-[44px] bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold uppercase tracking-widest text-xs transition-colors"
-                >
-                    {isLoading ? t('common:loading') : isSending ? t('composer.sending') : t('composer.send')}
-                </Button>
-                <div className="flex items-center gap-2 text-[10px] text-white/30">
-                    <Icon name="info" size={14} />
-                    <span>{t('inbox.sendingFrom', { device: deviceLabel })}</span>
-                </div>
-            </div>
-        </div>
-    );
-
-    // Inbox Panel Component (used in both split and tabbed layouts)
+    // Inbox Panel Component (used in both split and phone layouts)
     // On touch devices, add extra bottom padding to account for taskbar + safe area
     const inboxPanel = (
         <div className={`h-full overflow-y-auto touch-scroll p-4 ${isTouchDevice ? 'pb-24' : ''}`}>
@@ -476,6 +502,17 @@ export const Handoff: React.FC = () => {
                         </div>
                     </div>
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 w-full md:w-auto">
+                        {isPhone && (
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                icon="share"
+                                onClick={() => setIsComposeSheetOpen(true)}
+                                className="w-full md:w-auto min-h-[44px] bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold uppercase tracking-widest text-[10px]"
+                            >
+                                {t('actions.sendToHandoff')}
+                            </Button>
+                        )}
                         <div className="text-[10px] text-white/30 uppercase font-bold tracking-widest">
                             {t('inbox.device')}: <span className="text-indigo-400">{deviceLabel}</span>
                         </div>
@@ -492,40 +529,36 @@ export const Handoff: React.FC = () => {
                     </div>
                 </div>
 
-                {/* F231: Tabbed layout for mobile, SplitPane for desktop */}
-                {isTouchDevice ? (
-                    <div className="flex-1 flex flex-col overflow-hidden">
-                        {/* Tab Switcher */}
-                        <div className="p-4 border-b border-white/10 bg-white/5">
-                            <TabSwitcher
-                                options={[
-                                    { value: 'inbox', label: t('inbox.filter'), icon: 'inbox' },
-                                    { value: 'compose', label: t('composer.title'), icon: 'edit' },
-                                ]}
-                                value={activeTab}
-                                onChange={setActiveTab}
-                                variant="primary"
-                                size="md"
-                            />
-                        </div>
-
-                        {/* Tab Content */}
-                        <div className="flex-1 overflow-hidden">
-                            {activeTab === 'compose' ? composePanel : inboxPanel}
-                        </div>
-                    </div>
+                {/* F231: Phone share sheet, SplitPane for desktop */}
+                {isPhone ? (
+                    <div className="flex-1 flex flex-col overflow-hidden">{inboxPanel}</div>
                 ) : (
                     /* Desktop: Split Pane layout */
                     <div className="flex-1 overflow-hidden">
                         <SplitPane
                             direction="horizontal"
                             primarySize="350px"
-                            primary={composePanel}
+                            primary={renderComposePanel('pane')}
                             secondary={inboxPanel}
                         />
                     </div>
                 )}
             </div>
+
+            {isPhone && isComposeSheetOpen && (
+                <>
+                    <div
+                        className="fixed inset-0 bg-black/60 z-[9998] animate-in fade-in duration-200"
+                        onClick={() => setIsComposeSheetOpen(false)}
+                    />
+                    <div className="fixed bottom-0 left-0 right-0 z-[9999] bg-[#1a1a1a]/95 backdrop-blur-xl border-t border-white/10 rounded-t-2xl shadow-2xl flex flex-col max-h-[75vh] animate-in slide-in-from-bottom duration-200">
+                        <div className="flex justify-center py-2">
+                            <div className="w-10 h-1 bg-white/30 rounded-full" />
+                        </div>
+                        <div className="flex-1 min-h-0 overflow-hidden">{renderComposePanel('sheet')}</div>
+                    </div>
+                </>
+            )}
         </AppContainer>
     );
 };

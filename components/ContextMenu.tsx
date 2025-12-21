@@ -7,6 +7,7 @@
 import React, { forwardRef, ReactNode, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Z_INDEX } from '../utils/constants';
+import { getViewportSize } from '../utils';
 import { usePhoneMode } from '../hooks';
 
 // ============================================================================
@@ -294,7 +295,8 @@ const ContextMenuSubmenu = ({ icon, label, disabled = false, children, className
         if (isOpen && containerRef.current) {
             const rect = containerRef.current.getBoundingClientRect();
             const submenuWidth = 180;
-            if (rect.right + submenuWidth > window.innerWidth) {
+            const { width: viewportWidth } = getViewportSize();
+            if (rect.right + submenuWidth > viewportWidth) {
                 setSubmenuPosition('left');
             } else {
                 setSubmenuPosition('right');

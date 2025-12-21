@@ -36,7 +36,7 @@ import { useDexieLiveQuery } from './utils/storage/react';
 import { DesktopIconRecord } from './utils/storage/db';
 import { APP_REGISTRY } from './apps';
 import { useHotkeys, useContextMenu, useNotification, useAppEvent, usePhoneMode, useViewportCssVars } from './hooks';
-import { ensureArray } from './utils';
+import { ensureArray, getWindowMaxRect } from './utils';
 import { readTextFromClipboard } from './utils/clipboard';
 import { analyzeClipboardContent, fetchYoutubeVideoTitle } from './utils/clipboardAnalyzer';
 import { getFiles, saveFiles, addFileToFolder } from './utils/fileSystem';
@@ -84,14 +84,16 @@ const Desktop = () => {
         }
 
         const SNAP_THRESHOLD = 30; // pixels from edge
-        const screenWidth = globalThis.innerWidth;
+        const { x: maxLeft, y: maxTop, width: maxWidth } = getWindowMaxRect();
+        const leftEdge = maxLeft;
+        const rightEdge = maxLeft + maxWidth;
 
         // Detect which snap zone
-        if (y < SNAP_THRESHOLD) {
+        if (y < maxTop + SNAP_THRESHOLD) {
             setSnapZone('top');
-        } else if (x < SNAP_THRESHOLD) {
+        } else if (x < leftEdge + SNAP_THRESHOLD) {
             setSnapZone('left');
-        } else if (x > screenWidth - SNAP_THRESHOLD) {
+        } else if (x > rightEdge - SNAP_THRESHOLD) {
             setSnapZone('right');
         } else {
             setSnapZone('none');
@@ -103,15 +105,13 @@ const Desktop = () => {
         if (snapZone === 'top') {
             toggleMaximizeWindow(windowId);
         } else if (snapZone === 'left') {
-            const screenHeight = globalThis.innerHeight;
-            resizeWindow(windowId, { width: globalThis.innerWidth / 2, height: screenHeight - 96 }, { x: 0, y: 0 });
+            const { x, y, width, height } = getWindowMaxRect();
+            const halfWidth = width / 2;
+            resizeWindow(windowId, { width: halfWidth, height }, { x, y });
         } else if (snapZone === 'right') {
-            const screenHeight = globalThis.innerHeight;
-            resizeWindow(
-                windowId,
-                { width: globalThis.innerWidth / 2, height: screenHeight - 96 },
-                { x: globalThis.innerWidth / 2, y: 0 }
-            );
+            const { x, y, width, height } = getWindowMaxRect();
+            const halfWidth = width / 2;
+            resizeWindow(windowId, { width: halfWidth, height }, { x: x + halfWidth, y });
         }
         setSnapZone('none');
     });

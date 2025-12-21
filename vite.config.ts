@@ -22,6 +22,10 @@ export default defineConfig({
         port: 5000,
         host: '0.0.0.0',
         allowedHosts: true,
+        // Fix HMR for mobile device testing - use the server's IP instead of localhost
+        hmr: {
+            host: '192.168.1.31',
+        },
     },
     plugins: [
         react(),
@@ -40,10 +44,9 @@ export default defineConfig({
                 'demo-carts/**/*.json',
                 'demo-carts/**/*.wasm',
             ],
-            // Enable service worker in development mode for testing PWA install
+            // Disable service worker in dev mode to avoid caching issues on iOS
             devOptions: {
-                enabled: true,
-                type: 'module',
+                enabled: false,
             },
             manifest: {
                 name: 'Windows 15 Desktop Concept',

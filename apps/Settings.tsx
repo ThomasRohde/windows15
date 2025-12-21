@@ -78,10 +78,10 @@ export const Settings = () => {
 
                     {activeSection === 'personalization' && (
                         <>
-                            <h1 className="text-3xl font-light mb-8">{t('personalization')}</h1>
-                            <section className="mb-8">
-                                <h3 className="text-lg font-medium mb-4">{t('wallpaper')}</h3>
-                                <div className="aspect-video w-full max-w-2xl rounded-xl overflow-hidden mb-6 shadow-2xl ring-1 ring-white/10">
+                            <h1 className="text-2xl md:text-3xl font-light mb-6 md:mb-8">{t('personalization')}</h1>
+                            <section className="mb-6 md:mb-8">
+                                <h3 className="text-base md:text-lg font-medium mb-3 md:mb-4">{t('wallpaper')}</h3>
+                                <div className="aspect-video w-full max-w-2xl rounded-xl overflow-hidden mb-4 md:mb-6 shadow-2xl ring-1 ring-white/10">
                                     <img
                                         src={activeWallpaper}
                                         className="w-full h-full object-cover"
@@ -90,12 +90,12 @@ export const Settings = () => {
                                 </div>
 
                                 <h4 className="text-sm text-white/60 mb-3">{t('wallpaper')}</h4>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-2xl">
                                     {WALLPAPERS.map(wp => (
                                         <button
                                             key={wp.id}
                                             onClick={() => setWallpaper(wp.url)}
-                                            className={`aspect-video rounded-lg overflow-hidden ring-2 transition-all min-h-[44px] active:scale-95 ${activeWallpaper === wp.url ? 'ring-primary' : 'ring-transparent hover:ring-white/20 active:ring-white/40'}`}
+                                            className={`aspect-video rounded-lg overflow-hidden ring-2 transition-all min-h-[60px] active:scale-95 ${activeWallpaper === wp.url ? 'ring-primary' : 'ring-transparent hover:ring-white/20 active:ring-white/40'}`}
                                         >
                                             <img src={wp.url} className="w-full h-full object-cover" alt={wp.name} />
                                         </button>
@@ -119,7 +119,7 @@ export const Settings = () => {
 
                     {activeSection === 'apps' && (
                         <div className="max-w-2xl">
-                            <h1 className="text-3xl font-light mb-3">{t('common:labels.name')}</h1>
+                            <h1 className="text-2xl md:text-3xl font-light mb-3">{t('common:labels.name')}</h1>
                             <p className="text-sm text-white/60">App management is not implemented in this demo.</p>
                         </div>
                     )}

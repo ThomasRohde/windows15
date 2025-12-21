@@ -47,13 +47,15 @@ export const SoundSettings: React.FC = () => {
     const volumePercentage = Math.round(volume * 100);
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
             <div>
                 <SectionLabel>System Volume</SectionLabel>
-                <p className="text-sm text-white/60 mb-4">Control the volume of system sounds and notifications</p>
+                <p className="text-sm text-white/60 mb-3 md:mb-4">
+                    Control the volume of system sounds and notifications
+                </p>
 
                 {/* Volume Control */}
-                <div className="bg-black/20 rounded-xl p-6 space-y-6">
+                <div className="bg-black/20 rounded-xl p-4 md:p-6 space-y-4 md:space-y-6">
                     <div className="flex items-center gap-4">
                         <Icon name={getVolumeIcon()} size="lg" className="text-white/80" />
                         <div className="flex-1">
@@ -94,8 +96,8 @@ export const SoundSettings: React.FC = () => {
                     </div>
 
                     {/* Enable Toggle */}
-                    <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                        <div>
+                    <div className="flex items-center justify-between gap-4 pt-4 border-t border-white/10">
+                        <div className="min-w-0 flex-1">
                             <div className="text-sm font-medium text-white/90">Enable System Sounds</div>
                             <div className="text-xs text-white/50 mt-1">
                                 Play sounds for system events and notifications
@@ -103,19 +105,19 @@ export const SoundSettings: React.FC = () => {
                         </div>
                         <button
                             onClick={handleMuteToggle}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                            className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors shrink-0
                                 ${!isMuted ? 'bg-blue-500' : 'bg-white/20'}`}
                         >
                             <span
-                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform
-                                    ${!isMuted ? 'translate-x-6' : 'translate-x-1'}`}
+                                className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform
+                                    ${!isMuted ? 'translate-x-7' : 'translate-x-1'}`}
                             />
                         </button>
                     </div>
 
                     {/* Test Sound Button */}
                     <div className="pt-4 border-t border-white/10">
-                        <Button variant="secondary" size="sm" onClick={testSound} disabled={isMuted || volume === 0}>
+                        <Button variant="secondary" size="md" onClick={testSound} disabled={isMuted || volume === 0}>
                             <Icon name="notifications" size="sm" />
                             Test Sound
                         </Button>
@@ -129,11 +131,11 @@ export const SoundSettings: React.FC = () => {
             {/* Sound Events */}
             <div>
                 <SectionLabel>System Events</SectionLabel>
-                <p className="text-sm text-white/60 mb-4">
+                <p className="text-sm text-white/60 mb-3 md:mb-4">
                     Sounds are played for the following system events when enabled
                 </p>
 
-                <div className="bg-black/20 rounded-xl p-6 space-y-3">
+                <div className="bg-black/20 rounded-xl p-4 md:p-6 space-y-3">
                     <div className="flex items-center gap-3 text-sm">
                         <Icon name="notifications" size="sm" className="text-blue-400" />
                         <span>Notifications</span>

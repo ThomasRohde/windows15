@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { useDb, getCloudDatabaseUrl, setCloudDatabaseUrl, validateCloudDatabaseUrl } from '@/utils/storage';
 import { useConfirmDialog, ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { useNotification, useCopyToClipboard } from '@/hooks';
+import { useNotification, useCopyToClipboard, usePhoneMode } from '@/hooks';
 
 const PROD_ORIGIN = 'https://thomasrohde.github.io';
 
@@ -69,13 +69,13 @@ const CopyableCommand = ({ command }: { command: string }) => {
 
     return (
         <div className="flex items-stretch gap-2">
-            <div className="flex-1 min-w-0 font-mono text-[12px] bg-black/30 border border-white/10 rounded-lg px-3 py-2 overflow-x-auto whitespace-nowrap">
+            <div className="flex-1 min-w-0 font-mono text-[11px] md:text-[12px] bg-black/30 border border-white/10 rounded-lg px-3 py-2 overflow-x-auto whitespace-nowrap select-text">
                 {command}
             </div>
             <button
                 type="button"
                 onClick={doCopy}
-                className="shrink-0 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs text-white/90"
+                className="shrink-0 px-3 min-h-[44px] rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 text-xs text-white/90 transition-colors"
             >
                 {copied ? 'Copied' : 'Copy'}
             </button>
@@ -87,6 +87,8 @@ export const SyncSettings = () => {
     const db = useDb();
     const { confirm, dialogProps } = useConfirmDialog();
     const notify = useNotification();
+    const isPhone = usePhoneMode();
+    const inputRef = useRef<HTMLInputElement>(null);
     const origin = useMemo(() => getOrigin(), []);
     const [databaseUrl, setDatabaseUrl] = useState(() => getCloudDatabaseUrl() ?? '');
     const [validationError, setValidationError] = useState<string | null>(null);
@@ -123,6 +125,16 @@ export const SyncSettings = () => {
 
     const isCloudConfigured = Boolean(getCloudDatabaseUrl());
     const isLoggedIn = Boolean(user?.isLoggedIn);
+
+    // Scroll input into view when focused on mobile (iOS keyboard handling)
+    const handleInputFocus = useCallback(() => {
+        if (isPhone && inputRef.current) {
+            // Delay to allow virtual keyboard to appear
+            setTimeout(() => {
+                inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
+    }, [isPhone]);
 
     const copyOrigin = async () => {
         const ok = await copyOriginText(origin);
@@ -272,29 +284,31 @@ export const SyncSettings = () => {
         Boolean(syncState.error && isProbablyWhitelistError(syncState.error.message));
 
     return (
-        <div className="max-w-5xl w-full space-y-6">
-            <div className="flex items-start justify-between gap-4">
+        <div className="max-w-5xl w-full space-y-4 md:space-y-6">
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-4">
                 <div>
-                    <h1 className="text-3xl font-light">Sync</h1>
-                    <p className="mt-2 text-sm text-white/60">
+                    <h1 className="text-2xl md:text-3xl font-light">Sync</h1>
+                    <p className="mt-1 md:mt-2 text-sm text-white/60">
                         Optional BYO Dexie Cloud sync. If you don&apos;t configure it, Windows15 runs local-only.
                     </p>
                 </div>
-                <div className="flex flex-col items-end gap-2">
+                <div className="flex flex-wrap gap-2 md:flex-col md:items-end">
                     <span className={`px-2.5 py-1 rounded-full text-xs ${connectionBadge.className}`}>
                         {connectionBadge.label}
                     </span>
                     {loginBadge && (
-                        <span className={`px-2.5 py-1 rounded-full text-xs ${loginBadge.className}`}>
+                        <span
+                            className={`px-2.5 py-1 rounded-full text-xs max-w-full truncate ${loginBadge.className}`}
+                        >
                             {loginBadge.label}
                         </span>
                     )}
                 </div>
             </div>
 
-            <div className="glass-panel rounded-xl p-5 space-y-4">
-                <div className="flex items-center justify-between gap-3">
-                    <div>
+            <div className="glass-panel rounded-xl p-4 md:p-5 space-y-3 md:space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
                         <div className="text-sm font-medium text-white/90">App origin</div>
                         <div className="mt-1 text-xs text-white/60">
                             This exact origin must be whitelisted in your Dexie Cloud DB.
@@ -302,24 +316,24 @@ export const SyncSettings = () => {
                     </div>
                     <button
                         onClick={copyOrigin}
-                        className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs text-white/90"
+                        className="shrink-0 px-3 min-h-[44px] rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 text-xs text-white/90 transition-colors"
                         type="button"
                     >
                         {copiedOrigin ? 'Copied' : 'Copy'}
                     </button>
                 </div>
-                <div className="font-mono text-xs bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-white/80 break-all">
+                <div className="font-mono text-[11px] md:text-xs bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-white/80 break-all select-text">
                     {primaryOrigin}
                 </div>
-                <div className="flex items-center gap-2 text-[11px] text-white/50">
-                    <span className="material-symbols-outlined text-[16px]">info</span>
+                <div className="flex items-start gap-2 text-[11px] text-white/50">
+                    <span className="material-symbols-outlined text-[16px] shrink-0">info</span>
                     <span>GitHub Pages origin should be {PROD_ORIGIN} (no /windows15 path).</span>
                 </div>
             </div>
 
-            <div className="glass-panel rounded-xl p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                    <div>
+            <div className="glass-panel rounded-xl p-4 md:p-5 space-y-3 md:space-y-4">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div className="min-w-0">
                         <div className="text-sm font-medium text-white/90">Dexie Cloud database URL</div>
                         <div className="mt-1 text-xs text-white/60">
                             Paste the databaseUrl from your local dexie-cloud.json.
@@ -327,7 +341,7 @@ export const SyncSettings = () => {
                     </div>
                     <button
                         onClick={() => setWizardOpen(prev => !prev)}
-                        className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs text-white/90"
+                        className="shrink-0 px-3 min-h-[44px] rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 text-xs text-white/90 transition-colors self-start md:self-center"
                         type="button"
                     >
                         {wizardOpen ? 'Hide setup' : 'How to set up'}
@@ -335,13 +349,15 @@ export const SyncSettings = () => {
                 </div>
 
                 <input
+                    ref={inputRef}
                     value={databaseUrl}
                     onChange={e => {
                         setDatabaseUrl(e.target.value);
                         setValidationError(null);
                     }}
+                    onFocus={handleInputFocus}
                     placeholder="https://<yourdb>.dexie.cloud"
-                    className="w-full h-10 px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
+                    className="w-full min-h-[44px] px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30 select-text"
                 />
 
                 {validationError && (
@@ -368,7 +384,7 @@ export const SyncSettings = () => {
                     <button
                         onClick={connect}
                         disabled={isWorking}
-                        className="px-3 py-2 rounded-lg bg-primary hover:bg-primary/90 disabled:opacity-50 text-xs text-white font-medium"
+                        className="px-4 min-h-[44px] rounded-lg bg-primary hover:bg-primary/90 active:bg-primary/80 disabled:opacity-50 text-sm md:text-xs text-white font-medium transition-colors"
                         type="button"
                     >
                         Connect
@@ -376,7 +392,7 @@ export const SyncSettings = () => {
                     <button
                         onClick={disconnect}
                         disabled={isWorking || !isCloudConfigured}
-                        className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-50 text-xs text-white/90"
+                        className="px-4 min-h-[44px] rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 disabled:opacity-50 text-sm md:text-xs text-white/90 transition-colors"
                         type="button"
                     >
                         Disconnect
@@ -385,7 +401,7 @@ export const SyncSettings = () => {
                         <button
                             onClick={login}
                             disabled={isWorking || !isCloudConfigured}
-                            className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-50 text-xs text-white/90"
+                            className="px-4 min-h-[44px] rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 disabled:opacity-50 text-sm md:text-xs text-white/90 transition-colors"
                             type="button"
                         >
                             Login
@@ -394,7 +410,7 @@ export const SyncSettings = () => {
                         <button
                             onClick={logout}
                             disabled={isWorking || !isCloudConfigured}
-                            className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-50 text-xs text-white/90"
+                            className="px-4 min-h-[44px] rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 disabled:opacity-50 text-sm md:text-xs text-white/90 transition-colors"
                             type="button"
                         >
                             Logout
@@ -403,7 +419,7 @@ export const SyncSettings = () => {
                     <button
                         onClick={resetLocalData}
                         disabled={isWorking}
-                        className="px-3 py-2 rounded-lg bg-red-500/15 hover:bg-red-500/25 disabled:opacity-50 text-xs text-red-100"
+                        className="px-4 min-h-[44px] rounded-lg bg-red-500/15 hover:bg-red-500/25 active:bg-red-500/35 disabled:opacity-50 text-sm md:text-xs text-red-100 transition-colors"
                         type="button"
                     >
                         Reset local data
@@ -412,10 +428,10 @@ export const SyncSettings = () => {
             </div>
 
             {wizardOpen && (
-                <div className="glass-panel rounded-xl p-5 space-y-4">
+                <div className="glass-panel rounded-xl p-4 md:p-5 space-y-3 md:space-y-4">
                     <div className="text-sm font-medium text-white/90">Setup checklist</div>
 
-                    <div className="space-y-3 text-sm text-white/70">
+                    <div className="space-y-4 text-sm text-white/70">
                         <div>
                             <div className="font-medium text-white/80">Step 0: Create a Dexie Cloud account</div>
                             <a

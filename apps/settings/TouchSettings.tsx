@@ -85,16 +85,16 @@ export const TouchSettings: React.FC = () => {
 
     return (
         <div className="max-w-2xl">
-            <h1 className="text-3xl font-light mb-8">Touch & Tablet</h1>
+            <h1 className="text-2xl md:text-3xl font-light mb-6 md:mb-8">Touch & Tablet</h1>
 
-            <div className="bg-white/5 rounded-xl p-6 mb-6">
-                <div className="flex items-center gap-4 mb-6">
+            <div className="bg-white/5 rounded-xl p-4 md:p-6 mb-4 md:mb-6">
+                <div className="flex items-center gap-4 mb-4 md:mb-6">
                     <div className="p-3 rounded-full bg-blue-500/20 text-blue-400">
                         <Icon name="touch_app" size={32} />
                     </div>
-                    <div>
-                        <h2 className="text-lg font-medium text-white">Touch Settings</h2>
-                        <p className="text-sm text-white/60">
+                    <div className="min-w-0 flex-1">
+                        <h2 className="text-base md:text-lg font-medium text-white">Touch Settings</h2>
+                        <p className="text-xs md:text-sm text-white/60">
                             {isTouchDevice
                                 ? 'Touch device detected - optimize for touch input'
                                 : 'Configure touch behavior for tablet devices'}
@@ -102,19 +102,19 @@ export const TouchSettings: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-4 md:space-y-6">
                     {/* Touch Enabled Toggle */}
                     <FormField
                         label="Enable Touch Features"
                         id="touch-enabled"
                         description="Enable touch-optimized UI and gestures throughout the system"
                     >
-                        <label className="flex items-center gap-3 cursor-pointer">
+                        <label className="flex items-center gap-3 cursor-pointer min-h-[44px]">
                             <input
                                 type="checkbox"
                                 checked={enabled}
                                 onChange={e => setEnabled(e.target.checked)}
-                                className="w-5 h-5 rounded bg-black/30 border border-white/10 checked:bg-blue-500 checked:border-blue-500 focus:ring-2 focus:ring-blue-500/50"
+                                className="w-6 h-6 rounded bg-black/30 border border-white/10 checked:bg-blue-500 checked:border-blue-500 focus:ring-2 focus:ring-blue-500/50"
                             />
                             <span className="text-sm text-white/80">
                                 {enabled ? 'Touch features enabled' : 'Touch features disabled'}
@@ -128,13 +128,13 @@ export const TouchSettings: React.FC = () => {
                         id="tablet-mode"
                         description="Optimize interface for full-time tablet use with larger touch targets"
                     >
-                        <label className="flex items-center gap-3 cursor-pointer">
+                        <label className="flex items-center gap-3 cursor-pointer min-h-[44px]">
                             <input
                                 type="checkbox"
                                 checked={tabletMode}
                                 onChange={e => setTabletMode(e.target.checked)}
                                 disabled={!enabled}
-                                className="w-5 h-5 rounded bg-black/30 border border-white/10 checked:bg-blue-500 checked:border-blue-500 focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50"
+                                className="w-6 h-6 rounded bg-black/30 border border-white/10 checked:bg-blue-500 checked:border-blue-500 focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50"
                             />
                             <span className="text-sm text-white/80">
                                 {tabletMode ? 'Tablet mode active' : 'Desktop mode'}
@@ -146,19 +146,19 @@ export const TouchSettings: React.FC = () => {
                     <div className="pt-4 border-t border-white/5">
                         <h3 className="text-sm font-medium text-white/90 mb-4">Gesture Controls</h3>
 
-                        <div className="space-y-4">
+                        <div className="space-y-3 md:space-y-4">
                             <FormField
                                 label="Swipe Gestures"
                                 id="swipe-gestures"
                                 description="Edge swipes to open notification center"
                             >
-                                <label className="flex items-center gap-3 cursor-pointer">
+                                <label className="flex items-center gap-3 cursor-pointer min-h-[44px]">
                                     <input
                                         type="checkbox"
                                         checked={swipeGestures}
                                         onChange={e => setSwipeGestures(e.target.checked)}
                                         disabled={!enabled}
-                                        className="w-5 h-5 rounded bg-black/30 border border-white/10 checked:bg-blue-500 checked:border-blue-500 focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50"
+                                        className="w-6 h-6 rounded bg-black/30 border border-white/10 checked:bg-blue-500 checked:border-blue-500 focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50"
                                     />
                                     <span className="text-sm text-white/80">
                                         {swipeGestures ? 'Enabled' : 'Disabled'}
@@ -171,13 +171,13 @@ export const TouchSettings: React.FC = () => {
                                 id="pinch-resize"
                                 description="Pinch gestures to resize windows"
                             >
-                                <label className="flex items-center gap-3 cursor-pointer">
+                                <label className="flex items-center gap-3 cursor-pointer min-h-[44px]">
                                     <input
                                         type="checkbox"
                                         checked={pinchToResize}
                                         onChange={e => setPinchToResize(e.target.checked)}
                                         disabled={!enabled}
-                                        className="w-5 h-5 rounded bg-black/30 border border-white/10 checked:bg-blue-500 checked:border-blue-500 focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50"
+                                        className="w-6 h-6 rounded bg-black/30 border border-white/10 checked:bg-blue-500 checked:border-blue-500 focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50"
                                     />
                                     <span className="text-sm text-white/80">
                                         {pinchToResize ? 'Enabled' : 'Disabled'}
@@ -190,13 +190,13 @@ export const TouchSettings: React.FC = () => {
                                 id="snap-zones"
                                 description="Show snap zones when dragging windows near screen edges"
                             >
-                                <label className="flex items-center gap-3 cursor-pointer">
+                                <label className="flex items-center gap-3 cursor-pointer min-h-[44px]">
                                     <input
                                         type="checkbox"
                                         checked={snapZones}
                                         onChange={e => setSnapZones(e.target.checked)}
                                         disabled={!enabled}
-                                        className="w-5 h-5 rounded bg-black/30 border border-white/10 checked:bg-blue-500 checked:border-blue-500 focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50"
+                                        className="w-6 h-6 rounded bg-black/30 border border-white/10 checked:bg-blue-500 checked:border-blue-500 focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50"
                                     />
                                     <span className="text-sm text-white/80">{snapZones ? 'Enabled' : 'Disabled'}</span>
                                 </label>
@@ -257,6 +257,7 @@ export const TouchSettings: React.FC = () => {
                     <div className="pt-4 border-t border-white/5 flex justify-end">
                         <Button
                             variant="primary"
+                            size="md"
                             onClick={handleSave}
                             disabled={!hasChanges || isSaving}
                             className="bg-blue-600 hover:bg-blue-500"
@@ -276,7 +277,7 @@ export const TouchSettings: React.FC = () => {
                 </div>
             </div>
 
-            <div className="bg-white/5 rounded-xl p-6">
+            <div className="bg-white/5 rounded-xl p-4 md:p-6">
                 <h3 className="text-sm font-medium text-white/80 mb-3 flex items-center gap-2">
                     <Icon name="info" size={18} />
                     About Touch Settings

@@ -6901,12 +6901,210 @@
       "blockedBy": null,
       "lastWorkedOn": "2025-12-20T11:08:03.620285",
       "notes": "Implementation: Use usePhoneMode() and useOrientation() to adjust StartMenu positioning. Landscape: account for left taskbar width (~56px) in left positioning or width calculation. May need left margin or adjusted positioning. Edge cases: Animation direction should come from left edge if taskbar is there. Dependencies: F233, F234. Context: StartMenu currently assumes bottom taskbar. Gotchas: Test with both portrait and landscape, ensure smooth transition."
+    },
+    {
+      "id": "F255",
+      "category": "core",
+      "priority": 2,
+      "description": "Deep link receiver component parses and validates handoff share-import URL parameters",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Detects handoff=1 query parameter on app startup",
+        "Validates nonce (6-128 chars) and kind (url|text) parameters",
+        "Decodes target and text URL-encoded parameters",
+        "Returns parsed payload or null for invalid links"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Create components/ShareReceiver.tsx mounted near App root. Parse window.location.search on mount. Required params: handoff=1, nonce (6-128 chars). Optional: kind (url|text, infer from target presence), target (<=4096 chars), text (<=20000 chars), targetCategory (work|private|any), source, title, ts, open=handoff. Edge cases: Missing kind should be inferred from target presence. Dependencies: None. Gotchas: Must run early in app lifecycle, before URL is cleaned."
+    },
+    {
+      "id": "F256",
+      "category": "core",
+      "priority": 2,
+      "description": "Share receiver implements nonce-based idempotency to prevent duplicate handoff imports",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Stores processed nonces in localStorage ring buffer (50 max)",
+        "Ignores share imports with previously seen nonces",
+        "Ring buffer evicts oldest entries when full",
+        "Clears URL query params via history.replaceState after processing"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Use localStorage key 'windows15_share_nonces' with JSON array. Ring buffer pattern: push new nonce, shift if length > 50. Check nonce before calling useHandoff().send(). Clean URL after processing (success or ignored). Edge cases: localStorage not available (use try-catch, fallback to Set). Dependencies: F255 (deep link parsing). Gotchas: Must clean URL even if nonce is duplicate to prevent re-processing on navigation."
+    },
+    {
+      "id": "F257",
+      "category": "core",
+      "priority": 2,
+      "description": "Share receiver calls useHandoff().send() with normalized payload and shows success toast",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Maps deep link params to HandoffItem shape (kind target text targetCategory)",
+        "Calls useHandoff().send() with normalized item",
+        "Shows 'Sent to Handoff' toast notification on success",
+        "Opens/focuses Handoff app window when open=handoff param is present"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: In ShareReceiver, use useHandoff() hook to call send(). Use useNotification() for toast. For open=handoff, use openApp('handoff') from OSContext or window context. Map: kind from param or infer, target for URLs, text for content, targetCategory defaults to 'any'. Edge cases: source param can be displayed in notification (e.g., 'Sent from ChatGPT iOS'). Dependencies: F255, F256, useHandoff hook (F190). Gotchas: Must wait for deviceId to be ready before calling send()."
+    },
+    {
+      "id": "F258",
+      "category": "ui",
+      "priority": 3,
+      "description": "Share receiver shows lightweight error toast for invalid deep links without spamming",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Shows 'Nothing to send' toast when deep link validation fails",
+        "Does not show toast when handoff=1 is absent (normal navigation)",
+        "Does not show toast for duplicate nonces (silent ignore)",
+        "Uses consistent toast styling with other app notifications"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Only show error when handoff=1 is present but other validation fails. Silent handling for: missing handoff param (not a share link), duplicate nonce (already processed). Edge cases: Very long URLs may exceed browser limits - show 'Content too large' error. Dependencies: F255, useNotification hook. Gotchas: Don't spam on every page load - check handoff=1 first."
+    },
+    {
+      "id": "F259",
+      "category": "docs",
+      "priority": 2,
+      "description": "Create iOS Shortcut 'Send to Windows15 Handoff' with share sheet integration",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Shortcut appears in iOS Share Sheet when sharing URLs or text",
+        "Normalizes input to detect URL vs text content",
+        "Generates unique nonce for idempotency",
+        "Constructs deep link URL with encoded parameters and opens it"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Create iOS Shortcut that accepts Share Sheet input (URLs + Text types). Steps: 1) Accept Shortcut Input, 2) Extract URL if present (kind=url, target=URL), else use as text (kind=text, text=content), 3) Generate nonce (Random Number + Date concatenation), 4) URL-encode target and text, 5) Build URL: https://thomasrohde.github.io/windows15/?handoff=1&nonce=...&kind=...&target=...&text=...&targetCategory=any&open=handoff&source=iOS%20Shortcut, 6) Open URL. Edge cases: Very long text may fail - iOS limits URL length. Dependencies: F255-F258 (receiver implementation). Distribution: Provide iCloud Shortcut share link in docs."
+    },
+    {
+      "id": "F260",
+      "category": "docs",
+      "priority": 3,
+      "description": "Create documentation page for iOS Share Sheet Shortcut setup and usage",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Explains the iOS Shortcut workflow and setup steps",
+        "Provides iCloud Shortcut share link for one-tap installation",
+        "Documents deep link URL contract and parameters",
+        "Includes troubleshooting section for common issues"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Create docs/ios-share-sheet-shortcut.md. Sections: Overview, Prerequisites, Installation (iCloud link), How It Works (deep link contract), Supported Input Types, Limitations (URL length, no encryption from Shortcut), Troubleshooting (nothing happens, duplicates, large content fails). Include screenshots if possible. Edge cases: Document that Safari PWA mode may not open correctly - recommend using Safari. Dependencies: F259 (Shortcut created first). Gotchas: iCloud links may expire - consider hosting .shortcut file in docs/shortcuts/ as backup."
+    },
+    {
+      "id": "F261",
+      "category": "testing",
+      "priority": 3,
+      "description": "Add unit tests for share receiver URL parsing and idempotency logic",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Tests valid deep link parsing with all parameter combinations",
+        "Tests invalid deep link rejection (missing nonce or bad kind)",
+        "Tests nonce ring buffer idempotency logic",
+        "Tests URL cleanup via history.replaceState"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Create tests/components/ShareReceiver.test.ts. Mock window.location.search for different URL scenarios. Test cases: 1) Valid URL kind with target, 2) Valid text kind, 3) Kind inference from target presence, 4) Missing nonce rejection, 5) Invalid nonce length rejection, 6) Duplicate nonce handling, 7) Ring buffer overflow eviction, 8) URL cleaning. Use vitest and React Testing Library. Edge cases: Test boundary nonce lengths (6, 128 chars). Dependencies: F255, F256. Gotchas: Mock localStorage for nonce storage tests."
+    },
+    {
+      "id": "F262",
+      "category": "testing",
+      "priority": 3,
+      "description": "Add E2E test for deep link share import flow with Playwright",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "E2E test loads app with deep link URL and verifies item appears in Handoff inbox",
+        "Test verifies toast notification is displayed",
+        "Test verifies URL is cleaned after processing",
+        "Test verifies refresh does not create duplicate items"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Add e2e/share-receiver.spec.ts. Navigate to app with handoff=1&nonce=test123&kind=url&target=https://example.com&open=handoff. Assert: 1) Toast shows 'Sent to Handoff', 2) Handoff app window opens, 3) Item with example.com appears in inbox, 4) URL no longer contains handoff params, 5) Refresh doesn't add duplicate. Edge cases: Test both URL and text kinds. Dependencies: F255-F258. Gotchas: May need to clear localStorage before test to reset nonce buffer."
+    },
+    {
+      "id": "F263",
+      "category": "docs",
+      "priority": 4,
+      "description": "Add optional Work and Private iOS Shortcut variants with preset targetCategory",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Create 'Send to Windows15 Handoff (Work)' shortcut with targetCategory=work",
+        "Create 'Send to Windows15 Handoff (Private)' shortcut with targetCategory=private",
+        "Document all three shortcuts in iOS share sheet guide",
+        "Provide iCloud links for each variant"
+      ],
+      "estimatedEffort": null,
+      "status": "not-started",
+      "passes": false,
+      "verifiedAt": null,
+      "verifiedBy": null,
+      "evidenceLinks": [],
+      "blockedBy": null,
+      "lastWorkedOn": null,
+      "notes": "Implementation: Duplicate base shortcut, change targetCategory param in URL. Work variant: targetCategory=work. Private variant: targetCategory=private. Benefits: One-tap targeting without selecting category in app. Distribution: Three separate iCloud links. Edge cases: User may install all three - explain they appear as separate share sheet options. Dependencies: F259, F260. Gotchas: Name shortcuts clearly to distinguish in share sheet (include Work/Private in name)."
     }
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-20T12:39:59.131517",
-    "totalFeatures": 254,
+    "lastUpdated": "2025-12-21T06:27:01.100313",
+    "totalFeatures": 263,
     "passingFeatures": 254
   }
 }

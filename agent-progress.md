@@ -4,7 +4,7 @@
 
 ## Started: 2025-12-13
 
-## Current Status: Session Ended
+## Current Status: In Progress
 
 ## PRD Source: [.\DEXIE_PRD.md](.\DEXIE_PRD.md)
 
@@ -28,8 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID  | Description | Status |
-| --- | ----------- | ------ |
+| ID   | Description                                                                              | Status         |
+| ---- | ---------------------------------------------------------------------------------------- | -------------- |
+| F255 | Deep link receiver component parses and validates handoff share-import URL parameters    | ⏳ Not started |
+| F256 | Share receiver implements nonce-based idempotency to prevent duplicate handoff imports   | ⏳ Not started |
+| F257 | Share receiver calls useHandoff().send() with normalized payload and shows success toast | ⏳ Not started |
 
 ---
 
@@ -2362,6 +2365,65 @@ klondike feature list  # List all features
 #### Recommended Next Steps
 
 1. Verify paste on mobile device
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 81 - 2025-12-21
+
+**Agent**: Coding Agent
+**Duration**: ~session
+**Focus**: Added 9 new features (F255-F263) for iOS Share Sheet Shortcut integration based on HANDOFF.md PRD
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- None
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Implement F255 (deep link parsing)
+2. then F256 (idempotency)
+3. then F257 (send + toast). After core features
+4. create iOS Shortcuts and documentation.
+
+#### Technical Notes
+
+- None
+
+---
+
+### Session 82 - 2025-12-21
+
+**Agent**: Coding Agent
+**Duration**: (in progress)
+**Focus**: F255-F263 - Implement iOS Share Sheet integration features
+
+#### Completed
+
+- None
+
+#### In Progress
+
+- Session started
+
+#### Blockers
+
+- None
+
+#### Recommended Next Steps
+
+1. Continue implementation
 
 #### Technical Notes
 

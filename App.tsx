@@ -35,7 +35,16 @@ import {
 import { useDexieLiveQuery } from './utils/storage/react';
 import { DesktopIconRecord } from './utils/storage/db';
 import { APP_REGISTRY } from './apps';
-import { useHotkeys, useContextMenu, useNotification, useAppEvent, usePhoneMode, useViewportCssVars } from './hooks';
+import {
+    useHotkeys,
+    useContextMenu,
+    useNotification,
+    useAppEvent,
+    usePhoneMode,
+    useViewportCssVars,
+    useShareTargetWithClear,
+    formatSharedContent,
+} from './hooks';
 import { ensureArray, getWindowMaxRect } from './utils';
 import { readTextFromClipboard } from './utils/clipboard';
 import { analyzeClipboardContent, fetchYoutubeVideoTitle } from './utils/clipboardAnalyzer';
@@ -75,6 +84,19 @@ const Desktop = () => {
 
     // Snap zone state for touch-based window tiling (F212)
     const [snapZone, setSnapZone] = useState<SnapZone>('none');
+
+    // Web Share Target API handler (F232)
+    // When the PWA is launched via share sheet, open Handoff with the shared content
+    const [sharedContent, clearSharedContent] = useShareTargetWithClear();
+
+    useEffect(() => {
+        if (sharedContent) {
+            const formattedText = formatSharedContent(sharedContent);
+            openWindow('handoff', { sharedText: formattedText });
+            clearSharedContent();
+            notify.info('Opening Handoff with shared content');
+        }
+    }, [sharedContent, openWindow, clearSharedContent, notify]);
 
     // Listen for window drag position updates (F212)
     useAppEvent<{ x: number; y: number; isMaximized: boolean }>('window:drag:move', ({ x, y, isMaximized }) => {

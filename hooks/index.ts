@@ -57,3 +57,5 @@ export { usePhoneMode } from './usePhoneMode';
 export { useOrientation } from './useOrientation';
 export type { Orientation } from './useOrientation';
 export { useViewportCssVars } from './useViewportCssVars';
+export { useShareTarget, useShareTargetWithClear, formatSharedContent } from './useShareTarget';
+export type { SharedContent } from './useShareTarget';

@@ -179,8 +179,15 @@ const HandoffItemRow: React.FC<{
  *
  * Displays items sent from other devices and allows quick actions.
  * F231: Phone-optimized with share sheet composer
+ * F232: Web Share Target API - receives shared content from device share sheet
  */
-export const Handoff: React.FC = () => {
+
+export interface HandoffProps {
+    /** Pre-fill the composer with shared text (F232: Share Target API) */
+    sharedText?: string;
+}
+
+export const Handoff: React.FC<HandoffProps> = ({ sharedText }) => {
     const { t } = useTranslation('handoff');
     const [statusFilter, setStatusFilter] = useState<HandoffStatus | 'all'>('new');
     const { markOpened, markDone, archive, remove, send, deviceLabel, clearArchived, isLoading } = useHandoff();
@@ -202,6 +209,17 @@ export const Handoff: React.FC = () => {
 
     // F201: Work mode state
     const [isWorkMode, setIsWorkMode] = useState(false);
+
+    // F232: Pre-fill composer with shared content from Web Share Target API
+    useEffect(() => {
+        if (sharedText) {
+            setInputText(sharedText);
+            // On phones, auto-open the compose sheet when receiving shared content
+            if (isPhone) {
+                setIsComposeSheetOpen(true);
+            }
+        }
+    }, [sharedText, isPhone]);
 
     useEffect(() => {
         if (!isPhone) {

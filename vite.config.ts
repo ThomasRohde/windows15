@@ -81,6 +81,16 @@ export default defineConfig({
                         purpose: 'maskable',
                     },
                 ],
+                // Web Share Target API - allows receiving shared content (F232)
+                share_target: {
+                    action: '/?share=true',
+                    method: 'GET',
+                    params: {
+                        title: 'title',
+                        text: 'text',
+                        url: 'url',
+                    },
+                },
             },
             workbox: {
                 // Allow large chunks (Spreadsheet with Univer is ~10MB)

@@ -120,7 +120,8 @@ export const Screensaver: React.FC = () => {
             ctx.font = '15px monospace';
 
             for (let i = 0; i < state.drops.length; i++) {
-                const text = state.chars[Math.floor(Math.random() * state.chars.length)];
+                const charIndex = Math.floor(Math.random() * state.chars.length);
+                const text = state.chars.charAt(charIndex);
                 const dropValue = state.drops[i] ?? 0;
                 if (text) ctx.fillText(text, i * 20, dropValue * 20);
 

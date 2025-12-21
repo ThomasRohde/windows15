@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { getFiles, saveFileToFolder } from '../../utils/fileSystem';
 import { FileSystemItem } from '../../types';
 import { useConfirmDialog, ConfirmDialog } from '../../components/ui/ConfirmDialog';
-import { useStandardHotkeys, useContextMenu, useHandoff, useNotification } from '../../hooks';
+import { useStandardHotkeys, useContextMenu, useHandoff, useNotification, usePhoneMode } from '../../hooks';
 import { TextArea } from '../../components/ui';
 import { ContextMenu } from '../../components/ContextMenu';
 import ReactMarkdown from 'react-markdown';
@@ -53,6 +53,7 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
     const [showPreview, setShowPreview] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
+    const isPhone = usePhoneMode();
     const { confirm, dialogProps } = useConfirmDialog();
     const { send } = useHandoff();
     const { notify } = useNotification();
@@ -281,11 +282,14 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
     return (
         <>
             {/* Menu Bar */}
-            <div ref={menuRef} className="flex text-xs px-2 py-1 bg-[#2d2d2d] gap-4 select-none relative">
+            <div
+                ref={menuRef}
+                className={`flex ${isPhone ? 'text-sm' : 'text-xs'} px-2 ${isPhone ? 'py-2' : 'py-1'} bg-[#2d2d2d] gap-4 select-none relative`}
+            >
                 {['File', 'Edit', 'View', 'Help'].map(menu => (
                     <div key={menu} className="relative">
                         <span
-                            className={`hover:text-white cursor-pointer px-2 py-0.5 rounded ${activeMenu === menu ? 'bg-[#3d3d3d] text-white' : ''}`}
+                            className={`hover:text-white active:bg-[#4d4d4d] cursor-pointer ${isPhone ? 'px-3 py-2 min-h-[44px] inline-flex items-center' : 'px-2 py-0.5'} rounded ${activeMenu === menu ? 'bg-[#3d3d3d] text-white' : ''}`}
                             onClick={() => setActiveMenu(activeMenu === menu ? null : menu)}
                         >
                             {menu}
@@ -295,15 +299,15 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
                                 {menuItems[menu as keyof typeof menuItems].map((item, idx) => (
                                     <div
                                         key={idx}
-                                        className={`px-4 py-2 flex justify-between items-center ${
+                                        className={`px-4 ${isPhone ? 'py-3 min-h-[44px]' : 'py-2'} flex justify-between items-center ${
                                             item.disabled
                                                 ? 'text-[#666] cursor-not-allowed'
-                                                : 'hover:bg-[#3d3d3d] cursor-pointer'
+                                                : 'hover:bg-[#3d3d3d] active:bg-[#4d4d4d] cursor-pointer'
                                         }`}
                                         onClick={item.disabled ? undefined : item.action}
                                     >
                                         <span>{item.label}</span>
-                                        <span className="text-[#888] text-[10px]">{item.shortcut}</span>
+                                        {!isPhone && <span className="text-[#888] text-[10px]">{item.shortcut}</span>}
                                     </div>
                                 ))}
                             </div>
@@ -384,18 +388,22 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
             )}
 
             {/* Status Bar */}
-            <div className="bg-primary px-3 py-1 text-xs text-white flex justify-between">
+            <div
+                className={`bg-primary px-3 ${isPhone ? 'py-2' : 'py-1'} ${isPhone ? 'text-sm' : 'text-xs'} text-white flex justify-between`}
+            >
                 <span className="flex gap-2 items-center">
                     {currentFileName}
                     {hasUnsavedChanges && <span className="text-yellow-400">●</span>}
                 </span>
-                <span className="flex gap-4">
-                    <span>
-                        Ln {cursorInfo.line}, Col {cursorInfo.column}
+                {!isPhone && (
+                    <span className="flex gap-4">
+                        <span>
+                            Ln {cursorInfo.line}, Col {cursorInfo.column}
+                        </span>
+                        <span>UTF-8</span>
+                        <span>Windows (CRLF)</span>
                     </span>
-                    <span>UTF-8</span>
-                    <span>Windows (CRLF)</span>
-                </span>
+                )}
             </div>
 
             {/* Open File Dialog */}
@@ -403,25 +411,34 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-[#2d2d2d] rounded-lg p-4 w-full max-w-[400px] max-h-[70vh] flex flex-col">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-white font-medium">Open File</h3>
-                            <button onClick={() => setShowOpenDialog(false)} className="text-white/60 hover:text-white">
-                                ✕
+                            <h3 className={`text-white font-medium ${isPhone ? 'text-lg' : ''}`}>Open File</h3>
+                            <button
+                                onClick={() => setShowOpenDialog(false)}
+                                className={`${isPhone ? 'h-11 w-11 flex items-center justify-center' : ''} text-white/60 hover:text-white active:text-white/80 rounded-lg`}
+                            >
+                                <span className="material-symbols-outlined">close</span>
                             </button>
                         </div>
                         <div className="flex-1 overflow-auto">
                             {files.length === 0 ? (
-                                <p className="text-white/60 text-sm">No documents found</p>
+                                <p className={`text-white/60 ${isPhone ? 'text-base' : 'text-sm'}`}>
+                                    No documents found
+                                </p>
                             ) : (
                                 files.map(file => (
                                     <div
                                         key={file.id}
-                                        className="px-3 py-2 hover:bg-[#3d3d3d] cursor-pointer rounded flex items-center gap-2"
+                                        className={`px-3 ${isPhone ? 'py-3 min-h-[48px]' : 'py-2'} hover:bg-[#3d3d3d] active:bg-[#4d4d4d] cursor-pointer rounded flex items-center gap-2`}
                                         onClick={() => handleOpenFile(file)}
                                     >
-                                        <span className="material-symbols-outlined text-sm text-blue-400">
+                                        <span
+                                            className={`material-symbols-outlined ${isPhone ? 'text-base' : 'text-sm'} text-blue-400`}
+                                        >
                                             description
                                         </span>
-                                        <span className="text-white text-sm">{file.name}</span>
+                                        <span className={`text-white ${isPhone ? 'text-base' : 'text-sm'}`}>
+                                            {file.name}
+                                        </span>
                                     </div>
                                 ))
                             )}
@@ -435,9 +452,12 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-[#2d2d2d] rounded-lg p-4 w-full max-w-[360px]">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-white font-medium">Save As</h3>
-                            <button onClick={() => setShowSaveDialog(false)} className="text-white/60 hover:text-white">
-                                ✕
+                            <h3 className={`text-white font-medium ${isPhone ? 'text-lg' : ''}`}>Save As</h3>
+                            <button
+                                onClick={() => setShowSaveDialog(false)}
+                                className={`${isPhone ? 'h-11 w-11 flex items-center justify-center' : ''} text-white/60 hover:text-white active:text-white/80 rounded-lg`}
+                            >
+                                <span className="material-symbols-outlined">close</span>
                             </button>
                         </div>
                         <input
@@ -445,7 +465,7 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
                             value={saveFileName}
                             onChange={e => setSaveFileName(e.target.value)}
                             placeholder="Enter file name"
-                            className="w-full bg-[#1e1e1e] border border-[#3d3d3d] rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 mb-4"
+                            className={`w-full bg-[#1e1e1e] border border-[#3d3d3d] rounded px-3 ${isPhone ? 'py-3 min-h-[44px] text-base' : 'py-2 text-sm'} text-white focus:outline-none focus:border-blue-500 mb-4 select-text`}
                             autoFocus
                             onKeyDown={e => {
                                 if (e.key === 'Enter') handleSaveAsConfirm();
@@ -454,13 +474,13 @@ export const FilesPanel: React.FC<FilesPanelProps> = ({
                         <div className="flex justify-end gap-2">
                             <button
                                 onClick={() => setShowSaveDialog(false)}
-                                className="px-4 py-1.5 text-sm text-white/80 hover:text-white"
+                                className={`${isPhone ? 'px-5 min-h-[44px]' : 'px-4 py-1.5'} ${isPhone ? 'text-base' : 'text-sm'} text-white/80 hover:text-white active:text-white/60 rounded-lg`}
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleSaveAsConfirm}
-                                className="px-4 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded"
+                                className={`${isPhone ? 'px-5 min-h-[44px]' : 'px-4 py-1.5'} ${isPhone ? 'text-base' : 'text-sm'} bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-lg`}
                             >
                                 Save
                             </button>

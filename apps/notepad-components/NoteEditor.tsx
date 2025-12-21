@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { NoteRecord, NoteDraft } from './types';
 import { TextArea } from '../../components/ui';
-import { useContextMenu, useHandoff, useNotification } from '../../hooks';
+import { useContextMenu, useHandoff, useNotification, usePhoneMode } from '../../hooks';
 import { ContextMenu } from '../../components/ContextMenu';
 
 interface NoteEditorProps {
@@ -15,6 +15,7 @@ interface NoteEditorProps {
  * NoteEditor - Editor area for the selected note
  */
 export const NoteEditor: React.FC<NoteEditorProps> = ({ note, draft, onDraftChange, onCreateNote }) => {
+    const isPhone = usePhoneMode();
     const { send } = useHandoff();
     const notify = useNotification();
 
@@ -55,11 +56,15 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ note, draft, onDraftChan
         return (
             <div className="flex-1 flex items-center justify-center text-center p-8">
                 <div className="max-w-sm">
-                    <div className="text-lg font-semibold text-white">No note selected</div>
-                    <div className="mt-1 text-sm text-white/60">Create a note to start syncing across devices.</div>
+                    <div className={`${isPhone ? 'text-xl' : 'text-lg'} font-semibold text-white`}>
+                        No note selected
+                    </div>
+                    <div className={`mt-1 ${isPhone ? 'text-base' : 'text-sm'} text-white/60`}>
+                        Create a note to start syncing across devices.
+                    </div>
                     <button
                         onClick={onCreateNote}
-                        className="mt-4 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-sm text-white font-medium"
+                        className={`mt-4 ${isPhone ? 'px-6 min-h-[44px]' : 'px-4 py-2'} rounded-lg bg-primary hover:bg-primary/90 active:bg-primary/80 ${isPhone ? 'text-base' : 'text-sm'} text-white font-medium`}
                     >
                         New note
                     </button>
@@ -71,11 +76,11 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ note, draft, onDraftChan
     return (
         <div className="flex-1 flex flex-col">
             {/* Title Input */}
-            <div className="p-4 border-b border-white/10">
+            <div className={`${isPhone ? 'p-3' : 'p-4'} border-b border-white/10`}>
                 <input
                     value={draft.title}
                     onChange={e => onDraftChange({ ...draft, title: e.target.value })}
-                    className="w-full bg-transparent text-xl text-white/90 placeholder:text-white/30 focus:outline-none"
+                    className={`w-full bg-transparent ${isPhone ? 'text-lg min-h-[44px]' : 'text-xl'} text-white/90 placeholder:text-white/30 focus:outline-none select-text`}
                     placeholder="Title"
                 />
             </div>
@@ -117,9 +122,11 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ note, draft, onDraftChan
             )}
 
             {/* Footer */}
-            <div className="px-4 py-2 text-[11px] text-white/50 border-t border-white/10 bg-black/20 flex justify-between">
+            <div
+                className={`px-4 ${isPhone ? 'py-3' : 'py-2'} ${isPhone ? 'text-xs' : 'text-[11px]'} text-white/50 border-t border-white/10 bg-black/20 flex justify-between`}
+            >
                 <span>Updated {new Date(note.updatedAt).toLocaleString()}</span>
-                <span>Created {new Date(note.createdAt).toLocaleDateString()}</span>
+                {!isPhone && <span>Created {new Date(note.createdAt).toLocaleDateString()}</span>}
             </div>
         </div>
     );

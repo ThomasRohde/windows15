@@ -2,6 +2,7 @@ import React from 'react';
 import { SkeletonList } from '../../components/LoadingSkeleton';
 import { SearchInput } from '../../components/ui';
 import { NoteRecord } from './types';
+import { usePhoneMode } from '../../hooks';
 
 interface NotesListProps {
     notes: NoteRecord[];
@@ -27,6 +28,8 @@ export const NotesList: React.FC<NotesListProps> = ({
     onCreateNote,
     onSearchChange,
 }) => {
+    const isPhone = usePhoneMode();
+
     const filteredNotes = React.useMemo(() => {
         const q = search.trim().toLowerCase();
         if (!q) return notes;
@@ -36,19 +39,23 @@ export const NotesList: React.FC<NotesListProps> = ({
     }, [notes, search]);
 
     return (
-        <div className="w-72 border-r border-white/10 bg-black/20 flex flex-col">
+        <div className={`${isPhone ? 'w-48' : 'w-72'} border-r border-white/10 bg-black/20 flex flex-col`}>
             {/* Header */}
-            <div className="h-12 px-3 flex items-center justify-between border-b border-white/10">
-                <div className="text-sm font-medium text-white/90 flex items-center gap-2">
+            <div
+                className={`${isPhone ? 'h-14' : 'h-12'} px-3 flex items-center justify-between border-b border-white/10`}
+            >
+                <div
+                    className={`${isPhone ? 'text-base' : 'text-sm'} font-medium text-white/90 flex items-center gap-2`}
+                >
                     <span className="material-symbols-outlined text-[18px] text-blue-300">note_stack</span>
                     Notes
                 </div>
                 <button
                     onClick={onCreateNote}
-                    className="h-8 w-8 rounded-lg hover:bg-white/10 text-white/70 flex items-center justify-center"
+                    className={`${isPhone ? 'h-11 w-11' : 'h-8 w-8'} rounded-lg hover:bg-white/10 active:bg-white/20 text-white/70 flex items-center justify-center`}
                     title="New note"
                 >
-                    <span className="material-symbols-outlined text-[18px]">add</span>
+                    <span className={`material-symbols-outlined ${isPhone ? 'text-[22px]' : 'text-[18px]'}`}>add</span>
                 </button>
             </div>
 
@@ -76,12 +83,18 @@ export const NotesList: React.FC<NotesListProps> = ({
                             <button
                                 key={note.id}
                                 onClick={() => onSelectNote(note.id)}
-                                className={`w-full px-3 py-2 text-left border-b border-white/5 hover:bg-white/5 ${isActive ? 'bg-white/10' : ''}`}
+                                className={`w-full px-3 ${isPhone ? 'py-3 min-h-[52px]' : 'py-2'} text-left border-b border-white/5 hover:bg-white/5 active:bg-white/10 ${isActive ? 'bg-white/10' : ''}`}
                             >
                                 <div className="flex items-center justify-between gap-2">
                                     <div className="min-w-0">
-                                        <div className="text-sm text-white/90 truncate">{note.title || 'Untitled'}</div>
-                                        <div className="text-[11px] text-white/50 truncate">{subtitle}</div>
+                                        <div className={`${isPhone ? 'text-base' : 'text-sm'} text-white/90 truncate`}>
+                                            {note.title || 'Untitled'}
+                                        </div>
+                                        <div
+                                            className={`${isPhone ? 'text-xs' : 'text-[11px]'} text-white/50 truncate`}
+                                        >
+                                            {subtitle}
+                                        </div>
                                     </div>
                                     <button
                                         type="button"
@@ -89,7 +102,7 @@ export const NotesList: React.FC<NotesListProps> = ({
                                             e.stopPropagation();
                                             onDeleteNote(note.id);
                                         }}
-                                        className="h-8 w-8 rounded-lg hover:bg-white/10 text-white/50 hover:text-red-300 flex items-center justify-center"
+                                        className={`${isPhone ? 'h-11 w-11' : 'h-8 w-8'} rounded-lg hover:bg-white/10 active:bg-red-500/20 text-white/50 hover:text-red-300 flex items-center justify-center shrink-0`}
                                         title="Delete"
                                     >
                                         <span className="material-symbols-outlined text-[18px]">delete</span>

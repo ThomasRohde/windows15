@@ -8,7 +8,7 @@
  */
 import React, { useState, useEffect, useCallback } from 'react';
 import { NotesPanel, FilesPanel, NotepadProps, NotepadView } from './notepad-components';
-import { useWindowInstance } from '../hooks';
+import { useWindowInstance, usePhoneMode } from '../hooks';
 import { useTranslation } from '../hooks/useTranslation';
 
 /**
@@ -29,6 +29,7 @@ import { useTranslation } from '../hooks/useTranslation';
  */
 export const Notepad: React.FC<NotepadProps> = props => {
     const { t } = useTranslation('notepad');
+    const isPhone = usePhoneMode();
     const { initialContent = '', initialFileId, initialFileName, windowId } = props;
     const { setTitle } = useWindowInstance(windowId ?? '');
 
@@ -66,11 +67,15 @@ export const Notepad: React.FC<NotepadProps> = props => {
     return (
         <div className="h-full flex flex-col bg-background-dark text-[#d4d4d4] relative">
             {/* View Tabs */}
-            <div className="h-10 px-2 flex items-center gap-2 bg-[#2d2d2d] border-b border-[#3d3d3d]">
+            <div
+                className={`${isPhone ? 'h-12' : 'h-10'} px-2 flex items-center gap-2 bg-[#2d2d2d] border-b border-[#3d3d3d]`}
+            >
                 <button
                     onClick={() => setView('notes')}
-                    className={`px-3 h-7 rounded flex items-center gap-1 text-xs ${
-                        view === 'notes' ? 'bg-[#3d3d3d] text-white' : 'text-white/70 hover:bg-[#353535]'
+                    className={`${isPhone ? 'px-4 min-h-[44px]' : 'px-3 h-7'} rounded flex items-center gap-1 ${isPhone ? 'text-sm' : 'text-xs'} ${
+                        view === 'notes'
+                            ? 'bg-[#3d3d3d] text-white'
+                            : 'text-white/70 hover:bg-[#353535] active:bg-[#3d3d3d]'
                     }`}
                 >
                     <span className="material-symbols-outlined text-[16px]">note_stack</span>
@@ -78,8 +83,10 @@ export const Notepad: React.FC<NotepadProps> = props => {
                 </button>
                 <button
                     onClick={() => setView('files')}
-                    className={`px-3 h-7 rounded flex items-center gap-1 text-xs ${
-                        view === 'files' ? 'bg-[#3d3d3d] text-white' : 'text-white/70 hover:bg-[#353535]'
+                    className={`${isPhone ? 'px-4 min-h-[44px]' : 'px-3 h-7'} rounded flex items-center gap-1 ${isPhone ? 'text-sm' : 'text-xs'} ${
+                        view === 'files'
+                            ? 'bg-[#3d3d3d] text-white'
+                            : 'text-white/70 hover:bg-[#353535] active:bg-[#3d3d3d]'
                     }`}
                 >
                     <span className="material-symbols-outlined text-[16px]">description</span>

@@ -16,16 +16,24 @@ export function useVirtualKeyboard() {
             return;
         }
 
+        const isEditableElement = (element: globalThis.Element | null): boolean => {
+            if (!element) return false;
+            if (element instanceof HTMLInputElement) return true;
+            if (element instanceof HTMLTextAreaElement) return true;
+            if (element instanceof HTMLSelectElement) return true;
+            return element.getAttribute('contenteditable') === 'true';
+        };
+
         const handleResize = () => {
             const viewport = window.visualViewport;
             if (!viewport) return;
 
-            // Calculate the difference between window height and viewport height
-            // When keyboard appears, visualViewport.height < window.innerHeight
-            const heightDiff = window.innerHeight - viewport.height;
-
-            // Threshold to detect keyboard (> 150px difference suggests keyboard)
-            const isVisible = heightDiff > 150;
+            const layoutHeight = Math.max(window.innerHeight, document.documentElement?.clientHeight ?? 0);
+            const viewportBottom = viewport.height + viewport.offsetTop;
+            const heightDiff = Math.max(0, layoutHeight - viewportBottom);
+            const hasFocus = isEditableElement(document.activeElement);
+            const threshold = hasFocus ? 50 : 150;
+            const isVisible = heightDiff > threshold;
 
             setIsKeyboardVisible(isVisible);
             setKeyboardHeight(isVisible ? heightDiff : 0);

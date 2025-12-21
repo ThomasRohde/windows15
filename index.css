@@ -125,9 +125,9 @@ body {
 
 /* Ensure iOS text inputs allow native selection/paste callout */
 .allow-text-selection {
-    -webkit-user-select: text;
-    user-select: text;
-    -webkit-touch-callout: default;
+    -webkit-user-select: text !important;
+    user-select: text !important;
+    -webkit-touch-callout: default !important;
 }
 
 /* Ripple animation for touch feedback (F218) */

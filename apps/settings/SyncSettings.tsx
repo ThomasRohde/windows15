@@ -350,6 +350,12 @@ export const SyncSettings = () => {
 
                 <input
                     ref={inputRef}
+                    type="url"
+                    inputMode="url"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
                     value={databaseUrl}
                     onChange={e => {
                         setDatabaseUrl(e.target.value);
@@ -357,7 +363,12 @@ export const SyncSettings = () => {
                     }}
                     onFocus={handleInputFocus}
                     placeholder="https://<yourdb>.dexie.cloud"
-                    className="w-full min-h-[44px] px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30 select-text"
+                    className="w-full min-h-[44px] px-3 rounded-lg bg-black/30 border border-white/10 text-sm text-white/80 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30 allow-text-selection"
+                    style={{
+                        WebkitUserSelect: 'text',
+                        userSelect: 'text',
+                        WebkitTouchCallout: 'default',
+                    }}
                 />
 
                 {validationError && (

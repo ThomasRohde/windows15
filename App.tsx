@@ -19,6 +19,7 @@ import {
     SnapZoneOverlay,
     SnapZone,
     GestureHandler,
+    ShareReceiver,
 } from './components';
 import { HandoffQuickSend } from './components/HandoffQuickSend';
 import { ClipboardHistoryViewer } from './components/ClipboardHistoryViewer';
@@ -698,6 +699,7 @@ const App: React.FC = () => {
                 <UserProfileProvider>
                     <OSProvider>
                         <AriaLiveProvider>
+                            <ShareReceiver />
                             <LoginScreen />
                             <Desktop />
                         </AriaLiveProvider>

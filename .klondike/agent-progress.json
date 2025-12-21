@@ -1265,18 +1265,18 @@
     ],
     "priorityFeatures": [
       {
-        "id": "F255",
-        "description": "Deep link receiver component parses and validates handoff share-import URL parameters",
+        "id": "F259",
+        "description": "Create iOS Shortcut 'Send to Windows15 Handoff' with share sheet integration",
         "status": "not-started"
       },
       {
-        "id": "F256",
-        "description": "Share receiver implements nonce-based idempotency to prevent duplicate handoff imports",
+        "id": "F260",
+        "description": "Create documentation page for iOS Share Sheet Shortcut setup and usage",
         "status": "not-started"
       },
       {
-        "id": "F257",
-        "description": "Share receiver calls useHandoff().send() with normalized payload and shows success toast",
+        "id": "F261",
+        "description": "Add unit tests for share receiver URL parsing and idempotency logic",
         "status": "not-started"
       }
     ]

@@ -6915,13 +6915,20 @@
         "Returns parsed payload or null for invalid links"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-21T06:33:27.701743",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Created ShareReceiver component with full URL parsing",
+        "parameter validation (nonce 6-128 chars",
+        "kind url/text)",
+        "URL validation for URLs",
+        "length checks",
+        "and kind inference"
+      ],
       "blockedBy": null,
-      "lastWorkedOn": null,
+      "lastWorkedOn": "2025-12-21T06:30:09.638916",
       "notes": "Implementation: Create components/ShareReceiver.tsx mounted near App root. Parse window.location.search on mount. Required params: handoff=1, nonce (6-128 chars). Optional: kind (url|text, infer from target presence), target (<=4096 chars), text (<=20000 chars), targetCategory (work|private|any), source, title, ts, open=handoff. Edge cases: Missing kind should be inferred from target presence. Dependencies: None. Gotchas: Must run early in app lifecycle, before URL is cleaned."
     },
     {
@@ -6937,11 +6944,15 @@
         "Clears URL query params via history.replaceState after processing"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-21T06:33:30.460401",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Implemented nonce-based idempotency with localStorage ring buffer (50 max)",
+        "duplicate detection",
+        "and URL cleanup via history.replaceState"
+      ],
       "blockedBy": null,
       "lastWorkedOn": null,
       "notes": "Implementation: Use localStorage key 'windows15_share_nonces' with JSON array. Ring buffer pattern: push new nonce, shift if length > 50. Check nonce before calling useHandoff().send(). Clean URL after processing (success or ignored). Edge cases: localStorage not available (use try-catch, fallback to Set). Dependencies: F255 (deep link parsing). Gotchas: Must clean URL even if nonce is duplicate to prevent re-processing on navigation."
@@ -6959,11 +6970,15 @@
         "Opens/focuses Handoff app window when open=handoff param is present"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-21T06:33:31.539518",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "ShareReceiver calls useHandoff().send() with normalized payload",
+        "shows success toast with optional source name",
+        "and opens/focuses Handoff app when open=handoff param is present"
+      ],
       "blockedBy": null,
       "lastWorkedOn": null,
       "notes": "Implementation: In ShareReceiver, use useHandoff() hook to call send(). Use useNotification() for toast. For open=handoff, use openApp('handoff') from OSContext or window context. Map: kind from param or infer, target for URLs, text for content, targetCategory defaults to 'any'. Edge cases: source param can be displayed in notification (e.g., 'Sent from ChatGPT iOS'). Dependencies: F255, F256, useHandoff hook (F190). Gotchas: Must wait for deviceId to be ready before calling send()."
@@ -6981,11 +6996,13 @@
         "Uses consistent toast styling with other app notifications"
       ],
       "estimatedEffort": null,
-      "status": "not-started",
-      "passes": false,
-      "verifiedAt": null,
-      "verifiedBy": null,
-      "evidenceLinks": [],
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-21T06:33:44.144306",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Error handling shows 'Nothing to send' only when handoff=1 present but validation fails"
+      ],
       "blockedBy": null,
       "lastWorkedOn": null,
       "notes": "Implementation: Only show error when handoff=1 is present but other validation fails. Silent handling for: missing handoff param (not a share link), duplicate nonce (already processed). Edge cases: Very long URLs may exceed browser limits - show 'Content too large' error. Dependencies: F255, useNotification hook. Gotchas: Don't spam on every page load - check handoff=1 first."
@@ -7103,8 +7120,8 @@
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-21T06:27:01.100313",
+    "lastUpdated": "2025-12-21T06:33:44.144414",
     "totalFeatures": 263,
-    "passingFeatures": 254
+    "passingFeatures": 258
   }
 }

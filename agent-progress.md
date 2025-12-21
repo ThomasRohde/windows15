@@ -28,11 +28,11 @@ klondike feature list  # List all features
 
 ### Current Priority Features
 
-| ID   | Description                                                                              | Status         |
-| ---- | ---------------------------------------------------------------------------------------- | -------------- |
-| F255 | Deep link receiver component parses and validates handoff share-import URL parameters    | ⏳ Not started |
-| F256 | Share receiver implements nonce-based idempotency to prevent duplicate handoff imports   | ⏳ Not started |
-| F257 | Share receiver calls useHandoff().send() with normalized payload and shows success toast | ⏳ Not started |
+| ID   | Description                                                                  | Status         |
+| ---- | ---------------------------------------------------------------------------- | -------------- |
+| F259 | Create iOS Shortcut 'Send to Windows15 Handoff' with share sheet integration | ⏳ Not started |
+| F260 | Create documentation page for iOS Share Sheet Shortcut setup and usage       | ⏳ Not started |
+| F261 | Add unit tests for share receiver URL parsing and idempotency logic          | ⏳ Not started |
 
 ---
 

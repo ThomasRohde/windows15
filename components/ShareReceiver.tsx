@@ -39,7 +39,11 @@ export function ShareReceiver() {
 
         if (!parsed) {
             // Invalid link (F258)
-            notify({ message: 'Nothing to send', variant: 'error' });
+            try {
+                notify({ message: 'Nothing to send', variant: 'error' });
+            } catch {
+                console.warn('[ShareReceiver] Could not show error notification');
+            }
             cleanupURL();
             return;
         }
@@ -78,10 +82,14 @@ export function ShareReceiver() {
             })
             .catch(error => {
                 console.error('[ShareReceiver] Failed to send to Handoff:', error);
-                notify({
-                    message: 'Failed to send to Handoff',
-                    variant: 'error',
-                });
+                try {
+                    notify({
+                        message: 'Failed to send to Handoff',
+                        variant: 'error',
+                    });
+                } catch {
+                    console.warn('[ShareReceiver] Could not show error notification');
+                }
             })
             .finally(() => {
                 // Clean URL after processing (F257)

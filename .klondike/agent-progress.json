@@ -1275,8 +1275,8 @@
         "status": "not-started"
       },
       {
-        "id": "F261",
-        "description": "Add unit tests for share receiver URL parsing and idempotency logic",
+        "id": "F262",
+        "description": "Add E2E test for deep link share import flow with Playwright",
         "status": "not-started"
       }
     ]

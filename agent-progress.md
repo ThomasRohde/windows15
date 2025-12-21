@@ -32,7 +32,7 @@ klondike feature list  # List all features
 | ---- | ---------------------------------------------------------------------------- | -------------- |
 | F259 | Create iOS Shortcut 'Send to Windows15 Handoff' with share sheet integration | ⏳ Not started |
 | F260 | Create documentation page for iOS Share Sheet Shortcut setup and usage       | ⏳ Not started |
-| F261 | Add unit tests for share receiver URL parsing and idempotency logic          | ⏳ Not started |
+| F262 | Add E2E test for deep link share import flow with Playwright                 | ⏳ Not started |
 
 ---
 

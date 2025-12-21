@@ -7140,12 +7140,41 @@
       "blockedBy": null,
       "lastWorkedOn": null,
       "notes": "Implementation: Duplicate base shortcut, change targetCategory param in URL. Work variant: targetCategory=work. Private variant: targetCategory=private. Benefits: One-tap targeting without selecting category in app. Distribution: Three separate iCloud links. Edge cases: User may install all three - explain they appear as separate share sheet options. Dependencies: F259, F260. Gotchas: Name shortcuts clearly to distinguish in share sheet (include Work/Private in name)."
+    },
+    {
+      "id": "F264",
+      "category": "ui",
+      "priority": 2,
+      "description": "Settings app fully mobile-optimized with iOS keyboard-safe inputs",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Input fields stay visible when iOS keyboard appears",
+        "All buttons have 44px min touch targets",
+        "Active states provide visual feedback",
+        "Text sizes readable on mobile",
+        "Sync settings can be configured on iPhone"
+      ],
+      "estimatedEffort": null,
+      "status": "verified",
+      "passes": true,
+      "verifiedAt": "2025-12-21T13:06:46.741296",
+      "verifiedBy": "coding-agent",
+      "evidenceLinks": [
+        "Implemented mobile-friendly Settings app with iOS keyboard handling: (1) Added scrollIntoView on focus for Dexie URL input to keep it visible when keyboard appears",
+        "(2) Applied 44px min touch targets to all buttons",
+        "(3) Added active states for touch feedback",
+        "(4) Added select-text class to inputs for iOS paste support",
+        "(5) Made all Settings panels responsive. Build passes. 8 files modified."
+      ],
+      "blockedBy": null,
+      "lastWorkedOn": "2025-12-21T12:57:18.586143",
+      "notes": "Implementation: Use usePhoneMode hook for responsive layouts. Apply min-h-[44px] to all buttons. Add active:bg-* states for touch feedback. Use select-text class on inputs for iOS paste. Edge cases: Virtual keyboard covering inputs - may need scrollIntoView on focus. Dependencies: F224 (usePhoneMode), F217 (useVirtualKeyboard). Context: User reported Dexie URL input disappears on iPhone focus. Gotchas: iOS Safari viewport behavior differs from Android - test on real device if possible."
     }
   ],
   "metadata": {
     "createdAt": "2025-12-13T14:37:01.733884",
-    "lastUpdated": "2025-12-21T08:16:20.543824",
-    "totalFeatures": 263,
-    "passingFeatures": 263
+    "lastUpdated": "2025-12-21T13:06:46.741315",
+    "totalFeatures": 264,
+    "passingFeatures": 264
   }
 }

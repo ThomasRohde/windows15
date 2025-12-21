@@ -40,6 +40,7 @@
 @media (max-width: 767px) and (orientation: portrait) {
     :root {
         --taskbar-height: 48px;
+        --taskbar-offset: calc(8px + var(--safe-area-inset-bottom));
         --window-max-top: var(--safe-area-inset-top);
         --window-max-right: 0px;
         --window-max-bottom: var(--taskbar-total-height);

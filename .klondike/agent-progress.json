@@ -1275,8 +1275,8 @@
         "status": "not-started"
       },
       {
-        "id": "F262",
-        "description": "Add E2E test for deep link share import flow with Playwright",
+        "id": "F263",
+        "description": "Add optional Work and Private iOS Shortcut variants with preset targetCategory",
         "status": "not-started"
       }
     ]

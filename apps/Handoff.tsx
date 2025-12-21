@@ -455,7 +455,11 @@ export const Handoff: React.FC<HandoffProps> = ({ sharedText }) => {
                         disabled={!inputText.trim() || isSending || isLoading}
                         className="w-full py-3 min-h-[44px] bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold uppercase tracking-widest text-xs transition-colors"
                     >
-                        {isLoading ? t('common:loading') : isSending ? t('composer.sending') : t('composer.send')}
+                        {isLoading
+                            ? t('common.status.loading')
+                            : isSending
+                              ? t('composer.sending')
+                              : t('composer.send')}
                     </Button>
                     <div className="flex items-center gap-2 text-[10px] text-white/30">
                         <Icon name="info" size={14} />

@@ -121,14 +121,17 @@ describe('Window', () => {
         expect(mockToggleMaximizeWindow).toHaveBeenCalledWith('test-window');
     });
 
-    it('should call focusWindow on pointer down', () => {
-        render(<Window window={defaultWindow} />);
+    it('should call focusWindow on pointer down', async () => {
+        // Pass maxZIndex > window.zIndex to trigger focus logic
+        render(<Window window={defaultWindow} maxZIndex={20} />);
 
-        const windowElement = screen.getByText('Test Window').closest('[class*="glass-panel"]');
-        if (!windowElement) throw new Error('Expected window element');
+        const windowElement = screen.getByRole('dialog');
         fireEvent.pointerDown(windowElement, { button: 0 });
 
-        expect(mockFocusWindow).toHaveBeenCalledWith('test-window');
+        // focusWindow is called inside setTimeout, so we need to wait
+        await vi.waitFor(() => {
+            expect(mockFocusWindow).toHaveBeenCalledWith('test-window');
+        });
     });
 
     it('should render icon in title bar', () => {
